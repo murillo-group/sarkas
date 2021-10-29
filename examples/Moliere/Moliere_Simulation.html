@@ -28,7 +28,7 @@
   
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API reference" href="../../api/api.html" />
+    <link rel="next" title="MD for Experiment Validation" href="../UNP/UCP_Experiment_Validation.html" />
     <link rel="prev" title="Yukawa vs Egs potential" href="../Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -452,21 +452,17 @@ Populating the interactive namespace from numpy and matplotlib
 
 
 
-
-
-
- ____                     __
-/\  _`\                  /\ \
-\ \,\L\_\     __     _ __\ \ \/&#39;\      __      ____
- \/_\__ \   /&#39;__`\  /\`&#39;__\ \ , &lt;    /&#39;__`\   /&#39;,__\
-   /\ \L\ \/\ \L\.\_\ \ \/ \ \ \\`\ /\ \L\.\_/\__, `\
-   \ `\____\ \__/.\_\\ \_\  \ \_\ \_\ \__/.\_\/\____/
-    \/_____/\/__/\/_/ \/_/   \/_/\/_/\/__/\/_/\/___/
-
+ __            _
+/ _\ __ _ _ __| | ____ _ ___
+\ \ / _` | &#39;__| |/ / _` / __|
+_\ \ (_| | |  |   &lt; (_| \__ \
+\__/\__,_|_|  |_|\_\__,_|___/
 
 
 </span>
 An open-source pure-python molecular dynamics suite for non-ideal plasmas.
+
+
 
 
 
@@ -501,62 +497,66 @@ Species ID: 0
         Charge number/ionization degree = 4.0000
         Charge = 6.408707e-19 [C]
         Temperature = 1.392542e+05 [K] = 1.200000e+01 [eV]
-        Debye Length = 1.832054e-11 [Hz]
-        Plasma Frequency = 6.164440e+14 [Hz]
+        Debye Length = 1.832054e-11 [1/m^3]
+        Plasma Frequency = 6.164440e+14 [rad/s]
 
-SIMULATION BOX:
+SIMULATION AND INITIAL PARTICLE BOX:
 Units:  mks
-Wigner-Seitz radius = 9.887492e-11 [m]
+Wigner-Seitz radius = 1.245746e-10 [m]
 No. of non-zero box dimensions =  3
-Box side along x axis = 3.472931e+01 a_ws = 3.433858e-09 [m]
-Box side along y axis = 3.472931e+01 a_ws = 3.433858e-09 [m]
-Box side along z axis = 3.472931e+01 a_ws = 3.433858e-09 [m]
-Box Volume = 4.048994e-26 [m^3]
+Box side along x axis = 3.472931e+01 a_ws = 4.326390e-09 [m]
+Box side along y axis = 3.472931e+01 a_ws = 4.326390e-09 [m]
+Box side along z axis = 3.472931e+01 a_ws = 4.326390e-09 [m]
+Box Volume = 8.097987e-26 [m^3]
+Initial particle box side along x axis = 3.472931e+01 a_ws = 4.326390e-09 [m]
+Initial particle box side along y axis = 3.472931e+01 a_ws = 4.326390e-09 [m]
+Initial particle box side along z axis = 3.472931e+01 a_ws = 4.326390e-09 [m]
+Initial particle box Volume = 8.097987e-26 [m^3]
 Boundary conditions: periodic
 
 ELECTRON PROPERTIES:
-Number density: n_e = 9.878998e+29 [N/m^3]
-Wigner-Seitz radius: a_e = 6.228730e-11 [m]
+Number density: n_e = 4.939499e+29 [N/m^3]
+Wigner-Seitz radius: a_e = 7.847708e-11 [m]
 Temperature: T_e = 1.392542e+05 [K] = 1.200000e+01 [eV]
 de Broglie wavelength: lambda_deB = 1.997449e-10 [m]
-Thomas-Fermi length: lambda_TF = 3.896474e-11 [m]
-Fermi wave number: k_F = 3.081139e+10 [1/m]
-Fermi Energy: E_F = 3.616975e+01 [eV]
-Relativistic parameter: x_F = 1.189810e-02 --&gt; E_F = 3.616847e+01 [eV]
-Degeneracy parameter: Theta = 3.317689e-01
-Coupling: r_s = 1.177059,  Gamma_e = 1.926509
-Warm Dense Matter Parameter: W = 4.8884e-01
-Chemical potential: mu = 2.6934e+00 k_B T_e = 8.9360e-01 E_F
+Thomas-Fermi length: lambda_TF = 4.721828e-11 [m]
+Fermi wave number: k_F = 2.445502e+10 [1/m]
+Fermi Energy: E_F = 2.278552e+01 [eV]
+Relativistic parameter: x_F = 9.443531e-03 --&gt; E_F = 2.278501e+01 [eV]
+Degeneracy parameter: Theta = 5.266503e-01
+Coupling: r_s = 1.483002,  Gamma_e = 1.529071
+Warm Dense Matter Parameter: W = 7.5544e-01
+Chemical potential: mu = 1.3549e+00 k_B T_e = 7.1357e-01 E_F
 
-POTENTIAL:  Moliere
+POTENTIAL:  moliere
 
-ALGORITHM:  PP
-rcut = 6.7052 a_ws = 6.629755e-10 [m]
-No. of PP cells per dimension =  5,  5,  5
-No. of particles in PP loop =   1943
-No. of PP neighbors per particle =    301
-Tot Force Error = 9.433221e-11
+ALGORITHM:  pp
+rcut = 5.3219 a_ws = 6.629755e-10 [m]
+No. of PP cells per dimension =  6,  6,  6
+No. of particles in PP loop =    971
+No. of PP neighbors per particle =    150
+Tot Force Error = 5.713963e-20
 
 THERMOSTAT:
-Type: Berendsen
+Type: berendsen
 First thermostating timestep, i.e. relaxation_timestep = 50
-Berendsen parameter tau: 5.000 [timesteps]
-Berendsen relaxation rate: 0.200 [1/timesteps]
+Berendsen parameter tau: 2.000 [timesteps]
+Berendsen relaxation rate: 0.500 [1/timesteps]
 Thermostating temperatures:
 Species ID 0: T_eq = 1.392542e+05 [K] = 1.200000e+01 [eV]
 
 INTEGRATOR:
-Type: Verlet
+Type: verlet
 Time step = 3.244415e-17 [s]
-Total plasma frequency = 6.164440e+14 [Hz]
+Total plasma frequency = 6.164440e+14 [rad/s]
 w_p dt = 0.0200 ~ 1/49
 
 Equilibration:
-No. of equilibration steps = 500
-Total equilibration time = 1.6222e-14 [s] ~ 10 w_p T_eq
+No. of equilibration steps = 1000
+Total equilibration time = 3.2444e-14 [s] ~ 20 w_p T_eq
 snapshot interval step = 10
 snapshot interval time = 3.2444e-16 [s] = 0.2000 w_p T_snap
-Total number of snapshots = 50
+Total number of snapshots = 100
 
 Production:
 No. of production steps = 5000
@@ -569,20 +569,22 @@ Total number of snapshots = 500
 ------------------------ Initialization Times ------------------------
 
 
-Potential Initialization Time: 0 sec 26 msec 109 usec 823 nsec
+Potential Initialization Time: 1 sec 171 msec 420 usec 854 nsec
 
-Particles Initialization Time: 0 sec 1 msec 337 usec 927 nsec
+Particles Initialization Time: 0 sec 1 msec 914 usec 956 nsec
 
-Total Simulation Initialization Time: 0 sec 26 msec 109 usec 823 nsec
+Total Simulation Initialization Time: 1 sec 171 msec 420 usec 854 nsec
 
-------------- Equilibration -------------
+
+--------------------------- Equilibration ----------------------------
+
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "aa7c517e3eda4a849f4e296358ede17e", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7259e40cba224fbba80ee92a057ad3aa", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -590,16 +592,18 @@ Total Simulation Initialization Time: 0 sec 26 msec 109 usec 823 nsec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Equilibration Time: 0 hrs 1 min 30 sec
+Equilibration Time: 0 hrs 3 min 35 sec
 
-------------- Production -------------
+
+----------------------------- Production -----------------------------
+
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "599d067f7157417bbdedc986f7a37239", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6efe741672f84504a044d547efd29d1e", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -607,16 +611,16 @@ Equilibration Time: 0 hrs 1 min 30 sec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Production Time: 0 hrs 16 min 57 sec
+Production Time: 0 hrs 24 min 6 sec
 
-Total Time: 0 hrs 18 min 27 sec
+Total Time: 0 hrs 27 min 43 sec
 </pre></div></div>
 </div>
 </section>
 <section id="Post-Processing">
 <h2>Post Processing<a class="headerlink" href="#Post-Processing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -656,25 +660,39 @@ Production Thermodynamics file:
 ==================== Radial Distribution Function ====================
 
 Data saved in:
- Simulations/Moliere_mks/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_Moliere_mks.csv
+ Simulations/Moliere_mks/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_Moliere_mks.h5
 Data accessible at: self.ra_values, self.dataframe
 
 No. bins = 500
-dr = 0.0134 a_ws = 1.3260e-12 [m]
-Maximum Distance (i.e. potential.rc)= 6.7052 a_ws = 6.6298e-10 [m]
+dr = 0.0106 a_ws = 1.3260e-12 [m]
+Maximum Distance (i.e. potential.rc)= 5.3219 a_ws = 6.6298e-10 [m]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "51f3ca87f5a04a5b89a0b467c9193586", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+5000
 
-Radial Distribution Function Calculation Time: 0 sec 1 msec 436 usec 107 nsec
+Radial Distribution Function Calculation Time: 0 sec 82 msec 224 usec 470 nsec
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_Moliere_Moliere_Simulation_5_1.png" src="../../_images/examples_Moliere_Moliere_Simulation_5_1.png" />
+<img alt="../../_images/examples_Moliere_Moliere_Simulation_5_3.png" src="../../_images/examples_Moliere_Moliere_Simulation_5_3.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -685,7 +703,7 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 436 usec 107 nsec
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -701,7 +719,7 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 436 usec 107 nsec
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -711,7 +729,7 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 436 usec 107 nsec
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -721,13 +739,13 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 436 usec 107 nsec
 
 <span class="c1"># I need to do this, because Numba compiled the function to take in a float and an array not two arrays</span>
 <span class="k">for</span> <span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">r_array</span><span class="p">):</span>
-    <span class="n">mol_potential</span><span class="p">[</span><span class="n">ir</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">Moliere_force_PP</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">mol_potential</span><span class="p">[</span><span class="n">ir</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mol</span><span class="o">.</span><span class="n">moliere_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
     <span class="n">coul_potential</span><span class="p">[</span><span class="n">ir</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">coul</span><span class="o">.</span><span class="n">coulomb_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -745,7 +763,7 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 436 usec 107 nsec
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -785,7 +803,7 @@ Text(0.5, 1.0, &#39;Potential Plot&#39;)
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 22, 2021.<br/>
+      Last updated on Oct 29, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

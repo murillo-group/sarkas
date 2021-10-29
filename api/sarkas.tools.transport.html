@@ -21,6 +21,8 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -142,89 +144,134 @@
       
   <section id="module-sarkas.tools.transport">
 <span id="sarkas-tools-transport-module"></span><h1>sarkas.tools.transport module<a class="headerlink" href="#module-sarkas.tools.transport" title="Permalink to this headline">¶</a></h1>
+<p>Transport Module.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.transport.</span></span><span class="sig-name descname"><span class="pre">TransportCoefficient</span></span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.transport.</span></span><span class="sig-name descname"><span class="pre">TransportCoefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Transport Coefficients class.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.diffusion">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">diffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.diffusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.diffusion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the self-diffusion coefficient from the velocity auto-correlation function.</p>
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.create_dir">
+<span class="sig-name descname"><span class="pre">create_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.create_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.create_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create directory where to save the transport coefficients.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.diffusion">
+<span class="sig-name descname"><span class="pre">diffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.diffusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.diffusion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the transport coefficient from the Green-Kubo formula</p>
+<div class="math notranslate nohighlight">
+\[D_{\alpha} = \frac{1}{3 N_{\alpha}} \sum_{i}^{N_{\alpha}} \int_0^{\tau} dt \,
+    \langle \mathbf v^{(\alpha)}_{i}(t) \cdot  \mathbf v^{(\alpha)}_{i}(0) \rangle.\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf v_{i}^{(\alpha)}(t)\)</span> is the velocity of particle <span class="math notranslate nohighlight">\(i\)</span> of species
+<span class="math notranslate nohighlight">\(\alpha\)</span>. Notice that the diffusion coefficient is averaged over all <span class="math notranslate nohighlight">\(N_{\alpha}\)</span> particles.</p>
+<p>Data is retrievable at <code class="xref py py-attr docutils literal notranslate"><span class="pre">diffusion_df</span></code> and
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">diffusion_df_slices</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to analyze. Default = ‘production’.</p></li>
-<li><p><strong>compute_acf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for recalculating the ACF. Default = True.
-If False it will read in the data from the dataframe.</p></li>
-<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of slices of the simulation. Default = 1.</p></li>
-<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.</p></li>
-<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for prompting plot to screen.</p></li>
-<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name with which to save the file. It automatically saves it in the correct directory.</p></li>
-<li><p><strong>**kwargs</strong> – Arguments to pass <a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction" title="sarkas.tools.observables.VelocityAutoCorrelationFunction"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.tools.observables.VelocityAutoCorrelationFunction()</span></code></a></p></li>
+<li><p><strong>observable</strong> (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent" title="sarkas.tools.observables.ElectricCurrent"><em>sarkas.tools.observables.ElectricCurrent</em></a>) – Observable object containing the ACF whose time integral leads to the electrical conductivity.</p></li>
+<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for making the dual plot of the ACF and transport coefficient. Default = True.</p></li>
+<li><p><strong>display_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for displaying the plot if using the IPython. Default = False.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+952.g9b2bb732f0)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.electrical_conductivity">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">electrical_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.electrical_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.electrical_conductivity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate electrical conductivity from current auto-correlation function.</p>
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.electrical_conductivity">
+<span class="sig-name descname"><span class="pre">electrical_conductivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.electrical_conductivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.electrical_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the transport coefficient from the Green-Kubo formula</p>
+<div class="math notranslate nohighlight">
+\[\sigma = \frac{\beta}{V} \int_0^{\tau} dt J(t).\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta = 1/k_B T\)</span> and <span class="math notranslate nohighlight">\(V\)</span> is the volum of the simulation box.</p>
+<p>Data is retrievable at <code class="xref py py-attr docutils literal notranslate"><span class="pre">conductivity_df</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">conductivity_df_slices</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Phase to analyze. Default = ‘production’.</p></li>
-<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for prompting plot to screen.</p></li>
+<li><p><strong>observable</strong> (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent" title="sarkas.tools.observables.ElectricCurrent"><em>sarkas.tools.observables.ElectricCurrent</em></a>) – Observable object containing the ACF whose time integral leads to the electrical conductivity.</p></li>
+<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – <p>Flag for making the dual plot of the ACF and transport coefficient.</p>
+<p>Default = True.</p>
+</p></li>
+<li><p><strong>display_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for displaying the plot if using the IPython. Default = False.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+952.g9b2bb732f0)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.interdiffusion">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">interdiffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.interdiffusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.interdiffusion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the interdiffusion coefficients from the diffusion flux auto-correlation function.</p>
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.interdiffusion">
+<span class="sig-name descname"><span class="pre">interdiffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.interdiffusion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.interdiffusion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the transport coefficient from the Green-Kubo formula</p>
+<div class="math notranslate nohighlight">
+\[D_{\alpha} = \frac{1}{3Nx_1x_2} \int_0^\tau dt
+\langle \mathbf {J}_{\alpha}(0) \cdot \mathbf {J}_{\alpha}(t) \rangle,\]</div>
+<p>where <span class="math notranslate nohighlight">\(x_{1,2}\)</span> are the concentration of the two species and
+<span class="math notranslate nohighlight">\(\mathbf {J}_{\alpha}(t)\)</span> is the diffusion current calculated by the
+<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux" title="sarkas.tools.observables.DiffusionFlux"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.DiffusionFlux</span></code></a> class.</p>
+<p>Data is retrievable at <code class="xref py py-attr docutils literal notranslate"><span class="pre">interdiffusion_df</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">interdiffusion_df_slices</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
-<li><p><strong>compute_acf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for recalculating the ACF. Default = True.
-If False it will read in the data from the dataframe.</p></li>
-<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of slices of the simulation. Default = 1.</p></li>
-<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.</p></li>
-<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for prompting plot to screen when using IPython kernel. Default = False.</p></li>
-<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name with which to save the file. It automatically saves it in the correct directory.</p></li>
-<li><p><strong>**kwargs</strong> – Arguments to pass <a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux" title="sarkas.tools.observables.DiffusionFlux"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.tools.observables.DiffusionFlux()</span></code></a></p></li>
+<li><p><strong>observable</strong> (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux" title="sarkas.tools.observables.DiffusionFlux"><em>sarkas.tools.observables.DiffusionFlux</em></a>) – Observable object containing the ACF whose time integral leads to the interdiffusion coefficient.</p></li>
+<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for making the dual plot of the ACF and transport coefficient. Default = True.</p></li>
+<li><p><strong>display_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for displaying the plot if using the IPython. Default = False</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+952.g9b2bb732f0)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.pretty_print">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.pretty_print" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.parse">
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the HDF files containing the transport coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observable</strong> (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent" title="sarkas.tools.observables.ElectricCurrent"><em>sarkas.tools.observables.ElectricCurrent</em></a>) – Observable object containing the ACF whose time integral leads to the electrical conductivity.</p></li>
+<li><p><strong>tc_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Transport Coefficient name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – Wrong <code class="docutils literal notranslate"><span class="pre">tc_name</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.plot_tc">
+<span class="sig-name descname"><span class="pre">plot_tc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acf_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.plot_tc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.plot_tc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make dual plots with ACF and transport coefficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>acf_data</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>Mean and Std of the ACF.</p>
+<p>Shape = (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.Observable.slice_steps" title="sarkas.tools.observables.Observable.slice_steps"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.slice_steps</span></code></a>, 2).</p>
+</p></li>
+<li><p><strong>tc_data</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>Mean and Std of the transport coefficient.</p>
+<p>Shape = (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.Observable.slice_steps" title="sarkas.tools.observables.Observable.slice_steps"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.slice_steps</span></code></a>, 2).</p>
+</p></li>
+<li><p><strong>acf_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – y-Label of the ACF plot.</p></li>
+<li><p><strong>tc_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – y-label of the transport coefficient plot.</p></li>
+<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name with which to save the plot.</p></li>
+<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for displaying the plot if using IPython or terminal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul>
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – Figure object.</p></li>
+<li><p><strong>(ax1, ax2, ax3, ax4)</strong> (<em>tuple</em>) – Tuple with the axes handles.</p>
+<p>ax1 = ACF axes, ax2 = transport coefficient axes, ax3 = ax1.twiny(), ax4 = ax2.twiny()</p>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.pretty_print">
+<span class="sig-name descname"><span class="pre">pretty_print</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tc_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.pretty_print"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.pretty_print" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print to screen the location where data is stored and other relevant information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,30 +284,53 @@ If False it will read in the data from the dataframe.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficient.viscosity">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'production'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_acf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_quantities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Bulk</span> <span class="pre">Viscosity']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficient.viscosity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficient.viscosity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate bulk and shear viscosity from pressure auto-correlation function.</p>
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.save_hdf">
+<span class="sig-name descname"><span class="pre">save_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tc_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.save_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.save_hdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the HDF dataframes to disk in the TransportCoefficient folder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>params</strong> (<a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters" title="sarkas.core.Parameters"><em>sarkas.core.Parameters</em></a>) – Simulation’s parameters.</p></li>
-<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Phase to compute. Default = ‘production’.</p></li>
-<li><p><strong>parse</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Read the precomputed viscosities. Default = False.</p></li>
-<li><p><strong>compute_acf</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for recalculating the ACF. Default = False.
-If False it will read in the data from the dataframe.</p></li>
-<li><p><strong>no_slices</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a><em>, </em><em>optional</em>) – Number of slices of the simulation. Default = 1.</p></li>
-<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag to plot transport coefficient with corresponding autocorrelation function. Default = True.</p></li>
-<li><p><strong>plot_quantities</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em>, </em><em>optional</em>) – Quantities to plot. Default = [“Bulk Viscosity”]</p></li>
-<li><p><strong>show</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for prompting plot to screen when using IPython kernel. Default = False.</p></li>
-<li><p><strong>figname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>optional</em>) – Name with which to save the file. It automatically saves it in the correct directory.</p></li>
-<li><p><strong>**kwargs</strong> – Arguments to pass <a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor" title="sarkas.tools.observables.PressureTensor"><code class="xref py py-meth docutils literal notranslate"><span class="pre">sarkas.tools.observables.PressureTensor()</span></code></a></p></li>
+<li><p><strong>df</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+993.g66ce5de55b)"><em>pandas.DataFrame</em></a><em>(</em><em>)</em>) – Multi-index dataframe containing the mean and std of the transport coefficient.</p></li>
+<li><p><strong>df_slices</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+993.g66ce5de55b)"><em>pandas.DataFrame</em></a><em>(</em><em>)</em>) – Multi-index dataframe containing the transport coefficient of each slice.</p></li>
+<li><p><strong>tc_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of the transport coefficient. See <code class="xref py py-attr docutils literal notranslate"><span class="pre">tc_names</span></code> for options.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>coefficient</strong> – Pandas dataframe containing the value of the transport coefficient as a function of integration time.</p>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame()</em>) – Sorted multi-index dataframe containing the mean and std of the transport coefficient.</p></li>
+<li><p><strong>df_slices</strong> (<em>pandas.DataFrame()</em>) – Sorted multi-index dataframe containing the transport coefficient of each slice.</p></li>
+</ul>
+</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+952.g9b2bb732f0)">pandas.DataFrame</a></p>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sarkas.tools.transport.TransportCoefficients.viscosity">
+<span class="sig-name descname"><span class="pre">viscosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/tools/transport.html#TransportCoefficients.viscosity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.transport.TransportCoefficients.viscosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the transport coefficient from the Green-Kubo formula.</p>
+<p>The shear viscosity is obtained from</p>
+<div class="math notranslate nohighlight">
+\[\eta = \frac{\beta V}{6} \sum_{\alpha} \sum_{\gamma \neq \alpha} \int_0^{\tau} dt \,
+\left \langle \mathcal P_{\alpha\gamma}(t) \mathcal P_{\alpha\gamma}(0) \right \rangle\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta = 1/k_B T\)</span>, <span class="math notranslate nohighlight">\(\alpha,\gamma = {x, y, z}\)</span> and
+<span class="math notranslate nohighlight">\(\mathcal P_{\alpha\gamma}(t)\)</span> is the element of the Pressure Tensor calculated with
+<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor" title="sarkas.tools.observables.PressureTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.PressureTensor</span></code></a>.</p>
+<p>The bulk viscosity is obtained from</p>
+<div class="math notranslate nohighlight">
+\[\eta_V = \beta V \int_0^{\tau}dt \,
+ \left \langle \delta \mathcal P(t) \delta \mathcal P(0) \right \rangle,\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\delta \mathcal P(t) = \mathcal P(t) - \left \langle \mathcal P  \right \rangle\]</div>
+<p>is the deviation of the scalar pressure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>observable</strong> (<a class="reference internal" href="sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux" title="sarkas.tools.observables.DiffusionFlux"><em>sarkas.tools.observables.DiffusionFlux</em></a>) – Observable object containing the ACF whose time integral leads to the interdiffusion coefficient.</p></li>
+<li><p><strong>plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for making the dual plot of the ACF and transport coefficient. Default = True.</p></li>
+<li><p><strong>display_plot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for displaying the plot if using the IPython. Default = False</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -282,7 +352,7 @@ If False it will read in the data from the dataframe.</p></li>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 22, 2021.<br/>
+      Last updated on Oct 29, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

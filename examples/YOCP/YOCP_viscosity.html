@@ -1,0 +1,1615 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Viscosity Coefficients &#8212; Sarkas 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
+    <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script src="../../_static/js/myscript.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><span><img src="../../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../documentation/get_started.html">Get Started</a></li>
+                <li><a href="../examples.html">Examples</a></li>
+                <li><a href="../../code_development/code_dev.html">Code Development</a></li>
+                <li><a href="../../api/api.html">API</a></li>
+                <li><a href="../../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Viscosity Coefficients</a><ul>
+<li><a class="reference internal" href="#Prelude">Prelude</a></li>
+<li><a class="reference internal" href="#Pair-Distribution-Function">Pair Distribution Function</a></li>
+<li><a class="reference internal" href="#Pressure-Tensor">Pressure Tensor</a></li>
+<li><a class="reference internal" href="#Pressure-from-RDF">Pressure from RDF</a><ul>
+<li><a class="reference internal" href="#Sum-rule">Sum rule</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Viscosity">Viscosity</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Viscosity-Coefficients">
+<h1>Viscosity Coefficients<a class="headerlink" href="#Viscosity-Coefficients" title="Permalink to this headline">¶</a></h1>
+<section id="Prelude">
+<h2>Prelude<a class="headerlink" href="#Prelude" title="Permalink to this headline">¶</a></h2>
+<p>In this notebook we will attempt to calculate the viscosity of the Yukawa OCP.</p>
+<p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/YOCP/input_files/yocp_viscosity.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/examples/YOCP/YOCP_viscosity.ipynb">notebook</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Import the usual libraries</span>
+<span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
+
+<span class="c1"># Import sarkas</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
+
+
+<span class="c1"># Create the file path to the YAML input file</span>
+<span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;yocp_viscosity.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: Qt5Agg
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># pre = PreProcess(input_file_name)</span>
+<span class="c1"># pre.setup(read_yaml=True)</span>
+<span class="c1"># pre.run()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># sim = Simulation(input_file_name)</span>
+<span class="c1"># sim.setup(read_yaml=True)</span>
+<span class="c1"># sim.run()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span><span class="n">postproc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_YOCP_YOCP_viscosity_4_0.png" src="../../_images/examples_YOCP_YOCP_viscosity_4_0.png" />
+</div>
+</div>
+</section>
+<section id="Pair-Distribution-Function">
+<h2>Pair Distribution Function<a class="headerlink" href="#Pair-Distribution-Function" title="Permalink to this headline">¶</a></h2>
+<p>The first observable to calculate is always the RDF.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rdf</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span>
+<span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
+<span class="n">rdf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">rdf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+         <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;C-C RDF&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+         <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r /a$&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:xlabel=&#39;$r /a$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_YOCP_YOCP_viscosity_7_1.png" src="../../_images/examples_YOCP_YOCP_viscosity_7_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">PressureTensor</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Pressure-Tensor">
+<h2>Pressure Tensor<a class="headerlink" href="#Pressure-Tensor" title="Permalink to this headline">¶</a></h2>
+<p>The viscosity is obtained from the autocorrelation function of the Pressure Tensor <span class="math notranslate nohighlight">\(\overleftrightarrow{\mathcal P}\)</span> whose elements are</p>
+<p><span class="math">\begin{equation}
+\mathcal P_{\alpha\gamma}(t) = \frac{1}{V} \sum_{i}^{N} \left [ m_i v^{\alpha}_{i} v^{\gamma}_{i} -  \sum_{j > i} \frac{r_{ij}^{\alpha} r_{ij}^{\gamma} }{r_{ij}} \frac{d}{dr}\phi(r) \right ],
+\end{equation}</span></p>
+<p>where <span class="math notranslate nohighlight">\(r_{ij}^{\alpha}\)</span> is the <span class="math notranslate nohighlight">\(\alpha\)</span> component of the distance between particles <span class="math notranslate nohighlight">\(i\)</span> and <span class="math notranslate nohighlight">\(j\)</span>. The first term is the kinetic term and the second term is the virial term, but it is often referred to as the potential contribution. The virial is calculated during the simulation phase and saved together with particles corrdinates.</p>
+<p>In order to check that our code are correct, let’s verify some laws.</p>
+<p>The pressure of the system is calculated from <span class="math notranslate nohighlight">\(\mathcal P(t)= \frac1{3} {\rm Tr} \overleftrightarrow{\mathcal P}(t)\)</span> and also from</p>
+<p><span class="math">\begin{equation}
+P = \frac{n}{\beta} - \frac{2\pi}{3} n^2 \int_0^{\infty} dr \, r^3 \frac{d\phi(r)}{dr} g(r)
+\end{equation}</span></p>
+<p>where <span class="math notranslate nohighlight">\(g(r)\)</span> is the pair distribution function that we have already calculated.</p>
+<p>Let’s calculate the Pressure tensor and the pressure <span class="math notranslate nohighlight">\(\mathcal P\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pt</span> <span class="o">=</span> <span class="n">PressureTensor</span><span class="p">()</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="c1"># pt.compute()</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>As usual the data is saved in several dataframes. In this case we have 4 dataframes</p>
+<ul class="simple">
+<li><p>A dataframe for the values of each of the elements of the pressure tensor for each of the slices, <code class="docutils literal notranslate"><span class="pre">pt.dataframe_slices</span></code></p></li>
+<li><p>A dataframe for the mean and std values of each of the elements of the pressure tensor, <code class="docutils literal notranslate"><span class="pre">pt.dataframe</span></code></p></li>
+<li><p>A dataframe for the ACF of each pair <span class="math notranslate nohighlight">\(\langle \mathcal P_{\alpha\beta}(t)\mathcal P_{\mu\nu}(0) \rangle\)</span> for each slice, <code class="docutils literal notranslate"><span class="pre">pt.dataframe_acf_slices</span></code></p></li>
+<li><p>A dataframe for the mean and std of the ACF of each pair <span class="math notranslate nohighlight">\(\langle \mathcal P_{\alpha\beta}(t)\mathcal P_{\mu\nu}(0) \rangle\)</span>, <code class="docutils literal notranslate"><span class="pre">pt.dataframe_acf</span></code></p></li>
+</ul>
+<p>Let’s look at <code class="docutils literal notranslate"><span class="pre">pt.dataframe</span></code> and at its columns</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Time</th>
+      <th colspan="2" halign="left">Pressure</th>
+      <th colspan="2" halign="left">Delta Pressure</th>
+      <th colspan="2" halign="left">Pressure Tensor Kinetic xx</th>
+      <th colspan="2" halign="left">Pressure Tensor Potential xx</th>
+      <th>Pressure Tensor xx</th>
+      <th>...</th>
+      <th colspan="2" halign="left">Pressure Tensor Potential zy</th>
+      <th colspan="2" halign="left">Pressure Tensor zy</th>
+      <th colspan="2" halign="left">Pressure Tensor Kinetic zz</th>
+      <th colspan="2" halign="left">Pressure Tensor Potential zz</th>
+      <th colspan="2" halign="left">Pressure Tensor zz</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>NaN</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>...</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>1.481050e+13</td>
+      <td>4.475378e+09</td>
+      <td>9.640046e+08</td>
+      <td>4.624121e+09</td>
+      <td>7.093304e+11</td>
+      <td>1.803769e+10</td>
+      <td>1.407423e+13</td>
+      <td>3.070777e+10</td>
+      <td>1.478356e+13</td>
+      <td>...</td>
+      <td>-1.349294e+10</td>
+      <td>9.080726e+08</td>
+      <td>1.513634e+09</td>
+      <td>6.403260e+09</td>
+      <td>7.178245e+11</td>
+      <td>2.283417e+09</td>
+      <td>1.412591e+13</td>
+      <td>1.183573e+10</td>
+      <td>1.484373e+13</td>
+      <td>9.552317e+09</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.250000e-17</td>
+      <td>1.481062e+13</td>
+      <td>4.360531e+09</td>
+      <td>1.077576e+09</td>
+      <td>4.509274e+09</td>
+      <td>7.092128e+11</td>
+      <td>1.788308e+10</td>
+      <td>1.407437e+13</td>
+      <td>3.043084e+10</td>
+      <td>1.478358e+13</td>
+      <td>...</td>
+      <td>-1.359784e+10</td>
+      <td>7.774131e+08</td>
+      <td>1.428573e+09</td>
+      <td>6.230626e+09</td>
+      <td>7.176454e+11</td>
+      <td>1.632009e+09</td>
+      <td>1.412631e+13</td>
+      <td>1.180888e+10</td>
+      <td>1.484395e+13</td>
+      <td>1.017687e+10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.250000e-16</td>
+      <td>1.481073e+13</td>
+      <td>4.238994e+09</td>
+      <td>1.189024e+09</td>
+      <td>4.387736e+09</td>
+      <td>7.091114e+11</td>
+      <td>1.771433e+10</td>
+      <td>1.407450e+13</td>
+      <td>3.012222e+10</td>
+      <td>1.478361e+13</td>
+      <td>...</td>
+      <td>-1.368992e+10</td>
+      <td>6.259734e+08</td>
+      <td>1.336832e+09</td>
+      <td>6.048696e+09</td>
+      <td>7.174492e+11</td>
+      <td>9.777352e+08</td>
+      <td>1.412669e+13</td>
+      <td>1.176571e+10</td>
+      <td>1.484414e+13</td>
+      <td>1.078798e+10</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.875000e-16</td>
+      <td>1.481084e+13</td>
+      <td>4.112669e+09</td>
+      <td>1.300868e+09</td>
+      <td>4.261411e+09</td>
+      <td>7.090262e+11</td>
+      <td>1.753208e+10</td>
+      <td>1.407463e+13</td>
+      <td>2.978323e+10</td>
+      <td>1.478365e+13</td>
+      <td>...</td>
+      <td>-1.377276e+10</td>
+      <td>4.507040e+08</td>
+      <td>1.235023e+09</td>
+      <td>5.853759e+09</td>
+      <td>7.172359e+11</td>
+      <td>3.218677e+08</td>
+      <td>1.412707e+13</td>
+      <td>1.170957e+10</td>
+      <td>1.484430e+13</td>
+      <td>1.138770e+10</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.500000e-16</td>
+      <td>1.481095e+13</td>
+      <td>3.982834e+09</td>
+      <td>1.412491e+09</td>
+      <td>4.131577e+09</td>
+      <td>7.089578e+11</td>
+      <td>1.733693e+10</td>
+      <td>1.407475e+13</td>
+      <td>2.941981e+10</td>
+      <td>1.478371e+13</td>
+      <td>...</td>
+      <td>-1.384260e+10</td>
+      <td>2.570485e+08</td>
+      <td>1.127174e+09</td>
+      <td>5.650556e+09</td>
+      <td>7.170051e+11</td>
+      <td>3.343385e+08</td>
+      <td>1.412743e+13</td>
+      <td>1.164139e+10</td>
+      <td>1.484443e+13</td>
+      <td>1.197573e+10</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>149995</th>
+      <td>9.374688e-12</td>
+      <td>1.481016e+13</td>
+      <td>4.676448e+09</td>
+      <td>6.174698e+08</td>
+      <td>4.527706e+09</td>
+      <td>7.118162e+11</td>
+      <td>2.094178e+10</td>
+      <td>1.409873e+13</td>
+      <td>3.950421e+09</td>
+      <td>1.481055e+13</td>
+      <td>...</td>
+      <td>-9.425949e+09</td>
+      <td>6.014705e+09</td>
+      <td>-5.177773e+09</td>
+      <td>2.743918e+09</td>
+      <td>7.148230e+11</td>
+      <td>2.812314e+08</td>
+      <td>1.410559e+13</td>
+      <td>3.738486e+10</td>
+      <td>1.482042e+13</td>
+      <td>3.710363e+10</td>
+    </tr>
+    <tr>
+      <th>149996</th>
+      <td>9.374750e-12</td>
+      <td>1.481018e+13</td>
+      <td>4.712473e+09</td>
+      <td>6.394380e+08</td>
+      <td>4.563731e+09</td>
+      <td>7.118652e+11</td>
+      <td>2.120674e+10</td>
+      <td>1.409889e+13</td>
+      <td>4.123326e+09</td>
+      <td>1.481076e+13</td>
+      <td>...</td>
+      <td>-9.394952e+09</td>
+      <td>6.262046e+09</td>
+      <td>-5.058588e+09</td>
+      <td>2.647215e+09</td>
+      <td>7.150820e+11</td>
+      <td>1.719736e+08</td>
+      <td>1.410561e+13</td>
+      <td>3.806962e+10</td>
+      <td>1.482069e+13</td>
+      <td>3.789764e+10</td>
+    </tr>
+    <tr>
+      <th>149997</th>
+      <td>9.374812e-12</td>
+      <td>1.481020e+13</td>
+      <td>4.744467e+09</td>
+      <td>6.613843e+08</td>
+      <td>4.595724e+09</td>
+      <td>7.119236e+11</td>
+      <td>2.144853e+10</td>
+      <td>1.409906e+13</td>
+      <td>4.318283e+09</td>
+      <td>1.481098e+13</td>
+      <td>...</td>
+      <td>-9.343740e+09</td>
+      <td>6.501897e+09</td>
+      <td>-4.937013e+09</td>
+      <td>2.541221e+09</td>
+      <td>7.153249e+11</td>
+      <td>5.141538e+07</td>
+      <td>1.410562e+13</td>
+      <td>3.872970e+10</td>
+      <td>1.482094e+13</td>
+      <td>3.867828e+10</td>
+    </tr>
+    <tr>
+      <th>149998</th>
+      <td>9.374875e-12</td>
+      <td>1.481023e+13</td>
+      <td>4.768360e+09</td>
+      <td>6.851347e+08</td>
+      <td>4.619617e+09</td>
+      <td>7.119910e+11</td>
+      <td>2.166620e+10</td>
+      <td>1.409922e+13</td>
+      <td>4.541414e+09</td>
+      <td>1.481121e+13</td>
+      <td>...</td>
+      <td>-9.272190e+09</td>
+      <td>6.732523e+09</td>
+      <td>-4.812951e+09</td>
+      <td>2.428042e+09</td>
+      <td>7.155505e+11</td>
+      <td>8.013261e+07</td>
+      <td>1.410562e+13</td>
+      <td>3.935915e+10</td>
+      <td>1.482117e+13</td>
+      <td>3.943928e+10</td>
+    </tr>
+    <tr>
+      <th>149999</th>
+      <td>9.374937e-12</td>
+      <td>1.481025e+13</td>
+      <td>4.787700e+09</td>
+      <td>7.087402e+08</td>
+      <td>4.638958e+09</td>
+      <td>7.120667e+11</td>
+      <td>2.185886e+10</td>
+      <td>1.409938e+13</td>
+      <td>4.789867e+09</td>
+      <td>1.481144e+13</td>
+      <td>...</td>
+      <td>-9.179610e+09</td>
+      <td>6.954353e+09</td>
+      <td>-4.685684e+09</td>
+      <td>2.307675e+09</td>
+      <td>7.157575e+11</td>
+      <td>2.223411e+08</td>
+      <td>1.410561e+13</td>
+      <td>3.996308e+10</td>
+      <td>1.482137e+13</td>
+      <td>4.018542e+10</td>
+    </tr>
+  </tbody>
+</table>
+<p>150000 rows × 59 columns</p>
+</div></div>
+</div>
+<p>Note that the Pressure <span class="math notranslate nohighlight">\(\mathcal P(t)\)</span> is readily calculated and provided as a column of the dataframe.</p>
+<p>Note also that there is a multitude of columns. This is because in dense plasmas it is useful to know the contribution of both the kinetic term and potential term separately, as such the columns of each dataframe contain the kinetic, the potential, and the total value of each <span class="math notranslate nohighlight">\(\mathcal P_{\alpha\beta}\)</span> and their ACFs.</p>
+<p>Let’s plot the Pressure as a function of time</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Let&#39;s plot it</span>
+<span class="n">p_id</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">/</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">beta</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">p_id</span><span class="p">),</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">),</span>
+    <span class="n">xlabel</span> <span class="o">=</span> <span class="s2">&quot;Time [ps]&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$ \beta P(t)/n$&quot;</span>
+       <span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">1e12</span><span class="p">,</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s1">&#39;Pressure&#39;</span><span class="p">,</span><span class="s1">&#39;Mean&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">/</span><span class="n">p_id</span> <span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Pressure&#39;</span><span class="p">,</span> <span class="s1">&#39;Moving avg&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7f1e88535090&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_YOCP_YOCP_viscosity_14_1.png" src="../../_images/examples_YOCP_YOCP_viscosity_14_1.png" />
+</div>
+</div>
+</section>
+<section id="Pressure-from-RDF">
+<h2>Pressure from RDF<a class="headerlink" href="#Pressure-from-RDF" title="Permalink to this headline">¶</a></h2>
+<p>Let’s now calculate the pressure from the integral of the RDF. This is obtained from the method <code class="docutils literal notranslate"><span class="pre">compute_from_rdf</span></code> of the <code class="docutils literal notranslate"><span class="pre">Thermodynamics</span></code> object.</p>
+<p>Looking at the documentation of this <a class="reference external" href=":meth:%60sarkas.tool.observables.Thermodynamics.compute_from_rdf%60">method</a> we notice that it returns five values: the Hartree and correlational terms between species :math:<code class="docutils literal notranslate"><span class="pre">A</span></code> and :math:<code class="docutils literal notranslate"><span class="pre">B</span></code> and the ideal pressure <span class="math notranslate nohighlight">\(n k_B T\)</span>.</p>
+<p>The total pressure is given from the sum of the three terms and should be equal to the</p>
+<div class="math notranslate nohighlight">
+\[P = n k_BT + P_{\rm Hartree} + P_{\rm Corr} = {\operatorname {Mean} } \left \{ \mathcal P(t) \right \}\]</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">nkT</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">p_h</span><span class="p">,</span> <span class="n">p_c</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">compute_from_rdf</span><span class="p">(</span><span class="n">rdf</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
+
+<span class="n">P_rdf</span> <span class="o">=</span> <span class="n">nkT</span> <span class="o">+</span> <span class="n">p_h</span> <span class="o">+</span> <span class="n">p_c</span>
+<span class="n">P_trace</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;Pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The relative difference between the two methods is = </span><span class="si">{:.2f}</span><span class="s2"> %&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="n">P_rdf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">P_trace</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">/</span><span class="n">P_rdf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The relative difference between the two methods is = 0.03 %
+</pre></div></div>
+</div>
+<p>It seems that we have done a good job!</p>
+<section id="Sum-rule">
+<h3>Sum rule<a class="headerlink" href="#Sum-rule" title="Permalink to this headline">¶</a></h3>
+<p>Let’s now check that we have calculated the ACF correctly. The equal time ACFs of the elements of <span class="math notranslate nohighlight">\(\overleftrightarrow{\mathcal P}(t)\)</span> obey the following sum rules</p>
+<div class="math notranslate nohighlight">
+\[\mathcal J_{zzzz}(0) = \frac 13 \sum_{\alpha}\left \langle \mathcal P_{\alpha\alpha}(0)\mathcal P_{\alpha\alpha}(0) \right \rangle  =  \frac{n}{\beta^2} \left [ 3 + \frac{2\beta}{15} I_1 + \frac \beta5 I_2 \right ] ,\]</div>
+<div class="math notranslate nohighlight">
+\[\mathcal J_{zzxx}(0) = \frac 16 \sum_{\alpha} \sum_{\beta\neq\alpha} \left \langle \mathcal P_{\alpha\alpha}(0)\mathcal P_{\beta\beta}(0) \right \rangle = \frac{n}{\beta^2} \left [ 1 - \frac{2\beta}{5} I_1 + \frac \beta{15} I_2 \right ] ,\]</div>
+<div class="math notranslate nohighlight">
+\[\mathcal J_{xyxy}(0) = \frac 16 \sum_{\alpha}\sum_{\beta \neq \alpha} \left \langle \mathcal P_{\alpha\beta}(0)\mathcal P_{\alpha\beta}(0) \right \rangle = \frac{n}{\beta^2} \left [ 1 + \frac{4\beta}{15} I_1 + \frac \beta{15} I_2 \right ] ,\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[I_1 = 2\pi n \int dr \, g(r) r^3 \frac{d\phi}{dr}, \quad I_2 = 2\pi n \int dr\, g(r) r^4 \frac{d^2\phi}{dr^2}.\]</div>
+<p>Notice that all three equal time ACF satisfy</p>
+<div class="math notranslate nohighlight">
+\[\mathcal J_{zzzz}(0) - \mathcal J_{zzxx}(0) = 2 \mathcal J_{xyxy}(0) .\]</div>
+<p>Let’s look at the dataframe of the ACF first</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Time</th>
+      <th colspan="2" halign="left">Pressure ACF</th>
+      <th colspan="2" halign="left">Delta Pressure ACF</th>
+      <th colspan="2" halign="left">Pressure Tensor Kinetic ACF xxxx</th>
+      <th colspan="2" halign="left">Pressure Tensor Potential ACF xxxx</th>
+      <th>Pressure Tensor Kin-Pot ACF xxxx</th>
+      <th>...</th>
+      <th colspan="2" halign="left">Pressure Tensor Kinetic ACF zzzz</th>
+      <th colspan="2" halign="left">Pressure Tensor Potential ACF zzzz</th>
+      <th colspan="2" halign="left">Pressure Tensor Kin-Pot ACF zzzz</th>
+      <th colspan="2" halign="left">Pressure Tensor Pot-Kin ACF zzzz</th>
+      <th colspan="2" halign="left">Pressure Tensor ACF zzzz</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>NaN</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>...</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>2.193225e+26</td>
+      <td>4.406888e+21</td>
+      <td>7.042465e+18</td>
+      <td>1.273591e+18</td>
+      <td>5.099171e+23</td>
+      <td>2.827243e+20</td>
+      <td>1.987219e+26</td>
+      <td>3.916734e+22</td>
+      <td>1.006467e+25</td>
+      <td>...</td>
+      <td>5.096344e+23</td>
+      <td>8.893208e+20</td>
+      <td>1.986865e+26</td>
+      <td>1.015599e+22</td>
+      <td>1.006103e+25</td>
+      <td>8.459061e+21</td>
+      <td>1.006103e+25</td>
+      <td>8.459061e+21</td>
+      <td>2.193182e+26</td>
+      <td>7.651456e+21</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6.250000e-17</td>
+      <td>2.193225e+26</td>
+      <td>4.406887e+21</td>
+      <td>7.039566e+18</td>
+      <td>1.273605e+18</td>
+      <td>5.099170e+23</td>
+      <td>2.827093e+20</td>
+      <td>1.987219e+26</td>
+      <td>3.917093e+22</td>
+      <td>1.006467e+25</td>
+      <td>...</td>
+      <td>5.096344e+23</td>
+      <td>8.893161e+20</td>
+      <td>1.986865e+26</td>
+      <td>1.015870e+22</td>
+      <td>1.006103e+25</td>
+      <td>8.458738e+21</td>
+      <td>1.006103e+25</td>
+      <td>8.459131e+21</td>
+      <td>2.193182e+26</td>
+      <td>7.648481e+21</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.250000e-16</td>
+      <td>2.193225e+26</td>
+      <td>4.406876e+21</td>
+      <td>7.030938e+18</td>
+      <td>1.273617e+18</td>
+      <td>5.099169e+23</td>
+      <td>2.826976e+20</td>
+      <td>1.987219e+26</td>
+      <td>3.917447e+22</td>
+      <td>1.006467e+25</td>
+      <td>...</td>
+      <td>5.096342e+23</td>
+      <td>8.893180e+20</td>
+      <td>1.986865e+26</td>
+      <td>1.016138e+22</td>
+      <td>1.006103e+25</td>
+      <td>8.458483e+21</td>
+      <td>1.006103e+25</td>
+      <td>8.459218e+21</td>
+      <td>2.193182e+26</td>
+      <td>7.645642e+21</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.875000e-16</td>
+      <td>2.193225e+26</td>
+      <td>4.406855e+21</td>
+      <td>7.016597e+18</td>
+      <td>1.273627e+18</td>
+      <td>5.099167e+23</td>
+      <td>2.826892e+20</td>
+      <td>1.987219e+26</td>
+      <td>3.917796e+22</td>
+      <td>1.006467e+25</td>
+      <td>...</td>
+      <td>5.096339e+23</td>
+      <td>8.893263e+20</td>
+      <td>1.986865e+26</td>
+      <td>1.016401e+22</td>
+      <td>1.006103e+25</td>
+      <td>8.458297e+21</td>
+      <td>1.006103e+25</td>
+      <td>8.459323e+21</td>
+      <td>2.193182e+26</td>
+      <td>7.642939e+21</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.500000e-16</td>
+      <td>2.193225e+26</td>
+      <td>4.406825e+21</td>
+      <td>6.996570e+18</td>
+      <td>1.273635e+18</td>
+      <td>5.099164e+23</td>
+      <td>2.826843e+20</td>
+      <td>1.987219e+26</td>
+      <td>3.918140e+22</td>
+      <td>1.006467e+25</td>
+      <td>...</td>
+      <td>5.096335e+23</td>
+      <td>8.893410e+20</td>
+      <td>1.986865e+26</td>
+      <td>1.016659e+22</td>
+      <td>1.006103e+25</td>
+      <td>8.458181e+21</td>
+      <td>1.006103e+25</td>
+      <td>8.459442e+21</td>
+      <td>2.193182e+26</td>
+      <td>7.640372e+21</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>149995</th>
+      <td>9.374688e-12</td>
+      <td>2.193499e+26</td>
+      <td>7.464009e+21</td>
+      <td>-9.260680e+18</td>
+      <td>2.564085e+18</td>
+      <td>5.046615e+23</td>
+      <td>2.590839e+21</td>
+      <td>1.984372e+26</td>
+      <td>4.854286e+23</td>
+      <td>1.002041e+25</td>
+      <td>...</td>
+      <td>5.131844e+23</td>
+      <td>6.688760e+20</td>
+      <td>1.992652e+26</td>
+      <td>3.809483e+23</td>
+      <td>1.010492e+25</td>
+      <td>8.977493e+21</td>
+      <td>1.011984e+25</td>
+      <td>4.153429e+22</td>
+      <td>2.200032e+26</td>
+      <td>4.141740e+23</td>
+    </tr>
+    <tr>
+      <th>149996</th>
+      <td>9.374750e-12</td>
+      <td>2.193492e+26</td>
+      <td>6.760933e+21</td>
+      <td>-9.466666e+18</td>
+      <td>2.228395e+18</td>
+      <td>5.047103e+23</td>
+      <td>2.612042e+21</td>
+      <td>1.984374e+26</td>
+      <td>4.891900e+23</td>
+      <td>1.002078e+25</td>
+      <td>...</td>
+      <td>5.133477e+23</td>
+      <td>9.467156e+20</td>
+      <td>1.992626e+26</td>
+      <td>3.851990e+23</td>
+      <td>1.010650e+25</td>
+      <td>8.148359e+21</td>
+      <td>1.012135e+25</td>
+      <td>4.639596e+22</td>
+      <td>2.200038e+26</td>
+      <td>4.243933e+23</td>
+    </tr>
+    <tr>
+      <th>149997</th>
+      <td>9.374812e-12</td>
+      <td>2.193486e+26</td>
+      <td>6.052459e+21</td>
+      <td>-9.666614e+18</td>
+      <td>1.888858e+18</td>
+      <td>5.047653e+23</td>
+      <td>2.630856e+21</td>
+      <td>1.984376e+26</td>
+      <td>4.929383e+23</td>
+      <td>1.002119e+25</td>
+      <td>...</td>
+      <td>5.135030e+23</td>
+      <td>1.227036e+21</td>
+      <td>1.992600e+26</td>
+      <td>3.893844e+23</td>
+      <td>1.010799e+25</td>
+      <td>7.263669e+21</td>
+      <td>1.012278e+25</td>
+      <td>5.124653e+22</td>
+      <td>2.200042e+26</td>
+      <td>4.345943e+23</td>
+    </tr>
+    <tr>
+      <th>149998</th>
+      <td>9.374875e-12</td>
+      <td>2.193479e+26</td>
+      <td>5.334349e+21</td>
+      <td>-9.857902e+18</td>
+      <td>1.544056e+18</td>
+      <td>5.048264e+23</td>
+      <td>2.647229e+21</td>
+      <td>1.984378e+26</td>
+      <td>4.966713e+23</td>
+      <td>1.002164e+25</td>
+      <td>...</td>
+      <td>5.136500e+23</td>
+      <td>1.509553e+21</td>
+      <td>1.992572e+26</td>
+      <td>3.934963e+23</td>
+      <td>1.010940e+25</td>
+      <td>6.324277e+21</td>
+      <td>1.012413e+25</td>
+      <td>5.608089e+22</td>
+      <td>2.200044e+26</td>
+      <td>4.447625e+23</td>
+    </tr>
+    <tr>
+      <th>149999</th>
+      <td>9.374937e-12</td>
+      <td>2.193472e+26</td>
+      <td>4.626795e+21</td>
+      <td>-1.004232e+19</td>
+      <td>1.194677e+18</td>
+      <td>5.048934e+23</td>
+      <td>2.661116e+21</td>
+      <td>1.984380e+26</td>
+      <td>5.003741e+23</td>
+      <td>1.002213e+25</td>
+      <td>...</td>
+      <td>5.137886e+23</td>
+      <td>1.793975e+21</td>
+      <td>1.992544e+26</td>
+      <td>3.975644e+23</td>
+      <td>1.011072e+25</td>
+      <td>5.330746e+21</td>
+      <td>1.012540e+25</td>
+      <td>6.089548e+22</td>
+      <td>2.200043e+26</td>
+      <td>4.549231e+23</td>
+    </tr>
+  </tbody>
+</table>
+<p>150000 rows × 815 columns</p>
+</div></div>
+</div>
+<p>Notice that in this case we have many more columns since now we have the ACF of the kinetic-kinetic, kinetic-potential, potential-kinetic, potential-potential, and the total ACF of each pair of elements.</p>
+<p>Let’s verify the sum rules.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Diagonal terms</span>
+<span class="n">column_zzzz</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF xxxx&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+     <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF yyyy&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+     <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF zzzz&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">J_zzzz_0</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[</span><span class="n">column_zzzz</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># Cross-Diagonal Terms</span>
+<span class="n">column_zzxx</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF xxyy&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF xxzz&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF yyxx&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF yyzz&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF zzxx&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF zzyy&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">J_zzxx_0</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[</span><span class="n">column_zzxx</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># Cross Off Diagonal terms</span>
+<span class="n">column_xyxy</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF xyxy&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF xzxz&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF yxyx&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF yzyz&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF zxzx&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF zyzy&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">J_xyxy_0</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[</span><span class="n">column_xyxy</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># The units of J&#39;s are [Density *  Energy]^2</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The isotropy condition : (J_zzzz_0 - J_zzxx_0 )/( 2*J_xyxy_0 ) = </span><span class="si">{:.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="p">(</span><span class="n">J_zzzz_0</span> <span class="o">-</span> <span class="n">J_zzxx_0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">J_xyxy_0</span><span class="p">)</span>  <span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The isotropy condition : (J_zzzz_0 - J_zzxx_0 )/( 2*J_xyxy_0 ) = 0.9814
+</pre></div></div>
+</div>
+<p>Not exactly 1 but pretty close.</p>
+<p>Let’s now verify the sum rules. These are calculated from the <code class="docutils literal notranslate"><span class="pre">pt.sum_rule</span></code> method</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># These sigmas have units of n^2</span>
+<span class="n">sigma_zzzz</span><span class="p">,</span> <span class="n">sigma_zzxx</span><span class="p">,</span> <span class="n">sigma_xyxy</span>  <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">sum_rule</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">rdf</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="s2">&quot;</span><span class="si">{:.4e}</span><span class="s2">, </span><span class="si">{:.4e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">J_zzzz_0</span><span class="p">,</span> <span class="n">nkT</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;2.1932e+26, 5.0955e+23&#39;
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Viscosity">
+<h2>Viscosity<a class="headerlink" href="#Viscosity" title="Permalink to this headline">¶</a></h2>
+<p>The shear viscosity is calculated from the Green-Kubo relation</p>
+<p><span class="math">\begin{equation}
+\eta = \frac{\beta V}{6} \sum_{\alpha} \sum_{\gamma \neq \alpha} \int_0^{\infty} dt \, \left \langle \mathcal P_{\alpha\gamma}(t) \mathcal P_{\alpha\gamma}(0) \right \rangle,
+\end{equation}</span></p>
+<p>where <span class="math notranslate nohighlight">\(\beta = 1/k_B T\)</span>, <span class="math notranslate nohighlight">\(\alpha,\gamma = {x, y, z}\)</span> and <span class="math notranslate nohighlight">\(\mathcal J_{\alpha\gamma}(t)\)</span> is the autocorrelation function of the <span class="math notranslate nohighlight">\(\alpha,\gamma\)</span> element of the</p>
+<p>The bulk viscosity is given by a similar relation</p>
+<p><span class="math">\begin{equation}
+\eta_V = \beta V \int_0^{\infty}dt \,  \left \langle \delta \mathcal P(t) \delta \mathcal P(0) \right \rangle,
+\end{equation}</span></p>
+<p>where</p>
+<p><span class="math">\begin{equation}
+\delta \mathcal P(t) = \mathcal P(t) - \left \langle \mathcal P  \right \rangle
+\end{equation}</span></p>
+<p>is the deviation of the scalar pressure.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tc</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tc</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">observable</span> <span class="o">=</span> <span class="n">pt</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">=</span> <span class="s2">&quot;Viscosities&quot;</span><span class="p">)</span>
+<span class="c1"># tc.viscosities(pt,plot = True)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Data saved in:
+ Simulations/yocp_kappa2/PostProcessing/TransportCoefficients/Production/Viscosities_yocp_kappa2.h5
+Simulations/yocp_kappa2/PostProcessing/TransportCoefficients/Production/Viscosities_slices_yocp_kappa2.h5
+
+No. of slices = 2
+No. dumps per slice = 30000
+Time interval of autocorrelation function = 9.3750e-12 [s] ~ 7205 w_p T
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">acf_str</span> <span class="o">=</span> <span class="s2">&quot;Delta Pressure ACF&quot;</span>
+<span class="n">acf_avg</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[(</span><span class="s2">&quot;Delta Pressure ACF&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
+<span class="n">acf_std</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[(</span><span class="s2">&quot;Delta Pressure ACF&quot;</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)]</span>
+
+<span class="n">pq</span> <span class="o">=</span> <span class="s2">&quot;Bulk Viscosity&quot;</span>
+<span class="n">tc_avg</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[(</span><span class="n">pq</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
+<span class="n">tc_std</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[(</span><span class="n">pq</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">plot_tc</span><span class="p">(</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+    <span class="n">acf_data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">acf_avg</span><span class="p">,</span> <span class="n">acf_std</span><span class="p">)),</span>
+    <span class="n">tc_data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">tc_avg</span><span class="p">,</span> <span class="n">tc_std</span><span class="p">)),</span>
+    <span class="n">acf_name</span><span class="o">=</span><span class="n">acf_str</span><span class="p">,</span>
+    <span class="n">tc_name</span><span class="o">=</span><span class="s2">&quot;Bulk Viscosity&quot;</span><span class="p">,</span>
+    <span class="n">figname</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">_Plot.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Bulk Viscosity&quot;</span><span class="p">),</span>
+    <span class="n">show</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">))</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1000</span> <span class="p">)</span> <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[(-0.5, 1000.0)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_YOCP_YOCP_viscosity_28_1.png" src="../../_images/examples_YOCP_YOCP_viscosity_28_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pq</span> <span class="o">=</span> <span class="s2">&quot;Shear Viscosity&quot;</span>
+<span class="n">tc_avg</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[(</span><span class="n">pq</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
+<span class="n">tc_std</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[(</span><span class="n">pq</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)]</span>
+
+
+<span class="n">rescale</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">*</span> <span class="n">pt</span><span class="o">.</span><span class="n">a_ws</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pt</span><span class="o">.</span><span class="n">species_masses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">pt</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">*</span> <span class="mf">0.0654</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="mf">1e12</span><span class="p">,</span>
+       <span class="n">tc_avg</span> <span class="o">/</span> <span class="n">rescale</span><span class="p">,</span>
+       <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\mu$&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+    <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="mf">1e12</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">tc_avg</span> <span class="o">-</span> <span class="n">tc_std</span><span class="p">)</span> <span class="o">/</span> <span class="n">rescale</span><span class="p">,</span>
+    <span class="p">(</span><span class="n">tc_avg</span> <span class="o">+</span> <span class="n">tc_std</span><span class="p">)</span> <span class="o">/</span> <span class="n">rescale</span><span class="p">,</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">*</span><span class="mf">1e12</span><span class="p">,</span>
+       <span class="n">tc_avg</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">/</span><span class="n">rescale</span><span class="p">,</span>
+       <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Moving avg&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Time difference $\tau$ [ps]&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Text(0.5, 0, &#39;Time difference $\\tau$ [ps]&#39;)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_YOCP_YOCP_viscosity_29_1.png" src="../../_images/examples_YOCP_YOCP_viscosity_29_1.png" />
+</div>
+</div>
+<p>I am missing a factor of 2 somewhere and can’t figure out where.</p>
+<p>To be continued.</p>
+</section>
+</section>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2021, MurilloGroup.<br/>
+      Last updated on Oct 29, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+    </p>
+  </div>
+</footer>
+
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+  
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

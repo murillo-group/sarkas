@@ -262,11 +262,21 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/QSP/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html">Magnetized Plasma</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PreProcessing">PreProcessing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PostProcessing">PostProcessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Preprocessing">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Simulation">Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#PostProcessing">PostProcessing</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../examples/Magnetized_OCP/Magnetized_Plasma.html#Transport">Transport</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html">Moliere Potential</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Simulation">Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Post-Processing">Post Processing</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/UNP/UCP_Experiment_Validation.html">MD for Experiment Validation</a><ul>
@@ -282,16 +292,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../examples/Ultrafast_EC/Ultrafast_EC_Validation.html#Initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/Ultrafast_EC/Ultrafast_EC_Validation.html#Simulation">Simulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/Ultrafast_EC/Ultrafast_EC_Validation.html#PostProcessing">PostProcessing</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#PreProcessing">PreProcessing</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html#Simulation">Simulation</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html">Moliere Potential</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Simulation">Simulation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/Moliere/Moliere_Simulation.html#Post-Processing">Post Processing</a></li>
 </ul>
 </li>
 </ul>
@@ -430,7 +430,7 @@ if not faster, than low-level languages like C/C++ and Fortran.</p>
 script. Let’s say we want to run a set of ten simulations of a Yukawa OCP for different
 screening parameters and measure their diffusion coefficient. An example script looks like this</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
-<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
@@ -459,7 +459,7 @@ screening parameters and measure their diffusion coefficient. An example script 
     <span class="c1"># Run the simulation</span>
     <span class="n">sim</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
+    <span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span>
                                            <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">,</span>
                                            <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -482,7 +482,7 @@ screening parameters and measure their diffusion coefficient. An example script 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 22, 2021.<br/>
+      Last updated on Oct 29, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

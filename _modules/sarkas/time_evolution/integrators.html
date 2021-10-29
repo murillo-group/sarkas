@@ -370,7 +370,7 @@
 
             <span class="c1"># In a leapfrog-type algorithm the coefficient is different for the acceleration and magnetic rotation</span>
             <span class="c1"># see eq.~(79) in :cite:`Chin2008`</span>
-            <span class="c1"># self.magnetic_helpers(1.0)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_helpers</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_boris_zdir</span>
@@ -1108,7 +1108,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 22, 2021.<br/>
+      Last updated on Oct 29, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

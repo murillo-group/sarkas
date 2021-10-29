@@ -140,6 +140,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">scp_signal</span>
+<span class="kn">import</span> <span class="nn">fdint</span>
 
 <span class="n">TWOPI</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
 
@@ -373,6 +374,7 @@
     <span class="n">force_error</span> <span class="o">*=</span> <span class="n">rescaling_const</span>
 
     <span class="k">return</span> <span class="n">force_error</span>
+
 </pre></div>
 
     </div>
@@ -387,7 +389,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 22, 2021.<br/>
+      Last updated on Oct 29, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
