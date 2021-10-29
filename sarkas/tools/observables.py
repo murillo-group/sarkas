@@ -38,9 +38,10 @@ UNITS = [
      "Current": "A",
      "Power": "erg/s",
      "Pressure": "Pa",
-     "Conductivity": "S/m",
+     "Electrical Conductivity": "S/m",
      "Diffusion": r"m$^2$/s",
-     "Viscosity": r"kg/m s",
+     "Bulk Viscosity": r"kg/m s",
+     "Shear Viscosity": r"kg/m s",
      "none": ""},
     # CGS Units
     {"Energy": 'erg',
@@ -54,9 +55,10 @@ UNITS = [
      "Current": "esu/s",
      "Power": "erg/s",
      "Pressure": "Ba",
-     "Conductivity": "mho/m",
+     "Electrical Conductivity": "mho/m",
      "Diffusion": r"m$^2$/s",
-     "Viscosity": r"g/ cm s",
+     "Bulk Viscosity": r"g/ cm s",
+     "Shear Viscosity": r"g/ cm s",
      "none": ""}
 ]
 
@@ -81,6 +83,7 @@ PREFIXES = {
     "Y": 1e24  # yotta
 }
 
+
 def compute_doc(func):
     func.__doc__ = """
     Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n 
@@ -92,6 +95,7 @@ def compute_doc(func):
      
     """
     return func
+
 
 def setup_doc(func):
     func.__doc__ = """
@@ -115,6 +119,7 @@ def setup_doc(func):
 
    """
     return func
+
 
 def arg_update_doc(func):
     func.__doc__ = """Update observable specific attributes and call :meth:`~.update_finish` to save info."""
@@ -408,7 +413,7 @@ class Observable:
 
     def create_dirs_filenames(self):
         # Saving Directory
-        saving_dir = os.path.join(self.postprocessing_dir, self.__long_name__.replace(" ","") )
+        saving_dir = os.path.join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
         if not os.path.exists(saving_dir):
             os.mkdir(saving_dir)
 
@@ -419,20 +424,20 @@ class Observable:
         # Filenames and strings
         self.filename_hdf = os.path.join(
             self.saving_dir,
-            self.__long_name__.replace(" ","") + "_" + self.job_id + '.h5')
+            self.__long_name__.replace(" ", "") + "_" + self.job_id + '.h5')
 
         self.filename_hdf_slices = os.path.join(
             self.saving_dir,
-            self.__long_name__.replace(" ","") + "_slices_" + self.job_id + '.h5')
+            self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + '.h5')
 
         if self.acf_observable:
             self.filename_hdf_acf = os.path.join(
                 self.saving_dir,
-                self.__long_name__.replace(" ","") +"ACF_" + self.job_id + '.h5')
+                self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + '.h5')
 
             self.filename_hdf_acf_slices = os.path.join(
                 self.saving_dir,
-                self.__long_name__.replace(" ","")+"ACF_slices_" + self.job_id + '.h5')
+                self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + '.h5')
 
     def parse(self):
         """
@@ -471,8 +476,8 @@ class Observable:
                 self.dataframe_slices = pd.read_hdf(self.filename_hdf_slices, mode='r', index_col=False)
 
             if self.acf_observable:
-                self.dataframe_acf_slices = pd.read_hdf(self.filename_hdf_acf_slices, mode='r', index_col=False)
                 self.dataframe_acf = pd.read_hdf(self.filename_hdf_acf, mode='r', index_col=False)
+                self.dataframe_acf_slices = pd.read_hdf(self.filename_hdf_acf_slices, mode='r', index_col=False)
 
     def parse_k_data(self):
         """Read in the precomputed Fourier space data. Recalculate if not correct."""
@@ -871,11 +876,18 @@ class Observable:
 
         # Create the columns for the HDF df
         if not self.k_observable:
-            self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
-                [tuple(c.split("_")) for c in self.dataframe_slices.columns])
+            if not isinstance(self.dataframe_slices.columns, pd.MultiIndex):
+                self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_slices.columns])
 
-        self.dataframe.columns = pd.MultiIndex.from_tuples(
+        if not isinstance(self.dataframe.columns, pd.MultiIndex):
+            self.dataframe.columns = pd.MultiIndex.from_tuples(
             [tuple(c.split("_")) for c in self.dataframe.columns])
+
+        # Sort the index for speed
+        # see https://stackoverflow.com/questions/54307300/what-causes-indexing-past-lexsort-depth-warning-in-pandas
+        self.dataframe = self.dataframe.sort_index()
+        self.dataframe_slices = self.dataframe_slices.sort_index()
 
         # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
         # Save the data.
@@ -889,11 +901,17 @@ class Observable:
 
         if self.acf_observable:
 
-            self.dataframe_acf.columns = pd.MultiIndex.from_tuples(
-                [tuple(c.split("_")) for c in self.dataframe_acf.columns])
+            if not isinstance(self.dataframe_acf.columns, pd.MultiIndex):
+                self.dataframe_acf.columns = pd.MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_acf.columns])
 
-            self.dataframe_acf_slices.columns = pd.MultiIndex.from_tuples(
-                [tuple(c.split("_")) for c in self.dataframe_acf_slices.columns])
+            if not isinstance(self.dataframe_acf_slices.columns, pd.MultiIndex):
+                self.dataframe_acf_slices.columns = pd.MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_acf_slices.columns])
+
+            self.dataframe_acf = self.dataframe_acf.sort_index()
+            self.dataframe_acf_slices = self.dataframe_acf_slices.sort_index()
+
 
             if os.path.exists(self.filename_hdf_acf):
                 os.remove(self.filename_hdf_acf)
@@ -903,7 +921,6 @@ class Observable:
                 os.remove(self.filename_hdf_acf_slices)
             self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode='w', key=self.__name__)
 
-
     def save_pickle(self):
         """Save the observable's info into a pickle file."""
         self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
@@ -911,14 +928,12 @@ class Observable:
         pickle.dump(self, pickle_file)
         pickle_file.close()
 
-
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
         self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
-        with open(filename, 'rb') as pkl_data:
+        with open(self.filename_pickle, 'rb') as pkl_data:
             data = pickle.load()
         self.from_dict(data.__dict__)
-
 
     def update_finish(self):
         """Update the :attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
@@ -932,6 +947,9 @@ class Observable:
         self.slice_steps = int(
             self.no_steps / self.dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
             int(self.no_dumps / self.no_slices)
+
+        if self.k_observable:
+            self.parse_k_data()
 
         if self.kw_observable:
             # These calculation are needed for the io.postprocess_info().
@@ -1013,7 +1031,7 @@ class CurrentCorrelationFunction(Observable):
               no_slices: int = None,
               **kwargs):
 
-        super().setup_init(params, phase = phase, no_slices = no_slices)
+        super().setup_init(params, phase=phase, no_slices=no_slices)
 
         self.update_args(**kwargs)
 
@@ -1090,8 +1108,8 @@ class CurrentCorrelationFunction(Observable):
         # Create the MultiIndex
         tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
         self.dataframe_slices.columns = pd.MultiIndex.from_tuples(tuples,
-                                                           names=['direction', 'species', 'slices', 'ka_value',
-                                                                  'k_harmonics'])
+                                                                  names=['direction', 'species', 'slices', 'ka_value',
+                                                                         'k_harmonics'])
         # Now the actual dataframe
         self.dataframe[' _ _ _ _Frequencies'] = self.frequencies
         # Take the mean and std and store them into the dataframe to return
@@ -1322,8 +1340,10 @@ class DiffusionFlux(Observable):
             self.dataframe_acf[df_acf_str + " {}_Y_Std".format(i)] = self.dataframe_acf_slices[ycol_str].std(axis=1)
             self.dataframe_acf[df_acf_str + " {}_Z_Mean".format(i)] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
             self.dataframe_acf[df_acf_str + " {}_Z_Std".format(i)] = self.dataframe_acf_slices[zcol_str].std(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Total_Mean".format(i)] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Total_Std".format(i)] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
+            self.dataframe_acf[df_acf_str + " {}_Total_Mean".format(i)] = self.dataframe_acf_slices[tot_col_str].mean(
+                axis=1)
+            self.dataframe_acf[df_acf_str + " {}_Total_Std".format(i)] = self.dataframe_acf_slices[tot_col_str].std(
+                axis=1)
 
         self.save_hdf()
         tend = self.timer.current()
@@ -1419,7 +1439,7 @@ class DynamicStructureFactor(Observable):
         # Create the MultiIndex
         tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
         self.dataframe_slices.columns = pd.MultiIndex.from_tuples(tuples,
-                                                           names=['species', 'slices', 'k_index', 'k_harmonics'])
+                                                                  names=['species', 'slices', 'k_index', 'k_harmonics'])
 
         # Now for the actual df
         self.dataframe[" _ _Frequencies"] = self.frequencies
@@ -1555,7 +1575,10 @@ class ElectricCurrent(Observable):
                 vel[2, it, :] = datap["vel"][:, 2]
             #
             if isl == 0:
-                self.dataframe["Time"] = time
+                self.dataframe["Time"] = np.copy(time)
+                self.dataframe_acf["Time"] = np.copy(time)
+                self.dataframe_slices["Time"] = np.copy(time)
+                self.dataframe_acf_slices["Time"] = np.copy(time)
 
             species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
 
@@ -1651,9 +1674,6 @@ class ElectricCurrent(Observable):
         self.dataframe_acf[ec_acf_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
 
         self.save_hdf()
-        # # Create the columns for the HDF df
-        # self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
-        # self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
 
 
 class PressureTensor(Observable):
@@ -1730,7 +1750,7 @@ class PressureTensor(Observable):
             delta_pressure = pressure - pressure.mean()
             self.dataframe_slices["Delta Pressure_slice {}".format(isl)] = delta_pressure
             self.dataframe_acf_slices["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(delta_pressure,
-                                                                                                delta_pressure)
+                                                                                                       delta_pressure)
 
             if self.dimensions == 3:
                 dim_lbl = ['x', 'y', 'z']
@@ -1763,9 +1783,11 @@ class PressureTensor(Observable):
                             self.dataframe_acf_slices[
                                 pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_pot
                             self.dataframe_acf_slices[
-                                pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_kinpot
-                            self.dataframe_acf_slices[pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
-                                                                                               isl)] = C_ijkl_potkin
+                                pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
+                                                                                isl)] = C_ijkl_kinpot
+                            self.dataframe_acf_slices[
+                                pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
+                                                                                isl)] = C_ijkl_potkin
                             self.dataframe_acf_slices[
                                 pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl
 
@@ -1794,13 +1816,17 @@ class PressureTensor(Observable):
             for j, ax2 in enumerate(dim_lbl):
                 # Kinetic Terms
                 ij_col_str = [pt_str_kin + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
-                self.dataframe[pt_str_kin + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(axis=1)
-                self.dataframe[pt_str_kin + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
+                self.dataframe[pt_str_kin + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(
+                    axis=1)
+                self.dataframe[pt_str_kin + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(
+                    axis=1)
 
                 # Potential Terms
                 ij_col_str = [pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
-                self.dataframe[pt_str_pot + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(axis=1)
-                self.dataframe[pt_str_pot + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
+                self.dataframe[pt_str_pot + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(
+                    axis=1)
+                self.dataframe[pt_str_pot + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(
+                    axis=1)
 
                 # Full
                 ij_col_str = [pt_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
@@ -1922,12 +1948,12 @@ class PressureTensor(Observable):
 
         hartrees, corrs = rdf.compute_sum_rule_integrals(potential)
         # Eq. 2.3.43 -44 in Boon and Yip
-        I_1 = beta * (hartrees[:, 1].sum() + corrs[:,1].sum())
-        I_2 = beta * (hartrees[:, 2].sum() + corrs[:,2].sum())
+        I_1 = beta * (hartrees[:, 1].sum() + corrs[:, 1].sum())
+        I_2 = beta * (hartrees[:, 2].sum() + corrs[:, 2].sum())
 
-        sigma_zzzz = (3.0 * self.total_num_density**2 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2)/ beta ** 2
-        sigma_zzxx = (1.0 * self.total_num_density**2 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2)/ beta ** 2
-        sigma_xyxy = (1.0 * self.total_num_density**2 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2)/ beta ** 2
+        sigma_zzzz = (3.0 * self.total_num_density ** 2 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2) / beta ** 2
+        sigma_zzxx = (1.0 * self.total_num_density ** 2 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2) / beta ** 2
+        sigma_xyxy = (1.0 * self.total_num_density ** 2 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2) / beta ** 2
 
         return sigma_zzzz, sigma_zzxx, sigma_xyxy
 
@@ -1967,7 +1993,7 @@ class RadialDistributionFunction(Observable):
     @setup_doc
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
-        super().setup_init(params, phase = phase, no_slices = no_slices)
+        super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(**kwargs)
 
     @arg_update_doc
@@ -2042,7 +2068,7 @@ class RadialDistributionFunction(Observable):
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
                 col_str = ['{}-{} RDF_slice {}'.format(sp1, sp2, isl) for isl in range(self.no_slices)]
-                self.dataframe['{}-{} RDF_Mean'.format(sp1, sp2)] = self.dataframe_slices[col_str].mean(axis = 1)
+                self.dataframe['{}-{} RDF_Mean'.format(sp1, sp2)] = self.dataframe_slices[col_str].mean(axis=1)
                 self.dataframe['{}-{} RDF_Std'.format(sp1, sp2)] = self.dataframe_slices[col_str].std(axis=1)
 
         self.save_hdf()
@@ -2086,10 +2112,10 @@ class RadialDistributionFunction(Observable):
             Shape = ( :attr:`~.no_obs`, 3).
 
         """
-        r = np.copy(self.dataframe['Distance'].iloc[:,0])
+        r = np.copy(self.dataframe['Distance'].iloc[:, 0])
 
         dims = self.dimensions
-        dim_const = 2.0**(dims - 2) * np.pi
+        dim_const = 2.0 ** (dims - 2) * np.pi
 
         if r[0] == 0.0:
             r[0] = r[1]
@@ -2139,8 +2165,8 @@ class RadialDistributionFunction(Observable):
                 hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r ** dims, x=r)
                 corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r ** dims, x=r)
 
-                hartrees[obs_indx,2] = dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
-                corrs[obs_indx,2] = dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
+                hartrees[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
+                corrs[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
 
                 obs_indx += 1
 
@@ -2205,6 +2231,7 @@ class StaticStructureFactor(Observable):
               phase: str = None,
               no_slices: int = None,
               **kwargs):
+
         super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(**kwargs)
 
@@ -2241,15 +2268,15 @@ class StaticStructureFactor(Observable):
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
                     column = "{}-{} SSF_slice {}".format(sp1, sp2, isl)
-                    self.dataframe_slices[column] = Sk_avg[sp_indx,:, init:fin].mean(axis=-1)
-                    sp_indx +=1
+                    self.dataframe_slices[column] = Sk_avg[sp_indx, :, init:fin].mean(axis=-1)
+                    sp_indx += 1
 
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:]):
                 column = ["{}-{} SSF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
 
-                self.dataframe["{}-{} SSF_Mean".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis = 1)
-                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis = 1)
+                self.dataframe["{}-{} SSF_Mean".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
+                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
 
         self.save_hdf()
 
@@ -2302,8 +2329,8 @@ class Thermodynamics(Observable):
     """
     Thermodynamic functions.
     """
-    
-    def  __init__(self):
+
+    def __init__(self):
         super().__init__()
         self.__name__ = 'therm'
         self.__long_name__ = 'Thermodynamics'
@@ -2340,7 +2367,7 @@ class Thermodynamics(Observable):
 
     @arg_update_doc
     def update_args(self, **kwargs):
-               
+
         if self.phase.lower() == 'production':
             self.saving_dir = self.production_dir
         elif self.phase.lower() == 'equilibration':
@@ -2409,7 +2436,7 @@ class Thermodynamics(Observable):
         u_hartree = self.box_volume * hartrees[:, 0]
         u_corr = self.box_volume * corrs[:, 0]
 
-        p_hartree = - hartrees[:, 1]/3.0
+        p_hartree = - hartrees[:, 1] / 3.0
         p_corr = - corrs[:, 1] / 3.0
 
         nkT = self.total_num_density / self.beta
@@ -2433,45 +2460,6 @@ class Thermodynamics(Observable):
             self.fldr = self.magnetization_dir
 
         self.beta = 1.0 / (self.dataframe["Temperature"].mean() * self.kB)
-
-    # def statistics(self,
-    #                quantity: str ="Total Energy",
-    #                max_no_divisions: int =100,
-    #                show: bool = False):
-    #     """
-    #     TODO:
-    #     Parameters
-    #     ----------
-    #     quantity
-    #     max_no_divisions
-    #     show
-    #
-    #     Returns
-    #     -------
-    #
-    #     """
-    #     self.parse()
-    #     run_avg = self.dataframe[quantity].mean()
-    #     run_std = self.dataframe[quantity].std()
-    #
-    #     observable = np.array(self.dataframe[quantity])
-    #     # Loop over the blocks
-    #     tau_blk, sigma2_blk, statistical_efficiency = calc_statistical_efficiency(observable,
-    #                                                                               run_avg, run_std,
-    #                                                                               max_no_divisions, self.no_dumps)
-    #     # Plot the statistical efficiency
-    #     fig, ax = plt.subplots(1, 1, figsize=(10, 7))
-    #     ax.plot(1 / tau_blk[2:], statistical_efficiency[2:], '--o', label=quantity)
-    #     ax.grid(True, alpha=0.3)
-    #     ax.legend(loc='best')
-    #     ax.set_xscale('log')
-    #     ax.set_ylabel(r'$s(\tau_{\rm{blk}})$')
-    #     ax.set_xlabel(r'$1/\tau_{\rm{blk}}$')
-    #     fig.tight_layout()
-    #     fig.savefig(os.path.join(self.postproc_dir, quantity + 'StatisticalEfficiency_' + self.job_id + '.png'))
-    #
-    #     if show:
-    #         fig.show()
 
     def temp_energy_plot(self,
                          process,
@@ -2736,12 +2724,12 @@ class Thermodynamics(Observable):
 
 class VelocityAutoCorrelationFunction(Observable):
     """Velocity Auto-correlation function."""
-    
+
     def __init__(self):
         super(VelocityAutoCorrelationFunction, self).__init__()
         self.__name__ = 'vacf'
         self.__long_name__ = 'Velocity AutoCorrelation Function'
-        sefl.acf_observable = True
+        self.acf_observable = True
 
     @setup_doc
     def setup(self,
@@ -2750,7 +2738,7 @@ class VelocityAutoCorrelationFunction(Observable):
               no_slices: int = None,
               **kwargs):
 
-        super().setup_init(params, phase = phase, no_slices = no_slices)
+        super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(**kwargs)
 
     @arg_update_doc
@@ -3088,11 +3076,11 @@ class VelocityDistribution(Observable):
         if compute_moments:
             self.compute_moments(
                 parse_data=False,
-                vel_raw = vel_raw,
-                time = time)
+                vel_raw=vel_raw,
+                time=time)
         #
         if compute_Grad_expansion:
-            self.compute_hermite_expansion(compute_moments = False)
+            self.compute_hermite_expansion(compute_moments=False)
 
     def prepare_histogram_args(self):
 

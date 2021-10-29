@@ -178,7 +178,7 @@ this specific run. This is useful when you have many runs that differ only in th
 Post Processing
 ---------------
 
-The last two blocks are ``Observables`` and ``TransportCoefficients``. They indicate the quantities 
+The last two blocks are ``Observables`` and ``TransportCoefficientss``. They indicate the quantities
 we want to calculate and their parameters. 
 
 Observables
@@ -214,7 +214,7 @@ Transport Coefficients
 
 .. code-block:: yaml
 
-    TransportCoefficients:
+    TransportCoefficientss:
         - Diffusion:
             time_averaging: False
 

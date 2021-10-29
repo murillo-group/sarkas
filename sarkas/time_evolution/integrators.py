@@ -233,7 +233,7 @@ class Integrator:
 
             # In a leapfrog-type algorithm the coefficient is different for the acceleration and magnetic rotation
             # see eq.~(79) in :cite:`Chin2008`
-            # self.magnetic_helpers(1.0)
+            self.magnetic_helpers(1.0)
 
             if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
                 self.update = self.magnetic_boris_zdir

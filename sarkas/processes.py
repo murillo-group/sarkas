@@ -371,7 +371,7 @@ class PostProcess(Process):
                     self.__dict__[obs].compute()
 
         if hasattr(self, 'transport_dict'):
-            from sarkas.tools.transport import TransportCoefficient as TC
+            from sarkas.tools.transport import TransportCoefficients as TC
 
             for coeff in self.transport_dict:
 

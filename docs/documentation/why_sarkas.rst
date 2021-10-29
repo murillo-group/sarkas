@@ -101,7 +101,7 @@ screening parameters and measure their diffusion coefficient. An example script 
 .. code-block:: python
 
     from sarkas.processes import Simulation, PostProcess
-    from sarkas.tools.transport import TransportCoefficient
+    from sarkas.tools.transport import TransportCoefficients
     import numpy as np
     import os
 
@@ -130,7 +130,7 @@ screening parameters and measure their diffusion coefficient. An example script 
         # Run the simulation
         sim.run()
 
-        diffusion = TransportCoefficient.diffusion(postproc.parameters,
+        diffusion = TransportCoefficients.diffusion(postproc.parameters,
                                                phase='production',
                                                show=True)
 

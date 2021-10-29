@@ -56,30 +56,41 @@ Examples
     </div>
 
     <div class="ex-thumbcontainer">
-    <div class="figure align-default">
-        <img src="../_images/examples_UNP_UCP_Experiment_Validation_13_0.png" alt="">
-        <p class="caption">
-            <span class="text-center"><a href="UNP/UCP_Experiment_Validation.html">Ultracold Neutral Plasmas</a></span>
-        </p>
-    </div>
-    </div>
-
-    <div class="ex-thumbcontainer">
-    <div class="figure align-default">
-        <img src="../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" alt="">
-        <p class="caption">
-            <span class="text-center"><a href="Ultrafast_EC/Ultrafast_EC_Validation.html">Ultrafast Electron Cooling</a></span>
-        </p>
-    </div>
+        <div class="figure align-default">
+            <img src="../_images/examples_YOCP_YOCP_viscosity_14_1.png" alt="">
+            <p class="caption">
+                <span class="text-center"><a href="YOCP/YOCP_viscosity.html">YOCP Viscosity</a></span>
+            </p>
+        </div>
     </div>
 
     <div class="ex-thumbcontainer">
-    <div class="figure align-default">
-        <img src="../_images/examples_Moliere_Moliere_Simulation_9_1.png" alt="">
-        <p class="caption">
-            <span class="text-center"><a href="Moliere/Moliere_Simulation.html">Moliere Potential</a></span>
-        </p>
+        <div class="figure align-default">
+            <img src="../_images/examples_Moliere_Moliere_Simulation_9_1.png" alt="">
+            <p class="caption">
+                <span class="text-center"><a href="Moliere/Moliere_Simulation.html">Moliere Potential</a></span>
+            </p>
+        </div>
     </div>
+
+    <div class="ex-thumbcontainer">
+        <div class="figure align-default">
+            <img src="../_images/examples_UNP_UCP_Experiment_Validation_13_0.png" alt="">
+            <p class="caption">
+                <span class="text-center"><a href="UNP/UCP_Experiment_Validation.html">Ultracold Neutral Plasmas</a></span>
+            </p>
+        </div>
+    </div>
+
+    <div class="ex-thumbcontainer">
+        <div class="figure align-default">
+            <img src="../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" alt="">
+            <p class="caption">
+                <span class="text-center"><a href="Ultrafast_EC/Ultrafast_EC_Validation.html">Ultrafast Electron Cooling</a></span>
+            </p>
+        </div>
+    </div>
+
 
 .. toctree::
     :maxdepth: 1
@@ -89,7 +100,9 @@ Examples
     BIM/H-He_Mixture
     QSP/QSP_Tutorial
     Magnetized_OCP/Magnetized_Plasma
+    Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential
+    YOCP/YOCP
+    Moliere/Moliere_Simulation
     UNP/UCP_Experiment_Validation
     Ultrafast_EC/Ultrafast_EC_Validation
-    Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential
-    Moliere/Moliere_Simulation
+

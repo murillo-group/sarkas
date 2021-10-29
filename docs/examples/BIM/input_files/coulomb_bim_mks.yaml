@@ -20,7 +20,7 @@ Particles:
 
 Potential:
     type: Coulomb                 # potential type
-    method: P3M                    # Linked-cell
+    method: pppm                    # Linked-cell
     rc: 3.411928e-12          # cut-off radius, meter
     pppm_mesh: [98, 98, 98]
     pppm_aliases: [3,3,3]

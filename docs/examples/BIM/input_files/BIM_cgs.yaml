@@ -19,7 +19,7 @@ Particles:
 
 Potential:
     type: Coulomb
-    method: P3M                         # Particle-Particle Particle-Mesh
+    method: pppm                         # Particle-Particle Particle-Mesh
     rc: 1.7162e-09
     pppm_mesh: [32, 32, 32]
     pppm_aliases: [3,3,3]
