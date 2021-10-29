@@ -103,60 +103,63 @@ class Process:
             if lkey == "Parameters":
                 self.parameters.from_dict(dics[lkey])
 
-        self.observables_list = []
-        # This is not needed in the case of process = simulation
-        for observable in dics['Observables']:
-            for key, sub_dict in observable.items():
-                if key == 'RadialDistributionFunction':
-                    self.observables_list.append('rdf')
-                    self.rdf = sk_obs.RadialDistributionFunction()
-                    if sub_dict:
-                        self.rdf.from_dict(sub_dict)
-                if key == 'HermiteCoefficients':
-                    self.hc = sk_obs.HermiteCoefficients()
-                    self.hc.from_dict(sub_dict)
-                if key == 'Thermodynamics':
-                    self.therm = sk_obs.Thermodynamics()
-                    self.therm.from_dict(sub_dict)
-                    self.observables_list.append('therm')
-                if key == 'DynamicStructureFactor':
-                    self.observables_list.append('dsf')
-                    self.dsf = sk_obs.DynamicStructureFactor()
-                    if sub_dict:
-                        self.dsf.from_dict(sub_dict)
-                if key == 'CurrentCorrelationFunction':
-                    self.observables_list.append('ccf')
-                    self.ccf = sk_obs.CurrentCorrelationFunction()
-                    if sub_dict:
-                        self.ccf.from_dict(sub_dict)
-                if key == 'StaticStructureFactor':
-                    self.observables_list.append('ssf')
-                    self.ssf = sk_obs.StaticStructureFactor()
-                    if sub_dict:
-                        self.ssf.from_dict(sub_dict)
-                if key == 'VelocityAutoCorrelationFunction':
-                    self.observables_list.append('vacf')
-                    self.vacf = sk_obs.VelocityAutoCorrelationFunction()
-                    if sub_dict:
-                        self.vacf.from_dict(sub_dict)
-                if key == 'VelocityDistribution':
-                    self.observables_list.append('vd')
-                    self.vm = sk_obs.VelocityDistribution()
-                    if sub_dict:
-                        self.vm.from_dict(sub_dict)
-                if key == 'ElectricCurrent':
-                    self.observables_list.append('ec')
-                    self.ec = sk_obs.ElectricCurrent()
-                    if sub_dict:
-                        self.ec.from_dict(sub_dict)
-                if key == 'DiffusionFlux':
-                    self.observables_list.append('diff_flux')
-                    self.diff_flux = sk_obs.DiffusionFlux()
-                    if sub_dict:
-                        self.diff_flux.from_dict(sub_dict)
+        if self.__name__ != "simulation":
+            self.observables_list = []
 
-        if 'TransportCoefficients' in dics.keys():
-            self.transport_dict = dics["TransportCoefficients"].copy()
+            for observable in dics["Observables"]:
+                for key, sub_dict in observable.items():
+                    if key == 'RadialDistributionFunction':
+                        self.observables_list.append('rdf')
+                        self.rdf = sk_obs.RadialDistributionFunction()
+                        if sub_dict:
+                            self.rdf.from_dict(sub_dict)
+                    elif key == 'Thermodynamics':
+                        self.therm = sk_obs.Thermodynamics()
+                        self.therm.from_dict(sub_dict)
+                        self.observables_list.append('therm')
+                    elif key == 'DynamicStructureFactor':
+                        self.observables_list.append('dsf')
+                        self.dsf = sk_obs.DynamicStructureFactor()
+                        if sub_dict:
+                            self.dsf.from_dict(sub_dict)
+                    elif key == 'CurrentCorrelationFunction':
+                        self.observables_list.append('ccf')
+                        self.ccf = sk_obs.CurrentCorrelationFunction()
+                        if sub_dict:
+                            self.ccf.from_dict(sub_dict)
+                    elif key == 'StaticStructureFactor':
+                        self.observables_list.append('ssf')
+                        self.ssf = sk_obs.StaticStructureFactor()
+                        if sub_dict:
+                            self.ssf.from_dict(sub_dict)
+                    elif key == 'VelocityAutoCorrelationFunction':
+                        self.observables_list.append('vacf')
+                        self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                        if sub_dict:
+                            self.vacf.from_dict(sub_dict)
+                    elif key == 'VelocityDistribution':
+                        self.observables_list.append('vd')
+                        self.vm = sk_obs.VelocityDistribution()
+                        if sub_dict:
+                            self.vm.from_dict(sub_dict)
+                    elif key == 'ElectricCurrent':
+                        self.observables_list.append('ec')
+                        self.ec = sk_obs.ElectricCurrent()
+                        if sub_dict:
+                            self.ec.from_dict(sub_dict)
+                    elif key == 'DiffusionFlux':
+                        self.observables_list.append('diff_flux')
+                        self.diff_flux = sk_obs.DiffusionFlux()
+                        if sub_dict:
+                            self.diff_flux.from_dict(sub_dict)
+                    elif key == "PressureTensor":
+                        self.observables_list.append('p_tensor')
+                        self.p_tensor = sk_obs.PressureTensor()
+                        if sub_dict:
+                            self.p_tensor.from_dict(sub_dict)
+
+            if "TransportCoefficients" in dics.keys():
+                self.transport_dict = dics["TransportCoefficients"].copy()
 
     def initialization(self):
         """Initialize all classes."""
@@ -362,6 +365,7 @@ class PostProcess(Process):
         """Calculate all the observables from the YAML input file."""
 
         for obs in self.observables_list:
+            # Check that the observable is actually there
             if obs in self.__dict__.keys():
                 self.__dict__[obs].setup(self.parameters)
                 if obs == 'therm':
@@ -370,24 +374,48 @@ class PostProcess(Process):
                     self.io.postprocess_info(self, write_to_file=True, observable=obs)
                     self.__dict__[obs].compute()
 
-        if hasattr(self, 'transport_dict'):
-            from sarkas.tools.transport import TransportCoefficients as TC
+            # Calculate transport coefficients
+            if hasattr(self, 'transport_dict'):
+                from sarkas.tools.transport import TransportCoefficients
 
-            for coeff in self.transport_dict:
+                tc = TransportCoefficients(self.parameters)
 
-                for key, coeff_kwargs in coeff.items():
+                for coeff in self.transport_dict:
 
-                    if key.lower() == 'diffusion':
-                        TC.diffusion(self.parameters, **coeff_kwargs)
+                    for key, coeff_kwargs in coeff.items():
 
-                    if key.lower() == 'interdiffusion':
-                        TC.interdiffusion(self.parameters, **coeff_kwargs)
+                        if key.lower() == 'diffusion':
+                            # Calculate if not already
+                            if not self.vacf:
+                                self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                                self.vacf.setup(self.parameters)
+                                # Use parse in case you calculated it already
+                                self.vacf.parse()
 
-                    if key.lower() == 'viscosity':
-                        TC.viscosity(self.parameters, **coeff_kwargs)
+                            tc.diffusion(observable=self.vacf)
 
-                    if key.lower() == 'electricalconductivity':
-                        TC.electrical_conductivity(self.parameters, **coeff_kwargs)
+                        elif key.lower() == 'interdiffusion':
+                            if not self.diff_flux:
+                                self.diff_flux = sk_obs.DiffusionFlux()
+                                self.diff_flux.setup(self.parameters)
+                                self.diff_flux.parse()
+
+                            tc.interdiffusion(self.diff_flux)
+
+                        elif key.lower() == "viscosity":
+                            if not self.p_tensor:
+                                self.p_tensor = sk_obs.PressureTensor()
+                                self.p_tensor.setup(self.parameters)
+                                self.p_tensor.parse()
+                            tc.viscosity(self.p_tensor)
+
+                        elif key.lower() == "electricalconductivity":
+                            if not self.ec:
+                                self.ec = sk_obs.ElectricCurrent()
+                                self.ec.setup(self.parameters)
+                                self.ec.parse()
+
+                            tc.electrical_conductivity(self.ec)
 
 
 class PreProcess(Process):
