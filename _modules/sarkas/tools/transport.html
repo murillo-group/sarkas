@@ -175,6 +175,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">dt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">total_plasma_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">box_volume</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_volume</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pbox_volume</span>
         <span class="c1">#</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span>
@@ -499,7 +501,7 @@
 
         <span class="n">jc_str</span> <span class="o">=</span> <span class="s2">&quot;Electric Current ACF&quot;</span>
         <span class="n">sigma_str</span> <span class="o">=</span> <span class="s2">&quot;Electrical Conductivity&quot;</span>
-        <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span>
+        <span class="n">const</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">/</span><span class="n">observable</span><span class="o">.</span><span class="n">box_volume</span>
         <span class="k">for</span> <span class="n">isl</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">observable</span><span class="o">.</span><span class="n">no_slices</span><span class="p">),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">observable</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
             <span class="n">integrand</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">observable</span><span class="o">.</span><span class="n">dataframe_acf_slices</span><span class="p">[(</span><span class="n">jc_str</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">,</span> <span class="s2">&quot;slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">))])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_df_slices</span><span class="p">[</span><span class="n">sigma_str</span> <span class="o">+</span> <span class="s2">&quot;_slice </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">isl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">const</span> <span class="o">*</span> <span class="n">fast_integral_loop</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">integrand</span><span class="p">)</span>
@@ -995,7 +997,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 29, 2021.<br/>
+      Last updated on Oct 30, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

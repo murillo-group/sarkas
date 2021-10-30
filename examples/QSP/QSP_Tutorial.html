@@ -402,7 +402,6 @@ div.rendered_html tbody tr:hover {
 <span class="o">%</span><span class="k">pylab</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
 <span class="c1"># Import sarkas</span>
@@ -427,9 +426,10 @@ Populating the interactive namespace from numpy and matplotlib
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># sim = Simulation(input_file_name)</span>
+<span></span><span class="c1"># sim = PreProcess(input_file_name)</span>
 <span class="c1"># sim.setup(read_yaml=True)</span>
-<span class="c1"># sim.run()</span>
+<span class="c1"># sim.run(loops = 20,</span>
+<span class="c1">#     pppm_estimate=True)</span>
 </pre></div>
 </div>
 </div>
@@ -438,32 +438,35 @@ Populating the interactive namespace from numpy and matplotlib
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># sim = Simulation(input_file_name)</span>
+<span class="c1"># sim.setup(read_yaml=True)</span>
+<span class="c1"># sim.run()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Equilibration check</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">temp_energy_plot</span><span class="p">(</span><span class="n">postproc</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="s1">&#39;equilibration&#39;</span><span class="p">)</span>
-
+<span class="c1"># postproc.therm.temp_energy_plot(postproc, phase=&#39;equilibration&#39;)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/examples_QSP_QSP_Tutorial_4_0.png" src="../../_images/examples_QSP_QSP_Tutorial_4_0.png" />
-</div>
-</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -476,20 +479,7 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_QSP_QSP_Tutorial_5_0.png" src="../../_images/examples_QSP_QSP_Tutorial_5_0.png" />
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Radial Distribution Function</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
-
-<span class="c1"># Grab HNC data for comparison</span>
-<span class="n">hnc_r</span><span class="p">,</span> <span class="n">hnc_gee</span><span class="p">,</span> <span class="n">hnc_gei</span><span class="p">,</span> <span class="n">hnc_gii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;hnc_gall.out&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
+<img alt="../../_images/examples_QSP_QSP_Tutorial_6_0.png" src="../../_images/examples_QSP_QSP_Tutorial_6_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -497,33 +487,600 @@ Populating the interactive namespace from numpy and matplotlib
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gee</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc e-e RDF&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gei</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc e-p RDF&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gii</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc p-p RDF&#39;</span><span class="p">)</span>
-<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">ae_ws</span><span class="p">,</span>
-                  <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">,</span>
-                  <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$r/a_e$&#39;</span><span class="p">)</span>
+<span></span><span class="c1"># Radial Distribution Function</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<span class="c1"># Grab HNC data for comparison</span>
+<span class="n">hnc_r</span><span class="p">,</span> <span class="n">hnc_gee</span><span class="p">,</span> <span class="n">hnc_gei</span><span class="p">,</span> <span class="n">hnc_gii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="s1">&#39;hnc_gall.out&#39;</span><span class="p">,</span> <span class="n">unpack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5650408474e44c9c83efc0c4d86e5f51", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Radial Distribution Function Calculation Time: 0 sec 62 msec 25 usec 174 nsec
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gee</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc e-e RDF&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gei</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc e-p RDF&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">hnc_r</span> <span class="p">,</span> <span class="n">hnc_gii</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;hnc p-p RDF&#39;</span><span class="p">)</span>
+<span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">ae_ws</span><span class="p">,</span>
+                  <span class="n">y</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;e-e RDF&#39;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">),</span>
+                       <span class="p">(</span><span class="s1">&#39;e-p RDF&#39;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">),</span>
+                       <span class="p">(</span><span class="s1">&#39;p-p RDF&#39;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)</span>
+                      <span class="p">],</span>
+                  <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">,</span>
+                  <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_e$&#39;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$g(r)$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Text(0.5, 135.8333333333334, &#39;$r/a_e$&#39;)
+[(-0.2, 6.0),
+ Text(0.5, 135.8333333333334, &#39;$r/a_e$&#39;),
+ Text(61.22856648763023, 0.5, &#39;$g(r)$&#39;)]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_QSP_QSP_Tutorial_7_1.png" src="../../_images/examples_QSP_QSP_Tutorial_7_1.png" />
+<img alt="../../_images/examples_QSP_QSP_Tutorial_8_1.png" src="../../_images/examples_QSP_QSP_Tutorial_8_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">ElectricCurrent</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">ec</span> <span class="o">=</span> <span class="n">ElectricCurrent</span><span class="p">()</span>
+<span class="n">ec</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="c1">#ec.compute()</span>
+<span class="n">ec</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">ec</span><span class="o">.</span><span class="n">dataframe</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Time</th>
+      <th colspan="6" halign="left">e Electric Current</th>
+      <th colspan="6" halign="left">p Electric Current</th>
+      <th colspan="6" halign="left">Electric Current</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>NaN</th>
+      <th colspan="2" halign="left">X</th>
+      <th colspan="2" halign="left">Y</th>
+      <th colspan="2" halign="left">Z</th>
+      <th colspan="2" halign="left">X</th>
+      <th colspan="2" halign="left">Y</th>
+      <th colspan="2" halign="left">Z</th>
+      <th colspan="2" halign="left">X</th>
+      <th colspan="2" halign="left">Y</th>
+      <th colspan="2" halign="left">Z</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>NaN</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+      <th>Mean</th>
+      <th>Std</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>-1.592979</td>
+      <td>4.266312</td>
+      <td>0.313781</td>
+      <td>4.696336</td>
+      <td>2.091885</td>
+      <td>4.912189</td>
+      <td>-0.000868</td>
+      <td>0.002324</td>
+      <td>0.000171</td>
+      <td>0.002558</td>
+      <td>0.001139</td>
+      <td>0.002675</td>
+      <td>-1.593846</td>
+      <td>4.268636</td>
+      <td>0.313952</td>
+      <td>4.698894</td>
+      <td>2.093025</td>
+      <td>4.914864</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.212480e-19</td>
+      <td>-1.556820</td>
+      <td>4.255951</td>
+      <td>0.261228</td>
+      <td>4.727619</td>
+      <td>2.129823</td>
+      <td>4.919757</td>
+      <td>-0.000848</td>
+      <td>0.002318</td>
+      <td>0.000142</td>
+      <td>0.002575</td>
+      <td>0.001160</td>
+      <td>0.002679</td>
+      <td>-1.557668</td>
+      <td>4.258269</td>
+      <td>0.261370</td>
+      <td>4.730193</td>
+      <td>2.130983</td>
+      <td>4.922436</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.424960e-19</td>
+      <td>-1.514293</td>
+      <td>4.250659</td>
+      <td>0.212417</td>
+      <td>4.757823</td>
+      <td>2.165856</td>
+      <td>4.927102</td>
+      <td>-0.000825</td>
+      <td>0.002315</td>
+      <td>0.000116</td>
+      <td>0.002591</td>
+      <td>0.001180</td>
+      <td>0.002683</td>
+      <td>-1.515118</td>
+      <td>4.252974</td>
+      <td>0.212533</td>
+      <td>4.760414</td>
+      <td>2.167036</td>
+      <td>4.929785</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.263744e-18</td>
+      <td>-1.470321</td>
+      <td>4.251131</td>
+      <td>0.169078</td>
+      <td>4.780538</td>
+      <td>2.200074</td>
+      <td>4.932380</td>
+      <td>-0.000801</td>
+      <td>0.002315</td>
+      <td>0.000092</td>
+      <td>0.002604</td>
+      <td>0.001198</td>
+      <td>0.002686</td>
+      <td>-1.471122</td>
+      <td>4.253446</td>
+      <td>0.169170</td>
+      <td>4.783142</td>
+      <td>2.201272</td>
+      <td>4.935066</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.684992e-18</td>
+      <td>-1.428866</td>
+      <td>4.254351</td>
+      <td>0.127651</td>
+      <td>4.795915</td>
+      <td>2.235364</td>
+      <td>4.932165</td>
+      <td>-0.000778</td>
+      <td>0.002317</td>
+      <td>0.000070</td>
+      <td>0.002612</td>
+      <td>0.001217</td>
+      <td>0.002686</td>
+      <td>-1.429644</td>
+      <td>4.256668</td>
+      <td>0.127721</td>
+      <td>4.798526</td>
+      <td>2.236581</td>
+      <td>4.934851</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>16661</th>
+      <td>7.018413e-15</td>
+      <td>-5.074025</td>
+      <td>6.949550</td>
+      <td>1.247491</td>
+      <td>4.710895</td>
+      <td>2.787523</td>
+      <td>4.774233</td>
+      <td>-0.002763</td>
+      <td>0.003785</td>
+      <td>0.000679</td>
+      <td>0.002566</td>
+      <td>0.001518</td>
+      <td>0.002600</td>
+      <td>-5.076789</td>
+      <td>6.953335</td>
+      <td>1.248170</td>
+      <td>4.713460</td>
+      <td>2.789041</td>
+      <td>4.776834</td>
+    </tr>
+    <tr>
+      <th>16662</th>
+      <td>7.018834e-15</td>
+      <td>-5.047354</td>
+      <td>6.958353</td>
+      <td>1.189807</td>
+      <td>4.720378</td>
+      <td>2.837681</td>
+      <td>4.749905</td>
+      <td>-0.002749</td>
+      <td>0.003790</td>
+      <td>0.000648</td>
+      <td>0.002571</td>
+      <td>0.001545</td>
+      <td>0.002587</td>
+      <td>-5.050103</td>
+      <td>6.962143</td>
+      <td>1.190455</td>
+      <td>4.722948</td>
+      <td>2.839226</td>
+      <td>4.752492</td>
+    </tr>
+    <tr>
+      <th>16663</th>
+      <td>7.019255e-15</td>
+      <td>-5.019247</td>
+      <td>6.964106</td>
+      <td>1.131542</td>
+      <td>4.733726</td>
+      <td>2.891892</td>
+      <td>4.732832</td>
+      <td>-0.002734</td>
+      <td>0.003793</td>
+      <td>0.000616</td>
+      <td>0.002578</td>
+      <td>0.001575</td>
+      <td>0.002578</td>
+      <td>-5.021981</td>
+      <td>6.967898</td>
+      <td>1.132158</td>
+      <td>4.736304</td>
+      <td>2.893467</td>
+      <td>4.735410</td>
+    </tr>
+    <tr>
+      <th>16664</th>
+      <td>7.019677e-15</td>
+      <td>-4.991651</td>
+      <td>6.969232</td>
+      <td>1.069791</td>
+      <td>4.753368</td>
+      <td>2.948593</td>
+      <td>4.725178</td>
+      <td>-0.002719</td>
+      <td>0.003796</td>
+      <td>0.000583</td>
+      <td>0.002589</td>
+      <td>0.001606</td>
+      <td>0.002573</td>
+      <td>-4.994370</td>
+      <td>6.973027</td>
+      <td>1.070374</td>
+      <td>4.755957</td>
+      <td>2.950199</td>
+      <td>4.727751</td>
+    </tr>
+    <tr>
+      <th>16665</th>
+      <td>7.020098e-15</td>
+      <td>-4.965582</td>
+      <td>6.977188</td>
+      <td>1.003926</td>
+      <td>4.777691</td>
+      <td>3.006825</td>
+      <td>4.728724</td>
+      <td>-0.002704</td>
+      <td>0.003800</td>
+      <td>0.000547</td>
+      <td>0.002602</td>
+      <td>0.001638</td>
+      <td>0.002575</td>
+      <td>-4.968286</td>
+      <td>6.980988</td>
+      <td>1.004473</td>
+      <td>4.780293</td>
+      <td>3.008462</td>
+      <td>4.731299</td>
+    </tr>
+  </tbody>
+</table>
+<p>16666 rows × 19 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tc</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">tc</span><span class="o">.</span><span class="n">electrical_conductivity</span><span class="p">(</span><span class="n">ec</span><span class="p">,</span> <span class="s2">&quot;ElectricalConductivity&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+====================== Electrical Conductivity =======================
+
+Data saved in:
+ Simulations/qsp_cgs/PostProcessing/TransportCoefficients/Production/ElectricalConductivity_qsp_cgs.h5
+Simulations/qsp_cgs/PostProcessing/TransportCoefficients/Production/ElectricalConductivity_slices_qsp_cgs.h5
+
+No. of slices = 4
+No. dumps per slice = 2777
+Time interval of autocorrelation function = 7.0205e-15 [s] ~ 501 w_p T
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0cb1844250634045931bddc56d69d7a3", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_QSP_QSP_Tutorial_12_2.png" src="../../_images/examples_QSP_QSP_Tutorial_12_2.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tc</span><span class="o">.</span><span class="n">conductivity_df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Time</th>
+      <th colspan="2" halign="left">Electrical Conductivity</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>NaN</th>
+      <th>Mean</th>
+      <th>Std</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.212480e-19</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>8.424960e-19</td>
+      <td>5.412416e+14</td>
+      <td>9.348701e+13</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.263744e-18</td>
+      <td>1.082391e+15</td>
+      <td>1.869658e+14</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.684992e-18</td>
+      <td>1.623361e+15</td>
+      <td>2.804388e+14</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>16661</th>
+      <td>7.018413e-15</td>
+      <td>4.022931e+17</td>
+      <td>3.956391e+17</td>
+    </tr>
+    <tr>
+      <th>16662</th>
+      <td>7.018834e-15</td>
+      <td>4.022840e+17</td>
+      <td>3.957253e+17</td>
+    </tr>
+    <tr>
+      <th>16663</th>
+      <td>7.019255e-15</td>
+      <td>4.022752e+17</td>
+      <td>3.958105e+17</td>
+    </tr>
+    <tr>
+      <th>16664</th>
+      <td>7.019677e-15</td>
+      <td>4.022667e+17</td>
+      <td>3.958949e+17</td>
+    </tr>
+    <tr>
+      <th>16665</th>
+      <td>7.020098e-15</td>
+      <td>4.022586e+17</td>
+      <td>3.959783e+17</td>
+    </tr>
+  </tbody>
+</table>
+<p>16666 rows × 3 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescaling</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">ec</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">conductivity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">conductivity_df</span><span class="p">[(</span><span class="s2">&quot;Electrical Conductivity&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">rescaling</span><span class="p">,</span>
+       <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\sigma$&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">conductivity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mf">1e15</span><span class="p">,</span> <span class="n">tc</span><span class="o">.</span><span class="n">conductivity_df</span><span class="p">[(</span><span class="s2">&quot;Electrical Conductivity&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">rescaling</span><span class="p">,</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Mov Avg&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\tau$ [fs]&quot;</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot; $\sigma/\omega_p$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Text(0.5, 0, &#39;$\\tau$ [fs]&#39;), Text(0, 0.5, &#39; $\\sigma/\\omega_p$&#39;)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_QSP_QSP_Tutorial_14_1.png" src="../../_images/examples_QSP_QSP_Tutorial_14_1.png" />
 </div>
 </div>
 </section>
@@ -541,7 +1098,7 @@ Text(0.5, 135.8333333333334, &#39;$r/a_e$&#39;)
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Oct 29, 2021.<br/>
+      Last updated on Oct 30, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
