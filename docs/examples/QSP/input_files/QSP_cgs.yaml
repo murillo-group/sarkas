@@ -31,12 +31,12 @@ Integrator:
     dt: 7.0208e-20                    # sec
     equilibration_steps: 100000       
     eq_dump_step: 10
-    production_steps: 420000
+    production_steps: 400000
     prod_dump_step: 6
 
 Thermostat:
     type: Berendsen                   #  thermostat type
-    relaxation_timestep: 2
+    relaxation_timestep: 500
     berendsen_tau: 5.0
 
 Parameters:

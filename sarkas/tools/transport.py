@@ -38,6 +38,8 @@ class TransportCoefficients:
         self.verbose = params.verbose
         self.dt = params.dt
         self.total_plasma_frequency = params.total_plasma_frequency
+        self.box_volume = params.box_volume
+        self.pbox_volume = params.pbox_volume
         #
         self.saving_dir = None
         self.phase = phase
@@ -362,7 +364,7 @@ class TransportCoefficients:
 
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
-        const = self.beta
+        const = self.beta/observable.box_volume
         for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
             integrand = np.array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
             self.conductivity_df_slices[sigma_str + "_slice {}".format(isl)] = const * fast_integral_loop(time, integrand)
