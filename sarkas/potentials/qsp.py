@@ -124,7 +124,7 @@ def update_params(potential, params):
 
     deBroglie_const = TWOPI * params.hbar2 / params.kB
 
-    QSP_matrix = np.zeros((6, params.num_species, params.num_species))
+    potential.matrix = np.zeros((6, params.num_species, params.num_species))
     for i, name1 in enumerate(params.species_names):
         m1 = params.species_masses[i]
         q1 = params.species_charges[i]
@@ -143,18 +143,17 @@ def update_params(potential, params):
                 lambda_deB = np.sqrt(deBroglie_const / (reduced * params.total_ion_temperature))
 
             if name2 == name1:  # e-e
-                QSP_matrix[2, i, j] = log2 * params.kB * params.electron_temperature
-                QSP_matrix[3, i, j] = four_pi / (log2 * lambda_deB ** 2)
+                potential.matrix[2, i, j] = log2 * params.kB * params.electron_temperature
+                potential.matrix[3, i, j] = four_pi / (log2 * lambda_deB ** 2)
 
-            QSP_matrix[0, i, j] = q1 * q2 / params.fourpie0
-            QSP_matrix[1, i, j] = TWOPI / lambda_deB
+            potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
+            potential.matrix[1, i, j] = TWOPI / lambda_deB
 
     if not potential.qsp_pauli:
-        QSP_matrix[2, :, :] = 0.0
+        potential.matrix[2, :, :] = 0.0
 
-    QSP_matrix[4, :, :] = potential.pppm_alpha_ewald
-    QSP_matrix[5, :, :] = potential.rs
-    potential.matrix = QSP_matrix
+    potential.matrix[4, :, :] = potential.pppm_alpha_ewald
+    potential.matrix[5, :, :] = potential.a_rs
 
     if potential.qsp_type == "deutsch":
         potential.force = deutsch_force

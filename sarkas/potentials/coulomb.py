@@ -49,12 +49,12 @@ def update_params(potential, params):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
     if potential.method == "PP":
-        potential.matrix[2, :, :] = potential.rs
+        potential.matrix[2, :, :] = potential.a_rs
         potential.force = coulomb_force
         params.force_error = 0.0  # TODO: Implement force error in PP case
     elif potential.method == "pppm":
         potential.matrix[1, :, :] = potential.pppm_alpha_ewald
-        potential.matrix[2, :, :] = potential.rs
+        potential.matrix[2, :, :] = potential.a_rs
         # Calculate the (total) plasma frequency
         potential.force = coulomb_force_pppm
 

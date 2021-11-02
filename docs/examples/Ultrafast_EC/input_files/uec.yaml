@@ -24,7 +24,7 @@ Potential:
     type: Coulomb                     # potential type
     method: PP
     rc: 100.0e-6                      # cut-off radius, m
-    rs: 20.0e-9                       # short-range cutoff
+    a_rs: 20.0e-9                       # short-range cutoff
 
 Integrator:
     type: verlet

@@ -94,7 +94,7 @@ def update_params(potential, params):
             sigma2 += params.species_lj_sigmas[i]
             epsilon_tot += q1 * q2
 
-    potential.matrix[4, :, :] = potential.rs
+    potential.matrix[4, :, :] = potential.a_rs
 
     potential.force = lj_force
 

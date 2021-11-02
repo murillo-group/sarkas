@@ -171,8 +171,8 @@ class Potential:
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
-            if not hasattr(self, 'rs'):
-                self.rs = 0.0
+            if not hasattr(self, 'a_rs'):
+                self.a_rs = 0.0
             else:
                 warnings.warn(
                     "\nShort-range cut-off enabled. Use this feature with care!",

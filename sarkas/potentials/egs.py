@@ -186,7 +186,7 @@ def update_params(potential, params):
                 potential.matrix[4, i, j] = 1.0 / params.gamma_m
                 potential.matrix[5, i, j] = 1.0 / params.gamma_p
 
-    potential.matrix[6, :, :] = potential.rs
+    potential.matrix[6, :, :] = potential.a_rs
 
     if potential.method == "pppm":
         raise AlgorithmError("pppm algorithm not implemented yet.")
