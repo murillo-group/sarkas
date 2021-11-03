@@ -331,7 +331,7 @@ class Parameters:
             self.fourpie0 = 1.0
             self.a0 *= 1e2
 
-        if self.potential_type == 'LJ':
+        if self.potential_type == 'lj':
             self.fourpie0 = 1.0
             self.species_lj_sigmas = np.zeros(self.num_species)
 
@@ -365,6 +365,8 @@ class Parameters:
         wp_tot_sq = 0.0
         lambda_D = 0.0
 
+        if self.magnetized:
+            self.magnetic_field = np.array(self.magnetic_field, dtype = np.float)
         # Initialization of attributes
         self.total_num_ptcls = 0
         self.total_num_density = 0.0
@@ -422,7 +424,7 @@ class Parameters:
                 self.species_charges[i] = 0.0
 
             # Calculate the (total) plasma frequency, QFactor, debye_length
-            if not self.potential_type == "LJ":
+            if not self.potential_type == "lj":
                 # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
                 sp.QFactor = sp.num * sp.charge ** 2
                 self.QFactor += sp.QFactor / self.fourpie0
@@ -1645,7 +1647,7 @@ class Species:
         print('\tPlasma Frequency = {:.6e} [rad/s]'.format(self.plasma_frequency))
         if self.cyclotron_frequency:
             print('\tCyclotron Frequency = {:.6e} [rad/s]'.format(self.cyclotron_frequency) )
-            print('\tbeta_c = {:.4f}'.format(self.cyclotron_frequency/self.plasma_frequency))
+            print('\tbeta_c = {:.4e}'.format(self.cyclotron_frequency/self.plasma_frequency))
 
     # Methods
     # -------
