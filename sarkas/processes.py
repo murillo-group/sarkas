@@ -66,6 +66,7 @@ class Process:
         self.parameters = Parameters()
         self.particles = Particles()
         self.species = []
+        self.observables_list = []
         self.input_file = input_file if input_file else None
         self.timer = SarkasTimer()
         self.io = InputOutput(process=self.__name__)
@@ -364,59 +365,70 @@ class PostProcess(Process):
     def run(self):
         """Calculate all the observables from the YAML input file."""
 
-        for obs in self.observables_list:
-            # Check that the observable is actually there
-            if obs in self.__dict__.keys():
-                self.__dict__[obs].setup(self.parameters)
-                if obs == 'therm':
-                    self.therm.temp_energy_plot(self)
-                else:
-                    self.io.postprocess_info(self, write_to_file=True, observable=obs)
-                    self.__dict__[obs].compute()
+        if len(self.observables_list) == 0:
+            # Make Temperature and Energy plots
+            self.therm = sk_obs.Thermodynamics()
+            self.therm.setup(self.parameters)
+            if self.parameters.equilibration_steps > 0:
+                self.therm.temp_energy_plot(self, phase = "equilibration")
+            self.therm.temp_energy_plot(self, phase = "production")
+            # Calculate the RDF.
+            self.rdf = sk_obs.RadialDistributionFunction()
+            self.rdf.setup(self.parameters)
+            self.rdf.parse()
+        else:
+            for obs in self.observables_list:
+                # Check that the observable is actually there
+                if obs in self.__dict__.keys():
+                    self.__dict__[obs].setup(self.parameters)
+                    if obs == 'therm':
+                        self.therm.temp_energy_plot(self)
+                    else:
+                        self.io.postprocess_info(self, write_to_file=True, observable=obs)
+                        self.__dict__[obs].compute()
 
-            # Calculate transport coefficients
-            if hasattr(self, 'transport_dict'):
-                from sarkas.tools.transport import TransportCoefficients
+                # Calculate transport coefficients
+                if hasattr(self, 'transport_dict'):
+                    from sarkas.tools.transport import TransportCoefficients
 
-                tc = TransportCoefficients(self.parameters)
+                    tc = TransportCoefficients(self.parameters)
 
-                for coeff in self.transport_dict:
+                    for coeff in self.transport_dict:
 
-                    for key, coeff_kwargs in coeff.items():
+                        for key, coeff_kwargs in coeff.items():
 
-                        if key.lower() == 'diffusion':
-                            # Calculate if not already
-                            if not self.vacf:
-                                self.vacf = sk_obs.VelocityAutoCorrelationFunction()
-                                self.vacf.setup(self.parameters)
-                                # Use parse in case you calculated it already
-                                self.vacf.parse()
+                            if key.lower() == 'diffusion':
+                                # Calculate if not already
+                                if not self.vacf:
+                                    self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                                    self.vacf.setup(self.parameters)
+                                    # Use parse in case you calculated it already
+                                    self.vacf.parse()
 
-                            tc.diffusion(observable=self.vacf)
+                                tc.diffusion(observable=self.vacf)
 
-                        elif key.lower() == 'interdiffusion':
-                            if not self.diff_flux:
-                                self.diff_flux = sk_obs.DiffusionFlux()
-                                self.diff_flux.setup(self.parameters)
-                                self.diff_flux.parse()
+                            elif key.lower() == 'interdiffusion':
+                                if not self.diff_flux:
+                                    self.diff_flux = sk_obs.DiffusionFlux()
+                                    self.diff_flux.setup(self.parameters)
+                                    self.diff_flux.parse()
 
-                            tc.interdiffusion(self.diff_flux)
+                                tc.interdiffusion(self.diff_flux)
 
-                        elif key.lower() == "viscosity":
-                            if not self.p_tensor:
-                                self.p_tensor = sk_obs.PressureTensor()
-                                self.p_tensor.setup(self.parameters)
-                                self.p_tensor.parse()
-                            tc.viscosity(self.p_tensor)
+                            elif key.lower() == "viscosity":
+                                if not self.p_tensor:
+                                    self.p_tensor = sk_obs.PressureTensor()
+                                    self.p_tensor.setup(self.parameters)
+                                    self.p_tensor.parse()
+                                tc.viscosity(self.p_tensor)
 
-                        elif key.lower() == "electricalconductivity":
-                            if not self.ec:
-                                self.ec = sk_obs.ElectricCurrent()
-                                self.ec.setup(self.parameters)
-                                self.ec.parse()
+                            elif key.lower() == "electricalconductivity":
+                                if not self.ec:
+                                    self.ec = sk_obs.ElectricCurrent()
+                                    self.ec.setup(self.parameters)
+                                    self.ec.parse()
 
-                            tc.electrical_conductivity(self.ec)
-
+                                tc.electrical_conductivity(self.ec)
 
 class PreProcess(Process):
     """
