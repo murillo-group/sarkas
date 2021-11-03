@@ -27,7 +27,7 @@ class Potential:
     rc : float
         Cutoff radius.
 
-    rs : float
+    a_rs : float
         Short-range cutoff to deal with divergence of the potential for r -> 0.
 
     type : str
@@ -112,6 +112,7 @@ class Potential:
         self.QFactor = 0.0
         self.total_net_charge = 0.0
         self.pppm_on = False
+        self.a_rs = 0.0
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -171,9 +172,7 @@ class Potential:
                 self.rc = params.box_lengths.min() / 2.
                 self.linked_list_on = False  # linked list off
 
-            if not hasattr(self, 'a_rs'):
-                self.a_rs = 0.0
-            else:
+            if self.a_rs != 0.0:
                 warnings.warn(
                     "\nShort-range cut-off enabled. Use this feature with care!",
                     category=AlgorithmWarning)
