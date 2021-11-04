@@ -9,9 +9,10 @@ import pyfftw
 # These "ignore" are needed because numba does not support pyfftw yet
 from numba.core.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
 import warnings
-warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
-warnings.simplefilter('ignore', category=NumbaWarning)
-warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
+
+warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
+warnings.simplefilter("ignore", category=NumbaWarning)
+warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
 
 
 @njit
@@ -69,9 +70,9 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
     G_k = np.zeros((mesh_sizes[2], mesh_sizes[1], mesh_sizes[0]))
 
-    nz_mid = mesh_sizes[2]/2 if np.mod(mesh_sizes[2], 2) == 0 else (mesh_sizes[2] - 1)/2
-    ny_mid = mesh_sizes[1]/2 if np.mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1)/2
-    nx_mid = mesh_sizes[0]/2 if np.mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1)/2
+    nz_mid = mesh_sizes[2] / 2 if np.mod(mesh_sizes[2], 2) == 0 else (mesh_sizes[2] - 1) / 2
+    ny_mid = mesh_sizes[1] / 2 if np.mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1) / 2
+    nx_mid = mesh_sizes[0] / 2 if np.mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1) / 2
 
     # nx_v = np.arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
     # ny_v = np.arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
@@ -79,15 +80,15 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
     # Dev Note:
     # The above three lines where giving a problem with Numba in Windows only.
     # I replaced them with the ones below. I don't know why it was giving a problem.
-    nx_v = np.zeros((1,mesh_sizes[0]), dtype=np.int64)
-    nx_v[0,:] = np.arange(mesh_sizes[0])
+    nx_v = np.zeros((1, mesh_sizes[0]), dtype=np.int64)
+    nx_v[0, :] = np.arange(mesh_sizes[0])
 
     ny_v = np.zeros((mesh_sizes[1], 1), dtype=np.int64)
-    ny_v[:,0] = np.arange(mesh_sizes[1])
-    
+    ny_v[:, 0] = np.arange(mesh_sizes[1])
+
     nz_v = np.zeros((mesh_sizes[2], 1, 1), dtype=np.int64)
-    nz_v[:,0, 0] = np.arange(mesh_sizes[2])
-    
+    nz_v[:, 0, 0] = np.arange(mesh_sizes[2])
+
     kx_v = 2.0 * np.pi * (nx_v - nx_mid) / box_lengths[0]
     ky_v = 2.0 * np.pi * (ny_v - ny_mid) / box_lengths[1]
     kz_v = 2.0 * np.pi * (nz_v - nz_mid) / box_lengths[2]
@@ -127,7 +128,9 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
                             for mx in range(-aliases[0], aliases[0] + 1):
                                 kx_M = two_pi * (nx_sh + mx * mesh_sizes[0]) / box_lengths[0]
-                                U_kx_M = np.sin(0.5 * kx_M * h_array[0]) / (0.5 * kx_M * h_array[0]) if kx_M != 0.0 else 1.0
+                                U_kx_M = (
+                                    np.sin(0.5 * kx_M * h_array[0]) / (0.5 * kx_M * h_array[0]) if kx_M != 0.0 else 1.0
+                                )
 
                                 k_M_sq = kx_M * kx_M + ky_M * ky_M + kz_M * kz_M
 
@@ -138,7 +141,7 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
                                 k_dot_k_M = kx * kx_M + ky * ky_M + kz * kz_M
 
-                                U_G_k += (U_k_M_sq * G_k_M * k_dot_k_M)
+                                U_G_k += U_k_M_sq * G_k_M * k_dot_k_M
                                 U_k_sq += U_k_M_sq
 
                     # eq.(22) of Ref.[Dharuman2017]_
@@ -148,7 +151,7 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
                     # eq.(28) of Ref.[Dharuman2017]_
                     PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
 
-    PM_err = np.sqrt(PM_err) / np.prod(box_lengths) ** (1. / 3.)
+    PM_err = np.sqrt(PM_err) / np.prod(box_lengths) ** (1.0 / 3.0)
 
     return G_k, kx_v, ky_v, kz_v, PM_err
 
@@ -180,57 +183,65 @@ def assgnmnt_func(cao, x):
 
     elif cao == 2:
 
-        W[0] = 0.5 * (1. - 2. * x)
-        W[1] = 0.5 * (1. + 2. * x)
+        W[0] = 0.5 * (1.0 - 2.0 * x)
+        W[1] = 0.5 * (1.0 + 2.0 * x)
 
     elif cao == 3:
 
-        W[0] = (1. - 4. * x + 4. * x ** 2) / 8.
-        W[1] = (3. - 4. * x ** 2) / 4.
-        W[2] = (1. + 4. * x + 4. * x ** 2) / 8.
+        W[0] = (1.0 - 4.0 * x + 4.0 * x ** 2) / 8.0
+        W[1] = (3.0 - 4.0 * x ** 2) / 4.0
+        W[2] = (1.0 + 4.0 * x + 4.0 * x ** 2) / 8.0
 
     elif cao == 4:
 
-        W[0] = (1. - 6. * x + 12. * x ** 2 - 8. * x ** 3) / 48.
-        W[1] = (23. - 30. * x - 12. * x ** 2 + 24. * x ** 3) / 48.
-        W[2] = (23. + 30. * x - 12. * x ** 2 - 24. * x ** 3) / 48.
-        W[3] = (1. + 6. * x + 12. * x ** 2 + 8. * x ** 3) / 48.
+        W[0] = (1.0 - 6.0 * x + 12.0 * x ** 2 - 8.0 * x ** 3) / 48.0
+        W[1] = (23.0 - 30.0 * x - 12.0 * x ** 2 + 24.0 * x ** 3) / 48.0
+        W[2] = (23.0 + 30.0 * x - 12.0 * x ** 2 - 24.0 * x ** 3) / 48.0
+        W[3] = (1.0 + 6.0 * x + 12.0 * x ** 2 + 8.0 * x ** 3) / 48.0
 
     elif cao == 5:
 
-        W[0] = (1. - 8. * x + 24. * x ** 2 - 32. * x ** 3 + 16. * x ** 4) / 384.
-        W[1] = (19. - 44. * x + 24. * x ** 2 + 16. * x ** 3 - 16. * x ** 4) / 96.
-        W[2] = (115. - 120. * x ** 2 + 48. * x ** 4) / 192.
-        W[3] = (19. + 44. * x + 24. * x ** 2 - 16. * x ** 3 - 16. * x ** 4) / 96.
-        W[4] = (1. + 8. * x + 24. * x ** 2 + 32. * x ** 3 + 16. * x ** 4) / 384.
+        W[0] = (1.0 - 8.0 * x + 24.0 * x ** 2 - 32.0 * x ** 3 + 16.0 * x ** 4) / 384.0
+        W[1] = (19.0 - 44.0 * x + 24.0 * x ** 2 + 16.0 * x ** 3 - 16.0 * x ** 4) / 96.0
+        W[2] = (115.0 - 120.0 * x ** 2 + 48.0 * x ** 4) / 192.0
+        W[3] = (19.0 + 44.0 * x + 24.0 * x ** 2 - 16.0 * x ** 3 - 16.0 * x ** 4) / 96.0
+        W[4] = (1.0 + 8.0 * x + 24.0 * x ** 2 + 32.0 * x ** 3 + 16.0 * x ** 4) / 384.0
 
     elif cao == 6:
-        W[0] = (1. - 10. * x + 40. * x ** 2 - 80. * x ** 3 + 80. * x ** 4 - 32. * x ** 5) / 3840.
-        W[1] = (237. - 750. * x + 840. * x ** 2 - 240. * x ** 3 - 240. * x ** 4 + 160. * x ** 5) / 3840.
-        W[2] = (841. - 770. * x - 440. * x ** 2 + 560. * x ** 3 + 80. * x ** 4 - 160. * x ** 5) / 1920.
-        W[3] = (841. + 770. * x - 440. * x ** 2 - 560. * x ** 3 + 80. * x ** 4 + 160. * x ** 5) / 1920.
-        W[4] = (237. + 750. * x + 840. * x ** 2 + 240. * x ** 3 - 240. * x ** 4 - 160. * x ** 5) / 3840.
-        W[5] = (1. + 10. * x + 40. * x ** 2 + 80. * x ** 3 + 80. * x ** 4 + 32. * x ** 5) / 3840.
+        W[0] = (1.0 - 10.0 * x + 40.0 * x ** 2 - 80.0 * x ** 3 + 80.0 * x ** 4 - 32.0 * x ** 5) / 3840.0
+        W[1] = (237.0 - 750.0 * x + 840.0 * x ** 2 - 240.0 * x ** 3 - 240.0 * x ** 4 + 160.0 * x ** 5) / 3840.0
+        W[2] = (841.0 - 770.0 * x - 440.0 * x ** 2 + 560.0 * x ** 3 + 80.0 * x ** 4 - 160.0 * x ** 5) / 1920.0
+        W[3] = (841.0 + 770.0 * x - 440.0 * x ** 2 - 560.0 * x ** 3 + 80.0 * x ** 4 + 160.0 * x ** 5) / 1920.0
+        W[4] = (237.0 + 750.0 * x + 840.0 * x ** 2 + 240.0 * x ** 3 - 240.0 * x ** 4 - 160.0 * x ** 5) / 3840.0
+        W[5] = (1.0 + 10.0 * x + 40.0 * x ** 2 + 80.0 * x ** 3 + 80.0 * x ** 4 + 32.0 * x ** 5) / 3840.0
 
     elif cao == 7:
 
-        W[0] = (1. - 12. * x + 60. * x * 2 - 160. * x ** 3 + 240. * x ** 4 - 192. * x ** 5 + 64. * x ** 6) / 46080.
+        W[0] = (
+            1.0 - 12.0 * x + 60.0 * x * 2 - 160.0 * x ** 3 + 240.0 * x ** 4 - 192.0 * x ** 5 + 64.0 * x ** 6
+        ) / 46080.0
 
-        W[1] = (361. - 1416. * x + 2220. * x ** 2 - 1600. * x ** 3 + 240. * x ** 4
-                + 384. * x ** 5 - 192. * x ** 6) / 23040.
+        W[1] = (
+            361.0 - 1416.0 * x + 2220.0 * x ** 2 - 1600.0 * x ** 3 + 240.0 * x ** 4 + 384.0 * x ** 5 - 192.0 * x ** 6
+        ) / 23040.0
 
-        W[2] = (10543. - 17340. * x + 4740. * x ** 2 + 6880. * x ** 3 - 4080. * x ** 4
-                - 960. * x ** 5 + 960. * x ** 6) / 46080.
+        W[2] = (
+            10543.0 - 17340.0 * x + 4740.0 * x ** 2 + 6880.0 * x ** 3 - 4080.0 * x ** 4 - 960.0 * x ** 5 + 960.0 * x ** 6
+        ) / 46080.0
 
-        W[3] = (5887. - 4620. * x ** 2 + 1680. * x ** 4 - 320. * x ** 6) / 11520.
+        W[3] = (5887.0 - 4620.0 * x ** 2 + 1680.0 * x ** 4 - 320.0 * x ** 6) / 11520.0
 
-        W[4] = (10543. + 17340. * x + 4740. * x ** 2 - 6880. * x ** 3 - 4080. * x ** 4
-                + 960. * x ** 5 + 960. * x ** 6) / 46080.
+        W[4] = (
+            10543.0 + 17340.0 * x + 4740.0 * x ** 2 - 6880.0 * x ** 3 - 4080.0 * x ** 4 + 960.0 * x ** 5 + 960.0 * x ** 6
+        ) / 46080.0
 
-        W[5] = (361. + 1416. * x + 2220. * x ** 2 + 1600. * x ** 3 + 240. * x ** 4
-                - 384. * x ** 5 - 192. * x ** 6) / 23040.
+        W[5] = (
+            361.0 + 1416.0 * x + 2220.0 * x ** 2 + 1600.0 * x ** 3 + 240.0 * x ** 4 - 384.0 * x ** 5 - 192.0 * x ** 6
+        ) / 23040.0
 
-        W[6] = (1. + 12. * x + 60. * x ** 2 + 160. * x ** 3 + 240. * x ** 4 + 192. * x ** 5 + 64. * x ** 6) / 46080.
+        W[6] = (
+            1.0 + 12.0 * x + 60.0 * x ** 2 + 160.0 * x ** 3 + 240.0 * x ** 4 + 192.0 * x ** 5 + 64.0 * x ** 6
+        ) / 46080.0
 
     return W
 
@@ -564,7 +575,7 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
     # number of particles
     N = pos.shape[0]
     # Mesh spacings = h_x, h_y, h_z
-    mesh_spacings = box_lengths/mesh_sizes
+    mesh_spacings = box_lengths / mesh_sizes
     # Calculate charge density on mesh
     rho_r = calc_charge_dens(pos, charges, N, cao, mesh_sizes, mesh_spacings)
     # Prepare for fft

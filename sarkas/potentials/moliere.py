@@ -66,18 +66,15 @@ def update_params(potential, params):
         for j, q2 in enumerate(params.species_charges):
 
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
-            potential.matrix[1:params_len + 1, i, j] = potential.screening_charges
-            potential.matrix[params_len + 1:, i, j] = potential.screening_lengths
+            potential.matrix[1 : params_len + 1, i, j] = potential.screening_charges
+            potential.matrix[params_len + 1 :, i, j] = potential.screening_lengths
 
     potential.force = moliere_force
     # Use Yukawa force error formula with the smallest screening length.
     # This overestimates the Force error, but it doesn't matter.
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type,
-        potential.rc,
-        potential.matrix[params_len + 1:, :, :],
-        np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
     )
 
 

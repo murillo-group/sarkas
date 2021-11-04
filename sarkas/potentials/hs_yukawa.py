@@ -53,7 +53,7 @@ def hs_yukawa_force(r, pot_matrix):
 
     """
     U_y = pot_matrix[0] * np.exp(-pot_matrix[1] * r) / r
-    U_hs = (pot_matrix[2]/r)**(50)
+    U_hs = (pot_matrix[2] / r) ** (50)
     U = U_y + U_hs
     force = U_y * (1.0 / r + pot_matrix[1]) + (50.0) * U_hs / r
 
@@ -107,16 +107,13 @@ def update_params(potential, params):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
-    potential.matrix[2,:, :] = potential.hs_radius
+    potential.matrix[2, :, :] = potential.hs_radius
 
     if potential.method == "pp":
         # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
         potential.force = hs_yukawa_force
         params.force_error = force_error_analytic_pp(
-            'yukawa',
-            potential.rc,
-            potential.matrix,
-            np.sqrt(3.0 * params.a_ws/(4.0 * np.pi))
+            "yukawa", potential.rc, potential.matrix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
         )
         # # Force error calculated from eq.(43) in Ref.[1]_
         # params.force_error = np.sqrt( TWOPI / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)

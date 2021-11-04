@@ -212,7 +212,7 @@ class Parameters:
         self.box_volume = 0.0
         self.pbox_volume = 0.0
         self.dimensions = 3
-        self.J2erg = 1.0e+7  # erg/J
+        self.J2erg = 1.0e7  # erg/J
         self.eps0 = const.epsilon_0
         self.fourpie0 = 4.0 * np.pi * self.eps0
         self.mp = const.physical_constants["proton mass"][0]
@@ -229,7 +229,7 @@ class Parameters:
         self.a_ws = 0.0
 
         # Control and Timing
-        self.boundary_conditions = 'periodic'
+        self.boundary_conditions = "periodic"
         self.job_id = None
         self.job_dir = None
         self.log_file = None
@@ -238,14 +238,14 @@ class Parameters:
         self.plot_style = None
         self.pre_run = False
         self.simulations_dir = "Simulations"
-        self.production_dir = 'Production'
-        self.magnetization_dir = 'Magnetization'
-        self.equilibration_dir = 'Equilibration'
+        self.production_dir = "Production"
+        self.magnetization_dir = "Magnetization"
+        self.equilibration_dir = "Equilibration"
         self.preprocessing_dir = "PreProcessing"
         self.postprocessing_dir = "PostProcessing"
-        self.prod_dump_dir = 'dumps'
-        self.eq_dump_dir = 'dumps'
-        self.mag_dump_dir = 'dumps'
+        self.prod_dump_dir = "dumps"
+        self.eq_dump_dir = "dumps"
+        self.mag_dump_dir = "dumps"
         self.verbose = True
         self.restart_step = None
         self.np_per_side = None
@@ -282,10 +282,10 @@ class Parameters:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Parameters( \n'
+        disp = "Parameters( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict):
@@ -331,7 +331,7 @@ class Parameters:
             self.fourpie0 = 1.0
             self.a0 *= 1e2
 
-        if self.potential_type == 'lj':
+        if self.potential_type == "lj":
             self.fourpie0 = 1.0
             self.species_lj_sigmas = np.zeros(self.num_species)
 
@@ -366,7 +366,7 @@ class Parameters:
         lambda_D = 0.0
 
         if self.magnetized:
-            self.magnetic_field = np.array(self.magnetic_field, dtype = np.float)
+            self.magnetic_field = np.array(self.magnetic_field, dtype=np.float)
         # Initialization of attributes
         self.total_num_ptcls = 0
         self.total_num_density = 0.0
@@ -389,7 +389,7 @@ class Parameters:
                 self.total_num_density += sp.number_density
 
             if not hasattr(sp, "number_density"):
-                raise AttributeError("\nSpecies {} number density not defined".format(sp.name) )
+                raise AttributeError("\nSpecies {} number density not defined".format(sp.name))
 
             # Update arrays of species information
             self.species_names.append(sp.name)
@@ -478,18 +478,18 @@ class Parameters:
         self.average_charge = np.transpose(self.species_charges) @ self.species_concentrations
         self.average_mass = np.transpose(self.species_masses) @ self.species_concentrations
         # Hydrodynamic Frequency aka Virtual Average Atom
-        self.hydrodynamic_frequency = np.sqrt(4.0 * np.pi * self.average_charge ** 2 * self.total_num_density /
-                                              (self.fourpie0 * self.average_mass))
+        self.hydrodynamic_frequency = np.sqrt(
+            4.0 * np.pi * self.average_charge ** 2 * self.total_num_density / (self.fourpie0 * self.average_mass)
+        )
 
         # Simulation Box Parameters
         # Wigner-Seitz radius calculated from the total number density
-        self.a_ws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1. / 3.)
+        self.a_ws = (3.0 / (4.0 * np.pi * self.total_num_density)) ** (1.0 / 3.0)
 
         # Calculate initial particle's and simulation's box parameters
         if self.np_per_side:
             if int(np.prod(self.np_per_side)) != self.total_num_ptcls:
-                raise ValueError("Number of particles per dimension "
-                                 "does not match total number of particles.")
+                raise ValueError("Number of particles per dimension " "does not match total number of particles.")
 
             self.LPx = self.a_ws * self.np_per_side[0] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
             self.LPy = self.a_ws * self.np_per_side[1] * (4.0 * np.pi / 3.0) ** (1.0 / 3.0)
@@ -557,96 +557,119 @@ class Parameters:
 
         """
         print("\nSIMULATION AND INITIAL PARTICLE BOX:")
-        print('Units: ', self.units)
-        print('Wigner-Seitz radius = {:.6e} '.format(self.a_ws), end='')
+        print("Units: ", self.units)
+        print("Wigner-Seitz radius = {:.6e} ".format(self.a_ws), end="")
         print("[cm]" if self.units == "cgs" else "[m]")
-        print('No. of non-zero box dimensions = ', int(self.dimensions))
-        print('Box side along x axis = {:.6e} a_ws = {:.6e} '.format(
-            self.box_lengths[0] / self.a_ws, self.box_lengths[0]),
-            end='')
-        print("[cm]" if self.units == "cgs" else "[m]")
-
-        print('Box side along y axis = {:.6e} a_ws = {:.6e} '.format(
-            self.box_lengths[1] / self.a_ws, self.box_lengths[1]),
-            end='')
+        print("No. of non-zero box dimensions = ", int(self.dimensions))
+        print(
+            "Box side along x axis = {:.6e} a_ws = {:.6e} ".format(self.box_lengths[0] / self.a_ws, self.box_lengths[0]),
+            end="",
+        )
         print("[cm]" if self.units == "cgs" else "[m]")
 
-        print('Box side along z axis = {:.6e} a_ws = {:.6e} '.format(
-            self.box_lengths[2] / self.a_ws, self.box_lengths[2]),
-            end='')
+        print(
+            "Box side along y axis = {:.6e} a_ws = {:.6e} ".format(self.box_lengths[1] / self.a_ws, self.box_lengths[1]),
+            end="",
+        )
         print("[cm]" if self.units == "cgs" else "[m]")
-        print("Box Volume = {:.6e} ".format(self.box_volume), end='')
+
+        print(
+            "Box side along z axis = {:.6e} a_ws = {:.6e} ".format(self.box_lengths[2] / self.a_ws, self.box_lengths[2]),
+            end="",
+        )
+        print("[cm]" if self.units == "cgs" else "[m]")
+        print("Box Volume = {:.6e} ".format(self.box_volume), end="")
         print("[cm^3]" if self.units == "cgs" else "[m^3]")
 
-        print('Initial particle box side along x axis = {:.6e} a_ws = {:.6e} '.format(
-            self.pbox_lengths[0] / self.a_ws, self.pbox_lengths[0]),
-            end='')
+        print(
+            "Initial particle box side along x axis = {:.6e} a_ws = {:.6e} ".format(
+                self.pbox_lengths[0] / self.a_ws, self.pbox_lengths[0]
+            ),
+            end="",
+        )
         print("[cm]" if self.units == "cgs" else "[m]")
 
-        print('Initial particle box side along y axis = {:.6e} a_ws = {:.6e} '.format(
-            self.pbox_lengths[1] / self.a_ws, self.pbox_lengths[1]),
-            end='')
+        print(
+            "Initial particle box side along y axis = {:.6e} a_ws = {:.6e} ".format(
+                self.pbox_lengths[1] / self.a_ws, self.pbox_lengths[1]
+            ),
+            end="",
+        )
         print("[cm]" if self.units == "cgs" else "[m]")
 
-        print('Initial particle box side along z axis = {:.6e} a_ws = {:.6e} '.format(
-            self.pbox_lengths[2] / self.a_ws, self.pbox_lengths[2]),
-            end='')
+        print(
+            "Initial particle box side along z axis = {:.6e} a_ws = {:.6e} ".format(
+                self.pbox_lengths[2] / self.a_ws, self.pbox_lengths[2]
+            ),
+            end="",
+        )
         print("[cm]" if self.units == "cgs" else "[m]")
-        print("Initial particle box Volume = {:.6e} ".format(self.pbox_volume), end='')
+        print("Initial particle box Volume = {:.6e} ".format(self.pbox_volume), end="")
         print("[cm^3]" if self.units == "cgs" else "[m^3]")
 
-        print('Boundary conditions: {}'.format(self.boundary_conditions))
+        print("Boundary conditions: {}".format(self.boundary_conditions))
 
         if electron_properties:
-            print('\nELECTRON PROPERTIES:')
-            print('Number density: n_e = {:.6e} '.format(self.ne), end='')
+            print("\nELECTRON PROPERTIES:")
+            print("Number density: n_e = {:.6e} ".format(self.ne), end="")
             print("[N/cc]" if self.units == "cgs" else "[N/m^3]")
 
-            print('Wigner-Seitz radius: a_e = {:.6e} '.format(self.ae_ws), end='')
+            print("Wigner-Seitz radius: a_e = {:.6e} ".format(self.ae_ws), end="")
             print("[cm]" if self.units == "cgs" else "[m]")
 
-            print('Temperature: T_e = {:.6e} [K] = {:.6e} [eV]'.format(
-                self.electron_temperature, self.electron_temperature / self.eV2K))
+            print(
+                "Temperature: T_e = {:.6e} [K] = {:.6e} [eV]".format(
+                    self.electron_temperature, self.electron_temperature / self.eV2K
+                )
+            )
 
-            print('de Broglie wavelength: lambda_deB = {:.6e} '.format(self.lambda_deB), end='')
+            print("de Broglie wavelength: lambda_deB = {:.6e} ".format(self.lambda_deB), end="")
             print("[cm]" if self.units == "cgs" else "[m]")
 
-            print('Thomas-Fermi length: lambda_TF = {:.6e} '.format(self.lambda_TF), end='')
+            print("Thomas-Fermi length: lambda_TF = {:.6e} ".format(self.lambda_TF), end="")
             print("[cm]" if self.units == "cgs" else "[m]")
 
-            print('Fermi wave number: k_F = {:.6e} '.format(self.kF), end='')
+            print("Fermi wave number: k_F = {:.6e} ".format(self.kF), end="")
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-            print('Fermi Energy: E_F = {:.6e} [eV]'.format(self.fermi_energy / self.kB / self.eV2K))
+            print("Fermi Energy: E_F = {:.6e} [eV]".format(self.fermi_energy / self.kB / self.eV2K))
 
-            print("Relativistic parameter: x_F = {:.6e}".format(self.relativistic_parameter), end='')
+            print("Relativistic parameter: x_F = {:.6e}".format(self.relativistic_parameter), end="")
             kf_xf = self.me * self.c0 ** 2 * (np.sqrt(1.0 + self.relativistic_parameter ** 2) - 1.0)
             print(" --> E_F = {:.6e} [eV]".format(kf_xf / self.kB / self.eV2K))
 
-            print('Degeneracy parameter: Theta = {:.6e} '.format(self.electron_degeneracy_parameter))
-            print('Coupling: r_s = {:.6f},  Gamma_e = {:.6f}'.format(self.rs, self.electron_coupling) )
-            print('Warm Dense Matter Parameter: W = {:.4e}'.format(self.wdm_parameter))
+            print("Degeneracy parameter: Theta = {:.6e} ".format(self.electron_degeneracy_parameter))
+            print("Coupling: r_s = {:.6f},  Gamma_e = {:.6f}".format(self.rs, self.electron_coupling))
+            print("Warm Dense Matter Parameter: W = {:.4e}".format(self.wdm_parameter))
 
-            print("Chemical potential: mu = {:.4e} k_B T_e = {:.4e} E_F".format(
-                self.eta_e, self.eta_e * self.kB * self.electron_temperature / self.fermi_energy))
+            print(
+                "Chemical potential: mu = {:.4e} k_B T_e = {:.4e} E_F".format(
+                    self.eta_e, self.eta_e * self.kB * self.electron_temperature / self.fermi_energy
+                )
+            )
 
             if self.magnetized:
                 print("Electron cyclotron frequency: w_c = {:.6e}".format(self.electron_cyclotron_frequency))
-                print("Lowest Landau energy level: h w_c/2 = {:.6e}".format(self.electron_magnetic_energy/2))
-                print("Electron magnetic energy gap: h w_c = {:.6e} = {:.4e} E_F = {:.4e} k_B T_e".format(
-                    self.electron_magnetic_energy,
-                    self.electron_magnetic_energy/self.fermi_energy,
-                    self.electron_magnetic_energy / (self.kB * self.electron_temperature),
-                ))
+                print("Lowest Landau energy level: h w_c/2 = {:.6e}".format(self.electron_magnetic_energy / 2))
+                print(
+                    "Electron magnetic energy gap: h w_c = {:.6e} = {:.4e} E_F = {:.4e} k_B T_e".format(
+                        self.electron_magnetic_energy,
+                        self.electron_magnetic_energy / self.fermi_energy,
+                        self.electron_magnetic_energy / (self.kB * self.electron_temperature),
+                    )
+                )
 
         if self.magnetized:
-            print('\nMAGNETIC FIELD:')
-            print('Magnetic Field = [{:.4e}, {:.4e}, {:.4e}] '.format(*self.magnetic_field), end='')
+            print("\nMAGNETIC FIELD:")
+            print("Magnetic Field = [{:.4e}, {:.4e}, {:.4e}] ".format(*self.magnetic_field), end="")
             print("[Tesla]" if self.units == "mks" else "[Gauss]")
-            print('Magnetic Field Magnitude = {:.4e} '.format(np.linalg.norm(self.magnetic_field)), end='')
+            print("Magnetic Field Magnitude = {:.4e} ".format(np.linalg.norm(self.magnetic_field)), end="")
             print("[Tesla]" if self.units == "mks" else "[Gauss]")
-            print('Magnetic Field Unit Vector = [{:.4e}, {:.4e}, {:.4e}]'.format(
-                *self.magnetic_field/np.linalg.norm(self.magnetic_field) ) )
+            print(
+                "Magnetic Field Unit Vector = [{:.4e}, {:.4e}, {:.4e}]".format(
+                    *self.magnetic_field / np.linalg.norm(self.magnetic_field)
+                )
+            )
 
 
 class Particles:
@@ -759,10 +782,10 @@ class Particles:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Particles( \n'
+        disp = "Particles( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def setup(self, params, species):
@@ -813,7 +836,7 @@ class Particles:
         self.cyclotron_frequencies = np.zeros(self.total_num_ptcls)
         # No. of independent rdf
         self.no_grs = int(self.num_species * (self.num_species + 1) / 2)
-        if hasattr(params, 'rdf_nbins'):
+        if hasattr(params, "rdf_nbins"):
             self.rdf_nbins = params.rdf_nbins
         else:
             # nbins = 5% of the number of particles.
@@ -839,52 +862,54 @@ class Particles:
 
         """
         # Particles Position Initialization
-        if params.load_method in ['equilibration_restart', 'eq_restart',
-                                  'magnetization_restart', 'mag_restart',
-                                  'production_restart', 'prod_restart']:
+        if params.load_method in [
+            "equilibration_restart",
+            "eq_restart",
+            "magnetization_restart",
+            "mag_restart",
+            "production_restart",
+            "prod_restart",
+        ]:
             # checks
             if params.restart_step is None:
-                raise AttributeError("Restart step not defined."
-                                     "Please define Parameters.restart_step.")
+                raise AttributeError("Restart step not defined." "Please define Parameters.restart_step.")
 
             if type(params.restart_step) is not int:
                 params.restart_step = int(params.restart_step)
 
-            if params.load_method[:2] == 'eq':
-                self.load_from_restart('equilibration', params.restart_step)
-            elif params.load_method[:2] == 'pr':
-                self.load_from_restart('production', params.restart_step)
-            elif params.load_method[:2] == 'ma':
-                self.load_from_restart('magnetization', params.restart_step)
+            if params.load_method[:2] == "eq":
+                self.load_from_restart("equilibration", params.restart_step)
+            elif params.load_method[:2] == "pr":
+                self.load_from_restart("production", params.restart_step)
+            elif params.load_method[:2] == "ma":
+                self.load_from_restart("magnetization", params.restart_step)
 
-        elif params.load_method == 'file':
+        elif params.load_method == "file":
             # check
             if not hasattr(params, "particles_input_file"):
-                raise AttributeError("Input file not defined."
-                                     "Please define Parameters.particles_input_file.")
+                raise AttributeError("Input file not defined." "Please define Parameters.particles_input_file.")
             self.load_from_file(params.particles_input_file)
 
         # position distribution.
-        elif params.load_method == 'lattice':
+        elif params.load_method == "lattice":
             self.lattice(params.load_perturb)
 
-        elif params.load_method == 'random_reject':
+        elif params.load_method == "random_reject":
             # check
             if not hasattr(params, "load_rejection_radius"):
-                raise AttributeError("Rejection radius not defined. "
-                                     "Please define Parameters.load_rejection_radius.")
+                raise AttributeError("Rejection radius not defined. " "Please define Parameters.load_rejection_radius.")
             self.random_reject(params.load_rejection_radius)
 
-        elif params.load_method == 'halton_reject':
+        elif params.load_method == "halton_reject":
             # check
             if not hasattr(params, "load_rejection_radius"):
-                raise AttributeError("Rejection radius not defined. "
-                                     "Please define Parameters.load_rejection_radius.")
+                raise AttributeError("Rejection radius not defined. " "Please define Parameters.load_rejection_radius.")
             self.halton_reject(params.load_halton_bases, params.load_rejection_radius)
 
-        elif params.load_method in ['uniform', 'random_no_reject']:
-            self.pos = self.uniform_no_reject(0.5 * params.box_lengths - 0.5 * params.pbox_lengths,
-                                              0.5 * params.box_lengths + 0.5 * params.pbox_lengths)
+        elif params.load_method in ["uniform", "random_no_reject"]:
+            self.pos = self.uniform_no_reject(
+                0.5 * params.box_lengths - 0.5 * params.pbox_lengths, 0.5 * params.box_lengths + 0.5 * params.pbox_lengths
+            )
 
         else:
             raise AttributeError("Incorrect particle placement scheme specified.")
@@ -937,8 +962,8 @@ class Particles:
 
         for p in np.arange(num_ptcls):
             components = [self.rnd_gen.normal() for i in range(dimensions)]
-            r = np.sqrt(np.sum(x*x for x in components))
-            uvec[p,:] = [x/r for x in components]
+            r = np.sqrt(np.sum(x * x for x in components))
+            uvec[p, :] = [x / r for x in components]
 
         return uvec
 
@@ -960,12 +985,12 @@ class Particles:
             self.names[species_start:species_end] = sp.name
             self.masses[species_start:species_end] = sp.mass
 
-            if hasattr(sp, 'charge'):
+            if hasattr(sp, "charge"):
                 self.charges[species_start:species_end] = sp.charge
             else:
                 self.charges[species_start:species_end] = 1.0
 
-            if hasattr(sp, 'cyclotron_frequency'):
+            if hasattr(sp, "cyclotron_frequency"):
                 self.cyclotron_frequencies[species_start:species_end] = sp.cyclotron_frequency
 
             self.id[species_start:species_end] = ic
@@ -978,8 +1003,9 @@ class Particles:
                     sp_temperature = np.ones(self.dimensions) * sp.temperature
 
                 self.species_thermal_velocity[ic] = np.sqrt(self.kB * sp_temperature / sp.mass)
-                self.vel[species_start:species_end, :] = self.gaussian(sp.initial_velocity,
-                                                                       self.species_thermal_velocity[ic], sp.num)
+                self.vel[species_start:species_end, :] = self.gaussian(
+                    sp.initial_velocity, self.species_thermal_velocity[ic], sp.num
+                )
 
             elif sp.initial_velocity_distribution == "monochromatic":
                 if self.dimensions == 1:
@@ -1001,7 +1027,7 @@ class Particles:
             Restart phase.
 
         """
-        if phase == 'equilibration':
+        if phase == "equilibration":
             file_name = os.path.join(self.eq_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
             self.id = data["id"]
@@ -1010,7 +1036,7 @@ class Particles:
             self.vel = data["vel"]
             self.acc = data["acc"]
 
-        elif phase == 'production':
+        elif phase == "production":
             file_name = os.path.join(self.prod_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
             self.id = data["id"]
@@ -1021,7 +1047,7 @@ class Particles:
             self.pbc_cntr = data["cntr"]
             self.rdf_hist = data["rdf_hist"]
 
-        elif phase == 'magnetization':
+        elif phase == "magnetization":
             file_name = os.path.join(self.mag_dump_dir, "checkpoint_" + str(it) + ".npz")
             data = np.load(file_name, allow_pickle=True)
             self.id = data["id"]
@@ -1097,24 +1123,27 @@ class Particles:
 
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.
         if perturb > 1:
-            print('Warning: Random perturbation must not exceed 1. Setting perturb = 1.')
+            print("Warning: Random perturbation must not exceed 1. Setting perturb = 1.")
             perturb = 1  # Maximum perturbation
 
-        print('Initializing particles with maximum random perturbation of {} times the lattice spacing.'.format(
-            perturb * 0.5))
+        print(
+            "Initializing particles with maximum random perturbation of {} times the lattice spacing.".format(
+                perturb * 0.5
+            )
+        )
 
         # Determining number of particles per side of simple cubic lattice
-        part_per_side = self.total_num_ptcls ** (1. / 3.)  # Number of particles per side of cubic lattice
+        part_per_side = self.total_num_ptcls ** (1.0 / 3.0)  # Number of particles per side of cubic lattice
 
         # Check if total number of particles is a perfect cube, if not, place more than the requested amount
         if round(part_per_side) ** 3 != self.total_num_ptcls:
-            part_per_side = np.ceil(self.total_num_ptcls ** (1. / 3.))
-            print('\nWARNING: Total number of particles requested is not a perfect cube.')
-            print('Initializing with {} particles.'.format(int(part_per_side ** 3)))
+            part_per_side = np.ceil(self.total_num_ptcls ** (1.0 / 3.0))
+            print("\nWARNING: Total number of particles requested is not a perfect cube.")
+            print("Initializing with {} particles.".format(int(part_per_side ** 3)))
 
-        dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
-        dz_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
-        dy_lattice = self.pbox_lengths[2] / (self.total_num_ptcls ** (1. / 3.))  # Lattice spacing
+        dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
+        dz_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
+        dy_lattice = self.pbox_lengths[2] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
 
         # Create x, y, and z position arrays
         x = np.arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
@@ -1130,9 +1159,9 @@ class Particles:
         Z += self.rnd_gen.uniform(-0.5, 0.5, np.shape(Z)) * perturb * dz_lattice
 
         # Flatten the meshgrid values for plotting and computation
-        self.pos[:, 0] = X.ravel() + self.box_lengths[0]/2 - self.pbox_lengths[0]/2
-        self.pos[:, 1] = Y.ravel() + self.box_lengths[1]/2 - self.pbox_lengths[1]/2
-        self.pos[:, 2] = Z.ravel() + self.box_lengths[2]/2 - self.pbox_lengths[2]/2
+        self.pos[:, 0] = X.ravel() + self.box_lengths[0] / 2 - self.pbox_lengths[0] / 2
+        self.pos[:, 1] = Y.ravel() + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
+        self.pos[:, 2] = Z.ravel() + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
 
     def random_reject(self, r_reject):
         """
@@ -1193,12 +1222,12 @@ class Particles:
                 z_diff = z_new - z[j]
 
                 # periodic condition applied for minimum image
-                if x_diff < - self.pbox_lengths[0] / 2:
+                if x_diff < -self.pbox_lengths[0] / 2:
                     x_diff += self.pbox_lengths[0]
                 if x_diff > self.pbox_lengths[0] / 2:
                     x_diff -= self.pbox_lengths[0]
 
-                if y_diff < - self.pbox_lengths[1] / 2:
+                if y_diff < -self.pbox_lengths[1] / 2:
                     y_diff += self.pbox_lengths[1]
                 if y_diff > self.pbox_lengths[1] / 2:
                     y_diff -= self.pbox_lengths[1]
@@ -1228,9 +1257,9 @@ class Particles:
                 i += 1
                 cntr_total += 1
 
-        self.pos[:, 0] = x + self.box_lengths[0]/2 - self.pbox_lengths[0]/2
-        self.pos[:, 1] = y + self.box_lengths[1]/2 - self.pbox_lengths[1]/2
-        self.pos[:, 2] = z + self.box_lengths[2]/2 - self.pbox_lengths[2]/2
+        self.pos[:, 0] = x + self.box_lengths[0] / 2 - self.pbox_lengths[0] / 2
+        self.pos[:, 1] = y + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
+        self.pos[:, 2] = z + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
 
     def halton_reject(self, bases, r_reject):
         """
@@ -1314,7 +1343,7 @@ class Particles:
                 z_diff = z_new - z[j]
 
                 # Periodic condition applied for minimum image
-                if x_diff < - self.pbox_lengths[0] / 2:
+                if x_diff < -self.pbox_lengths[0] / 2:
                     x_diff = x_diff + self.pbox_lengths[0]
                 if x_diff > self.pbox_lengths[0] / 2:
                     x_diff = x_diff - self.pbox_lengths[0]
@@ -1348,9 +1377,9 @@ class Particles:
                 k += 1  # Increment Halton counter
                 i += 1  # Increment particle number
 
-        self.pos[:, 0] = x + self.box_lengths[0]/2 - self.pbox_lengths[0]/2
-        self.pos[:, 1] = y + self.box_lengths[1]/2 - self.pbox_lengths[1]/2
-        self.pos[:, 2] = z + self.box_lengths[2]/2 - self.pbox_lengths[2]/2
+        self.pos[:, 0] = x + self.box_lengths[0] / 2 - self.pbox_lengths[0] / 2
+        self.pos[:, 1] = y + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
+        self.pos[:, 2] = z + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
 
     def kinetic_temperature(self):
         """
@@ -1509,8 +1538,8 @@ class Species:
         self.coupling = None
         self.concentration = None
         self.debye_length = None
-        self.initial_spatial_distribution = 'random_no_reject'
-        self.initial_velocity_distribution = 'boltzmann'
+        self.initial_spatial_distribution = "random_no_reject"
+        self.initial_velocity_distribution = "boltzmann"
         self.initial_velocity = np.zeros(3)
         self.mass = None
         self.mass_density = None
@@ -1527,10 +1556,10 @@ class Species:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Species( \n'
+        disp = "Species( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict):
@@ -1574,8 +1603,9 @@ class Species:
             Neutral systems: :math: `1/n\sigma^2`
 
         """
-        self.debye_length = np.sqrt((self.temperature * kB * constant)
-                                    / (4.0 * np.pi * self.charge ** 2 * self.number_density))
+        self.debye_length = np.sqrt(
+            (self.temperature * kB * constant) / (4.0 * np.pi * self.charge ** 2 * self.number_density)
+        )
 
     def calc_cyclotron_frequency(self, magnetic_field_strength: float):
         """
@@ -1606,11 +1636,11 @@ class Species:
             Electrostatic * Thermal constants.
 
         """
-        self.ai_dens = (3.0 / (4.0 * np.pi * self.number_density)) ** (1. / 3.)
-        self.ai = (self.charge / z_avg) ** (1. / 3.) * a_ws if z_avg > 0 else self.ai_dens
+        self.ai_dens = (3.0 / (4.0 * np.pi * self.number_density)) ** (1.0 / 3.0)
+        self.ai = (self.charge / z_avg) ** (1.0 / 3.0) * a_ws if z_avg > 0 else self.ai_dens
         self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
 
-    def pretty_print(self, potential_type: str = None, units: str = 'mks'):
+    def pretty_print(self, potential_type: str = None, units: str = "mks"):
         """Print Species information in a user-friendly way.
 
         Parameters
@@ -1625,29 +1655,29 @@ class Species:
 
         print("\tName: {}".format(self.name))
         print("\tNo. of particles = {} ".format(self.num))
-        print("\tNumber density = {:.6e} ".format(self.number_density), end='')
+        print("\tNumber density = {:.6e} ".format(self.number_density), end="")
         print("[N/cc]" if units == "cgs" else "[N/m^3]")
         print("\tAtomic weight = {:.4f} [a.u.]".format(self.atomic_weight))
-        print("\tMass = {:.6e} ".format(self.mass), end='')
+        print("\tMass = {:.6e} ".format(self.mass), end="")
         print("[g]" if units == "cgs" else "[kg]")
-        print("\tMass density = {:.6e} ".format(self.mass_density), end='')
+        print("\tMass density = {:.6e} ".format(self.mass_density), end="")
         print("[g/cc]" if units == "cgs" else "[kg/m^3]")
         print("\tCharge number/ionization degree = {:.4f} ".format(self.Z))
-        print("\tCharge = {:.6e} ".format(self.charge), end='')
+        print("\tCharge = {:.6e} ".format(self.charge), end="")
         print("[esu]" if units == "cgs" else "[C]")
-        print('\tTemperature = {:.6e} [K] = {:.6e} [eV]'.format(self.temperature, self.temperature_eV))
-        if potential_type == 'LJ':
-            print("\tEpsilon = {:.6e} ".format(self.epsilon), end='')
+        print("\tTemperature = {:.6e} [K] = {:.6e} [eV]".format(self.temperature, self.temperature_eV))
+        if potential_type == "LJ":
+            print("\tEpsilon = {:.6e} ".format(self.epsilon), end="")
             print("[erg]" if units == "cgs" else "[J]")
-            print("\tSigma = {:.6e} ".format(self.sigma), end='')
+            print("\tSigma = {:.6e} ".format(self.sigma), end="")
             print("[cm]" if units == "cgs" else "[m]")
 
-        print('\tDebye Length = {:.6e} '.format(self.debye_length), end='')
+        print("\tDebye Length = {:.6e} ".format(self.debye_length), end="")
         print("[1/cm]" if units == "cgs" else "[1/m]")
-        print('\tPlasma Frequency = {:.6e} [rad/s]'.format(self.plasma_frequency))
+        print("\tPlasma Frequency = {:.6e} [rad/s]".format(self.plasma_frequency))
         if self.cyclotron_frequency:
-            print('\tCyclotron Frequency = {:.6e} [rad/s]'.format(self.cyclotron_frequency) )
-            print('\tbeta_c = {:.4e}'.format(self.cyclotron_frequency/self.plasma_frequency))
+            print("\tCyclotron Frequency = {:.6e} [rad/s]".format(self.cyclotron_frequency))
+            print("\tbeta_c = {:.4e}".format(self.cyclotron_frequency / self.plasma_frequency))
 
     # Methods
     # -------

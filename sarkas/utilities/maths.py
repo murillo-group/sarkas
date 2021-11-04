@@ -3,7 +3,6 @@
 import numpy as np
 import numba as nb
 import scipy.signal as scp_signal
-import fdint
 
 TWOPI = 2.0 * np.pi
 
@@ -35,7 +34,7 @@ def correlationfunction(At, Bt):
     no_steps = At.size
 
     # Calculate the full correlation function.
-    full_corr = scp_signal.correlate(At, Bt, mode='full')
+    full_corr = scp_signal.correlate(At, Bt, mode="full")
     # Normalization of the full correlation function, Similar to norm_counter
     norm_corr = np.array([no_steps - ii for ii in range(no_steps)])
     # Find the mid point of the array
@@ -165,21 +164,38 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
     elif p == 5:
         Cmp = np.array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
     elif p == 6:
-        Cmp = np.array([2764 / 638512875, 16 / 467775, 7234 / 119282625, 1403744 / 25196700375,
-                        1396888 / 40521009375, 2485856 / 152506344375])
+        Cmp = np.array(
+            [
+                2764 / 638512875,
+                16 / 467775,
+                7234 / 119282625,
+                1403744 / 25196700375,
+                1396888 / 40521009375,
+                2485856 / 152506344375,
+            ]
+        )
     elif p == 7:
-        Cmp = np.array([8 / 18243225, 7234 / 1550674125, 701872 / 65511420975, 2793776 / 225759909375,
-                        1242928 / 132172165125, 1890912728 / 352985880121875, 21053792 / 8533724574375])
+        Cmp = np.array(
+            [
+                8 / 18243225,
+                7234 / 1550674125,
+                701872 / 65511420975,
+                2793776 / 225759909375,
+                1242928 / 132172165125,
+                1890912728 / 352985880121875,
+                21053792 / 8533724574375,
+            ]
+        )
 
     somma = 0.0
     for m in np.arange(p):
         expp = 2 * (m + p)
-        somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.) ** expp
+        somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.0) ** expp
     # eq.(36) in :cite:`Dharuman2017`
     pm_force_error = np.sqrt(3.0 * somma) / (2.0 * np.pi)
 
     # eq.(30) from :cite:`Dharuman2017`
-    pp_force_error = 2.0 * np.exp(-(0.5 * kappa / alpha) ** 2 - alpha ** 2 * rc ** 2) / np.sqrt(rc)
+    pp_force_error = 2.0 * np.exp(-((0.5 * kappa / alpha) ** 2) - alpha ** 2 * rc ** 2) / np.sqrt(rc)
     # eq.(42) from :cite:`Dharuman2017`
     Tot_DeltaF = np.sqrt(pm_force_error ** 2 + pp_force_error ** 2)
 
@@ -187,10 +203,7 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
 
 
 @nb.njit
-def force_error_analytic_pp(potential_type,
-                            cutoff_length,
-                            potential_matrix,
-                            rescaling_const):
+def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, rescaling_const):
     """
     Calculate the force error from its analytic formula.
 
@@ -216,15 +229,15 @@ def force_error_analytic_pp(potential_type,
     """
 
     if potential_type in ["yukawa", "egs", "qsp"]:
-        force_error = np.sqrt(TWOPI * potential_matrix[1, 0, 0]) \
-                      * np.exp(- cutoff_length * potential_matrix[1, 0, 0])
+        force_error = np.sqrt(TWOPI * potential_matrix[1, 0, 0]) * np.exp(-cutoff_length * potential_matrix[1, 0, 0])
     elif potential_type == "moliere":
         # Choose the smallest screening length for force error calculation
 
-        force_error = np.sqrt(TWOPI * potential_matrix[:, 0, 0].min()) \
-                      * np.exp(- cutoff_length * potential_matrix[1, 0, 0])
+        force_error = np.sqrt(TWOPI * potential_matrix[:, 0, 0].min()) * np.exp(
+            -cutoff_length * potential_matrix[1, 0, 0]
+        )
 
-    elif potential_type == 'lj':
+    elif potential_type == "lj":
         # choose the highest sigma in case of multispecies
         sigma = potential_matrix[1, :, :].max()
         high_pow = potential_matrix[2, 0, 0]
@@ -237,4 +250,3 @@ def force_error_analytic_pp(potential_type,
     force_error *= rescaling_const
 
     return force_error
-

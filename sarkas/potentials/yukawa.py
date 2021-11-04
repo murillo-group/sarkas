@@ -58,14 +58,22 @@ def yukawa_force_pppm(r, pot_matrix):
     kappa_alpha = kappa / alpha
     alpha_r = alpha * r
     kappa_r = kappa * r
-    U = pot_matrix[0] * (0.5 / r) * (np.exp(kappa_r) * mt.erfc(alpha_r + 0.5 * kappa_alpha)
-                                         + np.exp(-kappa_r) * mt.erfc(alpha_r - 0.5 * kappa_alpha))
+    U = (
+        pot_matrix[0]
+        * (0.5 / r)
+        * (
+            np.exp(kappa_r) * mt.erfc(alpha_r + 0.5 * kappa_alpha)
+            + np.exp(-kappa_r) * mt.erfc(alpha_r - 0.5 * kappa_alpha)
+        )
+    )
     # Derivative of the exponential term and 1/r
     f1 = (0.5 / r) * np.exp(kappa * r) * mt.erfc(alpha_r + 0.5 * kappa_alpha) * (1.0 / r - kappa)
     f2 = (0.5 / r) * np.exp(-kappa * r) * mt.erfc(alpha_r - 0.5 * kappa_alpha) * (1.0 / r + kappa)
     # Derivative of erfc(a r) = 2a/sqrt(pi) e^{-a^2 r^2}* (x/r)
-    f3 = (alpha / np.sqrt(np.pi) / r) * (np.exp(-(alpha_r + 0.5 * kappa_alpha) ** 2) * np.exp(kappa_r)
-                                              + np.exp(-(alpha_r - 0.5 * kappa_alpha) ** 2) * np.exp(-kappa_r))
+    f3 = (alpha / np.sqrt(np.pi) / r) * (
+        np.exp(-((alpha_r + 0.5 * kappa_alpha) ** 2)) * np.exp(kappa_r)
+        + np.exp(-((alpha_r - 0.5 * kappa_alpha) ** 2)) * np.exp(-kappa_r)
+    )
     fr = pot_matrix[0] * (f1 + f2 + f3)
 
     return U, fr
@@ -155,10 +163,7 @@ def update_params(potential, params):
         # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
         potential.force = yukawa_force
         params.force_error = force_error_analytic_pp(
-            potential.type,
-            potential.rc,
-            potential.matrix,
-            np.sqrt(3.0 * params.a_ws/(4.0 * np.pi))
+            potential.type, potential.rc, potential.matrix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
         )
         # # Force error calculated from eq.(43) in Ref.[1]_
         # params.force_error = np.sqrt( TWOPI / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)
@@ -168,7 +173,7 @@ def update_params(potential, params):
         potential.force = yukawa_force_pppm
         potential.matrix[2, :, :] = potential.pppm_alpha_ewald
         # PP force error calculation. Note that the equation was derived for a single component plasma.
-        kappa_over_alpha = - 0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
-        alpha_times_rcut = - (potential.matrix[2, 0, 0] * potential.rc) ** 2
+        kappa_over_alpha = -0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
+        alpha_times_rcut = -((potential.matrix[2, 0, 0] * potential.rc) ** 2)
         params.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(potential.rc)
         params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.pbox_volume)

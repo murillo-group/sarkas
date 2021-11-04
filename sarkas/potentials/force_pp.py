@@ -5,6 +5,7 @@ Module for handling Particle-Particle interaction.
 import numpy as np
 from numba import njit
 
+
 @njit
 def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf_hist):
     """
@@ -50,7 +51,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
 
     """
     L = Lv[0]
-    Lh = L / 2.
+    Lh = L / 2.0
     N = pos.shape[0]  # Number of particles
 
     U_s_r = 0.0  # Short-ranges potential energy accumulator
@@ -61,9 +62,9 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
 
     for i in range(N):
         for j in range(i + 1, N):
-            dx = (pos[i, 0] - pos[j, 0])
-            dy = (pos[i, 1] - pos[j, 1])
-            dz = (pos[i, 2] - pos[j, 2])
+            dx = pos[i, 0] - pos[j, 0]
+            dy = pos[i, 1] - pos[j, 1]
+            dz = pos[i, 2] - pos[j, 2]
 
             if dx >= Lh:
                 dx = L - dx
@@ -238,7 +239,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                     #     cz_shift = 0
                     #     rshift[2] = 0.0
                     cz_shift = 0 + cells_per_dim[2] * (cz_N < 0) - cells_per_dim[2] * (cz_N >= cells_per_dim[2])
-                    rshift[2] = 0.0 - box_lengths[2] * (cz_N < 0) + box_lengths[2]*(cz_N >= cells_per_dim[2])
+                    rshift[2] = 0.0 - box_lengths[2] * (cz_N < 0) + box_lengths[2] * (cz_N >= cells_per_dim[2])
 
                     for cy_N in range(cy - 1, cy + 2):
                         # y cells
@@ -273,8 +274,11 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                             rshift[0] = 0.0 - box_lengths[0] * (cx_N < 0) + box_lengths[0] * (cx_N >= cells_per_dim[0])
 
                             # Compute the location of the N-th cell based on shifts
-                            c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * cells_per_dim[0] \
-                                  + (cz_N + cz_shift) * cells_per_dim[0] * cells_per_dim[1]
+                            c_N = (
+                                (cx_N + cx_shift)
+                                + (cy_N + cy_shift) * cells_per_dim[0]
+                                + (cz_N + cz_shift) * cells_per_dim[0] * cells_per_dim[1]
+                            )
 
                             i = head[c]
                             # First compute interaction of head particle with neighboring cell head particles
@@ -461,8 +465,11 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                             rshift[0] = 0.0 - box_lengths[0] * (cx_N < 0) + box_lengths[0] * (cx_N >= cells_per_dim[0])
 
                             # Compute the location of the N-th cell based on shifts
-                            c_N = (cx_N + cx_shift) + (cy_N + cy_shift) * cells_per_dim[0] \
-                                  + (cz_N + cz_shift) * cells_per_dim[0] * cells_per_dim[1]
+                            c_N = (
+                                (cx_N + cx_shift)
+                                + (cy_N + cy_shift) * cells_per_dim[0]
+                                + (cz_N + cz_shift) * cells_per_dim[0] * cells_per_dim[1]
+                            )
 
                             i = head[c]
                             # First compute interaction of head particle with neighboring cell head particles

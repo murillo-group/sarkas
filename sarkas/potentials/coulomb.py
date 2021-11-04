@@ -59,7 +59,7 @@ def update_params(potential, params):
         potential.force = coulomb_force_pppm
 
         # PP force error calculation. Note that the equation was derived for a single component plasma.
-        alpha_times_rcut = - (potential.pppm_alpha_ewald * potential.rc) ** 2
+        alpha_times_rcut = -((potential.pppm_alpha_ewald * potential.rc) ** 2)
         params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(potential.rc)
         params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.pbox_volume)
 
@@ -98,7 +98,7 @@ def coulomb_force_pppm(r_in, pot_matrix):
     r2 = r * r
     U = pot_matrix[0] * mt.erfc(alpha_r) / r
     f1 = mt.erfc(alpha_r) / r2
-    f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- alpha_r ** 2)
+    f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(-(alpha_r ** 2))
     fr = pot_matrix[0] * (f1 + f2)
 
     return U, fr

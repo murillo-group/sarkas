@@ -53,10 +53,10 @@ class Thermostat:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Thermostat( \n'
+        disp = "Thermostat( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict):
@@ -84,8 +84,8 @@ class Thermostat:
 
     def pretty_print(self):
         """Print Thermostat information in a user-friendly way."""
-        print('Type: {}'.format(self.type))
-        print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
+        print("Type: {}".format(self.type))
+        print("First thermostating timestep, i.e. relaxation_timestep = {}".format(self.relaxation_timestep))
         print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.berendsen_tau))
         print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
         # if not self.eV_temp_flag and not self.K_temp_flag:
@@ -152,8 +152,7 @@ class Thermostat:
 
         """
         _, T = ptcls.kinetic_temperature()
-        berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep,
-                  self.relaxation_rate, it)
+        berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep, self.relaxation_rate, it)
 
 
 @njit

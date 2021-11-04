@@ -6,7 +6,7 @@ import numpy as np
 from numba import njit
 from IPython import get_ipython
 
-if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
 else:
     from tqdm import tqdm
@@ -90,7 +90,7 @@ class Integrator:
         self.enforce_bc = None
         self.verbose = False
         self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
-        self.supported_integrators = ['verlet', 'verlet_langevin', 'magnetic_verlet', 'magnetic_boris']
+        self.supported_integrators = ["verlet", "verlet_langevin", "magnetic_verlet", "magnetic_boris"]
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -148,21 +148,22 @@ class Integrator:
             self.equilibration_steps = params.equilibration_steps
 
         if self.prod_dump_step is None:
-            if hasattr(params, 'prod_dump_step'):
+            if hasattr(params, "prod_dump_step"):
                 self.prod_dump_step = params.prod_dump_step
             else:
                 self.prod_dump_step = int(0.1 * self.production_steps)
 
         if self.eq_dump_step is None:
-            if hasattr(params, 'eq_dump_step'):
+            if hasattr(params, "eq_dump_step"):
                 self.eq_dump_step = params.eq_dump_step
             else:
                 self.eq_dump_step = int(0.1 * self.equilibration_steps)
 
         if self.boundary_conditions not in self.supported_boundary_conditions:
-            raise ValueError("Unsupported boundary conditions. "
-                             "Please choose one of the supported boundary conditions \n",
-                             self.supported_boundary_conditions)
+            raise ValueError(
+                "Unsupported boundary conditions. " "Please choose one of the supported boundary conditions \n",
+                self.supported_boundary_conditions,
+            )
 
         # Assign integrator.enforce_bc to the correct method
         if self.boundary_conditions == "periodic":
@@ -173,9 +174,10 @@ class Integrator:
             self.enforce_bc = self.reflecting
 
         if self.type not in self.supported_integrators:
-            raise ValueError("Integrator not supported. "
-                             "Please choose one of the supported integrators \n",
-                             self.supported_integrators)
+            raise ValueError(
+                "Integrator not supported. " "Please choose one of the supported integrators \n",
+                self.supported_integrators,
+            )
 
         # Assign integrator.update to the correct method
         if self.type == "verlet":
@@ -184,9 +186,10 @@ class Integrator:
         elif self.type == "verlet_langevin":
 
             self.sigma = np.sqrt(
-                2. * self.langevin_gamma * params.kB * params.species_temperatures / params.species_masses)
-            self.c1 = (1. - 0.5 * self.langevin_gamma * self.dt)
-            self.c2 = 1. / (1. + 0.5 * self.langevin_gamma * self.dt)
+                2.0 * self.langevin_gamma * params.kB * params.species_temperatures / params.species_masses
+            )
+            self.c1 = 1.0 - 0.5 * self.langevin_gamma * self.dt
+            self.c2 = 1.0 / (1.0 + 0.5 * self.langevin_gamma * self.dt)
             self.update = self.verlet_langevin
 
         elif self.type == "magnetic_verlet":
@@ -199,7 +202,7 @@ class Integrator:
             sp_end = 0
             for ic, sp_np in enumerate(params.species_num):
                 sp_end += sp_np
-                self.omega_c[sp_start: sp_end, :] = params.species_cyclotron_frequencies[ic]
+                self.omega_c[sp_start:sp_end, :] = params.species_cyclotron_frequencies[ic]
                 sp_start += sp_np
 
             # Calculate functions for magnetic integrator
@@ -228,7 +231,7 @@ class Integrator:
             sp_end = 0
             for ic, sp_np in enumerate(params.species_num):
                 sp_end += sp_np
-                self.omega_c[sp_start: sp_end, :] = params.species_cyclotron_frequencies[ic]
+                self.omega_c[sp_start:sp_end, :] = params.species_cyclotron_frequencies[ic]
                 sp_start += sp_np
 
             # In a leapfrog-type algorithm the coefficient is different for the acceleration and magnetic rotation
@@ -258,7 +261,7 @@ class Integrator:
                     self.magnetization_steps = params.magnetization_steps
 
                 if self.prod_dump_step is None:
-                    if hasattr(params, 'mag_dump_step'):
+                    if hasattr(params, "mag_dump_step"):
                         self.mag_dump_step = params.mag_dump_step
                     else:
                         self.mag_dump_step = int(0.1 * self.production_steps)
@@ -297,7 +300,7 @@ class Integrator:
             # Calculate the Potential energy and update particles' data
             self.update(ptcls)
             if (it + 1) % self.eq_dump_step == 0:
-                checkpoint.dump('equilibration', ptcls, it + 1)
+                checkpoint.dump("equilibration", ptcls, it + 1)
             self.thermostate(ptcls, it)
         ptcls.remove_drift()
 
@@ -307,7 +310,7 @@ class Integrator:
             # Calculate the Potential energy and update particles' data
             self.update(ptcls)
             if (it + 1) % self.mag_dump_step == 0:
-                checkpoint.dump('magnetization', ptcls, it + 1)
+                checkpoint.dump("magnetization", ptcls, it + 1)
             self.thermostate(ptcls, it)
 
     def produce(self, it_start, ptcls, checkpoint):
@@ -332,7 +335,7 @@ class Integrator:
             self.update(ptcls)
             if (it + 1) % self.prod_dump_step == 0:
                 # Save particles' data for restart
-                checkpoint.dump('production', ptcls, it + 1)
+                checkpoint.dump("production", ptcls, it + 1)
 
     def verlet_langevin(self, ptcls):
         """
@@ -345,14 +348,16 @@ class Integrator:
 
 
         """
-        beta = ptcls.gaussian(0., 1., ptcls.pos.shape[0])
+        beta = ptcls.gaussian(0.0, 1.0, ptcls.pos.shape[0])
         sp_start = 0  # start index for species loop
         sp_end = 0
         for ic, num in enumerate(self.species_num):
             sp_end += num
-            ptcls.pos[sp_start:sp_end, :] += self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :] \
-                                             + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :] \
-                                             + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
+            ptcls.pos[sp_start:sp_end, :] += (
+                self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :]
+                + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :]
+                + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
+            )
             sp_start += num
 
         # Enforce boundary condition
@@ -366,10 +371,11 @@ class Integrator:
         for ic, num in enumerate(self.species_num):
             sp_end += num
 
-            ptcls.vel[sp_start:sp_end, :] = self.c1 * self.c2 * ptcls.vel[sp_start:sp_end, :] \
-                                            + 0.5 * self.c2 * self.dt * (ptcls.acc[sp_start:sp_end, :]
-                                                                         + acc_old[sp_start:sp_end, :]) \
-                                            + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
+            ptcls.vel[sp_start:sp_end, :] = (
+                self.c1 * self.c2 * ptcls.vel[sp_start:sp_end, :]
+                + 0.5 * self.c2 * self.dt * (ptcls.acc[sp_start:sp_end, :] + acc_old[sp_start:sp_end, :])
+                + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
+            )
             sp_start += num
 
     def verlet(self, ptcls):
@@ -444,16 +450,20 @@ class Integrator:
         self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
         # Magnetic rotation y - velocity
         # (B x v)_y  = v_x, (B x B x v)_y = -v_y
-        self.v_B[:, 1] = - ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
+        self.v_B[:, 1] = -ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
 
         # Magnetic + Const force field x - velocity
         # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
-        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
-                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        self.v_F[:, 0] = (
+            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        )
         # Magnetic + Const force field y - velocity
         # (B x a)_y  = a_x, (B x B x a)_y = -a_y
-        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
-                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        self.v_F[:, 1] = (
+            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        )
 
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
         ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
@@ -473,16 +483,20 @@ class Integrator:
         self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
         # Magnetic rotation y - velocity
         # (B x v)_y  = v_x, (B x B x v)_y = -v_y
-        self.v_B[:, 1] = - ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
+        self.v_B[:, 1] = -ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
 
         # Magnetic + Const force field x - velocity
         # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
-        self.v_F[:, 0] = self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1] \
-                         + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        self.v_F[:, 0] = (
+            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        )
         # Magnetic + Const force field y - velocity
         # (B x a)_y  = a_x, (B x B x a)_y = -a_y
-        self.v_F[:, 1] = - self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0] \
-                         + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        self.v_F[:, 1] = (
+            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        )
 
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
         ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
@@ -526,10 +540,13 @@ class Integrator:
         b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
 
         # First half step of velocity update
-        ptcls.vel += - self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+        ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
-        ptcls.vel += 0.5 * ptcls.acc * self.dt - self.ccodt / self.omega_c * b_cross_a \
-                   + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+        ptcls.vel += (
+            0.5 * ptcls.acc * self.dt
+            - self.ccodt / self.omega_c * b_cross_a
+            + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+        )
 
         # Position update
         ptcls.pos += ptcls.vel * self.dt
@@ -547,10 +564,13 @@ class Integrator:
         b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
 
         # Second half step velocity update
-        ptcls.vel += - self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+        ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
-        ptcls.vel += 0.5 * ptcls.acc * self.dt - self.ccodt / self.omega_c * b_cross_a \
-                   + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+        ptcls.vel += (
+            0.5 * ptcls.acc * self.dt
+            - self.ccodt / self.omega_c * b_cross_a
+            + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+        )
 
         return potential_energy
 
@@ -575,7 +595,7 @@ class Integrator:
 
         # Rotate: Apply exp( dt * V)
         # B cross v
-        self.v_B[:, 0] = - self.sdt[:, 1] * ptcls.vel[:, 1]
+        self.v_B[:, 0] = -self.sdt[:, 1] * ptcls.vel[:, 1]
         self.v_B[:, 1] = self.sdt[:, 0] * ptcls.vel[:, 0]
 
         # B cross B cross v
@@ -687,9 +707,9 @@ class Integrator:
             print("Type: {}".format(self.type))
 
         wp_dt = frequency * self.dt
-        print('Time step = {:.6e} [s]'.format(self.dt))
-        print('Total plasma frequency = {:.6e} [rad/s]'.format(frequency))
-        print('w_p dt = {:.4f} ~ 1/{}'.format(wp_dt, int(1.0/wp_dt) ))
+        print("Time step = {:.6e} [s]".format(self.dt))
+        print("Total plasma frequency = {:.6e} [rad/s]".format(frequency))
+        print("w_p dt = {:.4f} ~ 1/{}".format(wp_dt, int(1.0 / wp_dt)))
         # if potential_type in ['Yukawa', 'EGS', 'Coulomb', 'Moliere']:
         #     # if simulation.parameters.magnetized:
         #     #     if simulation.parameters.num_species > 1:
@@ -729,90 +749,104 @@ class Integrator:
 
         # Print Time steps information
         # Check for restart simulations
-        if restart in ['production_restart', 'prod_restart']:
+        if restart in ["production_restart", "prod_restart"]:
             print("Restart step: {}".format(restart_step))
-            print('Total production steps = {} \n'
-                  'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
-                self.production_steps,
-                self.production_steps * self.dt,
-                int(self.production_steps * wp_dt)))
-            print('snapshot interval step = {} \n'
-                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
-                self.prod_dump_step,
-                self.prod_dump_step * self.dt,
-                self.prod_dump_step * wp_dt))
-            print('Total number of snapshots = {} '.format( int(self.production_steps /self.prod_dump_step) ) )
+            print(
+                "Total production steps = {} \n"
+                "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
+                    self.production_steps, self.production_steps * self.dt, int(self.production_steps * wp_dt)
+                )
+            )
+            print(
+                "snapshot interval step = {} \n"
+                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+                    self.prod_dump_step, self.prod_dump_step * self.dt, self.prod_dump_step * wp_dt
+                )
+            )
+            print("Total number of snapshots = {} ".format(int(self.production_steps / self.prod_dump_step)))
 
-        elif restart in ['equilibration_restart', 'eq_restart']:
+        elif restart in ["equilibration_restart", "eq_restart"]:
             print("Restart step: {}".format(restart_step))
-            print('Total equilibration steps = {} \n'
-                  'Total equilibration time = {:.4e} [s] ~ {} w_p T_eq'.format(
-                self.equilibration_steps,
-                self.equilibration_steps * self.dt,
-                int(self.eq_dump_step * wp_dt)))
-            print('snapshot interval step = {} \n'
-                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
-                self.eq_dump_step,
-                self.eq_dump_step * self.dt,
-                self.eq_dump_step * wp_dt))
-            print('Total number of snapshots = {} '.format(int(self.equilibration_steps / self.eq_dump_step)))
+            print(
+                "Total equilibration steps = {} \n"
+                "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq".format(
+                    self.equilibration_steps, self.equilibration_steps * self.dt, int(self.eq_dump_step * wp_dt)
+                )
+            )
+            print(
+                "snapshot interval step = {} \n"
+                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+                    self.eq_dump_step, self.eq_dump_step * self.dt, self.eq_dump_step * wp_dt
+                )
+            )
+            print("Total number of snapshots = {} ".format(int(self.equilibration_steps / self.eq_dump_step)))
 
-        elif restart in ['magnetization_restart', 'mag_restart']:
+        elif restart in ["magnetization_restart", "mag_restart"]:
             print("Restart step: {}".format(restart_step))
-            print('Total magnetization steps = {} \n'
-                  'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag'.format(
-                self.magnetization_steps,
-                self.magnetization_steps * self.dt,
-                int(self.mag_dump_step * wp_dt)))
-            print('snapshot interval step = {} \n'
-                  'snapshot interval time = {:.4e} [s] ~ {:.4f} w_p T_snap'.format(
-                self.mag_dump_step,
-                self.mag_dump_step * self.dt,
-                self.mag_dump_step * wp_dt))
-            print('Total number of snapshots = {} '.format(int(self.magnetization_steps / self.mag_dump_step)))
+            print(
+                "Total magnetization steps = {} \n"
+                "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag".format(
+                    self.magnetization_steps, self.magnetization_steps * self.dt, int(self.mag_dump_step * wp_dt)
+                )
+            )
+            print(
+                "snapshot interval step = {} \n"
+                "snapshot interval time = {:.4e} [s] ~ {:.4f} w_p T_snap".format(
+                    self.mag_dump_step, self.mag_dump_step * self.dt, self.mag_dump_step * wp_dt
+                )
+            )
+            print("Total number of snapshots = {} ".format(int(self.magnetization_steps / self.mag_dump_step)))
 
         else:
             # Equilibration
-            print('\nEquilibration: \nNo. of equilibration steps = {} \n'
-                  'Total equilibration time = {:.4e} [s] ~ {} w_p T_eq '.format(
-                self.equilibration_steps,
-                self.equilibration_steps * self.dt,
-                int(self.equilibration_steps * wp_dt)))
-            print('snapshot interval step = {} \n'
-                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
-                self.eq_dump_step,
-                self.eq_dump_step * self.dt,
-                self.eq_dump_step * wp_dt))
-            print('Total number of snapshots = {} '.format(int(self.equilibration_steps / self.eq_dump_step)))
+            print(
+                "\nEquilibration: \nNo. of equilibration steps = {} \n"
+                "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq ".format(
+                    self.equilibration_steps, self.equilibration_steps * self.dt, int(self.equilibration_steps * wp_dt)
+                )
+            )
+            print(
+                "snapshot interval step = {} \n"
+                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+                    self.eq_dump_step, self.eq_dump_step * self.dt, self.eq_dump_step * wp_dt
+                )
+            )
+            print("Total number of snapshots = {} ".format(int(self.equilibration_steps / self.eq_dump_step)))
 
             # Magnetization
             if self.electrostatic_equilibration:
-                print('Electrostatic Equilibration Type: {}'.format(self.type))
+                print("Electrostatic Equilibration Type: {}".format(self.type))
 
-                print('\nMagnetization: \nNo. of magnetization steps = {} \n'
-                      'Total magnetization time = {:.4e} [s] ~ {} w_p T_mag '.format(
-                    self.magnetization_steps,
-                    self.magnetization_steps * self.dt,
-                    int(self.magnetization_steps * wp_dt)))
+                print(
+                    "\nMagnetization: \nNo. of magnetization steps = {} \n"
+                    "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag ".format(
+                        self.magnetization_steps,
+                        self.magnetization_steps * self.dt,
+                        int(self.magnetization_steps * wp_dt),
+                    )
+                )
 
-                print('snapshot interval step = {} \n'
-                      'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
-                    self.mag_dump_step,
-                    self.mag_dump_step * self.dt,
-                    self.mag_dump_step * wp_dt))
-                print('Total number of snapshots = {} '.format(int(self.magnetization_steps / self.mag_dump_step)))
+                print(
+                    "snapshot interval step = {} \n"
+                    "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+                        self.mag_dump_step, self.mag_dump_step * self.dt, self.mag_dump_step * wp_dt
+                    )
+                )
+                print("Total number of snapshots = {} ".format(int(self.magnetization_steps / self.mag_dump_step)))
             # Production
-            print('\nProduction: \nNo. of production steps = {} \n'
-                  'Total production time = {:.4e} [s] ~ {} w_p T_prod '.format(
-                self.production_steps,
-                self.production_steps * self.dt,
-                int(self.production_steps * wp_dt)))
-            print('snapshot interval step = {} \n'
-                  'snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap'.format(
-                self.prod_dump_step,
-                self.prod_dump_step * self.dt,
-                self.prod_dump_step * wp_dt))
-            print('Total number of snapshots = {} '.format(int(self.production_steps / self.prod_dump_step)))
+            print(
+                "\nProduction: \nNo. of production steps = {} \n"
+                "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
+                    self.production_steps, self.production_steps * self.dt, int(self.production_steps * wp_dt)
+                )
+            )
+            print(
+                "snapshot interval step = {} \n"
+                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+                    self.prod_dump_step, self.prod_dump_step * self.dt, self.prod_dump_step * wp_dt
+                )
+            )
+            print("Total number of snapshots = {} ".format(int(self.production_steps / self.prod_dump_step)))
 
 
 @njit

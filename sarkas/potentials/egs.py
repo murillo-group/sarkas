@@ -119,12 +119,12 @@ def update_params(potential, params):
     """
 
     # lambda factor : 1 = von Weizsaecker, 1/9 = Thomas-Fermi
-    if not hasattr(potential, 'lmbda'):
+    if not hasattr(potential, "lmbda"):
         potential.lmbda = 1.0 / 9.0
 
     fdint_dfdk_vec = np.vectorize(fdint.dfdk)
     # eq. (14) of Ref. [1]_
-    params.nu = 3.0/np.pi ** 1.5 * params.landau_length / params.lambda_deB
+    params.nu = 3.0 / np.pi ** 1.5 * params.landau_length / params.lambda_deB
     params.nu *= potential.lmbda * fdint_dfdk_vec(k=-0.5, phi=params.eta_e)
 
     # Degeneracy Parameter
@@ -138,13 +138,14 @@ def update_params(potential, params):
         # eq. (32) of Ref. [1]_
         h = Ntheta / Dtheta * np.tanh(1.0 / theta)
         # grad h(x)
-        gradh = (-(Ntheta / Dtheta) / np.cosh(1 / theta) ** 2 / (theta ** 2)  # derivative of tanh(1/x)
-                 - np.tanh(1.0 / theta) * (
-                         Ntheta * (7.8862 * theta + 31.6552 * theta ** 3) / Dtheta ** 2  # derivative of 1/Dtheta
-                         + (5.6686 * theta - 0.6453 * theta ** 2 + 21.1036 * theta ** 3) / Dtheta) # derivative of Ntheta
-                 )
+        gradh = -(Ntheta / Dtheta) / np.cosh(1 / theta) ** 2 / (theta ** 2) - np.tanh(  # derivative of tanh(1/x)
+            1.0 / theta
+        ) * (
+            Ntheta * (7.8862 * theta + 31.6552 * theta ** 3) / Dtheta ** 2  # derivative of 1/Dtheta
+            + (5.6686 * theta - 0.6453 * theta ** 2 + 21.1036 * theta ** 3) / Dtheta
+        )  # derivative of Ntheta
         # eq.(31) of Ref. [1]_
-        b = 1.0 - 2.0 / ( 8.0 * (params.kF * params.lambda_TF)**2) * (h - 2.0 * theta * gradh)
+        b = 1.0 - 2.0 / (8.0 * (params.kF * params.lambda_TF) ** 2) * (h - 2.0 * theta * gradh)
     else:
         b = 1.0
 
@@ -174,8 +175,8 @@ def update_params(potential, params):
 
             if params.nu <= 1:
                 potential.matrix[0, i, j] = q1 * q2 / (2.0 * params.fourpie0)
-                potential.matrix[2, i, j] = (1.0 + params.alpha)
-                potential.matrix[3, i, j] = (1.0 - params.alpha)
+                potential.matrix[2, i, j] = 1.0 + params.alpha
+                potential.matrix[3, i, j] = 1.0 - params.alpha
                 potential.matrix[4, i, j] = 1.0 / params.lambda_m
                 potential.matrix[5, i, j] = 1.0 / params.lambda_p
 
@@ -198,10 +199,7 @@ def update_params(potential, params):
 
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type,
-        potential.rc,
-        potential.matrix,
-        np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        potential.type, potential.rc, potential.matrix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
     )
 
 

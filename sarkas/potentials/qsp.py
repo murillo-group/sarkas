@@ -99,13 +99,12 @@ def update_params(potential, params):
 
     # Check for neutrality
     if params.total_net_charge != 0:
-        warn("Total net charge is not zero.",
-             category=AlgorithmWarning)
+        warn("Total net charge is not zero.", category=AlgorithmWarning)
 
     # Default attributes
-    if not hasattr(potential, 'qsp_type'):
-        potential.qsp_type = 'deutsch'
-    if not hasattr(potential, 'qsp_pauli'):
+    if not hasattr(potential, "qsp_type"):
+        potential.qsp_type = "deutsch"
+    if not hasattr(potential, "qsp_pauli"):
         potential.qsp_pauli = True
 
     # Enforce consistency
@@ -115,7 +114,7 @@ def update_params(potential, params):
     log2 = np.log(2.0)
 
     # Redefine ion temperatures and ion total number density
-    mask = params.species_names != 'e'
+    mask = params.species_names != "e"
     params.total_ion_temperature = params.species_concentrations[mask].transpose() * params.species_temperatures[mask]
     params.ni = np.sum(params.species_num_dens[mask])
 
@@ -135,7 +134,7 @@ def update_params(potential, params):
 
             reduced = (m1 * m2) / (m1 + m2)
 
-            if name1 == 'e' or name2 == 'e':
+            if name1 == "e" or name2 == "e":
                 # Use electron temperature in e-e and e-i interactions
                 lambda_deB = np.sqrt(deBroglie_const / (reduced * params.electron_temperature))
             else:
@@ -158,18 +157,16 @@ def update_params(potential, params):
     if potential.qsp_type == "deutsch":
         potential.force = deutsch_force
         # Calculate the PP Force error from the e-e diffraction term only.
-        params.pppm_pp_err = force_error_analytic_pp(potential.type,
-                                                     potential.rc,
-                                                     potential.matrix,
-                                                     np.sqrt(3.0 * params.a_ws / (4.0 * np.pi)))
+        params.pppm_pp_err = force_error_analytic_pp(
+            potential.type, potential.rc, potential.matrix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        )
     elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
         # the following is a placeholder
-        params.pppm_pp_err = force_error_analytic_pp(potential.type,
-                                                     potential.rc,
-                                                     potential.matix,
-                                                     np.sqrt(3.0 * params.a_ws / (4.0 * np.pi)))
+        params.pppm_pp_err = force_error_analytic_pp(
+            potential.type, potential.rc, potential.matix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        )
 
 
 @njit
@@ -213,7 +210,7 @@ def deutsch_force(r_in, pot_matrix):
     # Ewald short-range potential and force terms
     U_ewald = A * mt.erfc(alpha * r) / r
     f_ewald = U_ewald / r  # 1/r derivative
-    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi)) * np.exp(- a2 * r2) / r  # erfc derivative
+    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi)) * np.exp(-a2 * r2) / r  # erfc derivative
 
     # Diffraction potential and force term
     U_diff = -A * np.exp(-C * r) / r
@@ -271,14 +268,14 @@ def kelbg_force(r_in, pot_matrix):
     # Ewald short-range potential and force terms
     U_ewald = A * mt.erfc(alpha * r) / r
     f_ewald = U_ewald / r2  # 1/r derivative
-    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(- a2 * r2)  # erfc derivative
+    f_ewald += A * (2.0 * alpha / np.sqrt(np.pi) / r2) * np.exp(-a2 * r2)  # erfc derivative
 
     # Diffraction potential and force term
     U_diff = -A * np.exp(-C2 * r2 / np.pi) / r
     U_diff += A * C * mt.erfc(C * r / np.sqrt(np.pi))
 
-    f_diff = -A * (2.0 * C2 * r2 + np.pi) * np.exp(- C2 * r2 / np.pi) / (np.pi * r * r2)  # exp(r)/r derivative
-    f_diff += 2.0 * A * C2 * np.exp(- C2 * r2 / np.pi) / r / np.pi  # erfc derivative
+    f_diff = -A * (2.0 * C2 * r2 + np.pi) * np.exp(-C2 * r2 / np.pi) / (np.pi * r * r2)  # exp(r)/r derivative
+    f_diff += 2.0 * A * C2 * np.exp(-C2 * r2 / np.pi) / r / np.pi  # erfc derivative
 
     # Pauli Term
     U_pauli = D * np.exp(-F * r2)
