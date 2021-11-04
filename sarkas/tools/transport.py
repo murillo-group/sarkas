@@ -365,13 +365,56 @@ class TransportCoefficients:
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
         const = self.beta/observable.box_volume
-        for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
-            integrand = np.array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
-            self.conductivity_df_slices[sigma_str + "_slice {}".format(isl)] = const * fast_integral_loop(time, integrand)
+        if not observable.magnetized:
+            for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
+                integrand = np.array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
+                self.conductivity_df_slices[sigma_str + "_slice {}".format(isl)] = const * fast_integral_loop(time, integrand)
 
-        col_str = [sigma_str + "_slice {}".format(isl) for isl in range(observable.no_slices)]
-        self.conductivity_df[sigma_str + "_Mean"] = self.conductivity_df_slices[col_str].mean(axis=1)
-        self.conductivity_df[sigma_str + "_Std"] = self.conductivity_df_slices[col_str].std(axis=1)
+            col_str = [sigma_str + "_slice {}".format(isl) for isl in range(observable.no_slices)]
+            self.conductivity_df[sigma_str + "_Mean"] = self.conductivity_df_slices[col_str].mean(axis=1)
+            self.conductivity_df[sigma_str + "_Std"] = self.conductivity_df_slices[col_str].std(axis=1)
+        else:
+
+            for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
+                # Parallel
+                par_str = (jc_str, "Z", "slice {}".format(isl))
+                sigma_par_str = sigma_str + "_Parallel_slice {}".format(isl)
+                integrand = observable.dataframe_acf_slices[par_str].to_numpy()
+                self.conductivity_df_slices[sigma_par_str] = const * fast_integral_loop(time, integrand)
+                # Perpendicular
+                x_col_str = (jc_str, "X", "slice {}".format(isl))
+                y_col_str = (jc_str, "Y", "slice {}".format(isl))
+                perp_integrand = 0.5 * (observable.dataframe_acf_slices[x_col_str].to_numpy() +
+                                   observable.dataframe_acf_slices[y_col_str].to_numpy())
+                sigma_perp_str = sigma_str + "_Perpendicular_slice {}".format(isl)
+                self.conductivity_df_slices[sigma_perp_str] = const * fast_integral_loop(time, perp_integrand)
+
+            par_col_str = [(jc_str, "Z", "slice {}".format(isl)) for isl in range(self.no_slices)]
+            observable.dataframe_acf[(jc_str, 'Parallel', "Mean")] = observable.dataframe_acf_slices[
+                par_col_str].mean(axis=1)
+            observable.dataframe_acf[(jc_str, 'Parallel', "Std")] = observable.dataframe_acf_slices[
+                par_col_str].std(axis=1)
+
+            x_col_str = [(jc_str, 'X', "slice {}".format(isl)) for isl in range(self.no_slices)]
+            y_col_str = [(jc_str, 'Y', "slice {}".format(isl)) for isl in range(self.no_slices)]
+
+            perp_jc = 0.5 * (observable.dataframe_acf_slices[x_col_str].to_numpy() +
+                               observable.dataframe_acf_slices[y_col_str].to_numpy())
+            observable.dataframe_acf[(jc_str, 'Perpendicular', "Mean")] = perp_jc.mean(axis=1)
+            observable.dataframe_acf[(jc_str, 'Perpendicular', "Std")] = perp_jc.std(axis=1)
+            # Save the updated dataframe
+            observable.save_hdf()
+
+            # Average and std of transport coefficient.
+            col_str = [sigma_str + "_Parallel_slice {}".format(isl) for isl in range(observable.no_slices)]
+            self.conductivity_df[sigma_str + "_Parallel_Mean"] = self.conductivity_df_slices[col_str].mean(axis=1)
+            self.conductivity_df[sigma_str + "_Parallel_Std"] = self.conductivity_df_slices[col_str].std(axis=1)
+            # Perpendicular
+            col_str = [sigma_str + "_Perpendicular_slice {}".format(isl) for isl in range(observable.no_slices)]
+            self.conductivity_df[sigma_str + "_Perpendicular_Mean"] = self.conductivity_df_slices[col_str].mean(axis=1)
+            self.conductivity_df[sigma_str + "_Perpendicular_Std"] = self.conductivity_df_slices[col_str].std(axis=1)
+
+            # Endif magnetized.
 
         self.conductivity_df, self.conductivity_df_slices = self.save_hdf(
             df=self.conductivity_df,
@@ -379,20 +422,50 @@ class TransportCoefficients:
             tc_name="ElectricalConductivity")
 
         if plot or display_plot:
-            acf_avg = observable.dataframe_acf[(jc_str, "Total", "Mean")].to_numpy()
-            acf_std = observable.dataframe_acf[(jc_str, "Total", "Std")].to_numpy()
 
-            tc_avg = self.conductivity_df[(sigma_str, "Mean")].to_numpy()
-            tc_std = self.conductivity_df[(sigma_str, "Std")].to_numpy()
+            if not observable.magnetized:
+                acf_avg = observable.dataframe_acf[(jc_str, "Total", "Mean")].to_numpy()
+                acf_std = observable.dataframe_acf[(jc_str, "Total", "Std")].to_numpy()
 
-            self.plot_tc(time=time,
-                         acf_data=np.column_stack((acf_avg, acf_std)),
-                         tc_data=np.column_stack((tc_avg, tc_std)),
-                         acf_name="Electric Current ACF",
-                         tc_name="Electrical Conductivity",
-                         figname="ElectricalConductivity_Plot.png",
-                         show=display_plot)
+                tc_avg = self.conductivity_df[(sigma_str, "Mean")].to_numpy()
+                tc_std = self.conductivity_df[(sigma_str, "Std")].to_numpy()
 
+                self.plot_tc(time=time,
+                             acf_data=np.column_stack((acf_avg, acf_std)),
+                             tc_data=np.column_stack((tc_avg, tc_std)),
+                             acf_name="Electric Current ACF",
+                             tc_name="Electrical Conductivity",
+                             figname="ElectricalConductivity_Plot.png",
+                             show=display_plot)
+            else:
+
+                acf_avg = observable.dataframe_acf[(jc_str, "Parallel", "Mean")].to_numpy()
+                acf_std = observable.dataframe_acf[(jc_str, "Parallel", "Std")].to_numpy()
+
+                tc_avg = self.conductivity_df[(sigma_str, "Parallel", "Mean")].to_numpy()
+                tc_std = self.conductivity_df[(sigma_str, "Parallel", "Std")].to_numpy()
+
+                self.plot_tc(time=time,
+                             acf_data=np.column_stack((acf_avg, acf_std)),
+                             tc_data=np.column_stack((tc_avg, tc_std)),
+                             acf_name="Electric Current ACF Parallel",
+                             tc_name="Electrical Conductivity Parallel",
+                             figname="ElectricalConductivity_Parallel_Plot.png",
+                             show=display_plot)
+
+                acf_avg = observable.dataframe_acf[(jc_str, "Perpendicular", "Mean")].to_numpy()
+                acf_std = observable.dataframe_acf[(jc_str, "Perpendicular", "Std")].to_numpy()
+
+                tc_avg = self.conductivity_df[(sigma_str, "Perpendicular", "Mean")].to_numpy()
+                tc_std = self.conductivity_df[(sigma_str, "Perpendicular", "Std")].to_numpy()
+
+                self.plot_tc(time=time,
+                             acf_data=np.column_stack((acf_avg, acf_std)),
+                             tc_data=np.column_stack((tc_avg, tc_std)),
+                             acf_name="Electric Current ACF Perpendicular",
+                             tc_name="Electrical Conductivity Perpendicular",
+                             figname="ElectricalConductivity_Perpendicular_Plot.png",
+                             show=display_plot)
     def diffusion(self,
                   observable,
                   plot: bool = True,
