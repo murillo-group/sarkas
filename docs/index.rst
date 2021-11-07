@@ -3,10 +3,20 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. meta::
+   :format-detection: telephone=no
+   :robots: index, follow
+   :description: Sarkas is a fast pure-Python molecular dynamics suite for non-ideal plasmas.
+   :keywords: sarkas, plasma physics, plasma, physics, python, md, molecular dynamics
+   :author: Stefano Silvestri, Ph.D.
+   :designer: Stefano Silvestri, Ph.D.
 
-.. the "raw" directive below is used to hide the title in favor of just the logo being visible
+
+.. the "raw" directive below is used to hide the title in favor of just the logo being visible 
 
 .. raw:: html
+   <link rel="canonical" href="https://murillo-group.github.io/sarkas/">
+
    <link rel="preconnect" href="https://fonts.gstatic.com">
    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">  
 

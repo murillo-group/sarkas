@@ -1,3 +1,11 @@
+.. meta::
+   :format-detection: telephone=no
+   :robots: index, follow
+   :description: How to install and run Sarkas.
+   :keywords: sarkas, plasma physics, plasma, physics, python, jupyter, md, molecular dynamics, conda, pip, virtual enviroment,
+   :author: Stefano Silvestri, Ph.D.
+   :designer: Stefano Silvestri, Ph.D.
+
 ***********
 Get Started
 ***********

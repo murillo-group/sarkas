@@ -61,6 +61,7 @@ extensions = [
     'nbsphinx',
     'recommonmark',
     'sphinx_panels',
+    "sphinxext.opengraph",
     # 'gallery_generator',
 ]
 
@@ -169,8 +170,7 @@ html_theme_options = {
 html_static_path = ['_static']
 html_css_files = [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
-    "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
-    "my-style.css"
+    "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap"
     ]
 # panels_add_fontawesome_latex = True
 # If true, links to the reST sources are added to the pages.
@@ -189,6 +189,16 @@ html_sidebars = {
     'code_development/*': ['custom_localtoc.html'],
     'theory/*': ['custom_localtoc.html'],
     }
+
+#Open Graph metadata (social media link previews which improve SEO)
+ogp_site_url = "https://murillo-group.github.io/sarkas/"
+ogp_site_name = "SARKAS: Python MD code for plasma physics"
+ogp_type = "website"
+ogp_custom_meta_tags = [
+   '<meta property="twitter:card" content="summary">',
+   '<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">',
+   '<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">',
+]
 
 # -- APIDoc configuration -----------------------------------------------------
 
