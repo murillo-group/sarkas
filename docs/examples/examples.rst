@@ -12,7 +12,7 @@ Examples
 
     <div class="ex-thumbcontainer">
             <div class="figure align-default">
-                    <img src="../_images/examples_OCP_OCP_17_1.png" alt="">
+                    <img src="../_images/examples_OCP_OCP_19_1.png" alt="">
                     <p class="caption">
                         <span class="text-center"><a href="OCP/OCP.html"> One Component Plasma</a></span>
                     </p>
@@ -30,7 +30,7 @@ Examples
 
     <div class="ex-thumbcontainer">
             <div class="figure align-default">
-                    <img src="../_images/examples_QSP_QSP_Tutorial_7_1.png" alt="">
+                    <img src="../_images/examples_QSP_QSP_Tutorial_8_1.png" alt="">
                     <p class="caption">
                         <span class="text-center"><a href="QSP/QSP_Tutorial.html">Quantum Statistical Potential</a></span>
                     </p>

@@ -2282,7 +2282,7 @@ class StaticStructureFactor(Observable):
                 column = ["{}-{} SSF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
 
                 self.dataframe["{}-{} SSF_Mean".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
-                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
+                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].std(axis=1)
 
         self.save_hdf()
 
