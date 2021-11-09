@@ -111,6 +111,7 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">One Component Plasma (OCP)</a><ul>
+<li><a class="reference internal" href="#PreProcessing">PreProcessing</a></li>
 <li><a class="reference internal" href="#Simulation">Simulation</a></li>
 <li><a class="reference internal" href="#PostProcessing">PostProcessing</a></li>
 <li><a class="reference internal" href="#Radial-Distribution-Function">Radial Distribution Function</a></li>
@@ -118,10 +119,7 @@
 <li><a class="reference internal" href="#Collective-Mode-Dispersion">Collective Mode Dispersion</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#Transport-Coefficients">Transport Coefficients</a><ul>
 <li><a class="reference internal" href="#Diffusion">Diffusion</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -418,6 +416,9 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="mi">15</span>
+
 <span class="c1"># Import sarkas</span>
 <span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
 
@@ -436,11 +437,26 @@ Using matplotlib backend: Qt5Agg
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
+<section id="PreProcessing">
+<h2>PreProcessing<a class="headerlink" href="#PreProcessing" title="Permalink to this headline">¶</a></h2>
+<p>The following code is commented out since the simulation has been run before. We leave it here so that it is easy to copy and paste in your notebook.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># preproc = PreProcess(input_file_name)</span>
+<span class="c1"># preproc.setup(read_yaml=True)</span>
+<span class="c1"># preproc.run(pppm_estimate=True)</span>
+</pre></div>
+</div>
+</div>
+</section>
 <section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">¶</a></h2>
 <p>The following code is commented out since the simulation has been run before. We leave it here so that it is easy to copy and paste in your notebook.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -454,7 +470,7 @@ Populating the interactive namespace from numpy and matplotlib
 <section id="PostProcessing">
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -466,45 +482,18 @@ Populating the interactive namespace from numpy and matplotlib
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-
-
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-                                 Postprocessing
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-Job ID:  OCP_cgs
-Job directory:  Simulations/OCP_cgs
-PostProcessing directory:
- Simulations/OCP_cgs/PostProcessing
-
-Equilibration dumps directory:  Simulations/OCP_cgs/Simulation/Equilibration/dumps
-Production dumps directory:
- Simulations/OCP_cgs/Simulation/Production/dumps
-
-Equilibration Thermodynamics file:
- Simulations/OCP_cgs/Simulation/Equilibration/EquilibrationEnergy_OCP_cgs.csv
-Production Thermodynamics file:
- Simulations/OCP_cgs/Simulation/Production/ProductionEnergy_OCP_cgs.csv
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_OCP_OCP_5_1.png" src="../../_images/examples_OCP_OCP_5_1.png" />
+<img alt="../../_images/examples_OCP_OCP_7_0.png" src="../../_images/examples_OCP_OCP_7_0.png" />
 </div>
 </div>
 </section>
 <section id="Radial-Distribution-Function">
 <h2>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -513,26 +502,34 @@ Production Thermodynamics file:
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "72032c4e51854d15a04bb83905ea983e", "version_major": 2, "version_minor": 0}</script></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Radial Distribution Function Calculation Time: 0 sec 1 msec 101 usec 204 nsec
+Radial Distribution Function Calculation Time: 0 sec 54 msec 472 usec 443 nsec
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">)</span>
+<span></span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+                  <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;H-H RDF&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">),</span>
+                  <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r/a_{\rm ws}$&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -544,20 +541,18 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 101 usec 204 nsec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_OCP_OCP_8_1.png" src="../../_images/examples_OCP_OCP_8_1.png" />
+<img alt="../../_images/examples_OCP_OCP_10_1.png" src="../../_images/examples_OCP_OCP_10_1.png" />
 </div>
 </div>
 <p>Calculate the Pressure from the RDF</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">rdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;H-H RDF&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Distance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-<span class="n">n_beta</span> <span class="o">=</span>  <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">*</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Temperature&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">kB</span><span class="p">)</span>
-<span class="n">pressure</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">compute_pressure_from_rdf</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">rdf</span><span class="p">,</span> <span class="s1">&#39;Coulomb&#39;</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The excess pressure is = </span><span class="si">{:.4f}</span><span class="s1"> / (n k_B T)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pressure</span><span class="o">*</span><span class="n">n_beta</span><span class="p">))</span>
+<span></span><span class="n">n_beta</span> <span class="o">=</span>  <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">beta</span> <span class="o">/</span> <span class="p">(</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">)</span>
+<span class="n">nkT</span><span class="p">,</span> <span class="n">u_h</span><span class="p">,</span> <span class="n">u_c</span><span class="p">,</span> <span class="n">p_h</span><span class="p">,</span> <span class="n">p_c</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">compute_from_rdf</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The excess pressure is = </span><span class="si">{:.4e}</span><span class="s1"> / (n k_B T)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">u_c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_beta</span> <span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -566,14 +561,14 @@ Radial Distribution Function Calculation Time: 0 sec 1 msec 101 usec 204 nsec
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-The excess pressure is = -26.1939 / (n k_B T)
+The excess pressure is = -8.2438e+01 / (n k_B T)
 </pre></div></div>
 </div>
 </section>
 <section id="Dynamic-Structure-Factor">
 <h2>Dynamic Structure Factor<a class="headerlink" href="#Dynamic-Structure-Factor" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -606,12 +601,12 @@ Data saved in:
 Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe
 
 Frequency Space Parameters:
-        No. of slices = 4
-        No. dumps per slice = 12500
+        No. of slices = 1
+        No. dumps per slice = 50001
         Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
-        dw = 0.0126 w_p = 2.1057e+13 [Hz]
+        dw = 0.0031 w_p = 5.2642e+12 [rad/s]
         Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
-        w_max = 78.5487 w_p = 1.3161e+17 [Hz]
+        w_max = 78.5487 w_p = 1.3161e+17 [rad/s]
 
 
 Wavevector parameters:
@@ -628,7 +623,7 @@ No. of unique ka values to calculate = 55
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -637,18 +632,16 @@ No. of unique ka values to calculate = 55
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">max_columns</span> <span class="o">=</span> <span class="mi">15</span>
-<span class="n">dsf</span><span class="o">.</span><span class="n">dataframe</span>
+<span></span><span class="n">dsf</span><span class="o">.</span><span class="n">dataframe</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -703,92 +696,92 @@ No. of unique ka values to calculate = 55
     <tr>
       <th>0</th>
       <td>-1.316086e+17</td>
-      <td>2.299342e-25</td>
-      <td>2.601710e-25</td>
-      <td>1.506856e-25</td>
-      <td>2.238928e-25</td>
-      <td>1.023652e-24</td>
-      <td>1.302044e-24</td>
+      <td>4.879578e-25</td>
+      <td>1.472862e-25</td>
+      <td>2.390647e-25</td>
+      <td>2.450585e-25</td>
+      <td>7.464846e-25</td>
+      <td>1.143595e-24</td>
       <td>...</td>
-      <td>2.218304e-22</td>
-      <td>1.318253e-22</td>
-      <td>1.722560e-22</td>
-      <td>2.186809e-22</td>
-      <td>1.828332e-22</td>
-      <td>4.173647e-22</td>
-      <td>1.830595e-22</td>
+      <td>3.108407e-22</td>
+      <td>2.788587e-22</td>
+      <td>1.524755e-22</td>
+      <td>2.245008e-22</td>
+      <td>5.311622e-23</td>
+      <td>2.032679e-22</td>
+      <td>1.299485e-22</td>
     </tr>
     <tr>
       <th>1</th>
       <td>-1.315876e+17</td>
-      <td>2.299341e-25</td>
-      <td>2.601710e-25</td>
-      <td>1.506856e-25</td>
-      <td>2.238936e-25</td>
-      <td>1.023652e-24</td>
-      <td>1.302044e-24</td>
+      <td>4.879578e-25</td>
+      <td>1.472866e-25</td>
+      <td>2.390647e-25</td>
+      <td>2.450578e-25</td>
+      <td>7.464843e-25</td>
+      <td>1.143596e-24</td>
       <td>...</td>
-      <td>2.218302e-22</td>
-      <td>1.318247e-22</td>
-      <td>1.722552e-22</td>
-      <td>2.186806e-22</td>
-      <td>1.828334e-22</td>
-      <td>4.173652e-22</td>
-      <td>1.830587e-22</td>
+      <td>3.108408e-22</td>
+      <td>2.788584e-22</td>
+      <td>1.524759e-22</td>
+      <td>2.245011e-22</td>
+      <td>5.311582e-23</td>
+      <td>2.032684e-22</td>
+      <td>1.299482e-22</td>
     </tr>
     <tr>
       <th>2</th>
       <td>-1.315665e+17</td>
-      <td>2.299341e-25</td>
-      <td>2.601711e-25</td>
-      <td>1.506856e-25</td>
-      <td>2.238944e-25</td>
-      <td>1.023651e-24</td>
-      <td>1.302043e-24</td>
+      <td>4.879578e-25</td>
+      <td>1.472870e-25</td>
+      <td>2.390648e-25</td>
+      <td>2.450572e-25</td>
+      <td>7.464841e-25</td>
+      <td>1.143597e-24</td>
       <td>...</td>
-      <td>2.218301e-22</td>
-      <td>1.318241e-22</td>
-      <td>1.722544e-22</td>
-      <td>2.186804e-22</td>
-      <td>1.828335e-22</td>
-      <td>4.173658e-22</td>
-      <td>1.830580e-22</td>
+      <td>3.108409e-22</td>
+      <td>2.788580e-22</td>
+      <td>1.524764e-22</td>
+      <td>2.245014e-22</td>
+      <td>5.311542e-23</td>
+      <td>2.032690e-22</td>
+      <td>1.299479e-22</td>
     </tr>
     <tr>
       <th>3</th>
       <td>-1.315455e+17</td>
-      <td>2.299341e-25</td>
-      <td>2.601712e-25</td>
-      <td>1.506857e-25</td>
-      <td>2.238952e-25</td>
-      <td>1.023651e-24</td>
-      <td>1.302043e-24</td>
+      <td>4.879579e-25</td>
+      <td>1.472874e-25</td>
+      <td>2.390650e-25</td>
+      <td>2.450566e-25</td>
+      <td>7.464840e-25</td>
+      <td>1.143599e-24</td>
       <td>...</td>
-      <td>2.218300e-22</td>
-      <td>1.318235e-22</td>
-      <td>1.722536e-22</td>
-      <td>2.186801e-22</td>
-      <td>1.828337e-22</td>
-      <td>4.173664e-22</td>
-      <td>1.830573e-22</td>
+      <td>3.108411e-22</td>
+      <td>2.788577e-22</td>
+      <td>1.524769e-22</td>
+      <td>2.245017e-22</td>
+      <td>5.311503e-23</td>
+      <td>2.032697e-22</td>
+      <td>1.299476e-22</td>
     </tr>
     <tr>
       <th>4</th>
       <td>-1.315244e+17</td>
-      <td>2.299341e-25</td>
-      <td>2.601713e-25</td>
-      <td>1.506858e-25</td>
-      <td>2.238961e-25</td>
-      <td>1.023650e-24</td>
-      <td>1.302043e-24</td>
+      <td>4.879581e-25</td>
+      <td>1.472878e-25</td>
+      <td>2.390651e-25</td>
+      <td>2.450560e-25</td>
+      <td>7.464840e-25</td>
+      <td>1.143600e-24</td>
       <td>...</td>
-      <td>2.218299e-22</td>
-      <td>1.318229e-22</td>
-      <td>1.722529e-22</td>
-      <td>2.186799e-22</td>
-      <td>1.828339e-22</td>
-      <td>4.173671e-22</td>
-      <td>1.830566e-22</td>
+      <td>3.108413e-22</td>
+      <td>2.788575e-22</td>
+      <td>1.524774e-22</td>
+      <td>2.245021e-22</td>
+      <td>5.311465e-23</td>
+      <td>2.032703e-22</td>
+      <td>1.299474e-22</td>
     </tr>
     <tr>
       <th>...</th>
@@ -811,92 +804,92 @@ No. of unique ka values to calculate = 55
     <tr>
       <th>12495</th>
       <td>1.315033e+17</td>
-      <td>2.299351e-25</td>
-      <td>2.601713e-25</td>
-      <td>1.506858e-25</td>
-      <td>2.238892e-25</td>
-      <td>1.023657e-24</td>
-      <td>1.302050e-24</td>
+      <td>4.879589e-25</td>
+      <td>1.472846e-25</td>
+      <td>2.390648e-25</td>
+      <td>2.450623e-25</td>
+      <td>7.464874e-25</td>
+      <td>1.143593e-24</td>
       <td>...</td>
-      <td>2.218317e-22</td>
-      <td>1.318285e-22</td>
-      <td>1.722603e-22</td>
-      <td>2.186826e-22</td>
-      <td>1.828328e-22</td>
-      <td>4.173628e-22</td>
-      <td>1.830636e-22</td>
+      <td>3.108409e-22</td>
+      <td>2.788611e-22</td>
+      <td>1.524735e-22</td>
+      <td>2.245000e-22</td>
+      <td>5.311834e-23</td>
+      <td>2.032654e-22</td>
+      <td>1.299503e-22</td>
     </tr>
     <tr>
       <th>12496</th>
       <td>1.315244e+17</td>
-      <td>2.299349e-25</td>
-      <td>2.601712e-25</td>
-      <td>1.506857e-25</td>
-      <td>2.238899e-25</td>
-      <td>1.023656e-24</td>
-      <td>1.302048e-24</td>
+      <td>4.879585e-25</td>
+      <td>1.472849e-25</td>
+      <td>2.390647e-25</td>
+      <td>2.450615e-25</td>
+      <td>7.464866e-25</td>
+      <td>1.143593e-24</td>
       <td>...</td>
-      <td>2.218314e-22</td>
-      <td>1.318278e-22</td>
-      <td>1.722594e-22</td>
-      <td>2.186822e-22</td>
-      <td>1.828329e-22</td>
-      <td>4.173631e-22</td>
-      <td>1.830627e-22</td>
+      <td>3.108408e-22</td>
+      <td>2.788606e-22</td>
+      <td>1.524738e-22</td>
+      <td>2.245001e-22</td>
+      <td>5.311790e-23</td>
+      <td>2.032658e-22</td>
+      <td>1.299499e-22</td>
     </tr>
     <tr>
       <th>12497</th>
       <td>1.315455e+17</td>
-      <td>2.299347e-25</td>
-      <td>2.601711e-25</td>
-      <td>1.506857e-25</td>
-      <td>2.238906e-25</td>
-      <td>1.023655e-24</td>
-      <td>1.302047e-24</td>
+      <td>4.879583e-25</td>
+      <td>1.472852e-25</td>
+      <td>2.390646e-25</td>
+      <td>2.450607e-25</td>
+      <td>7.464860e-25</td>
+      <td>1.143593e-24</td>
       <td>...</td>
-      <td>2.218311e-22</td>
-      <td>1.318272e-22</td>
-      <td>1.722585e-22</td>
-      <td>2.186819e-22</td>
-      <td>1.828329e-22</td>
-      <td>4.173634e-22</td>
-      <td>1.830619e-22</td>
+      <td>3.108407e-22</td>
+      <td>2.788601e-22</td>
+      <td>1.524742e-22</td>
+      <td>2.245002e-22</td>
+      <td>5.311747e-23</td>
+      <td>2.032663e-22</td>
+      <td>1.299495e-22</td>
     </tr>
     <tr>
       <th>12498</th>
       <td>1.315665e+17</td>
-      <td>2.299345e-25</td>
-      <td>2.601710e-25</td>
-      <td>1.506856e-25</td>
-      <td>2.238913e-25</td>
-      <td>1.023654e-24</td>
-      <td>1.302046e-24</td>
+      <td>4.879581e-25</td>
+      <td>1.472855e-25</td>
+      <td>2.390646e-25</td>
+      <td>2.450599e-25</td>
+      <td>7.464854e-25</td>
+      <td>1.143594e-24</td>
       <td>...</td>
-      <td>2.218308e-22</td>
-      <td>1.318265e-22</td>
-      <td>1.722576e-22</td>
-      <td>2.186815e-22</td>
-      <td>1.828330e-22</td>
-      <td>4.173638e-22</td>
-      <td>1.830610e-22</td>
+      <td>3.108406e-22</td>
+      <td>2.788596e-22</td>
+      <td>1.524746e-22</td>
+      <td>2.245004e-22</td>
+      <td>5.311705e-23</td>
+      <td>2.032668e-22</td>
+      <td>1.299492e-22</td>
     </tr>
     <tr>
       <th>12499</th>
       <td>1.315876e+17</td>
-      <td>2.299343e-25</td>
-      <td>2.601710e-25</td>
-      <td>1.506856e-25</td>
-      <td>2.238920e-25</td>
-      <td>1.023653e-24</td>
-      <td>1.302045e-24</td>
+      <td>4.879579e-25</td>
+      <td>1.472859e-25</td>
+      <td>2.390646e-25</td>
+      <td>2.450592e-25</td>
+      <td>7.464850e-25</td>
+      <td>1.143595e-24</td>
       <td>...</td>
-      <td>2.218306e-22</td>
-      <td>1.318259e-22</td>
-      <td>1.722568e-22</td>
-      <td>2.186812e-22</td>
-      <td>1.828331e-22</td>
-      <td>4.173642e-22</td>
-      <td>1.830603e-22</td>
+      <td>3.108407e-22</td>
+      <td>2.788591e-22</td>
+      <td>1.524750e-22</td>
+      <td>2.245006e-22</td>
+      <td>5.311663e-23</td>
+      <td>2.032673e-22</td>
+      <td>1.299488e-22</td>
     </tr>
   </tbody>
 </table>
@@ -904,7 +897,7 @@ No. of unique ka values to calculate = 55
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -918,25 +911,25 @@ No. of unique ka values to calculate = 55
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7f0b719b5c90&gt;
+&lt;matplotlib.legend.Legend at 0x7fdb2adc8d90&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_OCP_OCP_15_1.png" src="../../_images/examples_OCP_OCP_15_1.png" />
+<img alt="../../_images/examples_OCP_OCP_17_1.png" src="../../_images/examples_OCP_OCP_17_1.png" />
 </div>
 </div>
 <section id="Collective-Mode-Dispersion">
 <h3>Collective Mode Dispersion<a class="headerlink" href="#Collective-Mode-Dispersion" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -948,8 +941,8 @@ No. of unique ka values to calculate = 55
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">ka_mesh</span><span class="p">,</span> <span class="n">w_mesh</span><span class="p">,</span> <span class="n">Skw</span><span class="p">,</span>
                    <span class="n">shading</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
-                   <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span> <span class="o">=</span> <span class="mf">1e-22</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1e-16</span><span class="p">),</span>
-                   <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;cividis&#39;</span><span class="p">)</span>
+                   <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span> <span class="o">=</span> <span class="mf">1e-22</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="mf">1e-15</span><span class="p">),</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
        <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span>
        <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$ka$&#39;</span><span class="p">,</span>
@@ -959,35 +952,502 @@ No. of unique ka values to calculate = 55
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.colorbar.Colorbar at 0x7f0b7265a090&gt;
+&lt;matplotlib.colorbar.Colorbar at 0x7fdb2b62e490&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_OCP_OCP_17_1.png" src="../../_images/examples_OCP_OCP_17_1.png" />
+<img alt="../../_images/examples_OCP_OCP_19_1.png" src="../../_images/examples_OCP_OCP_19_1.png" />
 </div>
 </div>
-</section>
-</section>
-<section id="Transport-Coefficients">
-<h2>Transport Coefficients<a class="headerlink" href="#Transport-Coefficients" title="Permalink to this headline">¶</a></h2>
-<section id="Diffusion">
-<h3>Diffusion<a class="headerlink" href="#Diffusion" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">CurrentCorrelationFunction</span>
+
+<span class="n">ccf</span> <span class="o">=</span> <span class="n">CurrentCorrelationFunction</span><span class="p">()</span>
+<span class="n">ccf</span><span class="o">.</span><span class="n">max_ka_value</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">ccf</span><span class="o">.</span><span class="n">angle_averaging</span> <span class="o">=</span> <span class="s1">&#39;principal_axis&#39;</span>
+<span class="n">ccf</span><span class="o">.</span><span class="n">no_slices</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">ccf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
+<span class="n">ccf</span><span class="o">.</span><span class="n">pretty_print</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+
+==================== Current Correlation Function ====================
+
+k wavevector information saved in:
+ Simulations/OCP_cgs/PostProcessing/k_space_data/k_arrays.npz
+v(k,t) data saved in:
+ Simulations/OCP_cgs/PostProcessing/k_space_data/vkt.h5
+Data saved in:
+Simulations/OCP_cgs/PostProcessing/CurrentCorrelationFunction/Production/CurrentCorrelationFunction_OCP_cgs.h5
+Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies,
+         self.dataframe
+
+Frequency Space Parameters:
+        No. of slices = 4
+        No. dumps per slice = 12500
+        Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
+        dw = 0.0126 w_p = 2.1057e+13 [rad/s]
+        Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
+        w_max = 78.5487 w_p = 1.3161e+17 [rad/s]
+
+
+Wavevector parameters:
+Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)
+k_min = 0.1809 / a_ws = 3.4252e+07 [1/cm]
+
+Angle averaging choice: principal_axis
+        Maximum k harmonics = n_x, n_y, n_z = 55, 55, 55
+        Largest wavector k_max = k_min * n_x
+        k_max = 9.9505 / a_ws = 1.8839e+09 [1/cm]
+
+Total number of k values to calculate = 165
+No. of unique ka values to calculate = 55
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># ccf.compute()</span>
+<span class="n">ccf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">ccf</span><span class="o">.</span><span class="n">dataframe</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="6" halign="left">Longitudinal</th>
+      <th>...</th>
+      <th colspan="7" halign="left">Transverse</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="6" halign="left">H-H</th>
+      <th>...</th>
+      <th colspan="7" halign="left">H-H</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="6" halign="left">Mean</th>
+      <th>...</th>
+      <th colspan="7" halign="left">Std</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>ka1 = 0.1809</th>
+      <th>ka2 = 0.3618</th>
+      <th>ka3 = 0.5428</th>
+      <th>ka4 = 0.7237</th>
+      <th>ka5 = 0.9046</th>
+      <th>ka6 = 1.0855</th>
+      <th>...</th>
+      <th>ka49 = 8.8650</th>
+      <th>ka50 = 9.0459</th>
+      <th>ka51 = 9.2269</th>
+      <th>ka52 = 9.4078</th>
+      <th>ka53 = 9.5887</th>
+      <th>ka54 = 9.7696</th>
+      <th>ka55 = 9.9505</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>Frequencies</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>...</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+      <th>NaN</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-1.316086e+17</td>
+      <td>297360.958948</td>
+      <td>550841.305756</td>
+      <td>741502.511222</td>
+      <td>1.016348e+06</td>
+      <td>1.514701e+06</td>
+      <td>2.271082e+06</td>
+      <td>...</td>
+      <td>7.750616e+07</td>
+      <td>5.889132e+07</td>
+      <td>9.418742e+07</td>
+      <td>5.108627e+07</td>
+      <td>7.961882e+07</td>
+      <td>1.341673e+08</td>
+      <td>2.069157e+08</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-1.315876e+17</td>
+      <td>297360.776416</td>
+      <td>550842.124002</td>
+      <td>741502.375627</td>
+      <td>1.016346e+06</td>
+      <td>1.514700e+06</td>
+      <td>2.271084e+06</td>
+      <td>...</td>
+      <td>7.750625e+07</td>
+      <td>5.889105e+07</td>
+      <td>9.418693e+07</td>
+      <td>5.108631e+07</td>
+      <td>7.961854e+07</td>
+      <td>1.341673e+08</td>
+      <td>2.069154e+08</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-1.315665e+17</td>
+      <td>297360.647363</td>
+      <td>550843.139040</td>
+      <td>741502.337668</td>
+      <td>1.016345e+06</td>
+      <td>1.514699e+06</td>
+      <td>2.271087e+06</td>
+      <td>...</td>
+      <td>7.750636e+07</td>
+      <td>5.889082e+07</td>
+      <td>9.418642e+07</td>
+      <td>5.108637e+07</td>
+      <td>7.961826e+07</td>
+      <td>1.341674e+08</td>
+      <td>2.069150e+08</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-1.315455e+17</td>
+      <td>297360.545013</td>
+      <td>550844.190843</td>
+      <td>741502.511066</td>
+      <td>1.016343e+06</td>
+      <td>1.514697e+06</td>
+      <td>2.271090e+06</td>
+      <td>...</td>
+      <td>7.750648e+07</td>
+      <td>5.889055e+07</td>
+      <td>9.418595e+07</td>
+      <td>5.108642e+07</td>
+      <td>7.961800e+07</td>
+      <td>1.341674e+08</td>
+      <td>2.069148e+08</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-1.315244e+17</td>
+      <td>297360.479300</td>
+      <td>550845.235350</td>
+      <td>741502.714944</td>
+      <td>1.016342e+06</td>
+      <td>1.514696e+06</td>
+      <td>2.271093e+06</td>
+      <td>...</td>
+      <td>7.750661e+07</td>
+      <td>5.889032e+07</td>
+      <td>9.418548e+07</td>
+      <td>5.108648e+07</td>
+      <td>7.961773e+07</td>
+      <td>1.341676e+08</td>
+      <td>2.069145e+08</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>12495</th>
+      <td>1.315033e+17</td>
+      <td>297362.379926</td>
+      <td>550837.777453</td>
+      <td>741504.525321</td>
+      <td>1.016359e+06</td>
+      <td>1.514712e+06</td>
+      <td>2.271074e+06</td>
+      <td>...</td>
+      <td>7.750583e+07</td>
+      <td>5.889277e+07</td>
+      <td>9.419012e+07</td>
+      <td>5.108613e+07</td>
+      <td>7.962035e+07</td>
+      <td>1.341672e+08</td>
+      <td>2.069178e+08</td>
+    </tr>
+    <tr>
+      <th>12496</th>
+      <td>1.315244e+17</td>
+      <td>297362.038693</td>
+      <td>550838.295542</td>
+      <td>741504.077521</td>
+      <td>1.016357e+06</td>
+      <td>1.514710e+06</td>
+      <td>2.271075e+06</td>
+      <td>...</td>
+      <td>7.750587e+07</td>
+      <td>5.889246e+07</td>
+      <td>9.418956e+07</td>
+      <td>5.108616e+07</td>
+      <td>7.962006e+07</td>
+      <td>1.341671e+08</td>
+      <td>2.069173e+08</td>
+    </tr>
+    <tr>
+      <th>12497</th>
+      <td>1.315455e+17</td>
+      <td>297361.694330</td>
+      <td>550838.950322</td>
+      <td>741503.502435</td>
+      <td>1.016354e+06</td>
+      <td>1.514707e+06</td>
+      <td>2.271076e+06</td>
+      <td>...</td>
+      <td>7.750592e+07</td>
+      <td>5.889217e+07</td>
+      <td>9.418901e+07</td>
+      <td>5.108617e+07</td>
+      <td>7.961974e+07</td>
+      <td>1.341672e+08</td>
+      <td>2.069169e+08</td>
+    </tr>
+    <tr>
+      <th>12498</th>
+      <td>1.315665e+17</td>
+      <td>297361.427877</td>
+      <td>550839.707170</td>
+      <td>741503.103073</td>
+      <td>1.016352e+06</td>
+      <td>1.514705e+06</td>
+      <td>2.271078e+06</td>
+      <td>...</td>
+      <td>7.750600e+07</td>
+      <td>5.889188e+07</td>
+      <td>9.418847e+07</td>
+      <td>5.108619e+07</td>
+      <td>7.961942e+07</td>
+      <td>1.341672e+08</td>
+      <td>2.069165e+08</td>
+    </tr>
+    <tr>
+      <th>12499</th>
+      <td>1.315876e+17</td>
+      <td>297361.173344</td>
+      <td>550840.413166</td>
+      <td>741502.795738</td>
+      <td>1.016350e+06</td>
+      <td>1.514703e+06</td>
+      <td>2.271080e+06</td>
+      <td>...</td>
+      <td>7.750607e+07</td>
+      <td>5.889160e+07</td>
+      <td>9.418794e+07</td>
+      <td>5.108622e+07</td>
+      <td>7.961910e+07</td>
+      <td>1.341672e+08</td>
+      <td>2.069160e+08</td>
+    </tr>
+  </tbody>
+</table>
+<p>12500 rows × 221 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">w</span> <span class="o">=</span> <span class="n">dsf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">)]</span><span class="o">/</span> <span class="n">ccf</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
+
+<span class="n">ka_mesh</span><span class="p">,</span> <span class="n">w_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">dsf</span><span class="o">.</span><span class="n">ka_values</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+
+<span class="n">Lkw</span> <span class="o">=</span> <span class="n">ccf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;Longitudinal&quot;</span><span class="p">,</span> <span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">ka_mesh</span><span class="p">,</span> <span class="n">w_mesh</span><span class="p">,</span> <span class="n">Lkw</span><span class="p">,</span>
+                   <span class="n">shading</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+                   <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span> <span class="o">=</span> <span class="mf">0.5e10</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="mf">0.5e15</span><span class="p">),</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+       <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span>
+       <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$ka$&#39;</span><span class="p">,</span>
+       <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\omega/\omega_p$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x7fdb2f889610&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_OCP_OCP_23_1.png" src="../../_images/examples_OCP_OCP_23_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">w</span> <span class="o">=</span> <span class="n">dsf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot; &quot;</span><span class="p">,</span><span class="s2">&quot;Frequencies&quot;</span><span class="p">)]</span><span class="o">/</span> <span class="n">ccf</span><span class="o">.</span><span class="n">total_plasma_frequency</span>
+
+<span class="n">ka_mesh</span><span class="p">,</span> <span class="n">w_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">dsf</span><span class="o">.</span><span class="n">ka_values</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+
+<span class="n">Lkw</span> <span class="o">=</span> <span class="n">ccf</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;Transverse&quot;</span><span class="p">,</span> <span class="s2">&quot;H-H&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">ka_mesh</span><span class="p">,</span> <span class="n">w_mesh</span><span class="p">,</span> <span class="n">Lkw</span><span class="p">,</span>
+                   <span class="n">shading</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+                   <span class="n">norm</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span> <span class="o">=</span> <span class="mf">3e9</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="mf">3e14</span><span class="p">),</span>
+                   <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span>
+       <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">8</span><span class="p">),</span>
+       <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$ka$&#39;</span><span class="p">,</span>
+       <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$\omega/\omega_p$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.colorbar.Colorbar at 0x7fdb2ae4f290&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_OCP_OCP_24_1.png" src="../../_images/examples_OCP_OCP_24_1.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Diffusion">
+<h2>Diffusion<a class="headerlink" href="#Diffusion" title="Permalink to this headline">¶</a></h2>
+<p>Diffusion is calculated from the integral of the velocity autocorrelation function, <span class="math notranslate nohighlight">\(\left \langle \bar{\mathbf v} (t) \cdot \bar{\mathbf v}(0) \right \rangle\)</span>,</p>
+<p><span class="math">\begin{equation}
+D = \frac{1}{3} \int_0^{\tau} dt \, \left \langle \bar{\mathbf v} (t) \cdot \bar{\mathbf v}(0) \right \rangle
+\end{equation}</span></p>
+<p>where <span class="math notranslate nohighlight">\(\bar{\mathbf v}\)</span> is the particle-averaged velocity.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">VelocityAutoCorrelationFunction</span>
+<span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">vacf</span> <span class="o">=</span> <span class="n">VelocityAutoCorrelationFunction</span><span class="p">()</span>
+<span class="n">vacf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficient</span>
-
-<span class="n">diffusion</span> <span class="o">=</span> <span class="n">TransportCoefficient</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span></span><span class="n">vacf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">tc</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">tc</span><span class="o">.</span><span class="n">diffusion</span><span class="p">(</span><span class="n">vacf</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1000,90 +1460,73 @@ No. of unique ka values to calculate = 55
 
 ======================= Diffusion Coefficient ========================
 
-
-Calculating vacf for slice 1/4.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b0f0f5388ff049f9a81c80cbc3450269", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-Calculating vacf for slice 2/4.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "97a524c13ea54f308a9a0e0266bbd315", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-Calculating vacf for slice 3/4.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "262919c2bbdc4acfa67cdcb5ca527907", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-Calculating vacf for slice 4/4.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0e239f86011042d88f9f0d310436a630", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-
-VACF Calculation Time: 0 hrs 5 min 30 sec
 Data saved in:
- Simulations/OCP_cgs/PostProcessing/VelocityAutoCorrelationFunction/Production/Diffusion_OCP_cgs.h5
+ Simulations/OCP_cgs/PostProcessing/TransportCoefficients/Production/Diffusion_OCP_cgs.h5
+Simulations/OCP_cgs/PostProcessing/TransportCoefficients/Production/Diffusion_slices_OCP_cgs.h5
 
 No. of slices = 4
 No. dumps per slice = 6250
-Time interval of autocorrelation function = 1.4919e-13 [s] ~ 249 w_p T
+Time interval of autocorrelation function = 2.9838e-13 [s] ~ 499 w_p T
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0f130476904e4ea38879aac4c4366128", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b3f53bc81bf64207b68c2a955aaa5923", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_OCP_OCP_19_10.png" src="../../_images/examples_OCP_OCP_19_10.png" />
+<img alt="../../_images/examples_OCP_OCP_29_2.png" src="../../_images/examples_OCP_OCP_29_2.png" />
 </div>
 </div>
-</section>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">rescaling</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">vacf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="o">/</span><span class="n">vacf</span><span class="o">.</span><span class="n">a_ws</span><span class="o">**</span><span class="mi">2</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">7</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">diffusion_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">vacf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">,</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">diffusion_df</span><span class="p">[(</span><span class="s2">&quot;H Diffusion&quot;</span><span class="p">,</span><span class="s2">&quot;Mean&quot;</span><span class="p">)]</span> <span class="o">*</span> <span class="n">rescaling</span><span class="p">,</span>
+       <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Diffusion&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">diffusion_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">vacf</span><span class="o">.</span><span class="n">total_plasma_frequency</span><span class="p">,</span>
+        <span class="n">tc</span><span class="o">.</span><span class="n">diffusion_df</span><span class="p">[(</span><span class="s2">&quot;H Diffusion&quot;</span><span class="p">,</span><span class="s2">&quot;Mean&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">expanding</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">rescaling</span><span class="p">,</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;Mov Avg&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\tau \omega_p$&quot;</span><span class="p">,</span><span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot; $D/a^2 \omega_p$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Text(0.5, 0, &#39;$\\tau \\omega_p$&#39;), Text(0, 0.5, &#39; $D/a^2 \\omega_p$&#39;)]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_OCP_OCP_30_1.png" src="../../_images/examples_OCP_OCP_30_1.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 
@@ -1100,7 +1543,7 @@ Time interval of autocorrelation function = 1.4919e-13 [s] ~ 249 w_p T
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 03, 2021.<br/>
+      Last updated on Nov 09, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

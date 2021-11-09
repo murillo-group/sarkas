@@ -204,6 +204,9 @@ The observables we want to calculate are
         - CurrentCorrelationFunction:
             max_ka_value: 8
 
+        - VelocityAutoCorrelationFunction
+            no_slices: 4
+
 Note that ``Observables`` is again a list of dictionaries. This is because each observable is returned as 
 an object in the simulation. The lines below the observables' names are the parameters needed for the calculation. 
 The parameters are different depending on the observable. We will discuss them in the next pages of this tutorial.
@@ -216,7 +219,9 @@ Transport Coefficients
 
     TransportCoefficientss:
         - Diffusion:
-            time_averaging: False
+            no_slices: 4
 
-The available transport coefficients at this moment are: ``Diffusion``, ``Interdiffusion``, ``ElectricalConductivity``, ``Viscosity``. Note 
-that ``Interdiffusion`` is supported only in the case of binary mixtures. Soon we will have support for any mixture.
+The available transport coefficients at this moment are: ``Diffusion``, ``Interdiffusion``, ``ElectricalConductivity``,
+``Viscosity``.
+Note that ``Interdiffusion`` is supported only in the case of binary mixtures.
+Soon we will have support for any mixture.

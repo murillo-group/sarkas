@@ -436,7 +436,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;PUBstyle&#39;</span><span class="p">)</span>
 
 <span class="c1"># Import sarkas</span>
-<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">PreProcess</span>
 
 <span class="c1"># Create the file path to the YAML input file</span>
 <span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;yukawa_mks_p3m.yaml&#39;</span><span class="p">)</span>
@@ -475,14 +475,18 @@ Populating the interactive namespace from numpy and matplotlib
 
 
 
- _______              __
-|     __|.---.-.----.|  |--.---.-.-----.
-|__     ||  _  |   _||    &lt;|  _  |__ --|
-|_______||___._|__|  |__|__|___._|_____|
 
+  _________             __
+ /   _____/____ _______|  | _______    ______
+ \_____  \\__  \\_  __ \  |/ /\__  \  /  ___/
+ /        \/ __ \|  | \/    &lt;  / __ \_\___ \
+/_______  (____  /__|  |__|_ \(____  /____  &gt;
+        \/     \/           \/     \/     \/
 
 </span>
 An open-source pure-python molecular dynamics suite for non-ideal plasmas.
+
+
 
 
 
@@ -516,10 +520,10 @@ Species ID: 0
         Charge number/ionization degree = 1.0000
         Charge = 1.602177e-19 [C]
         Temperature = 1.450565e+04 [K] = 1.250000e+00 [eV]
-        Debye Length = 6.530052e-13 [Hz]
-        Plasma Frequency = 1.675504e+16 [Hz]
+        Debye Length = 6.530052e-13 [1/m]
+        Plasma Frequency = 1.675504e+16 [rad/s]
 
-SIMULATION BOX:
+SIMULATION AND INITIAL PARTICLE BOX:
 Units:  mks
 Wigner-Seitz radius = 1.137973e-11 [m]
 No. of non-zero box dimensions =  3
@@ -527,6 +531,10 @@ Box side along x axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
 Box side along y axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
 Box side along z axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
 Box Volume = 6.172840e-29 [m^3]
+Initial particle box side along x axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
+Initial particle box side along y axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
+Initial particle box side along z axis = 3.472931e+01 a_ws = 3.952104e-10 [m]
+Initial particle box Volume = 6.172840e-29 [m^3]
 Boundary conditions: periodic
 
 ELECTRON PROPERTIES:
@@ -543,12 +551,12 @@ Coupling: r_s = 0.215046,  Gamma_e = 0.101230
 Warm Dense Matter Parameter: W = 1.9838e-01
 Chemical potential: mu = -2.8605e-01 k_B T_e = -3.2996e-01 E_F
 
-POTENTIAL:  Yukawa
+POTENTIAL:  yukawa
 electron temperature = 1.4506e+07 [K] = 1.2500e+03 [eV]
 kappa = 0.5008
 Gamma_eff = 101.23
 
-ALGORITHM:  P3M
+ALGORITHM:  pppm
 Charge assignment order: 6
 FFT aliases: [3, 3, 3]
 Mesh: 64 x 64 x 64
@@ -566,22 +574,17 @@ PP Force Error = 2.804557e-06
 Tot Force Error = 6.442673e-06
 
 THERMOSTAT:
-Type: Berendsen
+Type: berendsen
 First thermostating timestep, i.e. relaxation_timestep = 50
 Berendsen parameter tau: 1.000 [timesteps]
 Berendsen relaxation rate: 1.000 [1/timesteps]
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Equilibration temperatures not defined. I will use the species&#39;s temperatures
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 Thermostating temperatures:
 Species ID 0: T_eq = 1.450565e+04 [K] = 1.250000e+00 [eV]
 
 INTEGRATOR:
-Type: Verlet
+Type: verlet
 Time step = 2.000000e-18 [s]
-Total plasma frequency = 1.675504e+16 [Hz]
+Total plasma frequency = 1.675504e+16 [rad/s]
 w_p dt = 0.0335 ~ 1/29
 
 Equilibration:
@@ -604,7 +607,7 @@ Total number of snapshots = 500
 
 Potential Initialization Time: 0 hrs 0 min 5 sec
 
-Particles Initialization Time: 0 sec 1 msec 130 usec 713 nsec
+Particles Initialization Time: 0 sec 2 msec 755 usec 186 nsec
 
 Total Simulation Initialization Time: 0 hrs 0 min 5 sec
 </pre></div></div>
@@ -698,13 +701,13 @@ the system to convert most of its potential energy into kinetic energy and thus 
 ========================== Times Estimates ===========================
 
 Optimal Green&#39;s Function Time:
-0 min 4 sec 84 msec 82 usec 254 nsec
+0 min 4 sec 159 msec 993 usec 567 nsec
 
 Time of PP acceleration calculation averaged over 20 steps:
-0 min 0 sec 156 msec 765 usec 113 nsec
+0 min 0 sec 169 msec 288 usec 442 nsec
 
 Time of PM acceleration calculation averaged over 20 steps:
-0 min 0 sec 54 msec 912 usec 631 nsec
+0 min 0 sec 58 msec 696 usec 518 nsec
 
 
 Running 21 equilibration and production steps to estimate simulation times
@@ -715,7 +718,7 @@ Running 21 equilibration and production steps to estimate simulation times
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a9ffceb4f6774eaf8c46c96b8aecaf2b", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8f98de4e140044a29c76ea00a4ca9b11", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -723,7 +726,7 @@ Running 21 equilibration and production steps to estimate simulation times
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Time of a single equilibration step averaged over 20 steps:
-0 min 0 sec 236 msec 106 usec 55 nsec
+0 min 0 sec 330 msec 246 usec 500 nsec
 
 </pre></div></div>
 </div>
@@ -731,7 +734,7 @@ Time of a single equilibration step averaged over 20 steps:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6dfab44d1f004223b93a8e39e5a1cb52", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a542d12c1ae64870ad33d666371468e9", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -739,18 +742,18 @@ Time of a single equilibration step averaged over 20 steps:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Time of a single production step averaged over 20 steps:
-0 min 0 sec 218 msec 462 usec 494 nsec
+0 min 0 sec 313 msec 393 usec 226 nsec
 
 
 
 ----------------------- Total Estimated Times ------------------------
 
 
-Equilibration Time: 0 hrs 19 min 40 sec
+Equilibration Time: 0 hrs 27 min 31 sec
 
-Production Time: 0 hrs 18 min 12 sec
+Production Time: 0 hrs 26 min 6 sec
 
-Total Run Time: 0 hrs 37 min 52 sec
+Total Run Time: 0 hrs 53 min 38 sec
 
 
 ========================= Filesize Estimates =========================
@@ -758,15 +761,15 @@ Total Run Time: 0 hrs 37 min 52 sec
 
 Equilibration:
 
-Checkpoint filesize: 0 GB 0 MB 821 KB 758 bytes
-Checkpoint folder size: 0 GB 401 MB 246 KB 120 bytes
+Checkpoint filesize: 0 GB 1 MB 501 KB 106 bytes
+Checkpoint folder size: 0 GB 744 MB 695 KB 776 bytes
 
 Production:
 
-Checkpoint filesize: 0 GB 0 MB 821 KB 758 bytes
-Checkpoint folder size: 0 GB 401 MB 246 KB 120 bytes
+Checkpoint filesize: 0 GB 1 MB 501 KB 106 bytes
+Checkpoint folder size: 0 GB 744 MB 695 KB 776 bytes
 
-Total minimum needed space: 0 GB 802 MB 492 KB 240 bytes
+Total minimum needed space: 1 GB 465 MB 367 KB 528 bytes
 
 
 ============================ Timing Study ============================
@@ -777,7 +780,7 @@ Mesh = 8 x 8 x 8 :
 alpha = 0.0691 / a_ws = 6.0727e+09
 PM Err = 3.803346e-13
 Optimal Green&#39;s Function Time:
-0 min 0 sec 13 msec 430 usec 119 nsec
+0 min 0 sec 11 msec 434 usec 141 nsec
 
 
 
@@ -785,7 +788,7 @@ Mesh = 10 x 10 x 10 :
 alpha = 0.0864 / a_ws = 7.5909e+09
 PM Err = 8.496793e-11
 Optimal Green&#39;s Function Time:
-0 min 0 sec 18 msec 882 usec 245 nsec
+0 min 0 sec 19 msec 299 usec 521 nsec
 
 
 
@@ -793,7 +796,7 @@ Mesh = 13 x 13 x 13 :
 alpha = 0.1123 / a_ws = 9.8682e+09
 PM Err = 3.799294e-09
 Optimal Green&#39;s Function Time:
-0 min 0 sec 38 msec 873 usec 701 nsec
+0 min 0 sec 39 msec 24 usec 631 nsec
 
 
 
@@ -801,7 +804,7 @@ Mesh = 17 x 17 x 17 :
 alpha = 0.1469 / a_ws = 1.2905e+10
 PM Err = 4.459628e-08
 Optimal Green&#39;s Function Time:
-0 min 0 sec 82 msec 599 usec 851 nsec
+0 min 0 sec 84 msec 823 usec 354 nsec
 
 
 
@@ -809,7 +812,7 @@ Mesh = 21 x 21 x 21 :
 alpha = 0.1814 / a_ws = 1.5941e+10
 PM Err = 1.579250e-07
 Optimal Green&#39;s Function Time:
-0 min 0 sec 185 msec 807 usec 35 nsec
+0 min 0 sec 158 msec 468 usec 720 nsec
 
 
 
@@ -817,7 +820,7 @@ Mesh = 28 x 28 x 28 :
 alpha = 0.2419 / a_ws = 2.1255e+10
 PM Err = 4.913728e-07
 Optimal Green&#39;s Function Time:
-0 min 0 sec 419 msec 59 usec 769 nsec
+0 min 0 sec 364 msec 476 usec 13 nsec
 
 
 
@@ -825,7 +828,7 @@ Mesh = 36 x 36 x 36 :
 alpha = 0.3110 / a_ws = 2.7327e+10
 PM Err = 9.345437e-07
 Optimal Green&#39;s Function Time:
-0 min 0 sec 697 msec 145 usec 297 nsec
+0 min 0 sec 733 msec 926 usec 867 nsec
 
 
 
@@ -833,7 +836,7 @@ Mesh = 46 x 46 x 46 :
 alpha = 0.3974 / a_ws = 3.4918e+10
 PM Err = 1.444614e-06
 Optimal Green&#39;s Function Time:
-0 min 1 sec 446 msec 999 usec 121 nsec
+0 min 1 sec 516 msec 100 usec 630 nsec
 
 
 
@@ -841,7 +844,7 @@ Mesh = 60 x 60 x 60 :
 alpha = 0.5183 / a_ws = 4.5545e+10
 PM Err = 2.029268e-06
 Optimal Green&#39;s Function Time:
-0 min 3 sec 178 msec 300 usec 688 nsec
+0 min 3 sec 380 msec 46 usec 63 nsec
 
 
 
@@ -849,7 +852,7 @@ Mesh = 77 x 77 x 77 :
 alpha = 0.6651 / a_ws = 5.8450e+10
 PM Err = 2.584655e-06
 Optimal Green&#39;s Function Time:
-0 min 6 sec 528 msec 479 usec 948 nsec
+0 min 6 sec 750 msec 355 usec 886 nsec
 
 
 
@@ -857,7 +860,7 @@ Mesh = 99 x 99 x 99 :
 alpha = 0.8552 / a_ws = 7.5150e+10
 PM Err = 3.149700e-06
 Optimal Green&#39;s Function Time:
-0 min 13 sec 651 msec 602 usec 171 nsec
+0 min 13 sec 949 msec 922 usec 213 nsec
 
 
 
@@ -865,14 +868,14 @@ Mesh = 128 x 128 x 128 :
 alpha = 1.1057 / a_ws = 9.7163e+10
 PM Err = 3.744554e-06
 Optimal Green&#39;s Function Time:
-0 min 29 sec 435 msec 532 usec 405 nsec
+0 min 30 sec 12 msec 803 usec 161 nsec
 
 
 PM Time Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]
-$a_2 = $3.0645e-02, $a_3 = $1.2861e-09
+$a_2 = $3.1277e-02, $a_3 = $1.2997e-09
 
 PP Time Fit = $a_0 + a_1 / N_c^3$  [s]
-$a_0 = $3.1714e-23,  $a_1 = $3.7145e+01
+$a_0 = $1.3123e-04,  $a_1 = $4.1339e+01
 
 Figures can be found in Simulations/yocp_pppm/PreProcessing/PPPM_Plots
 </pre></div></div>
@@ -997,7 +1000,7 @@ optimal given <span class="math notranslate nohighlight">\(\alpha a_{ws} = 0.614
 ==================== Radial Distribution Function ====================
 
 Data saved in:
- Simulations/yocp_pppm/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp.csv
+ Simulations/yocp_pppm/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_yocp.h5
 Data accessible at: self.ra_values, self.dataframe
 
 No. bins = 500
@@ -1041,9 +1044,9 @@ Frequency Space Parameters:
         No. of slices = 1
         No. dumps per slice = 500
         Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
-        dw = 0.0375 w_p = 6.2832e+14 [Hz]
+        dw = 0.0375 w_p = 6.2832e+14 [rad/s]
         Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
-        w_max = 9.3751 w_p = 1.5708e+17 [Hz]
+        w_max = 9.3751 w_p = 1.5708e+17 [rad/s]
 
 
 Wavevector parameters:
@@ -1074,9 +1077,9 @@ Frequency Space Parameters:
         No. of slices = 1
         No. dumps per slice = 500
         Frequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)
-        dw = 0.0375 w_p = 6.2832e+14 [Hz]
+        dw = 0.0375 w_p = 6.2832e+14 [rad/s]
         Maximum Frequency w_max = 2 pi /(prod_dump_step * dt)
-        w_max = 9.3751 w_p = 1.5708e+17 [Hz]
+        w_max = 9.3751 w_p = 1.5708e+17 [rad/s]
 
 
 Wavevector parameters:
@@ -1141,7 +1144,7 @@ given by</p>
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 03, 2021.<br/>
+      Last updated on Nov 09, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

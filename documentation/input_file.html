@@ -255,11 +255,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../examples/examples.html">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../examples/OCP/OCP.html">One Component Plasma (OCP)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#PreProcessing">PreProcessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#Simulation">Simulation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#PostProcessing">PostProcessing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#Radial-Distribution-Function">Radial Distribution Function</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#Dynamic-Structure-Factor">Dynamic Structure Factor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#Transport-Coefficients">Transport Coefficients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/OCP/OCP.html#Diffusion">Diffusion</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../examples/BIM/H-He_Mixture.html">H-He Mixture</a><ul>
@@ -529,6 +530,9 @@ we want to calculate and their parameters.</p>
 
     <span class="p p-Indicator">-</span> <span class="nt">CurrentCorrelationFunction</span><span class="p">:</span>
         <span class="nt">max_ka_value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">VelocityAutoCorrelationFunction</span>
+        <span class="l l-Scalar l-Scalar-Plain">no_slices</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
 </pre></div>
 </div>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">Observables</span></code> is again a list of dictionaries. This is because each observable is returned as
@@ -539,11 +543,13 @@ The parameters are different depending on the observable. We will discuss them i
 <h3>Transport Coefficients<a class="headerlink" href="#transport-coefficients" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">TransportCoefficientss</span><span class="p">:</span>
     <span class="p p-Indicator">-</span> <span class="nt">Diffusion</span><span class="p">:</span>
-        <span class="nt">time_averaging</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+        <span class="nt">no_slices</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4</span>
 </pre></div>
 </div>
-<p>The available transport coefficients at this moment are: <code class="docutils literal notranslate"><span class="pre">Diffusion</span></code>, <code class="docutils literal notranslate"><span class="pre">Interdiffusion</span></code>, <code class="docutils literal notranslate"><span class="pre">ElectricalConductivity</span></code>, <code class="docutils literal notranslate"><span class="pre">Viscosity</span></code>. Note
-that <code class="docutils literal notranslate"><span class="pre">Interdiffusion</span></code> is supported only in the case of binary mixtures. Soon we will have support for any mixture.</p>
+<p>The available transport coefficients at this moment are: <code class="docutils literal notranslate"><span class="pre">Diffusion</span></code>, <code class="docutils literal notranslate"><span class="pre">Interdiffusion</span></code>, <code class="docutils literal notranslate"><span class="pre">ElectricalConductivity</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Viscosity</span></code>.
+Note that <code class="docutils literal notranslate"><span class="pre">Interdiffusion</span></code> is supported only in the case of binary mixtures.
+Soon we will have support for any mixture.</p>
 </section>
 </section>
 </section>
@@ -561,7 +567,7 @@ that <code class="docutils literal notranslate"><span class="pre">Interdiffusion
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 03, 2021.<br/>
+      Last updated on Nov 09, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

@@ -141,11 +141,13 @@
 
 <span class="kn">from</span> <span class="nn">sarkas.utilities.exceptions</span> <span class="kn">import</span> <span class="n">TimerError</span>
 
+
 <div class="viewcode-block" id="SarkasTimer"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">SarkasTimer</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Timer class modified from https://realpython.com/python-timer/</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SarkasTimer.start"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -180,7 +182,7 @@
         <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter_ns</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="SarkasTimer.time_division"><a class="viewcode-back" href="../../../api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer.time_division">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">time_division</span><span class="p">(</span><span class="n">tme</span> <span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">time_division</span><span class="p">(</span><span class="n">tme</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Divide time into hours, min, sec, msec, microsec (usec), and nanosec.</span>
 
@@ -196,7 +198,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t_hrs</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">tme</span><span class="p">,</span> <span class="mf">3.6e12</span><span class="p">)</span>
-        <span class="n">t_min</span><span class="p">,</span> <span class="n">rem_m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mf">6e+10</span><span class="p">)</span>
+        <span class="n">t_min</span><span class="p">,</span> <span class="n">rem_m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem</span><span class="p">,</span> <span class="mf">6e10</span><span class="p">)</span>
         <span class="n">t_sec</span><span class="p">,</span> <span class="n">rem_s</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_m</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">)</span>
         <span class="n">t_msec</span><span class="p">,</span> <span class="n">rem_ms</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_s</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)</span>
         <span class="n">t_usec</span><span class="p">,</span> <span class="n">rem_us</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">rem_ms</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">)</span>
@@ -217,7 +219,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 03, 2021.<br/>
+      Last updated on Nov 09, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

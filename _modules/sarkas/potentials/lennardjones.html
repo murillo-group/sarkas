@@ -209,12 +209,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
     <span class="c1"># See Lima Physica A 391 4281 (2012) for the following definitions</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s1">&#39;powers&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s2">&quot;powers&quot;</span><span class="p">):</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">powers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
 
     <span class="n">exponent</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">lj_constant</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">lj_constant</span> <span class="o">*=</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="n">exponent</span>
+    <span class="n">lj_constant</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">lj_constant</span> <span class="o">*=</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="n">exponent</span>
 
     <span class="c1"># Use the Lorentz-Berthelot mixing rules.</span>
     <span class="c1"># Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)</span>
@@ -237,11 +237,9 @@
 
     <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
     <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
     <span class="p">)</span></div>
+
 
 <span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
 <span class="k">def</span> <span class="nf">lj_force</span><span class="p">(</span><span class="n">r_in</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
@@ -295,7 +293,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 03, 2021.<br/>
+      Last updated on Nov 09, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>

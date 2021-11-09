@@ -203,18 +203,15 @@
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
 
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
-            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span>
-            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_charges</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_lengths</span>
 
     <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">moliere_force</span>
     <span class="c1"># Use Yukawa force error formula with the smallest screening length.</span>
     <span class="c1"># This overestimates the Force error, but it doesn&#39;t matter.</span>
     <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
     <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">params_len</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
     <span class="p">)</span></div>
 
 
@@ -269,7 +266,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 03, 2021.<br/>
+      Last updated on Nov 09, 2021.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
     </p>
   </div>
