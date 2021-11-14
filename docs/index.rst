@@ -6,7 +6,7 @@
 .. meta::
    :format-detection: telephone=no
    :robots: index, follow
-   :description: Sarkas is a fast pure-Python molecular dynamics suite for non-ideal plasmas.
+   :description: Sarkas: A Fast pure-Python Molecular Dynamics suite for Plasma Physics.
    :keywords: sarkas, plasma physics, plasma, physics, python, md, molecular dynamics
    :author: Stefano Silvestri, Ph.D.
    :designer: Stefano Silvestri, Ph.D.

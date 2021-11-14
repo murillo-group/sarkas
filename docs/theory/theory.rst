@@ -2,7 +2,7 @@
 .. meta::
    :format-detection: telephone=no
    :robots: index, follow
-   :description: Theory behind Sarkas.
+   :description: Theoretical background in Molecular Dynamics and Plasma Physics.
    :keywords: sarkas, plasma physics, plasma, physics, python, md, molecular dynamics, coupling, electron, integrators, potentials, thermostats, pppm, particle mesh algorithm, 
    :author: Stefano Silvestri, Ph.D.
    :designer: Stefano Silvestri, Ph.D.
