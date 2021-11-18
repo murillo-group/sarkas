@@ -8,8 +8,8 @@
     <title>sarkas.processes module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -145,7 +145,7 @@
 <p>Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.processes.PostProcess">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">PostProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">PostProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PostProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PostProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.processes.Process" title="sarkas.processes.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code></a></p>
 <p>Class handling the post-processing stage of a simulation.</p>
 <dl class="field-list simple">
@@ -174,7 +174,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.processes.PreProcess">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">PreProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">PreProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.processes.Process" title="sarkas.processes.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code></a></p>
 <p>Wrapper class handling the estimation of time and best parameters of a simulation.</p>
 <dl class="field-list simple">
@@ -274,7 +274,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.processes.PreProcess.make_fit_plot">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">make_fit_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pp_xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp_opt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_opt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp_xlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_xlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.make_fit_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.make_fit_plot" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">make_fit_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pp_xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_xdata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp_opt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_opt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pp_xlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_xlabels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#PreProcess.make_fit_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.make_fit_plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a dual plot of the fitted functions.</p>
 </dd></dl>
 
@@ -354,7 +354,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.processes.Process">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">Process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">Process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Stage of a Molecular Dynamics simulation. This is the Parent class for PreProcess, Simulation, and PostProcess.</p>
 <dl class="field-list simple">
@@ -499,7 +499,7 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.processes.Simulation">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.processes.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/processes.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.Simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.processes.Process" title="sarkas.processes.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.processes.Process</span></code></a></p>
 <p>Sarkas simulation wrapper. This class manages the entire simulation and its small moving parts.</p>
 <dl class="field-list simple">
@@ -557,8 +557,8 @@ Example: loops = 5, acceleration is averaged over 5 loops, while full time step 
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 09, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+      Last updated on Nov 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br/>
     </p>
   </div>
 </footer>

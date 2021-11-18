@@ -8,8 +8,8 @@
     <title>sarkas.tools.observables module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,7 +21,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
@@ -147,7 +147,7 @@
 <p>Module for calculating physical quantities from Sarkas checkpoints.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.CurrentCorrelationFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">CurrentCorrelationFunction</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">CurrentCorrelationFunction</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#CurrentCorrelationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.CurrentCorrelationFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Current Correlation Functions.</p>
 <p>The species dependent longitudinal ccf <span class="math notranslate nohighlight">\(L_{AB}(\mathbf k, \omega)\)</span> is defined as</p>
@@ -253,7 +253,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.DiffusionFlux">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">DiffusionFlux</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DiffusionFlux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DiffusionFlux" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">DiffusionFlux</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DiffusionFlux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DiffusionFlux" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Diffusion Fluxes and their Auto-correlation functions.</p>
 <p>The <span class="math notranslate nohighlight">\(\alpha\)</span> diffusion flux <span class="math notranslate nohighlight">\(\mathbf J_{\alpha}(t)\)</span> is calculated from eq.~(3.5) in <span id="id1">[<a class="reference internal" href="../theory/references.html#id21" title="Yanhua Zhou and Gregory H. Miller. Green−kubo formulas for mutual diffusion coefficients in multicomponent systems. The Journal of Physical Chemistry, 100(13):5516-5524, 1996. URL: https://doi.org/10.1021/jp9533739, doi:10.1021/jp9533739.">Zhou and Miller, 1996</a>]</span> which
@@ -311,7 +311,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.DynamicStructureFactor">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">DynamicStructureFactor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">DynamicStructureFactor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#DynamicStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Dynamic Structure factor.</p>
 <p>The species dependent DSF <span class="math notranslate nohighlight">\(S_{AB}(k,\omega)\)</span> is calculated from</p>
@@ -365,7 +365,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.ElectricCurrent">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">ElectricCurrent</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">ElectricCurrent</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#ElectricCurrent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.ElectricCurrent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Electric Current Auto-correlation function.</p>
 <dl class="py method">
@@ -406,7 +406,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.Observable">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">Observable</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">Observable</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Observable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Observable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Parent class of all the observables.</p>
 <dl class="py attribute">
@@ -415,7 +415,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the observable’s data averaged over the number of slices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1065.g7c2d28cdde)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1132.g700be617eb)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -426,7 +426,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the observable’s autocorrelation function data averaged over the number of slices.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1065.g7c2d28cdde)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1132.g700be617eb)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -437,7 +437,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the observable’s autocorrelation data for each slice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1065.g7c2d28cdde)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1132.g700be617eb)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -448,7 +448,7 @@ attributes and/or add new ones.</p></li>
 <dd><p>Dataframe containing the observable’s data for each slice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1065.g7c2d28cdde)">pandas.DataFrame</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.0.dev0+1132.g700be617eb)">pandas.DataFrame</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -732,7 +732,7 @@ be averaged over.</p>
 <dd class="field-even"><p><strong>axes_handle</strong> – Axes. See <cite>pandas</cite> documentation for more info</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes" title="(in Matplotlib v3.4.3)">matplotlib.axes.Axes</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes" title="(in Matplotlib v3.5.0)">matplotlib.axes.Axes</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -795,7 +795,7 @@ be averaged over.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.PressureTensor">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">PressureTensor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#PressureTensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.PressureTensor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">PressureTensor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#PressureTensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.PressureTensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Pressure Tensor.</p>
 <dl class="py method">
@@ -876,7 +876,7 @@ calculated from
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.RadialDistributionFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">RadialDistributionFunction</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">RadialDistributionFunction</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#RadialDistributionFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.RadialDistributionFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Radial Distribution Function.</p>
 <dl class="py attribute">
@@ -977,7 +977,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.StaticStructureFactor">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">StaticStructureFactor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">StaticStructureFactor</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#StaticStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.StaticStructureFactor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Static Structure Factors.</p>
 <p>The species dependent SSF <span class="math notranslate nohighlight">\(S_{AB}(\mathbf k)\)</span> is calculated from</p>
@@ -1075,7 +1075,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.Thermodynamics">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">Thermodynamics</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">Thermodynamics</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#Thermodynamics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.Thermodynamics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Thermodynamic functions.</p>
 <dl class="py method">
@@ -1163,7 +1163,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.VelocityAutoCorrelationFunction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">VelocityAutoCorrelationFunction</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">VelocityAutoCorrelationFunction</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityAutoCorrelationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityAutoCorrelationFunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Velocity Auto-correlation function.</p>
 <dl class="py method">
@@ -1210,7 +1210,7 @@ attributes and/or add new ones.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sarkas.tools.observables.VelocityDistribution">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">VelocityDistribution</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">VelocityDistribution</span></span><a class="reference internal" href="../_modules/sarkas/tools/observables.html#VelocityDistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.VelocityDistribution" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sarkas.tools.observables.Observable" title="sarkas.tools.observables.Observable"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable</span></code></a></p>
 <p>Moments of the velocity distributions defined as</p>
 <div class="math notranslate nohighlight">
@@ -1817,8 +1817,8 @@ Shape = ( <code class="docutils literal notranslate"><span class="pre">no_specie
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 09, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+      Last updated on Nov 18, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br/>
     </p>
   </div>
 </footer>
