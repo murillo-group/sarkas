@@ -112,6 +112,7 @@
 <li><a class="reference internal" href="#virtual-environment">Virtual Environment</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
 <li><a class="reference internal" href="#external-packages">External packages</a></li>
+<li><a class="reference internal" href="#known-issues">Known Issues</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#run-the-code">Run the code</a></li>
@@ -169,6 +170,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#virtual-environment">Virtual Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#external-packages">External packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#known-issues">Known Issues</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#run-the-code">Run the code</a><ul>
@@ -389,6 +391,33 @@ The first is used to perform fast Fourier transforms and the second to simulate 
 In this case, follow their <a class="reference external" href="http://www.fftw.org/#documentation">instructions</a> to install it.</p>
 <p>FMM3D is package written in Fortran to compute the potential field using the Multipole expansion. The documentation for installing it is <a class="reference external" href="https://fmm3d.readthedocs.io/en/latest/install.html">here</a>.
 You can find their <a class="reference external" href="https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers">section</a> on a Python wrapper.</p>
+</section>
+<section id="known-issues">
+<h3>Known Issues<a class="headerlink" href="#known-issues" title="Permalink to this headline">¶</a></h3>
+<p>Sarkas contains two matplotlib configuration files,
+<a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/MSUstyle.mplstyle">MSUstyle</a>
+and <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/PUBstyle.mplstyle">PUBstyle</a>.
+However, they are not installed by default. Therefore, if you want to use our styles, you need to manually copy
+the mpl styles in the correct folder. Here is a sample python script for installing the mpl styles.
+Remember to point to the right STYLE_PATH.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="c1"># ~ # ref  -&gt;  matplotlib/style/core</span>
+<span class="n">BASE_LIBRARY_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mpl</span><span class="o">.</span><span class="n">get_data_path</span><span class="p">(),</span> <span class="s2">&quot;stylelib&quot;</span><span class="p">)</span>
+<span class="n">STYLE_PATH</span> <span class="o">=</span> <span class="s2">&quot;Path of MSUstyle and PUBstyle&quot;</span>
+<span class="n">STYLE_EXTENSION</span> <span class="o">=</span> <span class="s2">&quot;mplstyle&quot;</span>
+<span class="n">style_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">STYLE_PATH</span><span class="p">,</span> <span class="s2">&quot;*.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">STYLE_EXTENSION</span><span class="p">)))</span>
+
+<span class="c1"># Copy the plotting style in the matplotlib directory</span>
+<span class="k">for</span> <span class="n">_path_file</span> <span class="ow">in</span> <span class="n">style_files</span><span class="p">:</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_path_file</span><span class="p">)</span>
+    <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_LIBRARY_PATH</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_path_file</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> style installed&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="run-the-code">

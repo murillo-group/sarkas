@@ -63,6 +63,36 @@ In this case, follow their `instructions <http://www.fftw.org/#documentation>`_ 
 FMM3D is package written in Fortran to compute the potential field using the Multipole expansion. The documentation for installing it is `here <https://fmm3d.readthedocs.io/en/latest/install.html>`_.
 You can find their `section <https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers>`_ on a Python wrapper.
 
+Known Issues
+------------
+
+Sarkas contains two matplotlib configuration files,
+`MSUstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/MSUstyle.mplstyle>`_
+and `PUBstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/PUBstyle.mplstyle>`_.
+However, they are not installed by default. Therefore, if you want to use our styles, you need to manually copy
+the mpl styles in the correct folder. Here is a sample python script for installing the mpl styles.
+Remember to point to the right STYLE_PATH.
+
+.. code-block:: python
+
+    import matplotlib as mpl
+    import shutil
+    import os
+    import glob
+    # ~ # ref  ->  matplotlib/style/core
+    BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), "stylelib")
+    STYLE_PATH = "Path of MSUstyle and PUBstyle"
+    STYLE_EXTENSION = "mplstyle"
+    style_files = glob.glob(os.path.join(STYLE_PATH, "*.%s" % (STYLE_EXTENSION)))
+
+    # Copy the plotting style in the matplotlib directory
+    for _path_file in style_files:
+        _, fname = os.path.split(_path_file)
+        dest = os.path.join(BASE_LIBRARY_PATH, fname)
+        shutil.copy(_path_file, dest)
+        print("%s style installed" % (fname))
+
+
 
 Run the code
 ============
