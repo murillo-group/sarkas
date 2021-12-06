@@ -803,6 +803,7 @@ class Observable:
 
         # Autocorrelation function renormalization
         if acf:
+            plot_dataframe = self.dataframe_acf.copy()
             for i, col in enumerate(plot_dataframe.columns[1:], 1):
                 plot_dataframe[col] /= plot_dataframe[col].iloc[0]
             kwargs["logx"] = True
@@ -1701,6 +1702,7 @@ class PressureTensor(Observable):
         # Initialize timer
         t0 = self.timer.current()
 
+        # Dataframes' columns names
         pt_str_kin = "Pressure Tensor Kinetic"
         pt_str_pot = "Pressure Tensor Potential"
         pt_str = "Pressure Tensor"
@@ -1729,7 +1731,12 @@ class PressureTensor(Observable):
                 time[it] = datap["time"]
 
                 pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
-                    datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume
+                    datap["vel"],
+                    datap["virial"],
+                    self.species_masses,
+                    self.species_num,
+                    self.box_volume,
+                    self.dimensions
                 )
 
             if isl == 0:
@@ -1752,6 +1759,9 @@ class PressureTensor(Observable):
             elif self.dimensions == 2:
                 dim_lbl = ["x", "y"]
 
+            for i, ax1 in enumerate(dim_lbl):
+                pt_temp[i, i, :] -= pressure.mean()
+
             # The reason for dividing these two loops is because I want a specific order in the dataframe.
             # Pressure, Stress Tensor, All
             for i, ax1 in enumerate(dim_lbl):
@@ -1760,7 +1770,7 @@ class PressureTensor(Observable):
                     self.dataframe_slices[pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_pot_temp[i, j, :]
                     self.dataframe_slices[pt_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_temp[i, j, :]
 
-            # Calculate the (thermal fluctuations of the) elastic moduli from the acf of the stress tensor elements
+            # Calculate the ACF of the thermal fluctuations of the pressure tensor elements
             # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
             for i, ax1 in enumerate(dim_lbl):
                 for j, ax2 in enumerate(dim_lbl):
@@ -1773,18 +1783,23 @@ class PressureTensor(Observable):
 
                             C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
 
+                            # Kinetic
                             self.dataframe_acf_slices[
                                 pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                             ] = C_ijkl_kin
+                            # Potential
                             self.dataframe_acf_slices[
                                 pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                             ] = C_ijkl_pot
+                            # Kin-Pot
                             self.dataframe_acf_slices[
                                 pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                             ] = C_ijkl_kinpot
+                            # Pot-Kin
                             self.dataframe_acf_slices[
                                 pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                             ] = C_ijkl_potkin
+                            # Total
                             self.dataframe_acf_slices[
                                 pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                             ] = C_ijkl
@@ -1844,7 +1859,6 @@ class PressureTensor(Observable):
                         std_column = pt_acf_str_kin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Potential Terms
                         ij_col_acf_str = [
                             pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
@@ -1854,7 +1868,6 @@ class PressureTensor(Observable):
                         std_column = pt_acf_str_pot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Kinetic-Potential Terms
                         ij_col_acf_str = [
                             pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
@@ -1864,7 +1877,6 @@ class PressureTensor(Observable):
                         std_column = pt_acf_str_kinpot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Potential-Kinetic Terms
                         ij_col_acf_str = [
                             pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
@@ -1874,7 +1886,6 @@ class PressureTensor(Observable):
                         std_column = pt_acf_str_potkin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Full
                         ij_col_acf_str = [
                             pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
@@ -1956,12 +1967,13 @@ class PressureTensor(Observable):
 
         hartrees, corrs = rdf.compute_sum_rule_integrals(potential)
         # Eq. 2.3.43 -44 in Boon and Yip
-        I_1 = beta * (hartrees[:, 1].sum() + corrs[:, 1].sum())
-        I_2 = beta * (hartrees[:, 2].sum() + corrs[:, 2].sum())
+        I_1 = hartrees[:, 1].sum() + corrs[:, 1].sum()
+        I_2 = hartrees[:, 2].sum() + corrs[:, 2].sum()
+        nkT = self.total_num_density/beta
 
-        sigma_zzzz = (3.0 * self.total_num_density ** 2 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2) / beta ** 2
-        sigma_zzxx = (1.0 * self.total_num_density ** 2 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2) / beta ** 2
-        sigma_xyxy = (1.0 * self.total_num_density ** 2 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2) / beta ** 2
+        sigma_zzzz = (3.0 * nkT + 2.0 / 15.0 * I_1 + I_2 / 5.0 )
+        sigma_zzxx = (nkT - 2.0 / 5.0 * I_1 + I_2 / 15.0 )
+        sigma_xyxy = (nkT + 4.0 / 15.0 * I_1 + I_2 / 15.0)
 
         return sigma_zzzz, sigma_zzxx, sigma_xyxy
 
@@ -2162,6 +2174,24 @@ class RadialDistributionFunction(Observable):
                     if not np.isfinite(dv_dr[0]):
                         dv_dr[0] = dv_dr[1]
                         d2v_dr2[0] = d2v_dr2[1]
+
+                elif potential.type == "lj":
+                    epsilon = potential.matrix[0, sp1, sp2]
+                    sigma = potential.matrix[1, sp1, sp2]
+                    s_over_r = sigma / r
+                    s_over_r_high = s_over_r ** potential.matrix[2, sp1, sp2]
+                    s_over_r_low = s_over_r ** potential.matrix[3, sp1, sp2]
+
+                    u_r = epsilon * (s_over_r_high - s_over_r_low)
+                    dv_dr =  - epsilon * (
+                            potential.matrix[2, sp1, sp2] * s_over_r_high
+                            - potential.matrix[3, sp1, sp2] * s_over_r_low
+                    ) / r
+
+                    d2v_dr2 = epsilon * (
+                            potential.matrix[2, sp1, sp2] * (potential.matrix[2, sp1, sp2] + 1) * s_over_r_high
+                            - potential.matrix[3, sp1, sp2] * (potential.matrix[3, sp1, sp2] + 1) * s_over_r_low
+                    ) / r2
 
                 else:
                     raise ValueError("Unknown potential")
@@ -2606,7 +2636,7 @@ class Thermodynamics(Observable):
         # Histogram plot
         sns.histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
         T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
-        T_hist_plot.plot(T_dist.pdf(Temperature), Temperature, color=color_from_cycler[1])
+        T_hist_plot.plot(T_dist.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1])
 
         # ------------------------------------------- Total Energy -------------------------------------------#
         # Calculate Energy plot's labels and multipliers
@@ -2641,7 +2671,7 @@ class Thermodynamics(Observable):
         # Histogram plot
         sns.histplot(y=Energy, bins="auto", stat="density", alpha=0.75, legend="False", ax=E_hist_plot)
         # Grab the second color since the first is used for histplot
-        E_hist_plot.plot(E_dist.pdf(Energy), Energy, color=color_from_cycler[1])
+        E_hist_plot.plot(E_dist.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
 
         E_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
 
@@ -3744,7 +3774,7 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
 
 
 @njit
-def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume):
+def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dimensions):
     """
     Calculate the pressure tensor.
 
@@ -3790,7 +3820,7 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume):
     pressure_pot = virial.sum(axis=-1) / box_volume
     pressure_tensor = pressure_kin + pressure_pot
 
-    pressure = np.trace(pressure_tensor) / 3.0
+    pressure = np.trace(pressure_tensor) / dimensions
 
     return pressure, pressure_kin, pressure_pot, pressure_tensor
 

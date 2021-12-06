@@ -82,8 +82,8 @@ def update_params(potential, params):
     # Use the Lorentz-Berthelot mixing rules.
     # Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)
     # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
-    sigma2 = 0.0
-    epsilon_tot = 0.0
+    potential.sigma2 = 0.0
+    potential.epsilon_tot = 0.0
     # Recall that species_charges contains sqrt(epsilon)
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
@@ -91,8 +91,8 @@ def update_params(potential, params):
             potential.matrix[1, i, j] = 0.5 * (params.species_lj_sigmas[i] + params.species_lj_sigmas[j])
             potential.matrix[2, i, j] = potential.powers[0]
             potential.matrix[3, i, j] = potential.powers[1]
-            sigma2 += params.species_lj_sigmas[i]
-            epsilon_tot += q1 * q2
+            potential.sigma2 += params.species_lj_sigmas[i]
+            potential.epsilon_tot += q1 * q2
 
     potential.matrix[4, :, :] = potential.a_rs
 

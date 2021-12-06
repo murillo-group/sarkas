@@ -1016,7 +1016,16 @@ class InputOutput:
         elif simulation.potential.type == "lj":
             print("epsilon = {:.6e}".format(simulation.potential.matrix[0, 0, 0]))
             print("sigma = {:.6e}".format(simulation.potential.matrix[1, 0, 0]))
-            print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
+            print("reduced density = {:.6e}".format(
+                simulation.potential.sigma2**3 * simulation.parameters.total_num_density
+            )
+            )
+            print("reduced temperature = {:.6e}".format(
+                simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
+            )
+            )
+
+            # print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == "qsp":
             print("QSP type: {}".format(simulation.potential.qsp_type))

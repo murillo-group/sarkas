@@ -187,6 +187,9 @@ class TransportCoefficients:
 
         Parameters
         ----------
+        time : numpy.ndarray
+            Time array.
+
         acf_data: numpy.ndarray
             Mean and Std of the ACF. \n
             Shape = (:attr:`sarkas.tools.observables.Observable.slice_steps`, 2).
@@ -869,6 +872,7 @@ class TransportCoefficients:
         )
 
         plot_quantities: list = ["Bulk Viscosity", "Shear Viscosity"]
+        shear_list_coord = ["xyxy", "xzxz", "yxyx", "yzyz", "zxzx", "zyzy"]
         if plot or display_plot:
             # Make the plot
             for ipq, pq in enumerate(plot_quantities):
@@ -878,7 +882,7 @@ class TransportCoefficients:
                     acf_std = observable.dataframe_acf[("Delta Pressure ACF", "Std")]
                 elif pq == "Shear Viscosity":
                     # The axis are the last two elements in the string
-                    acf_strs = [("Pressure Tensor ACF {}".format(coord), "Mean") for coord in list_coord]
+                    acf_strs = [("Pressure Tensor ACF {}".format(coord), "Mean") for coord in shear_list_coord]
                     acf_avg = observable.dataframe_acf[acf_strs].mean(axis=1)
                     acf_std = observable.dataframe_acf[acf_strs].std(axis=1)
 
