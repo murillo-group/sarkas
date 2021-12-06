@@ -1153,7 +1153,16 @@
         <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;lj&quot;</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;epsilon = </span><span class="si">{:.6e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma = </span><span class="si">{:.6e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gamma_eff = </span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">coupling_constant</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reduced density = </span><span class="si">{:.6e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">sigma2</span><span class="o">**</span><span class="mi">3</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">total_num_density</span>
+            <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reduced temperature = </span><span class="si">{:.6e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">simulation</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">T_desired</span> <span class="o">/</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">epsilon_tot</span>
+            <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># print(&quot;Gamma_eff = {:.2f}&quot;.format(simulation.parameters.coupling_constant))</span>
 
         <span class="k">elif</span> <span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;qsp&quot;</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;QSP type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simulation</span><span class="o">.</span><span class="n">potential</span><span class="o">.</span><span class="n">qsp_type</span><span class="p">))</span>
@@ -1610,8 +1619,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 18, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br/>
+      Last updated on Dec 06, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
     </p>
   </div>
 </footer>

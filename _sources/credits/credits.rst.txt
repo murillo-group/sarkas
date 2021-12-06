@@ -20,13 +20,17 @@ If Sarkas is integral to a scientific publication, we would appreciate a citatio
 
 ::
 
-    @misc{silvestri2021sarkas,
-      title={Sarkas: A Fast Pure-Python Molecular Dynamics Suite for Plasma Physics},
-      author={Luciano G. Silvestri and Lucas J. Stanek and Gautham Dharuman and Yongjun Choi and Michael S. Murillo},
-      year={2021},
-      eprint={2105.14955},
-      archivePrefix={arXiv},
-      primaryClass={physics.plasm-ph}
+    @article{SILVESTRI2022108245,
+    title = {Sarkas: A fast pure-python molecular dynamics suite for plasma physics},
+    journal = {Computer Physics Communications},
+    volume = {272},
+    pages = {108245},
+    year = {2022},
+    issn = {0010-4655},
+    doi = {https://doi.org/10.1016/j.cpc.2021.108245},
+    url = {https://www.sciencedirect.com/science/article/pii/S001046552100357X},
+    author = {Luciano G. Silvestri and Lucas J. Stanek and Gautham Dharuman and Yongjun Choi and Michael S. Murillo},
+    keywords = {Python, NumPy, Numba, Molecular dynamics, Plasma},
     }
 
 

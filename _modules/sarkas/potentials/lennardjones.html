@@ -219,8 +219,8 @@
     <span class="c1"># Use the Lorentz-Berthelot mixing rules.</span>
     <span class="c1"># Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)</span>
     <span class="c1"># Berthelot: epsilon_12 = sqrt( eps_1 eps2)</span>
-    <span class="n">sigma2</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">epsilon_tot</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">sigma2</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">epsilon_tot</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="c1"># Recall that species_charges contains sqrt(epsilon)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
@@ -228,8 +228,8 @@
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">sigma2</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">epsilon_tot</span> <span class="o">+=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">sigma2</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">potential</span><span class="o">.</span><span class="n">epsilon_tot</span> <span class="o">+=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span>
 
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">a_rs</span>
 
@@ -293,8 +293,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Nov 18, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br/>
+      Last updated on Dec 06, 2021.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
     </p>
   </div>
 </footer>
