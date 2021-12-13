@@ -350,7 +350,7 @@ class InputOutput:
 
                 print("\nINTEGRATOR: ")
                 simulation.integrator.pretty_print(
-                    simulation.parameters.total_plasma_frequency,
+                    simulation.potential.type,
                     simulation.parameters.load_method,
                     simulation.parameters.restart_step,
                 )

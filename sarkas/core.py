@@ -1666,7 +1666,7 @@ class Species:
         print("\tCharge = {:.6e} ".format(self.charge), end="")
         print("[esu]" if units == "cgs" else "[C]")
         print("\tTemperature = {:.6e} [K] = {:.6e} [eV]".format(self.temperature, self.temperature_eV))
-        if potential_type == "LJ":
+        if potential_type == "lj":
             print("\tEpsilon = {:.6e} ".format(self.epsilon), end="")
             print("[erg]" if units == "cgs" else "[J]")
             print("\tSigma = {:.6e} ".format(self.sigma), end="")
