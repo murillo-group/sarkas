@@ -8,8 +8,8 @@
     <title>Viscosity Coefficients &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -360,7 +360,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -408,8 +408,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Import the usual libraries</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the usual libraries</span>
 <span class="o">%</span><span class="k">pylab</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
 
@@ -438,8 +437,7 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># pre = PreProcess(input_file_name)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># pre = PreProcess(input_file_name)</span>
 <span class="c1"># pre.setup(read_yaml=True)</span>
 <span class="c1"># pre.run()</span>
 </pre></div>
@@ -449,8 +447,7 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># sim = Simulation(input_file_name)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># sim = Simulation(input_file_name)</span>
 <span class="c1"># sim.setup(read_yaml=True)</span>
 <span class="c1"># sim.run()</span>
 </pre></div>
@@ -460,8 +457,7 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">postproc</span> <span class="o">=</span> <span class="n">PostProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span>
@@ -484,20 +480,17 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">rdf</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rdf</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">rdf</span>
 <span class="n">rdf</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span><span class="o">=</span><span class="mi">1</span> <span class="p">)</span>
 <span class="n">rdf</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">rdf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">scaling</span> <span class="o">=</span> <span class="n">rdf</span><span class="o">.</span><span class="n">a_ws</span><span class="p">,</span>
          <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;C-C RDF&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
          <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;$r /a$&#39;</span><span class="p">)</span>
 </pre></div>
@@ -523,8 +516,7 @@ Populating the interactive namespace from numpy and matplotlib
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sarkas.tools.transport</span> <span class="kn">import</span> <span class="n">TransportCoefficients</span>
 <span class="kn">from</span> <span class="nn">sarkas.tools.observables</span> <span class="kn">import</span> <span class="n">PressureTensor</span>
 </pre></div>
 </div>
@@ -548,8 +540,7 @@ P = \frac{n}{\beta} - \frac{2\pi}{3} n^2 \int_0^{\infty} dr \, r^3 \frac{d\phi(r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pt</span> <span class="o">=</span> <span class="n">PressureTensor</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pt</span> <span class="o">=</span> <span class="n">PressureTensor</span><span class="p">()</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
 <span class="c1"># pt.compute()</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
@@ -568,8 +559,7 @@ P = \frac{n}{\beta} - \frac{2\pi}{3} n^2 \int_0^{\infty} dr \, r^3 \frac{d\phi(r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span>
 </pre></div>
 </div>
 </div>
@@ -911,8 +901,7 @@ P = \frac{n}{\beta} - \frac{2\pi}{3} n^2 \int_0^{\infty} dr \, r^3 \frac{d\phi(r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Let&#39;s plot it</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s plot it</span>
 <span class="n">p_id</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">/</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">beta</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
     <span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">p_id</span><span class="p">),</span>
@@ -953,8 +942,7 @@ P = \frac{n}{\beta} - \frac{2\pi}{3} n^2 \int_0^{\infty} dr \, r^3 \frac{d\phi(r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">nkT</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">p_h</span><span class="p">,</span> <span class="n">p_c</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">compute_from_rdf</span><span class="p">(</span><span class="n">rdf</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nkT</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">p_h</span><span class="p">,</span> <span class="n">p_c</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">compute_from_rdf</span><span class="p">(</span><span class="n">rdf</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
 
 <span class="n">P_rdf</span> <span class="o">=</span> <span class="n">nkT</span> <span class="o">+</span> <span class="n">p_h</span> <span class="o">+</span> <span class="n">p_c</span>
 <span class="n">P_trace</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[(</span><span class="s2">&quot;Pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
@@ -992,8 +980,7 @@ The relative difference between the two methods is = 0.03 %
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span>
 </pre></div>
 </div>
 </div>
@@ -1334,8 +1321,7 @@ The relative difference between the two methods is = 0.03 %
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Diagonal terms</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Diagonal terms</span>
 <span class="n">column_zzzz</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF xxxx&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
      <span class="p">(</span><span class="s1">&#39;Pressure Tensor ACF yyyy&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean&#39;</span><span class="p">),</span>
@@ -1385,19 +1371,16 @@ The isotropy condition : (J_zzzz_0 - J_zzxx_0 )/( 2*J_xyxy_0 ) = 0.9814
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># These sigmas have units of n^2</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># These sigmas have units of n^2</span>
 <span class="n">sigma_zzzz</span><span class="p">,</span> <span class="n">sigma_zzxx</span><span class="p">,</span> <span class="n">sigma_xyxy</span>  <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">sum_rule</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span> <span class="n">rdf</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">potential</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="s2">&quot;</span><span class="si">{:.4e}</span><span class="s2">, </span><span class="si">{:.4e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">J_zzzz_0</span><span class="p">,</span> <span class="n">nkT</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;</span><span class="si">{:.4e}</span><span class="s2">, </span><span class="si">{:.4e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">J_zzzz_0</span><span class="p">,</span> <span class="n">nkT</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1432,8 +1415,7 @@ The isotropy condition : (J_zzzz_0 - J_zzxx_0 )/( 2*J_xyxy_0 ) = 0.9814
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">tc</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tc</span> <span class="o">=</span> <span class="n">TransportCoefficients</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">no_slices</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1441,8 +1423,7 @@ The isotropy condition : (J_zzzz_0 - J_zzxx_0 )/( 2*J_xyxy_0 ) = 0.9814
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">tc</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">observable</span> <span class="o">=</span> <span class="n">pt</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">=</span> <span class="s2">&quot;Viscosities&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tc</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">observable</span> <span class="o">=</span> <span class="n">pt</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">=</span> <span class="s2">&quot;Viscosities&quot;</span><span class="p">)</span>
 <span class="c1"># tc.viscosities(pt,plot = True)</span>
 </pre></div>
 </div>
@@ -1465,8 +1446,7 @@ Time interval of autocorrelation function = 9.3750e-12 [s] ~ 7205 w_p T
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">acf_str</span> <span class="o">=</span> <span class="s2">&quot;Delta Pressure ACF&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acf_str</span> <span class="o">=</span> <span class="s2">&quot;Delta Pressure ACF&quot;</span>
 <span class="n">acf_avg</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[(</span><span class="s2">&quot;Delta Pressure ACF&quot;</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
 <span class="n">acf_std</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">dataframe_acf</span><span class="p">[(</span><span class="s2">&quot;Delta Pressure ACF&quot;</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)]</span>
 
@@ -1480,8 +1460,7 @@ Time interval of autocorrelation function = 9.3750e-12 [s] ~ 7205 w_p T
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">plot_tc</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">plot_tc</span><span class="p">(</span>
     <span class="n">time</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
     <span class="n">acf_data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">acf_avg</span><span class="p">,</span> <span class="n">acf_std</span><span class="p">)),</span>
     <span class="n">tc_data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">tc_avg</span><span class="p">,</span> <span class="n">tc_std</span><span class="p">)),</span>
@@ -1515,8 +1494,7 @@ Time interval of autocorrelation function = 9.3750e-12 [s] ~ 7205 w_p T
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pq</span> <span class="o">=</span> <span class="s2">&quot;Shear Viscosity&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pq</span> <span class="o">=</span> <span class="s2">&quot;Shear Viscosity&quot;</span>
 <span class="n">tc_avg</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[(</span><span class="n">pq</span><span class="p">,</span> <span class="s2">&quot;Mean&quot;</span><span class="p">)]</span>
 <span class="n">tc_std</span> <span class="o">=</span> <span class="n">tc</span><span class="o">.</span><span class="n">viscosity_df</span><span class="p">[(</span><span class="n">pq</span><span class="p">,</span> <span class="s2">&quot;Std&quot;</span><span class="p">)]</span>
 
@@ -1574,8 +1552,8 @@ Time interval of autocorrelation function = 9.3750e-12 [s] ~ 7205 w_p T
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Dec 06, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
+      Last updated on Jan 12, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
     </p>
   </div>
 </footer>

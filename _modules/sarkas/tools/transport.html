@@ -7,8 +7,8 @@
     <title>sarkas.tools.transport &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -163,7 +163,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;production&quot;</span><span class="p">,</span> <span class="n">no_slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="s2">&quot;TC&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__long_name__</span> <span class="o">=</span> <span class="s2">&quot;Transport Coefficients&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">tc_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ElectricalConductivity&quot;</span><span class="p">,</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">,</span> <span class="s2">&quot;Interdiffusion&quot;</span><span class="p">,</span> <span class="s2">&quot;Viscosities&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tc_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;electricalconductivity&quot;</span><span class="p">,</span> <span class="s2">&quot;diffusion&quot;</span><span class="p">,</span> <span class="s2">&quot;interdiffusion&quot;</span><span class="p">,</span> <span class="s2">&quot;viscosities&quot;</span><span class="p">]</span>
         <span class="c1"># Parameters copies</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing_dir</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">postprocessing_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">units</span>
@@ -269,9 +269,10 @@
 <span class="sd">            Wrong ``tc_name``.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tc_name</span> <span class="o">=</span> <span class="n">tc_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">tc_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tc_names</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;ElectricalConductivity&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;electricalconductivity&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
                 <span class="p">)</span>
@@ -280,7 +281,7 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_slices_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
                 <span class="p">)</span>
 
-            <span class="k">elif</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;Diffusion&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;diffusion&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">diffusion_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
                 <span class="p">)</span>
@@ -289,7 +290,7 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_slices_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
                 <span class="p">)</span>
 
-            <span class="k">elif</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;Interdiffusion&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;interdiffusion&quot;</span><span class="p">:</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">interdiffusion_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
@@ -299,7 +300,7 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_slices_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
                 <span class="p">)</span>
 
-            <span class="k">elif</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;Viscosities&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">tc_name</span> <span class="o">==</span> <span class="s2">&quot;viscosities&quot;</span><span class="p">:</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">saving_dir</span><span class="p">,</span> <span class="n">tc_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span> <span class="o">+</span> <span class="s2">&quot;.h5&quot;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span>
@@ -1049,8 +1050,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Dec 06, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
+      Last updated on Jan 12, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
     </p>
   </div>
 </footer>

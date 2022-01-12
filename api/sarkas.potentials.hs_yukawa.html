@@ -8,8 +8,8 @@
     <title>sarkas.potentials.hs_yukawa module &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -151,7 +151,7 @@
 <h2>Potential<a class="headerlink" href="#potential" title="Permalink to this headline">¶</a></h2>
 <p>The Hard-Sphere Yukawa potential between two charges <span class="math notranslate nohighlight">\(q_i\)</span> and <span class="math notranslate nohighlight">\(q_j\)</span> at distant <span class="math notranslate nohighlight">\(r\)</span> is defined as</p>
 <div class="math notranslate nohighlight">
-\[U_{ab}(r) = \left ( \frac{\sigma}{r} \right )^{n} \frac{q_a q_b}{4 \pi \epsilon_0} \frac{e^{- \kappa r} }{r}.\]</div>
+\[U_{ab}(r) = \left ( \frac{\sigma}{r} \right )^{n}  + \frac{q_a q_b}{4 \pi \epsilon_0} \frac{e^{- \kappa r} }{r}.\]</div>
 <p>where <span class="math notranslate nohighlight">\(\kappa = 1/\lambda\)</span> is the screening parameter.</p>
 </section>
 <section id="potential-attributes">
@@ -171,7 +171,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Distance between particles</p></li>
-<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>Values of the potential constants.</p>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – <p>Values of the potential constants.</p>
 <p>Shape = (3, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
 </p></li>
 </ul>
@@ -193,7 +193,7 @@
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Distance between two particles.</p></li>
-<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.21)"><em>numpy.ndarray</em></a>) – <p>It contains potential dependent variables.</p>
+<li><p><strong>pot_matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – <p>It contains potential dependent variables.</p>
 <p>Shape = (3, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>, <a class="reference internal" href="sarkas.core.html#sarkas.core.Parameters.num_species" title="sarkas.core.Parameters.num_species"><code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.num_species</span></code></a>)</p>
 </p></li>
 </ul>
@@ -238,8 +238,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Dec 06, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
+      Last updated on Jan 12, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
     </p>
   </div>
 </footer>

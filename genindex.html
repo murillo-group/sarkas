@@ -7,8 +7,8 @@
     <title>Index &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -289,10 +289,10 @@
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Particles.charges">charges (sarkas.core.Particles attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.check_units">check_units() (sarkas.core.Parameters method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.col_mapper">col_mapper() (in module sarkas.tools.observables)</a>
 </li>
       <li><a href="api/sarkas.processes.html#sarkas.processes.Process.common_parser">common_parser() (sarkas.processes.Process method)</a>
@@ -352,6 +352,10 @@
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction">CurrentCorrelationFunction (class in sarkas.tools.observables)</a>
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Species.cyclotron_frequency">cyclotron_frequency (sarkas.core.Species attribute)</a>
+</li>
+      <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.cyclotronic">cyclotronic() (sarkas.time_evolution.integrators.Integrator method)</a>
+</li>
+      <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.cyclotronic_zdir">cyclotronic_zdir() (sarkas.time_evolution.integrators.Integrator method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1277,10 +1281,10 @@
       </ul></li>
       <li><a href="api/sarkas.utilities.exceptions.html#sarkas.utilities.exceptions.SarkasError">SarkasError</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.utilities.timing.html#sarkas.utilities.timing.SarkasTimer">SarkasTimer (class in sarkas.utilities.timing)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/sarkas.utilities.exceptions.html#sarkas.utilities.exceptions.SarkasWarning">SarkasWarning</a>
 </li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.save_hdf">save_hdf() (sarkas.tools.observables.Observable method)</a>
@@ -1380,7 +1384,11 @@
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.species_num_dens">species_num_dens (sarkas.core.Parameters attribute)</a>
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.species_plasma_frequencies">species_plasma_frequencies (sarkas.core.Parameters attribute)</a>
+
+      <ul>
+        <li><a href="api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.species_plasma_frequencies">(sarkas.time_evolution.integrators.Integrator attribute)</a>
 </li>
+      </ul></li>
       <li><a href="api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityDistribution.species_plots_dirs">species_plots_dirs (sarkas.tools.observables.VelocityDistribution attribute)</a>
 </li>
       <li><a href="api/sarkas.core.html#sarkas.core.Parameters.species_temperatures">species_temperatures (sarkas.core.Parameters attribute)</a>
@@ -1600,8 +1608,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Dec 06, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
+      Last updated on Jan 12, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
     </p>
   </div>
 </footer>

@@ -7,8 +7,8 @@
     <title>sarkas.time_evolution.integrators &#8212; Sarkas 1.0.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -179,7 +179,10 @@
 <span class="sd">        Production dump interval.</span>
 
 <span class="sd">    species_num: numpy.ndarray</span>
-<span class="sd">        Number of particles of each species. copy of ``parameters.species_num``.</span>
+<span class="sd">        Number of particles of each species.</span>
+
+<span class="sd">    species_plasma_frequencies: numpy.ndarray</span>
+<span class="sd">        Plasma frequency of each species.</span>
 
 <span class="sd">    box_lengths: numpy.ndarray</span>
 <span class="sd">        Length of each box side.</span>
@@ -221,13 +224,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_steps</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">supported_boundary_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;periodic&quot;</span><span class="p">,</span> <span class="s2">&quot;absorbing&quot;</span><span class="p">,</span> <span class="s2">&quot;reflecting&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">supported_integrators</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;verlet&quot;</span><span class="p">,</span> <span class="s2">&quot;verlet_langevin&quot;</span><span class="p">,</span> <span class="s2">&quot;magnetic_verlet&quot;</span><span class="p">,</span> <span class="s2">&quot;magnetic_boris&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">supported_integrators</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;verlet&quot;</span><span class="p">,</span> <span class="s2">&quot;verlet_langevin&quot;</span><span class="p">,</span> <span class="s2">&quot;magnetic_verlet&quot;</span><span class="p">,</span> <span class="s2">&quot;magnetic_boris&quot;</span><span class="p">,</span> <span class="s2">&quot;cyclotronic&quot;</span><span class="p">]</span>
 
     <span class="c1"># def __repr__(self):</span>
     <span class="c1">#     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))</span>
@@ -269,6 +273,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">kB</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">verbose</span>
 
         <span class="c1"># Enforce consistency</span>
@@ -310,6 +315,25 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_conditions</span> <span class="o">==</span> <span class="s2">&quot;reflective&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reflecting</span>
 
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetized</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span>
+            <span class="c1"># Create the unit vector of the magnetic field</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetic_field</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
+
+            <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">sp_end</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">sp_np</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">):</span>
+                <span class="n">sp_end</span> <span class="o">+=</span> <span class="n">sp_np</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
+                <span class="n">sp_start</span> <span class="o">+=</span> <span class="n">sp_np</span>
+
+            <span class="c1"># array to temporary store velocities</span>
+            <span class="c1"># Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them</span>
+            <span class="c1"># each time step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supported_integrators</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Integrator not supported. &quot;</span> <span class="s2">&quot;Please choose one of the supported integrators </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -331,17 +355,6 @@
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;magnetic_verlet&quot;</span><span class="p">:</span>
 
-            <span class="c1"># Create the unit vector of the magnetic field</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetic_field</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
-
-            <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">sp_end</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">sp_np</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">):</span>
-                <span class="n">sp_end</span> <span class="o">+=</span> <span class="n">sp_np</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
-                <span class="n">sp_start</span> <span class="o">+=</span> <span class="n">sp_np</span>
-
             <span class="c1"># Calculate functions for magnetic integrator</span>
             <span class="c1"># This could be used when the generalization to Forest-Ruth and MacLachlan algorithms will be implemented</span>
             <span class="c1"># In a magnetic Velocity-Verlet the coefficient is 1/2, see eq.~(78) in :cite:`Chin2008`</span>
@@ -350,7 +363,6 @@
             <span class="c1"># array to temporary store velocities</span>
             <span class="c1"># Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them</span>
             <span class="c1"># each time step</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">v_F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
@@ -359,17 +371,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_verlet</span>
 
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;magnetic_boris&quot;</span><span class="p">:</span>
-
-            <span class="c1"># Create the unit vector of the magnetic field</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetic_field</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
-
-            <span class="n">sp_start</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="n">sp_end</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">ic</span><span class="p">,</span> <span class="n">sp_np</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_num</span><span class="p">):</span>
-                <span class="n">sp_end</span> <span class="o">+=</span> <span class="n">sp_np</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[</span><span class="n">sp_start</span><span class="p">:</span><span class="n">sp_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="n">ic</span><span class="p">]</span>
-                <span class="n">sp_start</span> <span class="o">+=</span> <span class="n">sp_np</span>
 
             <span class="c1"># In a leapfrog-type algorithm the coefficient is different for the acceleration and magnetic rotation</span>
             <span class="c1"># see eq.~(79) in :cite:`Chin2008`</span>
@@ -383,25 +384,32 @@
             <span class="c1"># array to temporary store velocities</span>
             <span class="c1"># Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them</span>
             <span class="c1"># each time step</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">v_F</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">params</span><span class="o">.</span><span class="n">total_num_ptcls</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">dimensions</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;cyclotronic&quot;</span><span class="p">:</span>
+            <span class="c1"># Calculate functions for magnetic integrator</span>
+            <span class="c1"># This could be used when the generalization to Forest-Ruth and MacLachlan algorithms will be implemented</span>
+            <span class="c1"># In a magnetic Velocity-Verlet the coefficient is 1/2, see eq.~(78) in :cite:`Chin2008`</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_helpers</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
-                <span class="n">params</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verlet</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cyclotronic_zdir</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cyclotronic</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetization_steps</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">electrostatic_equilibration</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">magnetic_integrator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">verlet</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;mag_dump_step&quot;</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">mag_dump_step</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">magnetization_steps</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">magnetization_steps</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prod_dump_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="s2">&quot;mag_dump_step&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">mag_dump_step</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mag_dump_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">production_steps</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;fmm&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">pppm_on</span><span class="p">:</span>
@@ -796,6 +804,108 @@
 
         <span class="k">return</span> <span class="n">potential_energy</span></div>
 
+<div class="viewcode-block" id="Integrator.cyclotronic_zdir"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.cyclotronic_zdir">[docs]</a>    <span class="k">def</span> <span class="nf">cyclotronic_zdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update particles&#39; class using the cyclotronic algorithm in the case of a</span>
+<span class="sd">        constant magnetic field along the :math:`z` axis.</span>
+<span class="sd">        For more info see eqs. (16) - (17) of Ref. :cite:`Patacchini2009`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
+<span class="sd">            Particles data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        potential_energy : float</span>
+<span class="sd">             Total potential energy.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Drift half step</span>
+        <span class="c1"># Rotate Positions</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> \
+                           <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> \
+                           <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="c1"># Create rotated velocities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_B</span><span class="p">[:,:</span><span class="mi">2</span><span class="p">])</span>
+        <span class="c1"># Compute total potential energy and accelerations</span>
+        <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+
+        <span class="c1"># Kick full step</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+        <span class="c1"># Drift half step</span>
+        <span class="c1"># Rotate Positions</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> \
+                           <span class="o">+</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> \
+                           <span class="o">-</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="c1"># Create rotated velocities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_B</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdt</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdt</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Update final velocities</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">[:,:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_B</span><span class="p">[:,:</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">potential_energy</span></div>
+
+<div class="viewcode-block" id="Integrator.cyclotronic"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.cyclotronic">[docs]</a>    <span class="k">def</span> <span class="nf">cyclotronic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update particles&#39; class using the cyclotronic algorithm in the case of a</span>
+<span class="sd">        constant magnetic field along the :math:`z` axis.</span>
+<span class="sd">        For more info see eqs. (16) - (17) of Ref. :cite:`Patacchini2009`</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ptcls: sarkas.core.Particles</span>
+<span class="sd">            Particles data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        potential_energy : float</span>
+<span class="sd">             Total potential energy.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Drift half step</span>
+
+        <span class="c1"># Calculate the cross products</span>
+        <span class="n">b_cross_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">)</span>
+        <span class="n">b_cross_b_cross_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">b_cross_v</span><span class="p">)</span>
+        <span class="c1"># Rotate Positions</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span> <span class="o">*</span> <span class="n">b_cross_v</span> <span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span> \
+                           <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssodt</span> <span class="o">*</span> <span class="n">b_cross_b_cross_v</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="c1"># First half step of velocity update</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">sdt</span> <span class="o">*</span> <span class="n">b_cross_v</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span> <span class="o">*</span> <span class="n">b_cross_b_cross_v</span>
+        <span class="c1"># Compute total potential energy and accelerations</span>
+        <span class="n">potential_energy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_accelerations</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+
+        <span class="c1"># Kick full step</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">acc</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+        <span class="c1"># Drift half step</span>
+        <span class="c1"># Calculate the cross products</span>
+        <span class="n">b_cross_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">)</span>
+        <span class="n">b_cross_b_cross_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field_uvector</span><span class="p">,</span> <span class="n">b_cross_v</span><span class="p">)</span>
+        <span class="c1"># Rotate Positions</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span> <span class="o">+=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span> <span class="o">*</span> <span class="n">b_cross_v</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">omega_c</span> \
+                     <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssodt</span> <span class="o">*</span> <span class="n">b_cross_b_cross_v</span>
+        <span class="c1"># Enforce boundary condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enforce_bc</span><span class="p">(</span><span class="n">ptcls</span><span class="p">)</span>
+        <span class="c1"># Second half step of velocity update</span>
+        <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span> <span class="o">+=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">sdt</span> <span class="o">*</span> <span class="n">b_cross_v</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ccodt</span> <span class="o">*</span> <span class="n">b_cross_b_cross_v</span>
+
+        <span class="k">return</span> <span class="n">potential_energy</span></div>
+
 <div class="viewcode-block" id="Integrator.periodic"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.periodic">[docs]</a>    <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Applies periodic boundary conditions by calling enforce_pbc</span>
@@ -835,7 +945,7 @@
 
         <span class="n">enforce_rbc</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Integrator.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">restart</span><span class="p">,</span> <span class="n">restart_step</span><span class="p">):</span>
+<div class="viewcode-block" id="Integrator.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.integrators.html#sarkas.time_evolution.integrators.Integrator.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">potential_type</span><span class="p">,</span> <span class="n">restart</span><span class="p">,</span> <span class="n">restart_step</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print integrator attributes in a user friendly way.&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">electrostatic_equilibration</span><span class="p">:</span>
@@ -843,46 +953,80 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
 
-        <span class="n">wp_dt</span> <span class="o">=</span> <span class="n">frequency</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time step = </span><span class="si">{:.6e}</span><span class="s2"> [s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total plasma frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frequency</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_p dt = </span><span class="si">{:.4f}</span><span class="s2"> ~ 1/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">wp_dt</span><span class="p">)))</span>
-        <span class="c1"># if potential_type in [&#39;Yukawa&#39;, &#39;EGS&#39;, &#39;Coulomb&#39;, &#39;Moliere&#39;]:</span>
-        <span class="c1">#     # if simulation.parameters.magnetized:</span>
-        <span class="c1">#     #     if simulation.parameters.num_species &gt; 1:</span>
-        <span class="c1">#     #         high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt</span>
-        <span class="c1">#     #         low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt</span>
-        <span class="c1">#     #         print(&#39;Highest w_c dt = {:2.4f}&#39;.format(high_wc_dt))</span>
-        <span class="c1">#     #         print(&#39;Smalles w_c dt = {:2.4f}&#39;.format(low_wc_dt))</span>
-        <span class="c1">#     #     else:</span>
-        <span class="c1">#     #         high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt</span>
-        <span class="c1">#     #         print(&#39;w_c dt = {:2.4f}&#39;.format(high_wc_dt))</span>
-        <span class="c1"># elif simulation.potential.type == &#39;QSP&#39;:</span>
-        <span class="c1">#     print(&#39;e plasma frequency = {:.6e} [rad/s]&#39;.format(simulation.species[0].plasma_frequency))</span>
-        <span class="c1">#     print(&#39;ion plasma frequency = {:.6e} [rad/s]&#39;.format(simulation.species[1].plasma_frequency))</span>
-        <span class="c1">#     print(&#39;w_pe dt = {:2.4f}&#39;.format(simulation.integrator.dt * simulation.species[0].plasma_frequency))</span>
-        <span class="c1">#     if simulation.parameters.magnetized:</span>
-        <span class="c1">#         if simulation.parameters.num_species &gt; 1:</span>
-        <span class="c1">#             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt</span>
-        <span class="c1">#             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt</span>
-        <span class="c1">#             print(&#39;Electron w_ce dt = {:2.4f}&#39;.format(high_wc_dt))</span>
-        <span class="c1">#             print(&#39;Ions w_ci dt = {:2.4f}&#39;.format(low_wc_dt))</span>
-        <span class="c1">#         else:</span>
-        <span class="c1">#             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt</span>
-        <span class="c1">#             print(&#39;w_c dt = {:2.4f}&#39;.format(high_wc_dt))</span>
-        <span class="c1"># elif simulation.potential.type == &#39;LJ&#39;:</span>
-        <span class="c1">#     print(&#39;Total equivalent plasma frequency = {:1.6e} [rad/s]&#39;.format(</span>
-        <span class="c1">#         simulation.parameters.total_plasma_frequency))</span>
-        <span class="c1">#     print(&#39;w_p dt = {:2.4f}&#39;.format(wp_dt))</span>
-        <span class="c1">#     if simulation.parameters.magnetized:</span>
-        <span class="c1">#         if simulation.parameters.num_species &gt; 1:</span>
-        <span class="c1">#             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt</span>
-        <span class="c1">#             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt</span>
-        <span class="c1">#             print(&#39;Highest w_c dt = {:2.4f}&#39;.format(high_wc_dt))</span>
-        <span class="c1">#             print(&#39;Smalles w_c dt = {:2.4f}&#39;.format(low_wc_dt))</span>
-        <span class="c1">#         else:</span>
-        <span class="c1">#             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt</span>
-        <span class="c1">#             print(&#39;w_c dt = {:2.4f}&#39;.format(high_wc_dt))</span>
+        <span class="k">if</span> <span class="n">potential_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;yukawa&quot;</span><span class="p">,</span> <span class="s2">&quot;egs&quot;</span><span class="p">,</span> <span class="s2">&quot;coulomb&quot;</span><span class="p">,</span> <span class="s2">&quot;moliere&quot;</span><span class="p">]:</span>
+            <span class="n">wp_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">)</span>
+            <span class="n">wp_dt</span> <span class="o">=</span> <span class="n">wp_tot</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time step = </span><span class="si">{:.6e}</span><span class="s2"> [s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total plasma frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_tot</span><span class="p">)</span> <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_p dt = </span><span class="si">{:.4f}</span><span class="s2"> ~ 1/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">wp_dt</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+                <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+                <span class="k">if</span> <span class="n">high_wc_dt</span> <span class="o">&gt;</span> <span class="n">low_wc_dt</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Highest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smallest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">,</span> <span class="n">low_wc_dt</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;qsp&quot;</span><span class="p">:</span>
+            <span class="n">wp_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">)</span>
+            <span class="n">wp_ions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">wp_dt</span> <span class="o">=</span> <span class="n">wp_tot</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time step = </span><span class="si">{:.6e}</span><span class="s2"> [s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total plasma frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_tot</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_p dt = </span><span class="si">{:.4f}</span><span class="s2"> ~ 1/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">wp_dt</span><span class="p">)))</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;e plasma frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;total ion plasma frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_ions</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_pe dt = </span><span class="si">{:2.4f}</span><span class="s1"> ~ 1/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_pi dt = </span><span class="si">{:2.4f}</span><span class="s1"> ~ 1/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">wp_ions</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">*</span> <span class="n">wp_ions</span><span class="p">))))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+                <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;e cyclotron frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;total ion cyclotron frequency = </span><span class="si">{:.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_ce dt = </span><span class="si">{:2.4f}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2"> pi&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span><span class="o">/</span><span class="n">pi</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_ci dt = </span><span class="si">{:2.4f}</span><span class="s2"> = </span><span class="si">{:.4f}</span><span class="s2"> pi&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">,</span> <span class="n">low_wc_dt</span><span class="o">/</span><span class="n">pi</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;lj&quot;</span><span class="p">:</span>
+            <span class="n">wp_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">)</span>
+            <span class="n">wp_dt</span> <span class="o">=</span> <span class="n">wp_tot</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time step = </span><span class="si">{:.6e}</span><span class="s2"> [s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_p = sqrt( epsilon / (sigma^2 * mass) )&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total equivalent plasma frequency = </span><span class="si">{:1.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_tot</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_p dt = </span><span class="si">{:2.4f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+                <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+                <span class="k">if</span> <span class="n">high_wc_dt</span> <span class="o">&gt;</span> <span class="n">low_wc_dt</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Highest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smallest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">,</span> <span class="n">low_wc_dt</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">potential_type</span> <span class="o">==</span> <span class="s2">&quot;hs_yukawa&quot;</span><span class="p">:</span>
+            <span class="n">wp_tot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_plasma_frequencies</span><span class="p">)</span>
+            <span class="n">wp_dt</span> <span class="o">=</span> <span class="n">wp_tot</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time step = </span><span class="si">{:.6e}</span><span class="s2"> [s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total plasma frequency = </span><span class="si">{:1.6e}</span><span class="s2"> [rad/s]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_tot</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;w_p dt = </span><span class="si">{:.4f}</span><span class="s2"> ~ 1/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">wp_dt</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">wp_dt</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="n">high_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+                <span class="n">low_wc_dt</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+
+                <span class="k">if</span> <span class="n">high_wc_dt</span> <span class="o">&gt;</span> <span class="n">low_wc_dt</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Highest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Smallest w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">low_wc_dt</span><span class="p">,</span> <span class="n">low_wc_dt</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;w_c dt = </span><span class="si">{:2.4f}</span><span class="s1"> = </span><span class="si">{:.4f}</span><span class="s1"> pi&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">high_wc_dt</span><span class="p">,</span> <span class="n">high_wc_dt</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
 
         <span class="c1"># Print Time steps information</span>
         <span class="c1"># Check for restart simulations</span>
@@ -1142,8 +1286,8 @@
     </p>
     <p>
         &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Dec 06, 2021.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.1.<br/>
+      Last updated on Jan 12, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
     </p>
   </div>
 </footer>
