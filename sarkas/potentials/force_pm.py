@@ -3,7 +3,7 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 """
 
 import numpy as np
-from numba import jit, njit
+from numba import jit, njit, prange
 import pyfftw
 
 # These "ignore" are needed because numba does not support pyfftw yet
@@ -15,7 +15,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
 
 
-@njit
+@njit(parallel = True)
 def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constants):
     """
     Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
@@ -98,7 +98,7 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
     four_pi = 4.0 * np.pi if fourpie0 == 1.0 else 4.0 * np.pi / fourpie0
     two_pi = 2.0 * np.pi
 
-    for nz in range(mesh_sizes[2]):
+    for nz in prange(mesh_sizes[2]):
         nz_sh = nz - nz_mid
         kz = two_pi * nz_sh / box_lengths[2]
 
@@ -246,7 +246,7 @@ def assgnmnt_func(cao, x):
     return W
 
 
-@njit
+@njit(parallel=True)
 def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
     """ 
     Assigns Charges to Mesh Points.
@@ -312,7 +312,7 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
 
         izn = iz - pshift  # min. index along z-axis
 
-        for g in range(cao):
+        for g in prange(cao):
 
             # if izn < 0:
             r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
@@ -397,7 +397,7 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
     return E_kx, E_ky, E_kz
 
 
-@njit
+@njit(parallel = True)
 def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_array):
     """ 
     Calculates the long range part of particles' accelerations. 
@@ -471,7 +471,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
 
         izn = iz - pshift  # min. index along z-axis
 
-        for g in range(cao):
+        for g in prange(cao):
             #
             # if izn < 0:
             #     r_g = izn + mesh_sz[2]
@@ -579,7 +579,7 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
     # Calculate charge density on mesh
     rho_r = calc_charge_dens(pos, charges, N, cao, mesh_sizes, mesh_spacings)
     # Prepare for fft
-    fftw_n = pyfftw.builders.fftn(rho_r)
+    fftw_n = pyfftw.builders.fftn(rho_r, threads = 6)
     # Calculate fft
     rho_k_fft = fftw_n()
 
@@ -606,11 +606,11 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
     E_kz_unsh = np.fft.ifftshift(E_kz)
 
     # Prepare and compute IFFT
-    ifftw_n = pyfftw.builders.ifftn(E_kx_unsh)
+    ifftw_n = pyfftw.builders.ifftn(E_kx_unsh, threads = 6)
     E_x = ifftw_n()
-    ifftw_n = pyfftw.builders.ifftn(E_ky_unsh)
+    ifftw_n = pyfftw.builders.ifftn(E_ky_unsh, threads = 6)
     E_y = ifftw_n()
-    ifftw_n = pyfftw.builders.ifftn(E_kz_unsh)
+    ifftw_n = pyfftw.builders.ifftn(E_kz_unsh, threads = 6)
     E_z = ifftw_n()
 
     # I am worried that this normalization is not needed
