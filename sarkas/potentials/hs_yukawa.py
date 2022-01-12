@@ -7,7 +7,7 @@ Potential
 The Hard-Sphere Yukawa potential between two charges :math:`q_i` and :math:`q_j` at distant :math:`r` is defined as
 
 .. math::
-    U_{ab}(r) = \\left ( \\frac{\\sigma}{r} \\right )^{n} \\frac{q_a q_b}{4 \\pi \\epsilon_0} \\frac{e^{- \\kappa r} }{r}.
+    U_{ab}(r) = \\left ( \\frac{\\sigma}{r} \\right )^{n}  + \\frac{q_a q_b}{4 \\pi \\epsilon_0} \\frac{e^{- \\kappa r} }{r}.
 
 where :math:`\\kappa = 1/\\lambda` is the screening parameter.
 
@@ -107,7 +107,7 @@ def update_params(potential, params):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
-    potential.matrix[2, :, :] = potential.hs_radius
+    potential.matrix[2, :, :] = potential.hs_diameter
 
     if potential.method == "pp":
         # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )

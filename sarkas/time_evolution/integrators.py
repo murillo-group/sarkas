@@ -859,12 +859,28 @@ class Integrator:
 
                 print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt/pi))
                 print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt/pi))
-        elif simulation.potential.type == "lj":
+        elif potential_type == "lj":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
+            print("Time step = {:.6e} [s]".format(self.dt))
             print("w_p = sqrt( epsilon / (sigma^2 * mass) )")
             print("Total equivalent plasma frequency = {:1.6e} [rad/s]".format(wp_tot))
             print('w_p dt = {:2.4f}'.format(wp_dt))
+            if self.magnetized:
+                high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
+                low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
+
+                if high_wc_dt > low_wc_dt:
+                    print('Highest w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
+                    print('Smallest w_c dt = {:2.4f} = {:.4f} pi'.format(low_wc_dt, low_wc_dt / np.pi))
+                else:
+                    print('w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
+        elif potential_type == "hs_yukawa":
+            wp_tot = np.linalg.norm(self.species_plasma_frequencies)
+            wp_dt = wp_tot * self.dt
+            print("Time step = {:.6e} [s]".format(self.dt))
+            print("Total plasma frequency = {:1.6e} [rad/s]".format(wp_tot))
+            print("w_p dt = {:.4f} ~ 1/{}".format(wp_dt, int(1.0 / wp_dt)))
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt

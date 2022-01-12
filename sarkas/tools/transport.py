@@ -26,7 +26,7 @@ class TransportCoefficients:
     def __init__(self, params, phase: str = "production", no_slices: int = 1):
         self.__name__ = "TC"
         self.__long_name__ = "Transport Coefficients"
-        self.tc_names = ["ElectricalConductivity", "Diffusion", "Interdiffusion", "Viscosities"]
+        self.tc_names = ["electricalconductivity", "diffusion", "interdiffusion", "viscosities"]
         # Parameters copies
         self.postprocessing_dir = params.postprocessing_dir
         self.units = params.units
@@ -132,9 +132,10 @@ class TransportCoefficients:
             Wrong ``tc_name``.
 
         """
+        tc_name = tc_name.lower()
         if tc_name in self.tc_names:
 
-            if tc_name == "ElectricalConductivity":
+            if tc_name == "electricalconductivity":
                 self.conductivity_df = pd.read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
@@ -143,7 +144,7 @@ class TransportCoefficients:
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-            elif tc_name == "Diffusion":
+            elif tc_name == "diffusion":
                 self.diffusion_df = pd.read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
@@ -152,7 +153,7 @@ class TransportCoefficients:
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-            elif tc_name == "Interdiffusion":
+            elif tc_name == "interdiffusion":
 
                 self.interdiffusion_df = pd.read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
@@ -162,7 +163,7 @@ class TransportCoefficients:
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-            elif tc_name == "Viscosities":
+            elif tc_name == "viscosities":
 
                 self.viscosity_df = pd.read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False

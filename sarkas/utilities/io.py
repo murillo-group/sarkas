@@ -1079,17 +1079,30 @@ class InputOutput:
                     simulation.parameters.electron_temperature / simulation.parameters.eV2K,
                 )
             )
-            print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print(
-                "short range cutoff = {:.2f} a_ws = {:.4e} ".format(
+                "hard sphere diameter = sigma = {:.2f} a_ws = {:.4e} ".format(
                     simulation.potential.matrix[-1, 0, 0] / simulation.parameters.a_ws,
                     simulation.potential.matrix[-1, 0, 0],
                 ),
                 end="",
             )
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print("packing fraction = {:.4f}".format(
+                np.pi/6.0 * simulation.parameters.total_num_density * simulation.potential.hs_diameter**3
+            )
+            )
+            print(
+                "kappa = sigma/lambda_TF = {:.4f}".format(
+                    simulation.potential.hs_diameter / simulation.parameters.lambda_TF
+                )
+            )
 
-            print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
+            print(
+                "Gamma_eff = {:.2f}".format(
+                    simulation.parameters.coupling_constant \
+                    * simulation.parameters.a_ws/simulation.potential.hs_diameter
+                )
+            )
 
     def setup_checkpoint(self, params, species):
         """

@@ -1142,8 +1142,8 @@ class Particles:
             print("Initializing with {} particles.".format(int(part_per_side ** 3)))
 
         dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
-        dz_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
-        dy_lattice = self.pbox_lengths[2] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
+        dy_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
+        dz_lattice = self.pbox_lengths[2] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
 
         # Create x, y, and z position arrays
         x = np.arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
