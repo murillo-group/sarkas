@@ -1087,6 +1087,10 @@ class InputOutput:
                 end="",
             )
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print("reduced density = n sigma^3 = {:.4f}".format(
+                simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density
+            )
+            )
             print("packing fraction = {:.4f}".format(
                 np.pi/6.0 * simulation.parameters.total_num_density * simulation.potential.hs_diameter**3
             )
