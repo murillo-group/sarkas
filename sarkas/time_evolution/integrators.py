@@ -94,7 +94,14 @@ class Integrator:
         self.enforce_bc = None
         self.verbose = False
         self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
-        self.supported_integrators = ["verlet", "verlet_langevin", "magnetic_verlet", "magnetic_boris", "cyclotronic"]
+        self.supported_integrators = [
+            "verlet",
+            "verlet_langevin",
+            "magnetic_verlet",
+            "magnetic_pos_verlet",
+            "magnetic_boris",
+            "cyclotronic"
+        ]
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -232,6 +239,22 @@ class Integrator:
                 self.update = self.magnetic_verlet_zdir
             else:
                 self.update = self.magnetic_verlet
+
+        elif self.type == "magnetic_pos_verlet":
+            # Calculate functions for magnetic integrator
+            # This could be used when the generalization to Forest-Ruth and MacLachlan algorithms will be implemented
+            # In a magnetic Velocity-Verlet the coefficient is 1/2, see eq.~(78) in :cite:`Chin2008`
+            self.magnetic_helpers(1.0)
+
+            # array to temporary store velocities
+            # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
+            # each time step
+            self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
+
+            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+                self.update = self.magnetic_pos_verlet_zdir
+            else:
+                self.update = self.magnetic_pos_verlet
 
         elif self.type == "magnetic_boris":
 
@@ -664,6 +687,130 @@ class Integrator:
 
         # Compute total potential energy and acceleration for second half step velocity update
         potential_energy = self.update_accelerations(ptcls)
+
+        return potential_energy
+
+    def magnetic_pos_verlet_zdir(self, ptcls):
+        """
+        Update particles' class based on position verlet method in the case of a
+        constant magnetic field along the :math:`z` axis. For more info see eq. (79) of Ref. :cite:`Chin2008`
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        Notes
+        -----
+        This integrator is faster than `magnetic_verlet` but valid only for a magnetic field in the :math:`z`-direction.
+        This is the preferred choice in this case.
+        """
+
+        # Position update
+        ptcls.pos += 0.5 * ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
+
+        # First half step of velocity update
+        # # Magnetic rotation x - velocity
+        # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
+        self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
+        # Magnetic rotation y - velocity
+        # (B x v)_y  = v_x, (B x B x v)_y = -v_y
+        self.v_B[:, 1] = -ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
+
+        # Magnetic + Const force field x - velocity
+        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
+        self.v_F[:, 0] = (
+            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        )
+        # Magnetic + Const force field y - velocity
+        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
+        self.v_F[:, 1] = (
+            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        )
+
+        ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
+        ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
+        ptcls.vel[:, 2] += self.dt * ptcls.acc[:, 2]
+
+        # Position update
+        ptcls.pos += 0.5 * ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        return potential_energy
+
+    def magnetic_pos_verlet(self, ptcls):
+        """
+        Update particles' class based on position verlet method in the case of an arbitrary direction of the
+        constant magnetic field. For more info see eq. (79) of Ref. :cite:`Chin2008`
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        Notes
+        -----
+        :cite:`Chin2008` equations are written for a negative charge. This allows him to write
+        :math:`\dot{\mathbf v} = \omega_c \hat{B} \\times \mathbf v`. In the case of positive charges we will have
+        :math:`\dot{\mathbf v} = - \omega_c \hat{B} \\times \mathbf v`. Hence the reason of the different signs in the
+        formulas below compared to Chin's.
+
+        Warnings
+        --------
+        This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
+        an arbitrary direction, methods in `sarkas.tool.observables` work only for a magnetic field in the
+        :math:`z` - direction. Hence, if you choose to use this integrator remember to change your physical observables.
+
+        """
+        # Half position update
+        ptcls.pos += ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
+
+        # Calculate the cross products
+        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+
+        # First half step of velocity update
+        ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+
+        ptcls.vel += (
+            ptcls.acc * self.dt
+            - self.ccodt / self.omega_c * b_cross_a
+            + self.dt * self.ssodt * b_cross_b_cross_a
+        )
+
+        # Second half position update
+        ptcls.pos += ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
 
         return potential_energy
 
