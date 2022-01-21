@@ -19,7 +19,7 @@ Particles:
 Potential:
     type: QSP                         # potential type
     qsp_type: Deutsch
-    method: P3M
+    method: pppm
     rc: 3.119964e-10                  # cut-off radius, cm
     pppm_mesh: [32,32,32]
     pppm_aliases: [3,3,3]

@@ -1,5 +1,25 @@
 """
-Module for handling Coulomb interaction
+Module for handling Coulomb interaction.
+
+Potential
+*********
+
+The Coulomb potential between two particles :math:`a,b` is
+
+.. math::
+   U_{ab}(r) = \\frac{q_{a}q_b}{4 \\pi \\epsilon_0 r}.
+
+Potential Attributes
+********************
+
+The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+
+.. code-block::
+
+    pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
+    pot_matrix[1] : Ewald parameter in the case of pppm Algorithm. Same value for all species.
+    pot_matrix[2] : Short-range cutoff. Same value for all species.
+
 """
 
 import numpy as np
@@ -19,13 +39,7 @@ def update_params(potential, params):
     params: sarkas.core.Parameters
         Simulation's parameters
 
-    """
-    """
-    Dev Notes:
-    -----
-    Coulomb_matrix[0,i,j] : qi qj/(4pi esp0) Force factor between two particles.
-    Coulomb_matrix[1,i,j] : Ewald parameter in the case of P3M Algorithm. Same value for all species
-    Coulomb_matrix[2,i,j] : Short-range cutoff. Same value for all species
+
     """
 
     potential.matrix = np.zeros((3, params.num_species, params.num_species))
@@ -35,17 +49,17 @@ def update_params(potential, params):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
     if potential.method == "PP":
-        potential.matrix[2, :, :] = potential.rs
+        potential.matrix[2, :, :] = potential.a_rs
         potential.force = coulomb_force
         params.force_error = 0.0  # TODO: Implement force error in PP case
-    elif potential.method == "P3M":
+    elif potential.method == "pppm":
         potential.matrix[1, :, :] = potential.pppm_alpha_ewald
-        potential.matrix[2, :, :] = potential.rs
+        potential.matrix[2, :, :] = potential.a_rs
         # Calculate the (total) plasma frequency
         potential.force = coulomb_force_pppm
 
         # PP force error calculation. Note that the equation was derived for a single component plasma.
-        alpha_times_rcut = - (potential.pppm_alpha_ewald * potential.rc) ** 2
+        alpha_times_rcut = -((potential.pppm_alpha_ewald * potential.rc) ** 2)
         params.pppm_pp_err = 2.0 * np.exp(alpha_times_rcut) / np.sqrt(potential.rc)
         params.pppm_pp_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 / np.sqrt(params.pbox_volume)
 
@@ -53,7 +67,7 @@ def update_params(potential, params):
 @njit
 def coulomb_force_pppm(r_in, pot_matrix):
     """
-    Calculate Potential and Force between two particles when the P3M algorithm is chosen.
+    Calculate Potential and Force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------
@@ -61,11 +75,12 @@ def coulomb_force_pppm(r_in, pot_matrix):
         Distance between two particles.
 
     pot_matrix : numpy.ndarray
-        It contains potential dependent variables.
+        It contains potential dependent variables.\n
+        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
 
     Returns
     -------
-    U_s_r : float
+    U : float
         Potential value.
 
     fr : float
@@ -83,7 +98,7 @@ def coulomb_force_pppm(r_in, pot_matrix):
     r2 = r * r
     U = pot_matrix[0] * mt.erfc(alpha_r) / r
     f1 = mt.erfc(alpha_r) / r2
-    f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(- alpha_r ** 2)
+    f2 = (2.0 * alpha / np.sqrt(np.pi) / r) * np.exp(-(alpha_r ** 2))
     fr = pot_matrix[0] * (f1 + f2)
 
     return U, fr
@@ -92,7 +107,7 @@ def coulomb_force_pppm(r_in, pot_matrix):
 @njit
 def coulomb_force(r_in, pot_matrix):
     """
-    Calculate the coulomb potential and force between two particles.
+    Calculate the bare coulomb potential and force between two particles.
 
     Parameters
     ----------
@@ -100,7 +115,8 @@ def coulomb_force(r_in, pot_matrix):
         Distance between two particles.
 
     pot_matrix : numpy.ndarray
-        It contains potential dependent variables.
+        It contains potential dependent variables. \n
+        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
 
     Returns
     -------

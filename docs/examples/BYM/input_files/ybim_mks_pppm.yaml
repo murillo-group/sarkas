@@ -20,7 +20,7 @@ Particles:
 
 Potential:
     type: Yukawa                 # potential type
-    method: PP                    # Linked-cell
+    method: pppm                    # Linked-cell
     rc: 2.954235e-10          # cut-off radius, meter
     electron_temperature_eV: 1000.0
     pppm_mesh: [32,32,32]

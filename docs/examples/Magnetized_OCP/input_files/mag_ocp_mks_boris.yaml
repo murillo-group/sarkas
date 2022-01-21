@@ -1,4 +1,4 @@
-# keywords: OCP, P3M, mks, random_no_reject
+# keywords: Magnetized Plasma, OCP, Boris integrator
 Particles:
     - Species:
         name: H
@@ -19,7 +19,7 @@ Potential:
 
 Integrator:
     dt: 1.10e-17            # sec
-    type: magnetic_verlet                  # velocity integrator type
+    type: magnetic_boris                  # velocity integrator type
     electrostatic_equilibration: True
     equilibration_steps: 5000
     magnetization_steps: 5000
@@ -42,9 +42,9 @@ Parameters:
     magnetic_field: [0.0, 0.0, 17.0e+6]  # Tesla
 
 IO:
-    verbose: True
+    verbose: yes
     magnetized: True
-    job_dir: ocp_mag        # dir name to save data. The default is "Checkpoint"
+    job_dir: ocp_mag_boris        # dir name to save data. The default is "Checkpoint"
 
 Observables:
   - RadialDistributionFunction:
@@ -55,4 +55,4 @@ Observables:
 
   - VelocityAutoCorrelationFunction:
       phase: production
-      no_slices: 4
+      no_slices: 5

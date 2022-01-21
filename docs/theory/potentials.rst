@@ -29,7 +29,7 @@ Two charged particle with charge numbers :math:`Z_a` and :math:`Z_b` interact wi
 given by
 
 .. math::
-   V(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}.
+   U_{ab}(r) = \frac{Z_{a}Z_b\bar{e}^2}{r}.
 
 where :math:`r` is the distance between ions, :math:`e` is the elementary charge.
 
@@ -42,7 +42,7 @@ of positively charged ions in a uniform background of electrons. The form of the
 number :math:`Z_a` and :math:`Z_b` is given by
 
 .. math::
-   V(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{- r /\lambda_{\textrm{TF}}}, \quad \kappa = \frac{a_{\textrm{ws}}}{\lambda_{\textrm{TF}} }
+   U_{ab}(r) = \frac{Z_{a} Z_b \bar{e}^2}{r}e^{- r /\lambda_{\textrm{TF}}}, \quad \kappa = \frac{a_{\textrm{ws}}}{\lambda_{\textrm{TF}} }
 
 where :math:`\lambda_{\textrm{TF}}` is the Thomas-Fermi wavelength and :math:`\kappa` is the screening parameter.
 In Sarkas :math:`\kappa` can be given as an input or it can be calculated from the
@@ -72,7 +72,7 @@ and :math:`\lambda = 1` for the traditional von Weissaecker model, :math:`\mathc
 In the case :math:`\nu < 1` the EGS potential takes the form
 
 .. math::
-   V(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],
+   U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],
 
 with
 
@@ -83,7 +83,7 @@ where the parameter :math:`b` arises from exchange-correlation contributions, se
 On the other hand :math:`\nu > 1`, the pair potential has the form
 
 .. math::
-   V(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}
+   U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}
 
 with
 
@@ -109,25 +109,51 @@ where :math:`k_{\textrm{F}}` is the Fermi wavenumber and :math:`\Theta = (\beta 
 
 .. _qsp_pot:
 
-Quantum Statistical Potential
------------------------------
-The Quantum Statistical Potential between two charged particles :math:`a,b` used in Sarkas is given by eq.(5)
-in :cite:`Glosli2008`
+Quantum Statistical Potentials
+------------------------------
+An extensive review on Quantum Statistical Potentials is given in :cite:`Jones2007`. The following module uses that as
+the main reference.
+
+Quantum Statistical Potentials are defined by three terms
 
 .. math::
-   \phi(r) =  \frac{Z_a Z_b \bar{e}^2}{r} \left ( 1 - e^{ - 2\pi r/\Lambda_{ab}}\right ) + \delta_{ae} \delta_{be} k_BT \ln(2) \exp \left \{ - \frac{4 \pi r^2}{\Lambda_{ab}^2 \ln (2)} \right \}
+    U(r) = U_{\textrm{pauli}}(r) + U_{\textrm{coul}}(r) + U_{\textrm{diff} }(r)
 
-where the screening length :math:`\Lambda_{ab}` is the thermal de Broglie wavelength between the two charges defined as
+where
+
+.. math::
+    U_{\textrm{pauli}}(r) = - k_BT \ln \left [ 1 - \frac{1}{2} \exp \left ( - 2\pi r^2/ \Lambda^2 \right ) \right ]
+
+is due to the Pauli exclusion principle and it accounts for spin-averaged effects,
+
+.. math::
+    U_{\textrm{coul}}(r) = \frac{Z_a Z_b \bar{e}^2}{r}
+
+is the usual Coulomb interaction between two charged particles with charge numbers :math:`Z_a,Z_b`,
+and :math:`U_{\textrm{diff}}(r)` is a diffraction term. There are two possibilities for
+the diffraction term. The most common is the Deutsch potential
+
+.. math::
+    U_{\textrm{deutsch}}(r) = \frac{Z_a Z_b \bar{e}^2}{r} e^{ - 2\pi r/\Lambda_{ab}}.
+
+The second most common form is the Kelbg potential
+
+.. math::
+    U_{\textrm{kelbg}}(r) = - \frac{Z_a Z_b \bar{e}^2}{r} \left [  e^{- 2 \pi r^2/\Lambda_{ab}^2 }
+    - \sqrt{2} \pi \frac{r}{\Lambda_{ab}} \textrm{erfc} \left ( \sqrt{ 2\pi}  r/ \Lambda_{ab} \right )
+    \right ]
+
+In the above equations the screening length :math:`\Lambda_{ab}` is the thermal de Broglie wavelength
+between the two charges defined as
 
 .. math::
    \Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}}, \quad  \mu_{ab} = \frac{m_a m_b}{m_a + m_b}
 
-The last term, present only in the interaction between two electrons, accounts for spin-averaged effects.
-
 Note that the de Broglie wavelength is defined differently in :cite:`Hansen1981` hence the factor of :math:`2\pi` in
-the exponential. The long range part of the potential is computed using the PPPM algorithm where only the
-:math:`1/r` term is split into a short range and long range part.
+the exponential.
 
+The long range part of the potential is computed using the PPPM algorithm where only the
+:math:`U_{\textrm{coul}}(r)` term is split into a short range and long range part.
 
 The choice of this potential is due to its widespread use in the High Energy Density Physics community.
 

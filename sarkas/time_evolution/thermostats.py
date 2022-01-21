@@ -1,6 +1,7 @@
 """
 Module containing various thermostat. Berendsen only for now.
 """
+from warnings import warn
 import numpy as np
 from numba import njit
 
@@ -52,10 +53,10 @@ class Thermostat:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Thermostat( \n'
+        disp = "Thermostat( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict):
@@ -83,15 +84,14 @@ class Thermostat:
 
     def pretty_print(self):
         """Print Thermostat information in a user-friendly way."""
-        print('Type: {}'.format(self.type))
-        print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
+        print("Type: {}".format(self.type))
+        print("First thermostating timestep, i.e. relaxation_timestep = {}".format(self.relaxation_timestep))
         print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.berendsen_tau))
         print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
-        if not self.eV_temp_flag and not self.K_temp_flag:
-            # If you forgot to give thermostating temperatures
-            print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("Equilibration temperatures not defined. I will use the species's temperatures")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        # if not self.eV_temp_flag and not self.K_temp_flag:
+        #     # If you forgot to give thermostating temperatures
+        #     warn("Equilibration temperatures not defined. "
+        #          "I will use the species's temperatures")
         print("Thermostating temperatures: ")
         for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
             print("Species ID {}: T_eq = {:.6e} [K] = {:.6e} [eV]".format(i, t, t_ev))
@@ -105,9 +105,15 @@ class Thermostat:
         params: sarkas.core.Parameters
             Simulation's parameters
 
+        Raises
+        ------
+        ValueError
+            If a thermostat different than Berendsen is chosen.
+
         """
 
         # Check whether you input temperatures in eV or K
+        self.type = self.type.lower()
 
         if self.eV_temp_flag:
             self.temperatures = params.eV2K * np.copy(self.temperatures_eV)
@@ -129,7 +135,8 @@ class Thermostat:
         self.species_num = np.copy(params.species_num)
         self.species_masses = np.copy(params.species_masses)
 
-        assert self.type.lower() == "berendsen", "Only Berendsen thermostat is supported."
+        if self.type != "berendsen":
+            raise ValueError("Only Berendsen thermostat is supported.")
 
     def update(self, ptcls, it):
         """
@@ -144,55 +151,8 @@ class Thermostat:
             Current timestep.
 
         """
-        K, T = ptcls.kinetic_temperature()
-        berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep,
-                  self.relaxation_rate, it)
-
-
-@njit
-def calc_kin_temp(vel, nums, masses, kB):
-    """
-    Calculates the kinetic energy and temperature.
-
-    Parameters
-    ----------
-    kB: float
-        Boltzmann constant in chosen units.
-
-    masses: numpy.ndarray
-        Mass of each species.
-
-    nums: numpy.ndarray
-        Number of particles of each species.
-
-    vel: numpy.ndarray
-        Particles' velocities.
-
-    Returns
-    -------
-    K : numpy.ndarray
-        Kinetic energy of each species.
-
-    T : numpy.ndarray
-        Temperature of each species.
-    """
-
-    num_species = len(nums)
-
-    K = np.zeros(num_species)
-    T = np.zeros(num_species)
-    const = 2.0 / (kB * nums * vel.shape[1])
-    kinetic_energies = 0.5 * masses * (vel ** 2).transpose()
-
-    species_start = 0
-    species_end = 0
-    for i, num in enumerate(nums):
-        species_end += num
-        K[i] = np.sum(kinetic_energies[:, species_start:species_end])
-        T[i] = const[i] * K[i]
-        species_start += num
-
-    return K, T
+        _, T = ptcls.kinetic_temperature()
+        berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep, self.relaxation_rate, it)
 
 
 @njit

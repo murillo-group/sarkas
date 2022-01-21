@@ -59,6 +59,6 @@ Observables:
   - CurrentCorrelationFunction:
       max_ka_value: 8
 
-TransportCoefficients:
+TransportCoefficientss:
     - Diffusion:
         time_averaging: False

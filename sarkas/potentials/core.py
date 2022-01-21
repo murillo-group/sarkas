@@ -1,10 +1,12 @@
 """
 Module handling the potential class.
 """
+import warnings
 import numpy as np
+import fdint
+from sarkas.utilities.exceptions import AlgorithmWarning
 from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
 from sarkas.potentials import force_pm, force_pp
-import fdint
 
 
 class Potential:
@@ -18,13 +20,14 @@ class Potential:
 
     method : str
         Algorithm to use for force calculations.
-        "PP" = Linked Cell List (default).
-        "P3M" = Particle-Particle Particle-Mesh.
+        "pp" = Linked Cell List (default).
+        "pppm" = Particle-Particle Particle-Mesh.
+        "fmm" = Fast Multipole Method.
 
     rc : float
         Cutoff radius.
 
-    rs : float
+    a_rs : float
         Short-range cutoff to deal with divergence of the potential for r -> 0.
 
     type : str
@@ -97,7 +100,7 @@ class Potential:
 
     def __init__(self):
         self.type = "yukawa"
-        self.method = "PP"
+        self.method = "pp"
         self.matrix = None
         self.force_error = None
         self.measure = False
@@ -109,13 +112,14 @@ class Potential:
         self.QFactor = 0.0
         self.total_net_charge = 0.0
         self.pppm_on = False
+        self.a_rs = 0.0
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Potential( \n'
+        disp = "Potential( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict) -> None:
@@ -140,36 +144,57 @@ class Potential:
             Simulation's parameters.
 
         """
+
+        # Enforce consistency
+        self.type = self.type.lower()
+        self.method = self.method.lower()
+
+        if self.method == "p3m":
+            self.method == "pppm"
+
         # Check for cutoff radius
-        if not self.type.lower() == 'fmm':
+        if not self.type == "fmm":
             self.linked_list_on = True  # linked list on
             if not hasattr(self, "rc"):
-                print("\nWARNING: The cut-off radius is not defined. L/2 = {:1.4e} will be used as rc".format(
-                    0.5 * params.box_lengths.min()))
-                self.rc = params.box_lengths.min() / 2.
+                warnings.warn(
+                    "\nThe cut-off radius is not defined. "
+                    "L/2 = {:.4e} will be used as rc".format(0.5 * params.box_lengths.min()),
+                    category=AlgorithmWarning,
+                )
+                self.rc = params.box_lengths.min() / 2.0
                 self.linked_list_on = False  # linked list off
 
-            if self.rc > params.box_lengths.min() / 2.:
-                print("\nWARNING: The cut-off radius is > L/2. L/2 = ", params.box_lengths.min() / 2,
-                      "will be used as rc")
-                self.rc = params.box_lengths.min() / 2.
+            if self.rc > params.box_lengths.min() / 2.0:
+                warnings.warn(
+                    "\nThe cut-off radius is larger than half the box length. "
+                    "L/2 = {:.4e} will be used as rc".format(0.5 * params.box_lengths.min()),
+                    category=AlgorithmWarning,
+                )
+
+                self.rc = params.box_lengths.min() / 2.0
                 self.linked_list_on = False  # linked list off
 
-            if not hasattr(self, 'rs'):
-                self.rs = 0.0
-            else:
-                print("\nWARNING: Short-range cut-off of {:1.4e} enabled. Use this feature with care!".format(self.rs))
-
+            if self.a_rs != 0.0:
+                warnings.warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
         # Check for electrons as dynamical species
-        if self.type.lower() == 'qsp' or self.type.lower() == 'coulomb':
-            mask = params.species_names == 'e'
+        if self.type == "qsp":
+            mask = params.species_names == "e"
+            self.electron_temperature = params.species_temperatures[mask]
+            params.ne = float(params.species_num_dens[mask])
+            params.electron_temperature = float(params.species_temperatures[mask])
+            params.qe = float(params.species_charges[mask])
+            params.me = float(params.species_masses[mask])
+        elif self.type == "coulomb" and "e" in params.species_names:
+            mask = params.species_names == "e"
             self.electron_temperature = params.species_temperatures[mask]
             params.ne = float(params.species_num_dens[mask])
             params.electron_temperature = float(params.species_temperatures[mask])
             params.qe = float(params.species_charges[mask])
             params.me = float(params.species_masses[mask])
         else:
-            params.ne = params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
+            params.ne = (
+                params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
+            )
 
             # Check electron properties
             if hasattr(self, "electron_temperature_eV"):
@@ -185,46 +210,63 @@ class Potential:
         self.calc_electron_properties(params)
 
         if hasattr(self, "kappa"):
-            if self.electron_temperature != params.total_ion_temperature :
-                print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                print("You have defined both kappa and the electron_temperature. kappa's value will be used.")
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+            if self.electron_temperature != params.total_ion_temperature:
+                warnings.warn(
+                    "You have defined both kappa and the electron_temperature. "
+                    "kappa = {:.4e} value will be used.".format(self.kappa)
+                )
             # Thomas-Fermi Length
             params.lambda_TF = params.a_ws / self.kappa
 
+        # enforce consistency
+        self.type = self.type.lower()
         # Update potential-specific parameters
         # Coulomb potential
-        if self.type.lower() == "coulomb":
-            if self.method.lower() == 'pp':
-                print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                print("Use the PP method with care for pure Coulomb interactions.")
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        if self.type == "coulomb":
+            if self.method == "pp":
+                warnings.warn("Use the PP method with care for pure Coulomb interactions.", category=AlgorithmWarning)
 
             from sarkas.potentials import coulomb
+
             coulomb.update_params(self, params)
-        # Yukawa potential
-        if self.type.lower() == "yukawa":
+
+        elif self.type == "yukawa":
+            # Yukawa potential
             from sarkas.potentials import yukawa
+
             yukawa.update_params(self, params)
-        # exact gradient-corrected screening (EGS) potential
-        if self.type.lower() == "egs":
+
+        elif self.type == "egs":
+            # exact gradient-corrected screening (EGS) potential
             from sarkas.potentials import egs
+
             egs.update_params(self, params)
-        # Lennard-Jones potential
-        if self.type.lower() == "lj":
+
+        elif self.type == "lj":
+            # Lennard-Jones potential
             from sarkas.potentials import lennardjones as lj
+
             lj.update_params(self, params)
-        # Moliere potential
-        if self.type.lower() == "moliere":
+
+        elif self.type == "moliere":
+            # Moliere potential
             from sarkas.potentials import moliere
+
             moliere.update_params(self, params)
-        # QSP potential
-        if self.type.lower() == "qsp":
+
+        elif self.type == "qsp":
+            # QSP potential
             from sarkas.potentials import qsp
+
             qsp.update_params(self, params)
+        elif self.type == "hs_yukawa":
+            # Hard-Sphere Yukawa
+            from sarkas.potentials import hs_yukawa
+
+            hs_yukawa.update_params(self, params)
 
         # Compute pppm parameters
-        if self.method == 'P3M' or self.method.lower() == 'pppm':
+        if self.method == "pppm":
             self.pppm_on = True
             self.pppm_setup(params)
 
@@ -240,7 +282,8 @@ class Potential:
 
     @staticmethod
     def calc_electron_properties(params):
-        """Calculate electronic parameters. See DFT notes on website.
+        """Calculate electronic parameters.
+        See Electron Properties webpage in documentation website.
 
         Parameters
         ----------
@@ -257,33 +300,34 @@ class Potential:
         fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
 
         # Inverse temperature for convenience
-        beta_e = 1. / (params.kB * params.electron_temperature)
+        beta_e = 1.0 / (params.kB * params.electron_temperature)
 
         # Plasma frequency
         params.electron_plasma_frequency = np.sqrt(
-            4.0 * np.pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me))
+            4.0 * np.pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me)
+        )
 
         # de Broglie wavelength
         params.lambda_deB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
         lambda3 = params.lambda_deB ** 3
 
         # Landau length 4pi e^2 beta. The division by fourpie0 is needed for MKS units
-        params.landau_length = 4.0 * np.pi * params.qe**2 * beta_e/params.fourpie0
+        params.landau_length = 4.0 * np.pi * params.qe ** 2 * beta_e / params.fourpie0
 
         # chemical potential of electron gas/(kB T), obtained by inverting the density equation.
         params.eta_e = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
 
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
         lambda_TF_sq = lambda3 / params.landau_length
-        lambda_TF_sq /= (spin_degeneracy / np.sqrt(np.pi) * fdint_fdk_vec(k=-0.5, phi=params.eta_e))
+        lambda_TF_sq /= spin_degeneracy / np.sqrt(np.pi) * fdint_fdk_vec(k=-0.5, phi=params.eta_e)
         params.lambda_TF = np.sqrt(lambda_TF_sq)
 
         # Electron WS radius
-        params.ae_ws = (3.0/(4.0 * np.pi * params.ne))**(1./3.)
+        params.ae_ws = (3.0 / (4.0 * np.pi * params.ne)) ** (1.0 / 3.0)
         # Brueckner parameters
         params.rs = params.ae_ws / params.a0
         # Fermi wave number
-        params.kF = (3.0 * np.pi ** 2 * params.ne) ** (1. / 3.)
+        params.kF = (3.0 * np.pi ** 2 * params.ne) ** (1.0 / 3.0)
 
         # Fermi energy
         params.fermi_energy = params.hbar2 * params.kF ** 2 / (2.0 * params.me)
@@ -293,16 +337,19 @@ class Potential:
         params.relativistic_parameter = params.hbar * params.kF / (params.me * params.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        params.electron_coupling = params.qe**2/(
-                params.fourpie0 * params.fermi_energy * params.ae_ws* np.sqrt(params.electron_degeneracy_parameter**2))
+        params.electron_coupling = params.qe ** 2 / (
+            params.fourpie0 * params.fermi_energy * params.ae_ws * np.sqrt(params.electron_degeneracy_parameter ** 2)
+        )
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
-        params.wdm_parameter = 2.0/(params.electron_degeneracy_parameter + 1.0/params.electron_degeneracy_parameter)
-        params.wdm_parameter *= 2.0/(params.electron_coupling + 1.0/params.electron_coupling)
+        params.wdm_parameter = 2.0 / (params.electron_degeneracy_parameter + 1.0 / params.electron_degeneracy_parameter)
+        params.wdm_parameter *= 2.0 / (params.electron_coupling + 1.0 / params.electron_coupling)
 
         if params.magnetized:
-            if params.units == 'cgs':
-                params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field)/params.c0/params.me
+            if params.units == "cgs":
+                params.electron_cyclotron_frequency = (
+                    params.qe * np.linalg.norm(params.magnetic_field) / params.c0 / params.me
+                )
             else:
                 params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field) / params.me
 
@@ -310,17 +357,54 @@ class Potential:
             tan_arg = 0.5 * params.hbar * params.electron_cyclotron_frequency * beta_e
 
             # Perpendicular correction
-            params.horing_perp_correction = (params.electron_plasma_frequency/params.electron_cyclotron_frequency)**2
-            params.horing_perp_correction *= (1.0 - tan_arg/np.tanh(tan_arg))
+            params.horing_perp_correction = (params.electron_plasma_frequency / params.electron_cyclotron_frequency) ** 2
+            params.horing_perp_correction *= 1.0 - tan_arg / np.tanh(tan_arg)
             params.horing_perp_correction += 1
 
             # Parallel correction
-            params.horing_par_correction = 1 - (params.hbar * beta_e * params.electron_plasma_frequency)**2 / 12.
+            params.horing_par_correction = 1 - (params.hbar * beta_e * params.electron_plasma_frequency) ** 2 / 12.0
 
             # Quantum Anisotropy Parameter
-            params.horing_delta = (params.horing_perp_correction - 1)
-            params.horing_delta += (params.hbar* beta_e * params.electron_cyclotron_frequency)**2/12
+            params.horing_delta = params.horing_perp_correction - 1
+            params.horing_delta += (params.hbar * beta_e * params.electron_cyclotron_frequency) ** 2 / 12
             params.horing_delta /= params.horing_par_correction
+
+    def pppm_setup(self, params):
+        """Calculate the pppm parameters.
+
+        Parameters
+        ----------
+        params : sarkas.core.Parameters
+            Simulation's parameters
+
+        """
+
+        # Change lists to numpy arrays for Numba compatibility
+        if not isinstance(self.pppm_mesh, np.ndarray):
+            self.pppm_mesh = np.array(self.pppm_mesh)
+
+        if not isinstance(self.pppm_aliases, np.ndarray):
+            self.pppm_aliases = np.array(self.pppm_aliases)
+
+        # pppm parameters
+        self.pppm_h_array = params.box_lengths / self.pppm_mesh
+
+        # Pack constants together for brevity in input list
+        kappa = 1.0 / params.lambda_TF if self.type == "yukawa" else 0.0
+        constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
+        # Calculate the Optimized Green's Function
+        self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
+            params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants
+        )
+
+        # Complete PM Force error calculation
+        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
+        params.pppm_pm_err /= params.box_volume ** (2.0 / 3.0)
+
+        # Total Force Error
+        params.force_error = np.sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
+
+        self.force_error = params.force_error
 
     def update_linked_list(self, ptcls):
         """
@@ -332,11 +416,19 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc = force_pp.update(ptcls.pos, ptcls.id, ptcls.masses, self.box_lengths,
-                                           self.rc, self.matrix, self.force,
-                                           self.measure, ptcls.rdf_hist)
+        ptcls.potential_energy, ptcls.acc, ptcls.virial = force_pp.update(
+            ptcls.pos,
+            ptcls.id,
+            ptcls.masses,
+            self.box_lengths,
+            self.rc,
+            self.matrix,
+            self.force,
+            self.measure,
+            ptcls.rdf_hist,
+        )
 
-        if not (self.type == "LJ"):
+        if self.type != "lj":
             # Mie Energy of charged systems
             # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
             dipole = ptcls.charges @ ptcls.pos
@@ -352,10 +444,18 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc = force_pp.update_0D(ptcls.pos, ptcls.id, ptcls.masses, self.box_lengths,
-                                               self.rc, self.matrix, self.force,
-                                               self.measure, ptcls.rdf_hist)
-        if not (self.type == "LJ"):
+        ptcls.potential_energy, ptcls.acc = force_pp.update_0D(
+            ptcls.pos,
+            ptcls.id,
+            ptcls.masses,
+            self.box_lengths,
+            self.rc,
+            self.matrix,
+            self.force,
+            self.measure,
+            ptcls.rdf_hist,
+        )
+        if self.type != "lj":
             # Mie Energy of charged systems
             # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
             dipole = ptcls.charges @ ptcls.pos
@@ -370,15 +470,22 @@ class Potential:
             Particles' data
 
         """
-        U_long, acc_l_r = force_pm.update(ptcls.pos, ptcls.charges, ptcls.masses,
-                                          self.pppm_mesh, self.box_lengths, self.pppm_green_function,
-                                          self.pppm_kx,
-                                          self.pppm_ky,
-                                          self.pppm_kz, self.pppm_cao)
+        U_long, acc_l_r = force_pm.update(
+            ptcls.pos,
+            ptcls.charges,
+            ptcls.masses,
+            self.pppm_mesh,
+            self.box_lengths,
+            self.pppm_green_function,
+            self.pppm_kx,
+            self.pppm_ky,
+            self.pppm_kz,
+            self.pppm_cao,
+        )
         # Ewald Self-energy
         U_long += self.QFactor * self.pppm_alpha_ewald / np.sqrt(np.pi)
         # Neutrality condition
-        U_long += - np.pi * self.total_net_charge ** 2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald ** 2)
+        U_long += -np.pi * self.total_net_charge ** 2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald ** 2)
 
         ptcls.potential_energy += U_long
 
@@ -395,42 +502,6 @@ class Potential:
         """
         self.update_linked_list(ptcls)
         self.update_pm(ptcls)
-
-    def pppm_setup(self, params):
-        """Calculate the P3M parameters.
-
-        Parameters
-        ----------
-        params : sarkas.core.Parameters
-            Simulation's parameters
-
-        """
-        # Change lists to numpy arrays for Numba compatibility
-        if not isinstance(self.pppm_mesh, np.ndarray):
-            self.pppm_mesh = np.array(self.pppm_mesh)
-
-        if not isinstance(self.pppm_aliases, np.ndarray):
-            self.pppm_aliases = np.array(self.pppm_aliases)
-
-        # P3M parameters
-        self.pppm_h_array = params.box_lengths / self.pppm_mesh
-
-        self.matrix[-1, :, :] = self.pppm_alpha_ewald
-        # Pack constants together for brevity in input list
-        kappa = 1. / params.lambda_TF if self.type == "Yukawa" else 0.0
-        constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
-        # Calculate the Optimized Green's Function
-        self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
-            params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants)
-
-        # Complete PM Force error calculation
-        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
-        params.pppm_pm_err /= params.box_volume ** (2. / 3.)
-
-        # Total Force Error
-        params.force_error = np.sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
-
-        self.force_error = params.force_error
 
     # def update_fmm(ptcls, params):
     #     """

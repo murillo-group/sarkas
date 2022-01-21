@@ -3,7 +3,6 @@ Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
 import numpy as np
 import copy as py_copy
-from numba import njit
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -17,6 +16,7 @@ from sarkas.potentials.core import Potential
 from sarkas.time_evolution.integrators import Integrator
 from sarkas.time_evolution.thermostats import Thermostat
 from sarkas.core import Particles, Parameters, Species
+from sarkas.utilities.maths import betamp
 import sarkas.tools.observables as sk_obs
 
 
@@ -66,6 +66,7 @@ class Process:
         self.parameters = Parameters()
         self.particles = Particles()
         self.species = []
+        self.observables_list = []
         self.input_file = input_file if input_file else None
         self.timer = SarkasTimer()
         self.io = InputOutput(process=self.__name__)
@@ -103,60 +104,63 @@ class Process:
             if lkey == "Parameters":
                 self.parameters.from_dict(dics[lkey])
 
-        self.observables_list = []
-        # This is not needed in the case of process = simulation
-        for observable in dics['Observables']:
-            for key, sub_dict in observable.items():
-                if key == 'RadialDistributionFunction':
-                    self.observables_list.append('rdf')
-                    self.rdf = sk_obs.RadialDistributionFunction()
-                    if sub_dict:
-                        self.rdf.from_dict(sub_dict)
-                if key == 'HermiteCoefficients':
-                    self.hc = sk_obs.HermiteCoefficients()
-                    self.hc.from_dict(sub_dict)
-                if key == 'Thermodynamics':
-                    self.therm = sk_obs.Thermodynamics()
-                    self.therm.from_dict(sub_dict)
-                    self.observables_list.append('therm')
-                if key == 'DynamicStructureFactor':
-                    self.observables_list.append('dsf')
-                    self.dsf = sk_obs.DynamicStructureFactor()
-                    if sub_dict:
-                        self.dsf.from_dict(sub_dict)
-                if key == 'CurrentCorrelationFunction':
-                    self.observables_list.append('ccf')
-                    self.ccf = sk_obs.CurrentCorrelationFunction()
-                    if sub_dict:
-                        self.ccf.from_dict(sub_dict)
-                if key == 'StaticStructureFactor':
-                    self.observables_list.append('ssf')
-                    self.ssf = sk_obs.StaticStructureFactor()
-                    if sub_dict:
-                        self.ssf.from_dict(sub_dict)
-                if key == 'VelocityAutoCorrelationFunction':
-                    self.observables_list.append('vacf')
-                    self.vacf = sk_obs.VelocityAutoCorrelationFunction()
-                    if sub_dict:
-                        self.vacf.from_dict(sub_dict)
-                if key == 'VelocityDistribution':
-                    self.observables_list.append('vd')
-                    self.vm = sk_obs.VelocityDistribution()
-                    if sub_dict:
-                        self.vm.from_dict(sub_dict)
-                if key == 'ElectricCurrent':
-                    self.observables_list.append('ec')
-                    self.ec = sk_obs.ElectricCurrent()
-                    if sub_dict:
-                        self.ec.from_dict(sub_dict)
-                if key == 'DiffusionFlux':
-                    self.observables_list.append('diff_flux')
-                    self.diff_flux = sk_obs.DiffusionFlux()
-                    if sub_dict:
-                        self.diff_flux.from_dict(sub_dict)
+        if self.__name__ != "simulation":
+            self.observables_list = []
 
-        if 'TransportCoefficients' in dics.keys():
-            self.transport_dict = dics["TransportCoefficients"].copy()
+            for observable in dics["Observables"]:
+                for key, sub_dict in observable.items():
+                    if key == "RadialDistributionFunction":
+                        self.observables_list.append("rdf")
+                        self.rdf = sk_obs.RadialDistributionFunction()
+                        if sub_dict:
+                            self.rdf.from_dict(sub_dict)
+                    elif key == "Thermodynamics":
+                        self.therm = sk_obs.Thermodynamics()
+                        self.therm.from_dict(sub_dict)
+                        self.observables_list.append("therm")
+                    elif key == "DynamicStructureFactor":
+                        self.observables_list.append("dsf")
+                        self.dsf = sk_obs.DynamicStructureFactor()
+                        if sub_dict:
+                            self.dsf.from_dict(sub_dict)
+                    elif key == "CurrentCorrelationFunction":
+                        self.observables_list.append("ccf")
+                        self.ccf = sk_obs.CurrentCorrelationFunction()
+                        if sub_dict:
+                            self.ccf.from_dict(sub_dict)
+                    elif key == "StaticStructureFactor":
+                        self.observables_list.append("ssf")
+                        self.ssf = sk_obs.StaticStructureFactor()
+                        if sub_dict:
+                            self.ssf.from_dict(sub_dict)
+                    elif key == "VelocityAutoCorrelationFunction":
+                        self.observables_list.append("vacf")
+                        self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                        if sub_dict:
+                            self.vacf.from_dict(sub_dict)
+                    elif key == "VelocityDistribution":
+                        self.observables_list.append("vd")
+                        self.vm = sk_obs.VelocityDistribution()
+                        if sub_dict:
+                            self.vm.from_dict(sub_dict)
+                    elif key == "ElectricCurrent":
+                        self.observables_list.append("ec")
+                        self.ec = sk_obs.ElectricCurrent()
+                        if sub_dict:
+                            self.ec.from_dict(sub_dict)
+                    elif key == "DiffusionFlux":
+                        self.observables_list.append("diff_flux")
+                        self.diff_flux = sk_obs.DiffusionFlux()
+                        if sub_dict:
+                            self.diff_flux.from_dict(sub_dict)
+                    elif key == "PressureTensor":
+                        self.observables_list.append("p_tensor")
+                        self.p_tensor = sk_obs.PressureTensor()
+                        if sub_dict:
+                            self.p_tensor.from_dict(sub_dict)
+
+            if "TransportCoefficients" in dics.keys():
+                self.transport_dict = dics["TransportCoefficients"].copy()
 
     def initialization(self):
         """Initialize all classes."""
@@ -168,37 +172,39 @@ class Process:
 
         # Update parameters' dictionary with filenames and directories
         self.parameters.from_dict(self.io.__dict__)
+
+        self.parameters.potential_type = self.potential.type.lower()
+
+        self.parameters.setup(self.species)
+
         # save some general info
-        self.parameters.potential_type = self.potential.type
-        self.parameters.cutoff_radius = self.potential.rc
         self.parameters.integrator = self.integrator.type
         self.parameters.thermostat = self.thermostat.type
 
         # Copy some integrator parameters if not already defined
-        if not hasattr(self.parameters, 'dt'):
+        if not hasattr(self.parameters, "dt"):
             self.parameters.dt = self.integrator.dt
-        if not hasattr(self.parameters, 'equilibration_steps'):
+        if not hasattr(self.parameters, "equilibration_steps"):
             self.parameters.equilibration_steps = self.integrator.equilibration_steps
-        if not hasattr(self.parameters, 'eq_dump_step'):
+        if not hasattr(self.parameters, "eq_dump_step"):
             self.parameters.eq_dump_step = self.integrator.eq_dump_step
-        if not hasattr(self.parameters, 'production_steps'):
+        if not hasattr(self.parameters, "production_steps"):
             self.parameters.production_steps = self.integrator.production_steps
-        if not hasattr(self.parameters, 'prod_dump_step'):
+        if not hasattr(self.parameters, "prod_dump_step"):
             self.parameters.prod_dump_step = self.integrator.prod_dump_step
 
         # Check for magnetization phase
         if self.integrator.electrostatic_equilibration:
             self.parameters.electrostatic_equilibration = True
-            if not hasattr(self.parameters, 'mag_dump_step'):
+            if not hasattr(self.parameters, "mag_dump_step"):
                 self.parameters.mag_dump_step = self.integrator.mag_dump_step
-            if not hasattr(self.parameters, 'magnetization_steps'):
+            if not hasattr(self.parameters, "magnetization_steps"):
                 self.parameters.magnetization_steps = self.integrator.magnetization_steps
-
-        self.parameters.setup(self.species)
 
         t0 = self.timer.current()
         self.potential.setup(self.parameters)
         time_pot = self.timer.current()
+        self.parameters.cutoff_radius = self.potential.rc
 
         self.thermostat.setup(self.parameters)
         self.integrator.setup(self.parameters, self.thermostat, self.potential)
@@ -234,55 +240,72 @@ class Process:
             self.common_parser()
 
         if other_inputs:
-            assert isinstance(other_inputs, dict), "Wrong input type. other_inputs should be a nested dictionary"
+            if not isinstance(other_inputs, dict):
+                raise TypeError("Wrong input type. " "other_inputs should be a nested dictionary")
 
             for class_name, class_attr in other_inputs.items():
-                if class_name not in ['Particles', 'Obervables']:
+                if class_name not in ["Particles", "Observables"]:
                     self.__dict__[class_name.lower()].__dict__.update(class_attr)
-                else:
-                    for sp, species in enumerate(other_inputs["Particles"]):
-                        spec = Species(species["Species"])
-                        self.species[sp].__dict__.update(spec.__dict__)
+                elif class_name == "Particles":
+                    # Remember Particles should be a list of dict
+                    # example:
+                    # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
 
-                if class_name == 'Observables':
+                    # Check if you already have a non-empty list of species
+                    if isinstance(self.species, list):
+                        # If so do you want to replace or update?
+                        # Update species attributes
+                        for sp, species in enumerate(other_inputs["Particles"]):
+                            spec = Species(species["Species"])
+                            if hasattr(spec, "replace"):
+                                self.species[sp].__dict__.update(spec.__dict__)
+                            else:
+                                self.species.append(spec)
+                    else:
+                        # Append new species
+                        for sp, species in enumerate(other_inputs["Particles"]):
+                            spec = Species(species["Species"])
+                            self.species.append(spec)
+
+                if class_name == "Observables":
 
                     for observable in class_attr:
                         for key, sub_dict in observable.items():
-                            if key == 'RadialDistributionFunction':
+                            if key == "RadialDistributionFunction":
                                 self.rdf = sk_obs.RadialDistributionFunction()
                                 self.rdf.from_dict(sub_dict)
-                            if key == 'HermiteCoefficients':
+                            if key == "HermiteCoefficients":
                                 self.hc = sk_obs.HermiteCoefficients()
                                 self.hc.from_dict(sub_dict)
-                            if key == 'Thermodynamics':
+                            if key == "Thermodynamics":
                                 self.therm = sk_obs.Thermodynamics()
                                 self.therm.from_dict(sub_dict)
-                            if key == 'DynamicStructureFactor':
+                            if key == "DynamicStructureFactor":
                                 self.dsf = sk_obs.DynamicStructureFactor()
                                 if sub_dict:
                                     self.dsf.from_dict(sub_dict)
-                            if key == 'CurrentCorrelationFunction':
+                            if key == "CurrentCorrelationFunction":
                                 self.ccf = sk_obs.CurrentCorrelationFunction()
                                 if sub_dict:
                                     self.ccf.from_dict(sub_dict)
-                            if key == 'StaticStructureFactor':
+                            if key == "StaticStructureFactor":
                                 self.ssf = sk_obs.StaticStructureFactor()
                                 if sub_dict:
                                     self.ssf.from_dict(sub_dict)
-                            if key == 'VelocityAutoCorrelationFunction':
+                            if key == "VelocityAutoCorrelationFunction":
                                 self.vacf = sk_obs.VelocityAutoCorrelationFunction()
                                 if sub_dict:
                                     self.vacf.from_dict(sub_dict)
-                            if key == 'VelocityMoments':
+                            if key == "VelocityMoments":
                                 self.vm = sk_obs.VelocityMoments()
                                 if sub_dict:
                                     self.vm.from_dict(sub_dict)
-                            if key == 'ElectricCurrent':
+                            if key == "ElectricCurrent":
                                 self.ec = sk_obs.ElectricCurrent()
                                 if sub_dict:
                                     self.ec.from_dict(sub_dict)
 
-        if self.__name__ == 'postprocessing':
+        if self.__name__ == "postprocessing":
 
             # Create the file paths without creating directories and redefining io attributes
             self.io.create_file_paths()
@@ -291,7 +314,8 @@ class Process:
             self.io.read_pickle(self)
 
             # Print parameters to log file
-            self.io.simulation_summary(self)
+            if not os.path.exists(self.io.log_file):
+                self.io.simulation_summary(self)
 
             # Initialize the observable classes
             # for obs in self.observables_list:
@@ -317,7 +341,7 @@ class PostProcess(Process):
     """
 
     def __init__(self, input_file: str = None):
-        self.__name__ = 'postprocessing'
+        self.__name__ = "postprocessing"
         super().__init__(input_file)
 
     def setup_from_simulation(self, simulation):
@@ -340,33 +364,70 @@ class PostProcess(Process):
     def run(self):
         """Calculate all the observables from the YAML input file."""
 
-        for obs in self.observables_list:
-            if obs in self.__dict__.keys():
-                self.__dict__[obs].setup(self.parameters)
-                if obs == 'therm':
-                    self.therm.temp_energy_plot(self)
-                else:
-                    self.io.postprocess_info(self, write_to_file=True, observable=obs)
-                    self.__dict__[obs].compute()
+        if len(self.observables_list) == 0:
+            # Make Temperature and Energy plots
+            self.therm = sk_obs.Thermodynamics()
+            self.therm.setup(self.parameters)
+            if self.parameters.equilibration_steps > 0:
+                self.therm.temp_energy_plot(self, phase="equilibration")
+            self.therm.temp_energy_plot(self, phase="production")
+            # Calculate the RDF.
+            self.rdf = sk_obs.RadialDistributionFunction()
+            self.rdf.setup(self.parameters)
+            self.rdf.parse()
+        else:
+            for obs in self.observables_list:
+                # Check that the observable is actually there
+                if obs in self.__dict__.keys():
+                    self.__dict__[obs].setup(self.parameters)
+                    if obs == "therm":
+                        self.therm.temp_energy_plot(self)
+                    else:
+                        self.io.postprocess_info(self, write_to_file=True, observable=obs)
+                        self.__dict__[obs].compute()
 
-        if hasattr(self, 'transport_dict'):
-            from sarkas.tools.transport import TransportCoefficient as TC
+                # Calculate transport coefficients
+                if hasattr(self, "transport_dict"):
+                    from sarkas.tools.transport import TransportCoefficients
 
-            for coeff in self.transport_dict:
+                    tc = TransportCoefficients(self.parameters)
 
-                for key, coeff_kwargs in coeff.items():
+                    for coeff in self.transport_dict:
 
-                    if key.lower() == 'diffusion':
-                        TC.diffusion(self.parameters, **coeff_kwargs)
+                        for key, coeff_kwargs in coeff.items():
 
-                    if key.lower() == 'interdiffusion':
-                        TC.interdiffusion(self.parameters, **coeff_kwargs)
+                            if key.lower() == "diffusion":
+                                # Calculate if not already
+                                if not self.vacf:
+                                    self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                                    self.vacf.setup(self.parameters)
+                                    # Use parse in case you calculated it already
+                                    self.vacf.parse()
 
-                    if key.lower() == 'viscosity':
-                        TC.viscosity(self.parameters, **coeff_kwargs)
+                                tc.diffusion(observable=self.vacf)
 
-                    if key.lower() == 'electricalconductivity':
-                        TC.electrical_conductivity(self.parameters, **coeff_kwargs)
+                            elif key.lower() == "interdiffusion":
+                                if not self.diff_flux:
+                                    self.diff_flux = sk_obs.DiffusionFlux()
+                                    self.diff_flux.setup(self.parameters)
+                                    self.diff_flux.parse()
+
+                                tc.interdiffusion(self.diff_flux)
+
+                            elif key.lower() == "viscosity":
+                                if not self.p_tensor:
+                                    self.p_tensor = sk_obs.PressureTensor()
+                                    self.p_tensor.setup(self.parameters)
+                                    self.p_tensor.parse()
+                                tc.viscosity(self.p_tensor)
+
+                            elif key.lower() == "electricalconductivity":
+                                if not self.ec:
+                                    self.ec = sk_obs.ElectricCurrent()
+                                    self.ec.setup(self.parameters)
+                                    self.ec.parse()
+
+                                tc.electrical_conductivity(self.ec)
 
 
 class PreProcess(Process):
@@ -398,10 +459,10 @@ class PreProcess(Process):
     """
 
     def __init__(self, input_file: str = None):
-        self.__name__ = 'preprocessing'
+        self.__name__ = "preprocessing"
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.logspace(3, 7, 12, base =2, dtype=int )
+        self.pm_meshes = np.logspace(3, 7, 12, base=2, dtype=int)
         # np.array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
         self.pp_cells = np.arange(3, 16, dtype=int)
         self.kappa = None
@@ -415,13 +476,15 @@ class PreProcess(Process):
 
         return self.timer.stop()
 
-    def run(self,
-            loops: int = None,
-            timing: bool = True,
-            timing_study: bool = False,
-            pppm_estimate: bool = False,
-            postprocessing: bool = False,
-            remove: bool = False):
+    def run(
+        self,
+        loops: int = None,
+        timing: bool = True,
+        timing_study: bool = False,
+        pppm_estimate: bool = False,
+        postprocessing: bool = False,
+        remove: bool = False,
+    ):
         """
         Estimate the time of the simulation and best parameters if wanted.
 
@@ -449,13 +512,15 @@ class PreProcess(Process):
 
         """
 
-        plt.close('all')
-        self.pppm_plots_dir = os.path.join(self.io.preprocessing_dir, 'PPPM_Plots')
-        if not os.path.exists(self.pppm_plots_dir):
-            os.mkdir(self.pppm_plots_dir)
+        # Clean everything
+        plt.close("all")
+        if pppm_estimate:
+            self.pppm_plots_dir = os.path.join(self.io.preprocessing_dir, "PPPM_Plots")
+            if not os.path.exists(self.pppm_plots_dir):
+                os.mkdir(self.pppm_plots_dir)
 
         # Set the screening parameter
-        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "Yukawa" else 0.0
+        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "yukawa" else 0.0
 
         if loops:
             self.loops = loops + 1
@@ -477,17 +542,19 @@ class PreProcess(Process):
             prod_dump_size = os.stat(os.path.join(self.io.eq_dump_dir, os.listdir(self.io.eq_dump_dir)[0])).st_size
             prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
             # Prepare arguments to pass for print out
-            sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
-                              [prod_dump_size, prod_dump_fldr_size]])
+            sizes = np.array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
             # Check for electrostatic equilibration
             if self.integrator.electrostatic_equilibration:
                 dump = self.integrator.mag_dump_step
-                mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, 'checkpoint_' + str(dump) + '.npz')).st_size
-                mag_dump_fldr_size = mag_dump_size * (
-                        self.integrator.magnetization_steps / self.integrator.mag_dump_step)
-                sizes = np.array([[eq_dump_size, eq_dump_fldr_size],
-                                  [prod_dump_size, prod_dump_fldr_size],
-                                  [mag_dump_size, mag_dump_fldr_size]])
+                mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
+                mag_dump_fldr_size = mag_dump_size * (self.integrator.magnetization_steps / self.integrator.mag_dump_step)
+                sizes = np.array(
+                    [
+                        [eq_dump_size, eq_dump_fldr_size],
+                        [prod_dump_size, prod_dump_fldr_size],
+                        [mag_dump_size, mag_dump_fldr_size],
+                    ]
+                )
 
             self.io.preprocess_sizing(sizes)
 
@@ -525,38 +592,38 @@ class PreProcess(Process):
                 self.potential.setup(self.parameters)
 
             self.pppm_approximation()
-            print('\nFigures can be found in {}'.format(self.pppm_plots_dir))
+            print("\nFigures can be found in {}".format(self.pppm_plots_dir))
 
         if postprocessing:
             # POST- PROCESSING
-            self.io.postprocess_info(self, write_to_file=True, observable='header')
+            self.io.postprocess_info(self, write_to_file=True, observable="header")
 
-            if hasattr(self, 'rdf'):
+            if hasattr(self, "rdf"):
                 self.rdf.setup(self.parameters)
-                self.io.postprocess_info(self, write_to_file=True, observable='rdf')
+                self.io.postprocess_info(self, write_to_file=True, observable="rdf")
 
-            if hasattr(self, 'ssf'):
+            if hasattr(self, "ssf"):
                 self.ssf.setup(self.parameters)
-                self.io.postprocess_info(self, write_to_file=True, observable='ssf')
+                self.io.postprocess_info(self, write_to_file=True, observable="ssf")
 
-            if hasattr(self, 'dsf'):
+            if hasattr(self, "dsf"):
                 self.dsf.setup(self.parameters)
-                self.io.postprocess_info(self, write_to_file=True, observable='dsf')
+                self.io.postprocess_info(self, write_to_file=True, observable="dsf")
 
-            if hasattr(self, 'ccf'):
+            if hasattr(self, "ccf"):
                 self.ccf.setup(self.parameters)
-                self.io.postprocess_info(self, write_to_file=True, observable='ccf')
+                self.io.postprocess_info(self, write_to_file=True, observable="ccf")
 
-            if hasattr(self, 'vm'):
+            if hasattr(self, "vm"):
                 self.ccf.setup(self.parameters)
-                self.io.postprocess_info(self, write_to_file=True, observable='vm')
+                self.io.postprocess_info(self, write_to_file=True, observable="vm")
 
     def make_timing_plots(self):
         """Estimate the best number of mesh points and cutoff radius."""
 
         from scipy.optimize import curve_fit
 
-        print('\n\n{:=^70} \n'.format(' Timing Study '))
+        print("\n\n{:=^70} \n".format(" Timing Study "))
 
         max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
         if max_cells != self.pp_cells[-1]:
@@ -580,10 +647,13 @@ class PreProcess(Process):
             self.potential.pppm_alpha_ewald = 0.3 * m / self.parameters.box_lengths.min()
             green_time = self.green_function_timer()
             pm_errs[i] = self.parameters.pppm_pm_err
-            print('\n\nMesh = {} x {} x {} : '.format(*self.potential.pppm_mesh))
-            print('alpha = {:.4f} / a_ws = {:.4e} '.format(self.potential.pppm_alpha_ewald * self.parameters.a_ws,
-                                                           self.potential.pppm_alpha_ewald))
-            print('PM Err = {:.6e}'.format(self.parameters.pppm_pm_err))
+            print("\n\nMesh = {} x {} x {} : ".format(*self.potential.pppm_mesh))
+            print(
+                "alpha = {:.4f} / a_ws = {:.4e} ".format(
+                    self.potential.pppm_alpha_ewald * self.parameters.a_ws, self.potential.pppm_alpha_ewald
+                )
+            )
+            print("PM Err = {:.6e}".format(self.parameters.pppm_pm_err))
 
             self.io.preprocess_timing("GF", self.timer.time_division(green_time), 0)
             pm_xlabels.append("{}x{}x{}".format(*self.potential.pppm_mesh))
@@ -597,17 +667,20 @@ class PreProcess(Process):
             # For each number of PP cells, calculate the PM acceleration timing 3x and average
             for j, c in enumerate(self.pp_cells):
                 self.potential.rc = self.parameters.box_lengths.min() / c
-                kappa_over_alpha = - 0.25 * (self.kappa / self.potential.pppm_alpha_ewald) ** 2
-                alpha_times_rcut = - (self.potential.pppm_alpha_ewald * self.potential.rc) ** 2
+                kappa_over_alpha = -0.25 * (self.kappa / self.potential.pppm_alpha_ewald) ** 2
+                alpha_times_rcut = -((self.potential.pppm_alpha_ewald * self.potential.rc) ** 2)
                 # Update the Force error
-                self.potential.pppm_pp_err = 2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(
-                    self.potential.rc)
-                self.potential.pppm_pp_err *= np.sqrt(self.parameters.total_num_ptcls) * self.parameters.a_ws ** 2 \
-                                              / np.sqrt(self.parameters.box_volume)
+                self.potential.pppm_pp_err = (
+                    2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(self.potential.rc)
+                )
+                self.potential.pppm_pp_err *= (
+                    np.sqrt(self.parameters.total_num_ptcls)
+                    * self.parameters.a_ws ** 2
+                    / np.sqrt(self.parameters.box_volume)
+                )
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
-                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err ** 2
-                                                     + self.parameters.pppm_pm_err ** 2)
+                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err ** 2 + self.parameters.pppm_pm_err ** 2)
 
                 if j == 0:
                     pp_xlabels.append("{:.2f}".format(self.potential.rc / self.parameters.a_ws))
@@ -621,61 +694,60 @@ class PreProcess(Process):
         pp_times *= 1e-9
         pm_times *= 1e-9
         # Fit the PM times
-        pm_popt, _ = curve_fit(
-            lambda x, a, b: a + 5 * b * x ** 3 * np.log2(x**3),
-            self.pm_meshes,
-            pm_times)
-        fit_str = r'Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]' + '\n' + r'$a_2 = ${:.4e}, $a_3 = ${:.4e} '.format(
-            *pm_popt)
-        print('\nPM Time ' + fit_str)
+        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x ** 3 * np.log2(x ** 3), self.pm_meshes, pm_times)
+        fit_str = r"Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]" + "\n" + r"$a_2 = ${:.4e}, $a_3 = ${:.4e} ".format(*pm_popt)
+        print("\nPM Time " + fit_str)
 
         # Fit the PP Times
         pp_popt, _ = curve_fit(
             lambda x, a, b: a + b / x ** 3,
             self.pp_cells,
             np.mean(pp_times, axis=0),
-            p0=[np.mean(pp_times, axis =0)[0], self.parameters.total_num_ptcls],
-            bounds = (0, [np.mean(pp_times, axis =0)[0], 1e9])
+            p0=[np.mean(pp_times, axis=0)[0], self.parameters.total_num_ptcls],
+            bounds=(0, [np.mean(pp_times, axis=0)[0], 1e9]),
         )
-        fit_pp_str = r'Fit = $a_0 + a_1 / N_c^3$  [s]' + '\n' + '$a_0 = ${:.4e},  $a_1 = ${:.4e}'.format(*pp_popt)
-        print('\nPP Time ' + fit_pp_str)
+        fit_pp_str = r"Fit = $a_0 + a_1 / N_c^3$  [s]" + "\n" + "$a_0 = ${:.4e},  $a_1 = ${:.4e}".format(*pp_popt)
+        print("\nPP Time " + fit_pp_str)
 
         # Start the plot
         fig, (ax_pp, ax_pm) = plt.subplots(1, 2, sharey=True, figsize=(12, 7))
-        ax_pm.plot(self.pm_meshes, pm_times, 'o', label='Measured')
+        ax_pm.plot(self.pm_meshes, pm_times, "o", label="Measured")
         ax_pm.plot(
             self.pm_meshes,
-            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes**3),
-            ls='--', label='Fit')
-        ax_pm.set(title='PM calculation time and estimate', yscale = 'log', xlabel='Mesh size')
-        ax_pm.set_xscale('log', base =2)
+            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes ** 3),
+            ls="--",
+            label="Fit",
+        )
+        ax_pm.set(title="PM calculation time and estimate", yscale="log", xlabel="Mesh size")
+        ax_pm.set_xscale("log", base=2)
         ax_pm.legend(ncol=2)
         ax_pm.annotate(
             text=fit_str,
             xy=(self.pm_meshes[-1], pm_times[-1]),
             xytext=(self.pm_meshes[0], pm_times[-1]),
-            bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2)
+            bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2),
         )
 
         # Scatter Plot the PP Times
         self.tot_time_map = np.zeros(pp_times.shape)
         for j, mesh_points in enumerate(self.pm_meshes):
             self.tot_time_map[j, :] = pm_times[j] + pp_times[j, :]
-            ax_pp.plot(self.pp_cells, pp_times[j], 'o', label=r'@ Mesh {}$^3$'.format(mesh_points))
+            ax_pp.plot(self.pp_cells, pp_times[j], "o", label=r"@ Mesh {}$^3$".format(mesh_points))
 
         # Plot the Fit PP times
-        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1]/ self.pp_cells ** 3, ls='--', label='Fit')
+        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells ** 3, ls="--", label="Fit")
         ax_pp.legend(ncol=2)
         ax_pp.annotate(
             text=fit_pp_str,
             xy=(self.pp_cells[0], pp_times[0, 0]),
             xytext=(self.pp_cells[0], pp_times[-1, -1]),
-            bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2)
+            bbox=dict(boxstyle="round4", fc="white", ec="k", lw=2),
         )
-        ax_pp.set(title='PP calculation time and estimate', yscale='log', ylabel='CPU Times [s]',
-                  xlabel=r'$N_c $ = Cells')
+        ax_pp.set(
+            title="PP calculation time and estimate", yscale="log", ylabel="CPU Times [s]", xlabel=r"$N_c $ = Cells"
+        )
         fig.tight_layout()
-        fig.savefig(os.path.join(self.pppm_plots_dir, 'Times_' + self.io.job_id + '.png'))
+        fig.savefig(os.path.join(self.pppm_plots_dir, "Times_" + self.io.job_id + ".png"))
 
         self.make_force_v_timing_plot()
         # self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
@@ -717,18 +789,17 @@ class PreProcess(Process):
         fig = plt.figure()
         ax = fig.add_subplot(111)  # projection='3d')
         # CS = ax.plot_surface(m_mesh, c_mesh, self.lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-        CS = ax.contourf(m_mesh,
-                         c_mesh,
-                         self.lagrangian,
-                         norm=LogNorm(vmin=self.lagrangian.min(), vmax=self.lagrangian.max()))
-        CS2 = ax.contour(CS, colors='w')
-        ax.clabel(CS2, fmt='%1.0e', colors='w')
+        CS = ax.contourf(
+            m_mesh, c_mesh, self.lagrangian, norm=LogNorm(vmin=self.lagrangian.min(), vmax=self.lagrangian.max())
+        )
+        CS2 = ax.contour(CS, colors="w")
+        ax.clabel(CS2, fmt="%1.0e", colors="w")
         fig.colorbar(CS)
-        ax.scatter(self.best_mesh, self.best_cells, s=200, c='k')
-        ax.set_xlabel('Mesh size')
-        ax.set_ylabel(r'Cells = $L/r_c$')
-        ax.set_title('2D Lagrangian')
-        fig.savefig(os.path.join(self.io.preprocessing_dir, '2D_Lagrangian.png'))
+        ax.scatter(self.best_mesh, self.best_cells, s=200, c="k")
+        ax.set_xlabel("Mesh size")
+        ax.set_ylabel(r"Cells = $L/r_c$")
+        ax.set_title("2D Lagrangian")
+        fig.savefig(os.path.join(self.io.preprocessing_dir, "2D_Lagrangian.png"))
 
     def make_force_v_timing_plot(self):
 
@@ -746,48 +817,39 @@ class PreProcess(Process):
         nlvl = 12
         lvls = np.logspace(np.log10(minv), np.log10(maxt), nlvl)
 
-        luxmap = mpl.cm.get_cmap('viridis', nlvl)
+        luxmap = mpl.cm.get_cmap("viridis", nlvl)
         luxnorm = mpl.colors.LogNorm(vmin=minv, vmax=maxt)
-        CS = ax1.contourf(m_mesh,
-                          c_mesh,
-                          self.force_error_map,
-                          levels=lvls,
-                          cmap=luxmap,
-                          norm=luxnorm)
+        CS = ax1.contourf(m_mesh, c_mesh, self.force_error_map, levels=lvls, cmap=luxmap, norm=luxnorm)
         clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax1)
-        clb.set_label(r'Force Error  [$Q^2/ a_{\rm ws}^2$]', rotation=270, va='bottom')
-        CS2 = ax1.contour(CS, colors='w')
-        ax1.clabel(CS2, fmt='%1.0e', colors='w')
-        input_Nc = int(self.parameters.box_lengths[0]/ self.input_rc)
-        ax1.scatter(self.input_mesh[0],input_Nc,s=200, c='k')
+        clb.set_label(r"Force Error  [$Q^2/ a_{\rm ws}^2$]", rotation=270, va="bottom")
+        CS2 = ax1.contour(CS, colors="w")
+        ax1.clabel(CS2, fmt="%1.0e", colors="w")
+        input_Nc = int(self.parameters.box_lengths[0] / self.input_rc)
+        ax1.scatter(self.input_mesh[0], input_Nc, s=200, c="k")
         # ax1.scatter(self.input_mesh[1], input_Nc, s=200, c='k')
         # ax1.scatter(self.input_mesh[2], input_Nc, s=200, c='k')
-        ax1.set_xlabel('Mesh size')
-        ax1.set_ylabel(r'N_c = Cells')
-        ax1.set_title('Force Error Map')
+        ax1.set_xlabel("Mesh size")
+        ax1.set_ylabel(r"N_c = Cells")
+        ax1.set_title("Force Error Map")
 
         # Timing Plot
         maxt = self.tot_time_map.max()
         mint = self.tot_time_map.min()
         # nlvl = 13
         lvls = np.logspace(np.log10(mint), np.log10(maxt), nlvl)
-        luxmap = mpl.cm.get_cmap('viridis', nlvl)
+        luxmap = mpl.cm.get_cmap("viridis", nlvl)
         luxnorm = mpl.colors.LogNorm(vmin=minv, vmax=maxt)
 
-        CS = ax2.contourf(m_mesh,
-                          c_mesh,
-                          self.tot_time_map,
-                          levels=lvls, cmap=luxmap)
-        CS2 = ax2.contour(CS, colors='w', levels=lvls)
-        ax2.clabel(CS2, fmt='%.2e', colors='w')
+        CS = ax2.contourf(m_mesh, c_mesh, self.tot_time_map, levels=lvls, cmap=luxmap)
+        CS2 = ax2.contour(CS, colors="w", levels=lvls)
+        ax2.clabel(CS2, fmt="%.2e", colors="w")
         # fig.colorbar(, ax = ax2)
-        clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap),
-                           ax=ax2)
-        clb.set_label('CPU Time [s]', rotation=270, va='bottom')
-        ax2.scatter(self.input_mesh[0], input_Nc, s=200, c='k')
-        ax2.set_xlabel('Mesh size')
-        ax2.set_title('Timing Map')
-        fig.savefig(os.path.join(fig_path, 'ForceErrorMap_v_Timing_' + self.io.job_id + '.png'))
+        clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax2)
+        clb.set_label("CPU Time [s]", rotation=270, va="bottom")
+        ax2.scatter(self.input_mesh[0], input_Nc, s=200, c="k")
+        ax2.set_xlabel("Mesh size")
+        ax2.set_title("Timing Map")
+        fig.savefig(os.path.join(fig_path, "ForceErrorMap_v_Timing_" + self.io.job_id + ".png"))
 
     def time_acceleration(self):
 
@@ -816,21 +878,24 @@ class PreProcess(Process):
         """Run several loops of the equilibration and production phase to estimate the total time of the simulation."""
         if self.parameters.electrostatic_equilibration:
             # Save the original number of timesteps
-            steps = np.array([self.integrator.equilibration_steps,
-                              self.integrator.production_steps,
-                              self.integrator.magnetization_steps])
+            steps = np.array(
+                [
+                    self.integrator.equilibration_steps,
+                    self.integrator.production_steps,
+                    self.integrator.magnetization_steps,
+                ]
+            )
             self.integrator.magnetization_steps = self.loops
         else:
             # Save the original number of timesteps
-            steps = np.array([self.integrator.equilibration_steps,
-                              self.integrator.production_steps])
+            steps = np.array([self.integrator.equilibration_steps, self.integrator.production_steps])
 
         # Update the equilibration and production timesteps for estimation
         self.integrator.production_steps = self.loops
         self.integrator.equilibration_steps = self.loops
 
         if self.io.verbose:
-            print('\nRunning {} equilibration and production steps to estimate simulation times\n'.format(self.loops))
+            print("\nRunning {} equilibration and production steps to estimate simulation times\n".format(self.loops))
 
         # Run few equilibration steps to estimate the equilibration time
         self.timer.start()
@@ -858,23 +923,26 @@ class PreProcess(Process):
 
         # Print the estimate for the full run
         eq_prediction = self.eq_mean_time * steps[0]
-        self.io.time_stamp('Equilibration', self.timer.time_division(eq_prediction))
+        self.io.time_stamp("Equilibration", self.timer.time_division(eq_prediction))
 
         if self.integrator.electrostatic_equilibration:
             self.integrator.magnetization_steps = steps[2]
             mag_prediction = self.mag_mean_time * steps[2]
-            self.io.time_stamp('Magnetization', self.timer.time_division(mag_prediction))
+            self.io.time_stamp("Magnetization", self.timer.time_division(mag_prediction))
             eq_prediction += mag_prediction
 
         prod_prediction = self.prod_mean_time * steps[1]
-        self.io.time_stamp('Production', self.timer.time_division(prod_prediction))
+        self.io.time_stamp("Production", self.timer.time_division(prod_prediction))
 
         tot_time = eq_prediction + prod_prediction
-        self.io.time_stamp('Total Run', self.timer.time_division(tot_time))
+        self.io.time_stamp("Total Run", self.timer.time_division(tot_time))
 
     def pppm_approximation(self):
-        """Calculate the Force error for a PPPM simulation using analytical approximations.
-        Plot the force error in the parameter space."""
+        """
+        Calculate the Force error for a PPPM simulation
+        using analytical approximations.
+        Plot the force error in the parameter space.
+        """
 
         # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
         total_force_error, pp_force_error, pm_force_error, rcuts, alphas = self.analytical_approx_pppm()
@@ -925,39 +993,61 @@ class PreProcess(Process):
         fig_path = self.pppm_plots_dir
 
         fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
-        ax[0].plot(rcuts, total_force_error[30, :], ls= (0, (5, 10)), label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[30]))
-        ax[0].plot(rcuts, total_force_error[40, :], ls= 'dashed', label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[40]))
-        ax[0].plot(rcuts, total_force_error[50, :], ls = 'solid', label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[50]))
-        ax[0].plot(rcuts, total_force_error[60, :], ls = 'dashdot',label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[60]))
-        ax[0].plot(rcuts, total_force_error[70, :], ls = (0, (3, 10, 1, 10)),label=r'$\alpha a_{ws} = ' + '{:2.2f}$'.format(alphas[70]))
-        ax[0].set_ylabel(r'$\Delta F^{approx}_{tot}$')
-        ax[0].set_xlabel(r'$r_c/a_{ws}$')
-        ax[0].set_yscale('log')
-        ax[0].axvline(chosen_rcut, ls='--', c='k')
-        ax[0].axhline(self.parameters.force_error, ls='--', c='k')
+        ax[0].plot(
+            rcuts, total_force_error[30, :], ls=(0, (5, 10)), label=r"$\alpha a_{ws} = " + "{:2.2f}$".format(alphas[30])
+        )
+        ax[0].plot(
+            rcuts, total_force_error[40, :], ls="dashed", label=r"$\alpha a_{ws} = " + "{:2.2f}$".format(alphas[40])
+        )
+        ax[0].plot(
+            rcuts, total_force_error[50, :], ls="solid", label=r"$\alpha a_{ws} = " + "{:2.2f}$".format(alphas[50])
+        )
+        ax[0].plot(
+            rcuts, total_force_error[60, :], ls="dashdot", label=r"$\alpha a_{ws} = " + "{:2.2f}$".format(alphas[60])
+        )
+        ax[0].plot(
+            rcuts,
+            total_force_error[70, :],
+            ls=(0, (3, 10, 1, 10)),
+            label=r"$\alpha a_{ws} = " + "{:2.2f}$".format(alphas[70]),
+        )
+        ax[0].set_ylabel(r"$\Delta F^{approx}_{tot}$")
+        ax[0].set_xlabel(r"$r_c/a_{ws}$")
+        ax[0].set_yscale("log")
+        ax[0].axvline(chosen_rcut, ls="--", c="k")
+        ax[0].axhline(self.parameters.force_error, ls="--", c="k")
         if rcuts[-1] * self.parameters.a_ws > 0.5 * self.parameters.box_lengths.min():
-            ax[0].axvline(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws, c='r', label=r'$L/2$')
+            ax[0].axvline(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws, c="r", label=r"$L/2$")
         ax[0].grid(True, alpha=0.3)
-        ax[0].legend(loc='best')
+        ax[0].legend(loc="best")
 
-        ax[1].plot(alphas, total_force_error[:, 30], ls = (0, (5, 10)),label=r'$r_c = {:2.2f}'.format(rcuts[30]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 40], ls = 'dashed',label=r'$r_c = {:2.2f}'.format(rcuts[40]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 50], ls = 'solid',label=r'$r_c = {:2.2f}'.format(rcuts[50]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 60], ls = 'dashdot',label=r'$r_c = {:2.2f}'.format(rcuts[60]) + ' a_{ws}$')
-        ax[1].plot(alphas, total_force_error[:, 70], ls = (0, (3, 10, 1, 10)), label=r'$r_c = {:2.2f}'.format(rcuts[70]) + ' a_{ws}$')
-        ax[1].set_xlabel(r'$\alpha \; a_{ws}$')
-        ax[1].set_yscale('log')
-        ax[1].axhline(self.parameters.force_error, ls='--', c='k')
-        ax[1].axvline(chosen_alpha, ls='--', c='k')
+        ax[1].plot(
+            alphas, total_force_error[:, 30], ls=(0, (5, 10)), label=r"$r_c = {:2.2f}".format(rcuts[30]) + " a_{ws}$"
+        )
+        ax[1].plot(alphas, total_force_error[:, 40], ls="dashed", label=r"$r_c = {:2.2f}".format(rcuts[40]) + " a_{ws}$")
+        ax[1].plot(alphas, total_force_error[:, 50], ls="solid", label=r"$r_c = {:2.2f}".format(rcuts[50]) + " a_{ws}$")
+        ax[1].plot(alphas, total_force_error[:, 60], ls="dashdot", label=r"$r_c = {:2.2f}".format(rcuts[60]) + " a_{ws}$")
+        ax[1].plot(
+            alphas,
+            total_force_error[:, 70],
+            ls=(0, (3, 10, 1, 10)),
+            label=r"$r_c = {:2.2f}".format(rcuts[70]) + " a_{ws}$",
+        )
+        ax[1].set_xlabel(r"$\alpha \; a_{ws}$")
+        ax[1].set_yscale("log")
+        ax[1].axhline(self.parameters.force_error, ls="--", c="k")
+        ax[1].axvline(chosen_alpha, ls="--", c="k")
         ax[1].grid(True, alpha=0.3)
-        ax[1].legend(loc='best')
+        ax[1].legend(loc="best")
         fig.suptitle(
-            r'Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
+            r"Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$".format(
                 self.parameters.total_num_ptcls,
                 self.potential.pppm_mesh[0],
                 self.potential.pppm_cao,
-                self.kappa * self.parameters.a_ws))
-        fig.savefig(os.path.join(fig_path, 'LinePlot_ForceError_' + self.io.job_id + '.png'))
+                self.kappa * self.parameters.a_ws,
+            )
+        )
+        fig.savefig(os.path.join(fig_path, "LinePlot_ForceError_" + self.io.job_id + ".png"))
 
     def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
         """
@@ -991,23 +1081,26 @@ class PreProcess(Process):
             minv = total_force_error.min()
         total_force_error[total_force_error == 0.0] = minv
         CS = ax.contourf(a_mesh, r_mesh, total_force_error, norm=LogNorm(vmin=minv, vmax=total_force_error.max()))
-        CS2 = ax.contour(CS, colors='w')
-        ax.clabel(CS2, fmt='%1.0e', colors='w')
-        ax.scatter(chosen_alpha, chosen_rcut, s=200, c='k')
+        CS2 = ax.contour(CS, colors="w")
+        ax.clabel(CS2, fmt="%1.0e", colors="w")
+        ax.scatter(chosen_alpha, chosen_rcut, s=200, c="k")
         if rcuts[-1] * self.parameters.a_ws > 0.5 * self.parameters.box_lengths.min():
-            ax.axhline(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws, c='r', label=r'$L/2$')
+            ax.axhline(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws, c="r", label=r"$L/2$")
         # ax.tick_parameters(labelsize=fsz)
-        ax.set_xlabel(r'$\alpha \;a_{ws}$')
-        ax.set_ylabel(r'$r_c/a_{ws}$')
-        ax.set_title(r'Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$'.format(
-            self.parameters.total_num_ptcls,
-            self.potential.pppm_mesh[0],
-            self.potential.pppm_cao,
-            self.kappa * self.parameters.a_ws))
+        ax.set_xlabel(r"$\alpha \;a_{ws}$")
+        ax.set_ylabel(r"$r_c/a_{ws}$")
+        ax.set_title(
+            r"Parameters  $N = {}, \quad M = {}, \quad p = {}, \quad \kappa = {:.2f}$".format(
+                self.parameters.total_num_ptcls,
+                self.potential.pppm_mesh[0],
+                self.potential.pppm_cao,
+                self.kappa * self.parameters.a_ws,
+            )
+        )
         clb = fig.colorbar(CS)
-        clb.set_label(r'$\Delta F^{approx}_{tot}(r_c,\alpha)$', va='bottom', rotation=270)
+        clb.set_label(r"$\Delta F^{approx}_{tot}(r_c,\alpha)$", va="bottom", rotation=270)
         fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, 'ClrMap_ForceError_' + self.io.job_id + '.png'))
+        fig.savefig(os.path.join(fig_path, "ClrMap_ForceError_" + self.io.job_id + ".png"))
 
     def analytical_approx_pp(self):
         """Calculate PP force error."""
@@ -1018,14 +1111,15 @@ class PreProcess(Process):
         rcuts = np.linspace(r_min, r_max, 101) / self.parameters.a_ws
 
         # Calculate the analytic PP error and the total force error
-        pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(- rcuts * self.kappa)
-        pp_force_error *= np.sqrt(self.parameters.total_num_ptcls *
-                                  self.parameters.a_ws ** 3 / self.parameters.box_volume)
+        pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(-rcuts * self.kappa)
+        pp_force_error *= np.sqrt(
+            self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+        )
 
         return pp_force_error, rcuts
 
     def analytical_approx_pppm(self):
-        """Calculate the total force error as given in Dharuman et al. J Chem Phys 146 024112 (2017)."""
+        """Calculate the total force error as given in :cite:`Dharuman2017`."""
 
         p = self.potential.pppm_cao
         L = self.parameters.box_lengths[0] / self.parameters.a_ws
@@ -1056,11 +1150,28 @@ class PreProcess(Process):
         elif p == 5:
             Cmp = np.array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
         elif p == 6:
-            Cmp = np.array([2764 / 638512875, 16 / 467775, 7234 / 119282625, 1403744 / 25196700375,
-                            1396888 / 40521009375, 2485856 / 152506344375])
+            Cmp = np.array(
+                [
+                    2764 / 638512875,
+                    16 / 467775,
+                    7234 / 119282625,
+                    1403744 / 25196700375,
+                    1396888 / 40521009375,
+                    2485856 / 152506344375,
+                ]
+            )
         elif p == 7:
-            Cmp = np.array([8 / 18243225, 7234 / 1550674125, 701872 / 65511420975, 2793776 / 225759909375,
-                            1242928 / 132172165125, 1890912728 / 352985880121875, 21053792 / 8533724574375])
+            Cmp = np.array(
+                [
+                    8 / 18243225,
+                    7234 / 1550674125,
+                    701872 / 65511420975,
+                    2793776 / 225759909375,
+                    1242928 / 132172165125,
+                    1890912728 / 352985880121875,
+                    21053792 / 8533724574375,
+                ]
+            )
 
         kappa = self.kappa * self.parameters.a_ws
 
@@ -1068,18 +1179,20 @@ class PreProcess(Process):
             somma = 0.0
             for m in np.arange(p):
                 expp = 2 * (m + p)
-                somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.) ** expp
+                somma += Cmp[m] * (2.0 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.0) ** expp
             # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
             pm_force_error[ia] = np.sqrt(3.0 * somma) / (2.0 * np.pi)
         # eq.(35)
-        pm_force_error *= np.sqrt(self.parameters.total_num_ptcls *
-                                  self.parameters.a_ws ** 3 / self.parameters.box_volume)
+        pm_force_error *= np.sqrt(
+            self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+        )
         # Calculate the analytic PP error and the total force error
-        if self.potential.type == "QSP":
+        if self.potential.type == "qsp":
             for (ir, rc) in enumerate(rcuts):
-                pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(- rc * kappa)
-                pp_force_error[:, ir] *= np.sqrt(self.parameters.total_num_ptcls
-                                                 * self.parameters.a_ws ** 3 / self.parameters.box_volume)
+                pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(-rc * kappa)
+                pp_force_error[:, ir] *= np.sqrt(
+                    self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+                )
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
                     total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
@@ -1087,10 +1200,12 @@ class PreProcess(Process):
             for (ir, rc) in enumerate(rcuts):
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
-                    pp_force_error[ia, ir] = 2.0 * np.exp(-(0.5 * kappa / alfa) ** 2
-                                                          - alfa ** 2 * rc ** 2) / np.sqrt(rc)
-                    pp_force_error[ia, ir] *= np.sqrt(self.parameters.total_num_ptcls *
-                                                      self.parameters.a_ws ** 3 / self.parameters.box_volume)
+                    pp_force_error[ia, ir] = (
+                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / np.sqrt(rc)
+                    )
+                    pp_force_error[ia, ir] *= np.sqrt(
+                        self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+                    )
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
                     total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
 
@@ -1102,16 +1217,16 @@ class PreProcess(Process):
         Make a dual plot of the fitted functions.
         """
         fig, ax = plt.subplots(1, 2, figsize=(12, 7))
-        ax[0].plot(pm_xdata, pm_times.mean(axis=-1), 'o', label='Measured times')
+        ax[0].plot(pm_xdata, pm_times.mean(axis=-1), "o", label="Measured times")
         # ax[0].plot(pm_xdata, quadratic(pm_xdata, *pm_opt), '--r', label="Fit $f(x) = a + b x + c x^2$")
-        ax[1].plot(pp_xdata, pp_times.mean(axis=-1), 'o', label='Measured times')
+        ax[1].plot(pp_xdata, pp_times.mean(axis=-1), "o", label="Measured times")
         # ax[1].plot(pp_xdata, linear(pp_xdata, *pp_opt), '--r', label="Fit $f(x) = a x$")
 
-        ax[0].set_xscale('log')
-        ax[0].set_yscale('log')
+        ax[0].set_xscale("log")
+        ax[0].set_yscale("log")
 
-        ax[1].set_xscale('log')
-        ax[1].set_yscale('log')
+        ax[1].set_xscale("log")
+        ax[1].set_yscale("log")
 
         ax[0].legend()
         ax[1].legend()
@@ -1129,10 +1244,10 @@ class PreProcess(Process):
         ax[0].set_title("PM calculation")
         ax[1].set_title("PP calculation")
 
-        ax[0].set_xlabel('Mesh sizes')
-        ax[1].set_xlabel(r'$r_c / a_{ws}$')
+        ax[0].set_xlabel("Mesh sizes")
+        ax[1].set_xlabel(r"$r_c / a_{ws}$")
         fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, 'Timing_Fit.png'))
+        fig.savefig(os.path.join(fig_path, "Timing_Fit.png"))
 
 
 class Simulation(Process):
@@ -1147,7 +1262,7 @@ class Simulation(Process):
     """
 
     def __init__(self, input_file: str = None):
-        self.__name__ = 'simulation'
+        self.__name__ = "simulation"
         super().__init__(input_file)
 
     def equilibrate(self) -> None:
@@ -1155,13 +1270,13 @@ class Simulation(Process):
         Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
         """
         if self.parameters.verbose:
-            print("\n------------- Equilibration -------------")
+            print("\n\n{:-^70} \n".format(" Equilibration "))
         # Check if this is restart
         if self.parameters.load_method in ["equilibration_restart", "eq_restart"]:
             it_start = self.parameters.restart_step
         else:
             it_start = 0
-            self.io.dump('equilibration', self.particles, 0)
+            self.io.dump("equilibration", self.particles, 0)
 
         # Start timer, equilibrate, and print run time.
         self.timer.start()
@@ -1172,13 +1287,13 @@ class Simulation(Process):
         # Check for magnetization phase
         if self.integrator.electrostatic_equilibration:
             if self.parameters.verbose:
-                print('\n------------- Magnetization -------------')
+                print("\n\n{:-^70} \n".format(" Magnetization "))
 
             if self.parameters.load_method in ["magnetization_restart", "mag_restart"]:
                 it_start = self.parameters.restart_step
             else:
                 it_start = 0
-                self.io.dump('magnetization', self.particles, it_start)
+                self.io.dump("magnetization", self.particles, it_start)
 
             # Start timer, magnetize, and print run time.
             self.timer.start()
@@ -1198,10 +1313,10 @@ class Simulation(Process):
             it_start = 0
             # Restart the pbc counter.
             self.particles.pbc_cntr.fill(0)
-            self.io.dump('production', self.particles, 0)
+            self.io.dump("production", self.particles, 0)
 
         if self.parameters.verbose:
-            print("\n------------- Production -------------")
+            print("\n\n{:-^70} \n".format(" Production "))
 
         # Update measurement flag for rdf.
         self.potential.measure = True
@@ -1216,148 +1331,9 @@ class Simulation(Process):
         """Run the simulation."""
         time0 = self.timer.current()
 
-        if not self.parameters.load_method in ['prod_restart', 'production_restart']:
+        if not self.parameters.load_method in ["prod_restart", "production_restart"]:
             self.equilibrate()
 
         self.evolve()
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
-
-    # def setup(self, read_yaml: bool = False, other_inputs=None):
-    #     """Setup simulations' parameters and io subclasses.
-    #
-    #     Parameters
-    #     ----------
-    #     read_yaml: bool
-    #         Flag for reading YAML input file. Default = False.
-    #
-    #     other_inputs: dict (optional)
-    #         Dictionary with additional simulations options.
-    #
-    #     """
-    #     if read_yaml:
-    #         self.common_parser()
-    #
-    #     if other_inputs:
-    #         if not isinstance(other_inputs, dict):
-    #             raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
-    #
-    #         for class_name, class_attr in other_inputs.items():
-    #             if not class_name == 'Particles':
-    #                 self.__dict__[class_name.lower()].from_dict(class_attr)
-    #             else:
-    #                 for sp, species in enumerate(other_inputs["Particles"]):
-    #                     spec = Species(species["Species"])
-    #                     self.species[sp].__dict__.update(spec.__dict__)
-    #     # initialize the directories and filenames
-    #     self.io.setup()
-    #     # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
-    #
-    #     # Update parameters' dictionary with filenames and directories
-    #     self.parameters.from_dict(self.io.__dict__)
-    #     # save some general info
-    #     self.parameters.potential_type = self.potential.type
-    #     self.parameters.cutoff_radius = self.potential.rc
-    #
-    #     # Copy some integrator parameters if not already defined
-    #     if not hasattr(self.parameters, 'dt'):
-    #         self.parameters.dt = self.integrator.dt
-    #     if not hasattr(self.parameters, 'equilibration_steps'):
-    #         self.parameters.equilibration_steps = self.integrator.equilibration_steps
-    #     if not hasattr(self.parameters, 'eq_dump_step'):
-    #         self.parameters.eq_dump_step = self.integrator.eq_dump_step
-    #     if not hasattr(self.parameters, 'production_steps'):
-    #         self.parameters.production_steps = self.integrator.production_steps
-    #     if not hasattr(self.parameters, 'prod_dump_step'):
-    #         self.parameters.prod_dump_step = self.integrator.prod_dump_step
-    #
-    #     if self.integrator.electrostatic_equilibration:
-    #         self.parameters.electrostatic_equilibration = True
-    #         if not hasattr(self.parameters, 'mag_dump_step'):
-    #             self.parameters.mag_dump_step = self.integrator.mag_dump_step
-    #         if not hasattr(self.parameters, 'magnetization_steps'):
-    #             self.parameters.magnetization_steps = self.integrator.magnetization_steps
-    #
-    #     self.parameters.setup(self.species)
-    #
-    #     self.io.setup_checkpoint(self.parameters, self.species)
-
-
-@njit
-def Gk(x, alpha, kappa):
-    """
-    Green's function of Coulomb/Yukawa potential.
-    """
-    return 4.0 * np.pi * np.exp(-(x ** 2 + kappa ** 2) / (2 * alpha) ** 2) / (kappa ** 2 + x ** 2)
-
-
-@njit
-def betamp(m, p, alpha, kappa):
-    """
-    Calculate :math:`\beta(m)` of eq.(37) in Dharuman et al. J Chem Phys 146 024112 (2017)
-    """
-    xa = np.linspace(0.0001, 500, 5000)
-    return np.trapz(Gk(xa, alpha, kappa) * Gk(xa, alpha, kappa) * xa ** (2 * (m + p + 2)), x=xa)
-
-
-@njit
-def analytical_approx_pppm_single(kappa, rc, p, h, alpha):
-    """
-    Calculate the total force error for a given value of ``rc`` and ``alpha``. See similar function above.
-    """
-    # Coefficient from Deserno and Holm J Chem Phys 109 7694 (1998)
-    if p == 1:
-        Cmp = np.array([2 / 3])
-    elif p == 2:
-        Cmp = np.array([2 / 45, 8 / 189])
-    elif p == 3:
-        Cmp = np.array([4 / 495, 2 / 225, 8 / 1485])
-    elif p == 4:
-        Cmp = np.array([2 / 4725, 16 / 10395, 5528 / 3869775, 32 / 42525])
-    elif p == 5:
-        Cmp = np.array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
-    elif p == 6:
-        Cmp = np.array([2764 / 638512875, 16 / 467775, 7234 / 119282625, 1403744 / 25196700375,
-                        1396888 / 40521009375, 2485856 / 152506344375])
-    elif p == 7:
-        Cmp = np.array([8 / 18243225, 7234 / 1550674125, 701872 / 65511420975, 2793776 / 225759909375,
-                        1242928 / 132172165125, 1890912728 / 352985880121875, 21053792 / 8533724574375])
-
-    somma = 0.0
-    for m in np.arange(p):
-        expp = 2 * (m + p)
-        somma += Cmp[m] * (2 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.) ** expp
-    # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
-    pm_force_error = np.sqrt(3.0 * somma) / (2.0 * np.pi)
-
-    # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
-    pp_force_error = 2.0 * np.exp(-(0.5 * kappa / alpha) ** 2 - alpha ** 2 * rc ** 2) / np.sqrt(rc)
-    # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-    Tot_DeltaF = np.sqrt(pm_force_error ** 2 + pp_force_error ** 2)
-
-    return Tot_DeltaF, pp_force_error, pm_force_error
-
-
-def pm_time_model(x, a, b):
-    """
-    Quadratic function for fitting.
-
-    Parameters
-    ----------
-    x : array
-        Values at which to calculate the function.
-
-    a: float
-        Intercept.
-
-    b: float
-        Coefficient of linear term.
-
-    c: float
-        Coefficient of quadratic term.
-
-    Returns
-    -------
-    quadratic formula
-    """
-    return a * x + b * x * np.log(x)
