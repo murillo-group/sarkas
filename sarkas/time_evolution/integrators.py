@@ -69,7 +69,7 @@ class Integrator:
         Link to the correct thermostat function.
 
     enforce_bc: func
-        Link to the function enforcing boundary conditions. 'periodic' or 'absorbing'.
+        Link to the function enforcing boundary conditions. 'periodic', 'reflecting', 'open' or 'absorbing'.
 
     """
 
@@ -93,7 +93,7 @@ class Integrator:
         self.boundary_conditions = None
         self.enforce_bc = None
         self.verbose = False
-        self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
+        self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting", "open"]
         self.supported_integrators = ["verlet", "verlet_langevin", "magnetic_verlet", "magnetic_boris", "cyclotronic"]
 
     # def __repr__(self):
@@ -171,11 +171,15 @@ class Integrator:
             )
 
         # Assign integrator.enforce_bc to the correct method
-        if self.boundary_conditions == "periodic":
+        if self.boundary_conditions.lower() == "periodic":
             self.enforce_bc = self.periodic
-        elif self.boundary_conditions == "absorbing":
+        elif self.boundary_conditions.lower() == "reflecting":
+            self.enforce_bc = self.reflecting
+        elif self.boundary_conditions.lower() == "open":
+            self.enforce_bc = self.open
+        elif self.boundary_conditions.lower() == "absorbing":
             self.enforce_bc = self.absorbing
-        elif self.boundary_conditions == "reflective":
+        elif self.boundary_conditions.lower() == "reflecting":
             self.enforce_bc = self.reflecting
 
         if params.magnetized or self.magnetized:
@@ -782,6 +786,32 @@ class Integrator:
 
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
+    def reflecting(self, ptcls):
+        """
+        Applies reflecting boundary conditions by calling enforce_rbc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        enforce_rbc(ptcls.pos, ptcls.vel, ptcls.acc, ptcls.pbc_cntr, self.box_lengths)
+
+    def open(self, ptcls):
+        """
+        Applies open boundary conditions by not enforcing any bc
+
+        Parameters
+        ----------
+        ptcls: sarkas.core.Particles
+            Particles data.
+
+        """
+
+        pass
+
     def absorbing(self, ptcls):
         """
         Applies absorbing boundary conditions by calling enforce_abc
@@ -1070,7 +1100,7 @@ def enforce_abc(pos, vel, acc, charges, box_vector):
 @njit
 def enforce_rbc(pos, vel, box_vector, dt):
     """
-    Enforce Absorbing Boundary conditions.
+    Enforce Reflecting Boundary conditions.
 
     Parameters
     ----------
