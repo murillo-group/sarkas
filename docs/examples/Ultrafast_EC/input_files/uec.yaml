@@ -55,6 +55,3 @@ IO:
 Observables:
   - Thermodynamics:
       phase: production
-
-  - RadialDistributionFunction:
-      no_bins: 51

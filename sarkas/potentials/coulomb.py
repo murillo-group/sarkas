@@ -48,7 +48,7 @@ def update_params(potential, params):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
 
-    if potential.method == "PP":
+    if potential.method == "pp":
         potential.matrix[2, :, :] = potential.a_rs
         potential.force = coulomb_force
         params.force_error = 0.0  # TODO: Implement force error in PP case
