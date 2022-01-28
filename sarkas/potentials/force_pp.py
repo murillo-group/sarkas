@@ -96,6 +96,7 @@ def update_0D(pos, id_ij, mass_ij, Lv, rc, potential_matrix, force, measure, rdf
                 p_matrix = potential_matrix[:, id_i, id_j]
                 # Compute the short-ranged force
                 pot, fr = force(r, p_matrix)
+                fr /= r
                 U_s_r += pot
 
                 # Update the acceleration for i particles in each dimension

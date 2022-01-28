@@ -23,10 +23,11 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[2] = Ewald screening parameter
 
 """
+from warnings import warn
 import numpy as np
 from numba import njit
 import math as mt
-from sarkas.utilities.maths import force_error_analytic_pp
+from ..utilities.maths import force_error_analytic_pp
 
 
 @njit
@@ -59,20 +60,20 @@ def yukawa_force_pppm(r, pot_matrix):
     alpha_r = alpha * r
     kappa_r = kappa * r
     U = (
-        pot_matrix[0]
-        * (0.5 / r)
-        * (
-            np.exp(kappa_r) * mt.erfc(alpha_r + 0.5 * kappa_alpha)
-            + np.exp(-kappa_r) * mt.erfc(alpha_r - 0.5 * kappa_alpha)
-        )
+            pot_matrix[0]
+            * (0.5 / r)
+            * (
+                    np.exp(kappa_r) * mt.erfc(alpha_r + 0.5 * kappa_alpha)
+                    + np.exp(-kappa_r) * mt.erfc(alpha_r - 0.5 * kappa_alpha)
+            )
     )
     # Derivative of the exponential term and 1/r
     f1 = (0.5 / r) * np.exp(kappa * r) * mt.erfc(alpha_r + 0.5 * kappa_alpha) * (1.0 / r - kappa)
     f2 = (0.5 / r) * np.exp(-kappa * r) * mt.erfc(alpha_r - 0.5 * kappa_alpha) * (1.0 / r + kappa)
     # Derivative of erfc(a r) = 2a/sqrt(pi) e^{-a^2 r^2}* (x/r)
     f3 = (alpha / np.sqrt(np.pi) / r) * (
-        np.exp(-((alpha_r + 0.5 * kappa_alpha) ** 2)) * np.exp(kappa_r)
-        + np.exp(-((alpha_r - 0.5 * kappa_alpha) ** 2)) * np.exp(-kappa_r)
+            np.exp(-((alpha_r + 0.5 * kappa_alpha) ** 2)) * np.exp(kappa_r)
+            + np.exp(-((alpha_r - 0.5 * kappa_alpha) ** 2)) * np.exp(-kappa_r)
     )
     fr = pot_matrix[0] * (f1 + f2 + f3)
 
@@ -148,12 +149,21 @@ def update_params(potential, params):
 
     """
 
+    if hasattr(potential, "kappa") and hasattr(potential, "screening_length"):
+        warn("You have defined both kappa and the screening_length. \n"
+             "I will use kappa to calculate the screening_length from lambda = a_ws/kappa"
+             )
+        potential.screening_length = params.a_ws / potential.kappa
+
+    elif hasattr(potential, "kappa"):
+        potential.screening_length = params.a_ws / potential.kappa
+
     if potential.method == "pppm":
         potential.matrix = np.zeros((3, params.num_species, params.num_species))
     else:
         potential.matrix = np.zeros((2, params.num_species, params.num_species))
 
-    potential.matrix[1, :, :] = 1.0 / params.lambda_TF
+    potential.matrix[1, :, :] = 1.0 / potential.screening_length
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):

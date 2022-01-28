@@ -224,7 +224,7 @@ class Process:
         self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
 
-    def setup(self, read_yaml=False, other_inputs=None):
+    def setup(self, read_yaml : bool = False, other_inputs: dict = None):
         """Setup simulations' parameters and io subclasses.
 
         Parameters

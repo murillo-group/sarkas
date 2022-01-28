@@ -228,7 +228,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
 
     """
 
-    if potential_type in ["yukawa", "egs", "qsp"]:
+    if potential_type in ["yukawa", "egs", "qsp", "hs_yukawa"]:
         force_error = np.sqrt(TWOPI * potential_matrix[1, 0, 0]) * np.exp(-cutoff_length * potential_matrix[1, 0, 0])
     elif potential_type == "moliere":
         # Choose the smallest screening length for force error calculation
