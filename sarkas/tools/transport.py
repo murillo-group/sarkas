@@ -233,15 +233,15 @@ class TransportCoefficients:
         ax1.plot(xmul * time, acf_data[:, 0] / acf_data[0, 0])
         ax1.fill_between(
             xmul * time,
-            (acf_data[:, 0] + acf_data[:, 1]) / (acf_data[0, 0] + acf_data[0, 1]),
             (acf_data[:, 0] - acf_data[:, 1]) / (acf_data[0, 0] - acf_data[0, 1]),
+            (acf_data[:, 0] + acf_data[:, 1]) / (acf_data[0, 0] + acf_data[0, 1]),
             alpha=0.2,
         )
 
         # Coefficient
         ax2.plot(xmul * time, ymul * tc_data[:, 0])
         ax2.fill_between(
-            xmul * time, ymul * (tc_data[:, 0] + tc_data[:, 1]), ymul * (tc_data[:, 0] - tc_data[:, 1]), alpha=0.2
+            xmul * time, ymul * (tc_data[:, 0] - tc_data[:, 1]), ymul * (tc_data[:, 0] + tc_data[:, 1]), alpha=0.2
         )
 
         xlims = (xmul * time[1], xmul * time[-1] * 1.5)
@@ -538,16 +538,15 @@ class TransportCoefficients:
                     par_slice_str = "{} Diffusion_Parallel_slice {}".format(sp, isl)
                     self.diffusion_df_slices[par_slice_str] = fast_integral_loop(time=time, integrand=integrand_par)
                     # Perpendicular
-                    perp_vacf_str = (sp_vacf_str, "X", "slice {}".format(isl))
+                    x_vacf_str = (sp_vacf_str, "X", "slice {}".format(isl))
+                    y_vacf_str = (sp_vacf_str, "Y", "slice {}".format(isl))
                     perp_slice_str = "{} Diffusion_Perpendicular_slice {}".format(sp, isl)
-                    integrand_perp = (
-                        observable.dataframe_acf_slices[perp_vacf_str].to_numpy()
-                        + observable.dataframe_acf_slices[perp_vacf_str].to_numpy()
+                    integrand_perp = 0.5 * (
+                        observable.dataframe_acf_slices[x_vacf_str].to_numpy()
+                        + observable.dataframe_acf_slices[y_vacf_str].to_numpy()
                     )
 
-                    self.diffusion_df_slices[perp_slice_str] = 0.5 * fast_integral_loop(
-                        time=time, integrand=integrand_perp
-                    )
+                    self.diffusion_df_slices[perp_slice_str] = fast_integral_loop(time=time, integrand=integrand_perp)
 
             # Add the average and std of perp and par VACF to its dataframe
             for isp, sp in enumerate(observable.species_names):

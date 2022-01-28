@@ -1,12 +1,12 @@
 """
 Module handling the potential class.
 """
-import warnings
+from warnings import warn
 import numpy as np
 import fdint
-from sarkas.utilities.exceptions import AlgorithmWarning
-from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
-from sarkas.potentials import force_pm, force_pp
+from ..utilities.exceptions import AlgorithmWarning
+from ..potentials.force_pm import force_optimized_green_function as gf_opt
+from ..potentials import force_pm, force_pp
 
 
 class Potential:
@@ -96,6 +96,15 @@ class Potential:
     kz_v : array
         Array of :math:`k_z` values.
 
+    screening_length_type : str
+        Choice of how to calculate the screening length for short range potentials.
+
+    screening_length : float
+        Screening length of the short range potential.
+
+    screening_length_choices : list
+        Calculation choices of the screening length.
+
     """
 
     def __init__(self):
@@ -113,6 +122,9 @@ class Potential:
         self.total_net_charge = 0.0
         self.pppm_on = False
         self.a_rs = 0.0
+        self.screening_length_type = None
+        self.screening_length = None
+        self.screening_length_choices = ["Thomas-Fermi", "Debye-Huckel", "Custom"]
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -156,7 +168,7 @@ class Potential:
         if not self.type == "fmm":
             self.linked_list_on = True  # linked list on
             if not hasattr(self, "rc"):
-                warnings.warn(
+                warn(
                     "\nThe cut-off radius is not defined. "
                     "L/2 = {:.4e} will be used as rc".format(0.5 * params.box_lengths.min()),
                     category=AlgorithmWarning,
@@ -165,7 +177,7 @@ class Potential:
                 self.linked_list_on = False  # linked list off
 
             if self.rc > params.box_lengths.min() / 2.0:
-                warnings.warn(
+                warn(
                     "\nThe cut-off radius is larger than half the box length. "
                     "L/2 = {:.4e} will be used as rc".format(0.5 * params.box_lengths.min()),
                     category=AlgorithmWarning,
@@ -175,7 +187,7 @@ class Potential:
                 self.linked_list_on = False  # linked list off
 
             if self.a_rs != 0.0:
-                warnings.warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
+                warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
         # Check for electrons as dynamical species
         if self.type == "qsp":
             mask = params.species_names == "e"
@@ -193,7 +205,7 @@ class Potential:
             params.me = float(params.species_masses[mask])
         else:
             params.ne = (
-                params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
+                    params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
             )
 
             # Check electron properties
@@ -209,59 +221,65 @@ class Potential:
 
         self.calc_electron_properties(params)
 
-        if hasattr(self, "kappa"):
-            if self.electron_temperature != params.total_ion_temperature:
-                warnings.warn(
-                    "You have defined both kappa and the electron_temperature. "
-                    "kappa = {:.4e} value will be used.".format(self.kappa)
-                )
-            # Thomas-Fermi Length
-            params.lambda_TF = params.a_ws / self.kappa
+        if self.screening_length_type:
+            self.screening_length_type = self.screening_length_type.lower()
 
-        # enforce consistency
-        self.type = self.type.lower()
+            if self.screening_length_type in ["thomas-fermi", "tf"]:
+                self.screening_length = params.lambda_TF
+            elif self.screening_length_type in ["debye", "debye-huckel", "dh"]:
+                self.screening_length = params.electron_debye_length
+            elif self.screening_length_type in ["custom"]:
+                if self.screening_length is None:
+                    raise AttributeError("potential.screening_length not defined!")
+        else:
+            if not self.screening_length and not hasattr(self, "kappa"):
+                warn("You have not defined the screening_length nor kappa. I will use the Thomas-Fermi length")
+                self.screening_length_type = "thomas-fermi"
+                self.screening_length = params.lambda_TF
+
         # Update potential-specific parameters
         # Coulomb potential
         if self.type == "coulomb":
             if self.method == "pp":
-                warnings.warn("Use the PP method with care for pure Coulomb interactions.", category=AlgorithmWarning)
+                warn("Use the PP method with care for pure Coulomb interactions.", category=AlgorithmWarning)
 
-            from sarkas.potentials import coulomb
+            from ..potentials import coulomb
 
             coulomb.update_params(self, params)
 
         elif self.type == "yukawa":
             # Yukawa potential
-            from sarkas.potentials import yukawa
+            from ..potentials import yukawa
 
             yukawa.update_params(self, params)
 
         elif self.type == "egs":
             # exact gradient-corrected screening (EGS) potential
-            from sarkas.potentials import egs
+            from ..potentials import egs
 
             egs.update_params(self, params)
 
         elif self.type == "lj":
             # Lennard-Jones potential
-            from sarkas.potentials import lennardjones as lj
+            from ..potentials import lennardjones as lj
 
             lj.update_params(self, params)
 
         elif self.type == "moliere":
             # Moliere potential
-            from sarkas.potentials import moliere
+            from ..potentials import moliere
 
             moliere.update_params(self, params)
 
         elif self.type == "qsp":
             # QSP potential
-            from sarkas.potentials import qsp
+            from ..potentials import qsp
 
             qsp.update_params(self, params)
+
         elif self.type == "hs_yukawa":
             # Hard-Sphere Yukawa
-            from sarkas.potentials import hs_yukawa
+            from ..potentials import hs_yukawa
 
             hs_yukawa.update_params(self, params)
 
@@ -307,6 +325,8 @@ class Potential:
             4.0 * np.pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me)
         )
 
+        params.electron_debye_length = np.sqrt(params.fourpie0 / (4.0 * np.pi * params.qe ** 2 * params.ne * beta_e))
+
         # de Broglie wavelength
         params.lambda_deB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
         lambda3 = params.lambda_deB ** 3
@@ -338,7 +358,8 @@ class Potential:
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
         params.electron_coupling = params.qe ** 2 / (
-            params.fourpie0 * params.fermi_energy * params.ae_ws * np.sqrt(params.electron_degeneracy_parameter ** 2)
+                params.fourpie0 * params.fermi_energy * params.ae_ws * np.sqrt(
+            params.electron_degeneracy_parameter ** 2)
         )
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
@@ -348,7 +369,7 @@ class Potential:
         if params.magnetized:
             if params.units == "cgs":
                 params.electron_cyclotron_frequency = (
-                    params.qe * np.linalg.norm(params.magnetic_field) / params.c0 / params.me
+                        params.qe * np.linalg.norm(params.magnetic_field) / params.c0 / params.me
                 )
             else:
                 params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field) / params.me
@@ -357,7 +378,8 @@ class Potential:
             tan_arg = 0.5 * params.hbar * params.electron_cyclotron_frequency * beta_e
 
             # Perpendicular correction
-            params.horing_perp_correction = (params.electron_plasma_frequency / params.electron_cyclotron_frequency) ** 2
+            params.horing_perp_correction = (
+                                                        params.electron_plasma_frequency / params.electron_cyclotron_frequency) ** 2
             params.horing_perp_correction *= 1.0 - tan_arg / np.tanh(tan_arg)
             params.horing_perp_correction += 1
 

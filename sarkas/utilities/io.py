@@ -968,12 +968,9 @@ class InputOutput:
 
         """
         if simulation.potential.type == "yukawa":
-            print(
-                "electron temperature = {:1.4e} [K] = {:1.4e} [eV]".format(
-                    simulation.parameters.electron_temperature,
-                    simulation.parameters.electron_temperature / simulation.parameters.eV2K,
-                )
-            )
+            print(f"screening type : {simulation.potential.screening_length_type}")
+            print(f"screening length = {simulation.potential.screening_length} ", end="")
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
 
@@ -1073,36 +1070,15 @@ class InputOutput:
             print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
 
         elif simulation.potential.type == "hs_yukawa":
-            print(
-                "electron temperature = {:1.4e} [K] = {:1.4e} [eV]".format(
-                    simulation.parameters.electron_temperature,
-                    simulation.parameters.electron_temperature / simulation.parameters.eV2K,
-                )
-            )
-            print(
-                "hard sphere diameter = sigma = {:.2f} a_ws = {:.4e} ".format(
-                    simulation.potential.matrix[-1, 0, 0] / simulation.parameters.a_ws,
-                    simulation.potential.matrix[-1, 0, 0],
-                ),
-                end="",
-            )
+            b = simulation.potential.hs_diameter / simulation.parameters.a_ws
+            print(f"hard sphere diameter = {b:.4f} a_ws = {simulation.potential.hs_diameter:.4e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("packing fraction = {:.4f}".format(
-                np.pi/6.0 * simulation.parameters.total_num_density * simulation.potential.hs_diameter**3
-            )
-            )
-            print(
-                "kappa = sigma/lambda_TF = {:.4f}".format(
-                    simulation.potential.hs_diameter / simulation.parameters.lambda_TF
-                )
-            )
-
-            print(
-                "Gamma_eff = {:.2f}".format(
-                    simulation.parameters.coupling_constant \
-                    * simulation.parameters.a_ws/simulation.potential.hs_diameter
-                )
-            )
+            print(f"screening length = {simulation.potential.screening_length} ", end="")
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print(f"kappa = sigma/lambda = {simulation.potential.kappa:.4f}")
+            print(f"reduced density = n sigma^3 = {simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density:.4f}")
+            print(f"packing fraction = {simulation.potential.packing_fraction:.4f}")
+            print(f"Gamma_eff = {simulation.parameters.coupling_constant / b:.4f}")
 
     def setup_checkpoint(self, params, species):
         """
