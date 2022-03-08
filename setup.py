@@ -53,7 +53,7 @@ class PostInstallCommand(install):
 
 # Package Requirements
 BASE_DEPENDENCIES = [
-    "numpy==1.20",
+    "numpy",
     "scipy",
     "pandas",
     "numba>=0.50",
