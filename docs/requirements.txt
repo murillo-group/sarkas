@@ -1,6 +1,6 @@
 sphinx>=3.5
 sphinx_bootstrap_theme
-sphinx_panels
+sphinx-panels
 sphinxcontrib-bibtex
 sphinxcontrib-apidoc
 sphinx_rtd_theme
