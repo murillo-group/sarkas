@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Contributing to Sarkas &#8212; Sarkas 1.0.0 documentation</title>
+    <title>Contributing to Sarkas &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -32,10 +32,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -158,12 +158,18 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#known-issues">Known Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#step-1-virtual-environment">Step 1. Virtual Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#anaconda-navigator">Anaconda Navigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#command-line-interface-unix-systems">Command Line Interface (UNIX systems)</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#step-2-installation">Step 2. Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#id1">Anaconda Navigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#id2">Command Line Interface (UNIX systems)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#known-issues">Known Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/Tutorial_NB/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
@@ -218,11 +224,11 @@
 <li class="toctree-l3"><a class="reference internal" href="dev_setup.html#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_setup.html#create-a-virtual-environment">Create a virtual environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_setup.html#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dev_setup.html#docker-image">Docker Image</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dev_docs.html">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dev_docs.html#install-required-packages">Install Required Packages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#writing-documentation">Writing Documentation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#building-documentation">Building Documentation</a></li>
 </ul>
@@ -430,9 +436,9 @@ You can do this by following the instructions on this <a class="reference extern
       
     </p>
     <p>
-        &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jan 12, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 08, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
 </footer>

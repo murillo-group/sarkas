@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.potentials.core &#8212; Sarkas 1.0.0 documentation</title>
+    <title>sarkas.potentials.core &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -29,10 +29,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js "></script>
-<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -140,11 +140,11 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">fdint</span>
+
 <span class="kn">from</span> <span class="nn">sarkas.utilities.exceptions</span> <span class="kn">import</span> <span class="n">AlgorithmWarning</span>
 <span class="kn">from</span> <span class="nn">sarkas.potentials.force_pm</span> <span class="kn">import</span> <span class="n">force_optimized_green_function</span> <span class="k">as</span> <span class="n">gf_opt</span>
 <span class="kn">from</span> <span class="nn">sarkas.potentials</span> <span class="kn">import</span> <span class="n">force_pm</span><span class="p">,</span> <span class="n">force_pp</span>
-
+<span class="kn">from</span> <span class="nn">sarkas.utilities.maths</span> <span class="kn">import</span> <span class="n">inverse_fd_half</span><span class="p">,</span> <span class="n">fd_integral</span>
 
 <div class="viewcode-block" id="Potential"><a class="viewcode-back" href="../../../api/sarkas.potentials.core.html#sarkas.potentials.core.Potential">[docs]</a><span class="k">class</span> <span class="nc">Potential</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -433,8 +433,8 @@
         <span class="n">spin_degeneracy</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># g in the notes</span>
 
         <span class="c1"># FDINT calculates the I integrals not the F integrals see notes.</span>
-        <span class="n">fdint_fdk_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">fdk</span><span class="p">)</span>
-        <span class="n">fdint_ifd1h_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">fdint</span><span class="o">.</span><span class="n">ifd1h</span><span class="p">)</span>
+        <span class="c1"># fdint_fdk_vec = np.vectorize(fdint.fdk)</span>
+        <span class="c1"># fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)</span>
 
         <span class="c1"># Inverse temperature for convenience</span>
         <span class="n">beta_e</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">electron_temperature</span><span class="p">)</span>
@@ -452,11 +452,11 @@
         <span class="n">params</span><span class="o">.</span><span class="n">landau_length</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">qe</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
 
         <span class="c1"># chemical potential of electron gas/(kB T), obtained by inverting the density equation.</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">eta_e</span> <span class="o">=</span> <span class="n">fdint_ifd1h_vec</span><span class="p">(</span><span class="n">lambda3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">eta_e</span> <span class="o">=</span> <span class="n">inverse_fd_half</span><span class="p">(</span><span class="n">lambda3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ne</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">)</span>
 
         <span class="c1"># Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_</span>
         <span class="n">lambda_TF_sq</span> <span class="o">=</span> <span class="n">lambda3</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">landau_length</span>
-        <span class="n">lambda_TF_sq</span> <span class="o">/=</span> <span class="n">spin_degeneracy</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">fdint_fdk_vec</span><span class="p">(</span><span class="n">k</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">eta_e</span><span class="p">)</span>
+        <span class="n">lambda_TF_sq</span> <span class="o">/=</span> <span class="n">spin_degeneracy</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">fd_integral</span><span class="p">(</span><span class="n">eta</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">eta_e</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)</span>
         <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">lambda_TF_sq</span><span class="p">)</span>
 
         <span class="c1"># Electron WS radius</span>
@@ -676,9 +676,9 @@
       
     </p>
     <p>
-        &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jan 12, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 08, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
 </footer>

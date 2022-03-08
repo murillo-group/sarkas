@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>sarkas.utilities.maths module &#8212; Sarkas 1.0.0 documentation</title>
+    <title>sarkas.utilities.maths module &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -21,8 +21,8 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/myscript.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
   
@@ -34,10 +34,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -158,7 +158,7 @@
 <dt class="sig sig-object py" id="sarkas.utilities.maths.correlationfunction">
 <span class="sig-prename descclassname"><span class="pre">sarkas.utilities.maths.</span></span><span class="sig-name descname"><span class="pre">correlationfunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">At</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Bt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/maths.html#correlationfunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.utilities.maths.correlationfunction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the correlation function between <span class="math notranslate nohighlight">\(\mathbf{A}(t)\)</span> and <span class="math notranslate nohighlight">\(\mathbf{B}(t)\)</span> using
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/reference/generated/scipy.signal.correlate.html#scipy.signal.correlate" title="(in SciPy v1.7.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.correlate()</span></code></a></p>
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.correlate.html#scipy.signal.correlate" title="(in SciPy v1.8.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.correlate()</span></code></a></p>
 <div class="math notranslate nohighlight">
 \[C_{AB}(\tau) =  \sum_j^D \sum_i^T A_j(t_i)B_j(t_i + \tau)\]</div>
 <p>where <span class="math notranslate nohighlight">\(D\)</span> is the number of dimensions and <span class="math notranslate nohighlight">\(T\)</span> is the total length
@@ -195,6 +195,27 @@ of the simulation.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sarkas.utilities.maths.fd_integral">
+<span class="sig-prename descclassname"><span class="pre">sarkas.utilities.maths.</span></span><span class="sig-name descname"><span class="pre">fd_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/maths.html#fd_integral"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.utilities.maths.fd_integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the unnormalized Fermi-Dirac integral of order p with given chemical potential eta
+using scipy.integrate.quad.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Chemical potential divided by temperature.</p></li>
+<li><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Order of the FD integral.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>_</strong> – FD Integral.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -250,6 +271,24 @@ of the simulation.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="sarkas.utilities.maths.inverse_fd_half">
+<span class="sig-prename descclassname"><span class="pre">sarkas.utilities.maths.</span></span><span class="sig-name descname"><span class="pre">inverse_fd_half</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/sarkas/utilities/maths.html#inverse_fd_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.utilities.maths.inverse_fd_half" title="Permalink to this definition">¶</a></dt>
+<dd><p>Approximate the inverse of the Fermi-Dirac integral I_(-1/2)(u).</p>
+<p>function taken from Fukushima’s code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>u</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – I_(-1/2)(eta)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>difdih</strong> – Scaled chemical potential.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="sarkas.utilities.maths.yukawa_green_function">
 <span class="sig-prename descclassname"><span class="pre">sarkas.utilities.maths.</span></span><span class="sig-name descname"><span class="pre">yukawa_green_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.utilities.maths.yukawa_green_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the Green’s function of Coulomb/Yukawa potential.</p>
@@ -286,9 +325,9 @@ of the simulation.</p>
       
     </p>
     <p>
-        &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jan 12, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 08, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
 </footer>

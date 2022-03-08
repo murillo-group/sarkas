@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Setup &#8212; Sarkas 1.0.0 documentation</title>
+    <title>Setup &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -32,10 +32,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -113,7 +113,6 @@
 <li><a class="reference internal" href="#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
 <li><a class="reference internal" href="#create-a-virtual-environment">Create a virtual environment</a></li>
 <li><a class="reference internal" href="#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
-<li><a class="reference internal" href="#docker-image">Docker Image</a></li>
 </ul>
 </li>
 </ul>
@@ -165,12 +164,18 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/get_started.html">Get Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#virtual-environment">Virtual Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#installation">Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#known-issues">Known Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#step-1-virtual-environment">Step 1. Virtual Environment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#anaconda-navigator">Anaconda Navigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#command-line-interface-unix-systems">Command Line Interface (UNIX systems)</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#step-2-installation">Step 2. Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#id1">Anaconda Navigator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#id2">Command Line Interface (UNIX systems)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../documentation/get_started.html#external-packages">External packages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#known-issues">Known Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation/get_started.html#run-the-code">Run the code</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/Tutorial_NB/Quickstart.html">Quickstart</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../documentation/tutorial.html">Tutorial</a></li>
@@ -225,11 +230,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#forking-and-cloning-sarkas-repository">Forking and Cloning Sarkas repository</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#create-a-virtual-environment">Create a virtual environment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#install-sarkas-in-development-mode">Install Sarkas in development mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#docker-image">Docker Image</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dev_docs.html">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dev_docs.html#install-required-packages">Install Required Packages</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#writing-documentation">Writing Documentation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dev_docs.html#building-documentation">Building Documentation</a></li>
 </ul>
@@ -415,7 +420,7 @@ affecting the original project.</p>
 </section>
 <section id="create-a-virtual-environment">
 <h2>Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Permalink to this headline">¶</a></h2>
-<p>It is good practice to create virtual environment for your each of your programming projects. This way any changes made
+<p>It is good practice to create virtual environment for each of your programming projects. This way any changes made
 to Sarkas or any other code will remain in this environment and won’t affect your python packages.
 Below are instructions for creating the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> virtual environment.</p>
 <ol class="arabic">
@@ -478,23 +483,6 @@ refers to Sarkas version and python version.</p>
 </div>
 </div></blockquote>
 </section>
-<section id="docker-image">
-<h2>Docker Image<a class="headerlink" href="#docker-image" title="Permalink to this headline">¶</a></h2>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Not working. Need to update Docker image with latest commits.</p>
-</div>
-<p>Alternatively, you can install Sarkas package including all dependencies/preliminary-packages using <a class="reference external" href="https://www.docker.com/products/docker-desktop">Docker</a>.
-To install Sarkas using Docker, run the following commands:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> sarkas
-<span class="gp">$ </span>docker build -t sarkas -f Docker/Dockerfile .
-</pre></div>
-</div>
-<p>Once you install Sarkas using Docker, you can go inside the Docker container by running the following:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>docker run -u <span class="m">0</span> -it sarkas console
-</pre></div>
-</div>
-</section>
 </section>
 
 
@@ -509,9 +497,9 @@ To install Sarkas using Docker, run the following commands:</p>
       
     </p>
     <p>
-        &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jan 12, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 08, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
 </footer>

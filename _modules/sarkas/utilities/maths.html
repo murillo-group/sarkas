@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sarkas.utilities.maths &#8212; Sarkas 1.0.0 documentation</title>
+    <title>sarkas.utilities.maths &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
@@ -29,10 +29,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js "></script>
-<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -139,6 +139,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
+<span class="kn">import</span> <span class="nn">scipy.integrate</span>
 <span class="kn">import</span> <span class="nn">scipy.signal</span> <span class="k">as</span> <span class="nn">scp_signal</span>
 
 <span class="n">TWOPI</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
@@ -387,6 +388,141 @@
     <span class="n">force_error</span> <span class="o">*=</span> <span class="n">rescaling_const</span>
 
     <span class="k">return</span> <span class="n">force_error</span>
+
+
+<div class="viewcode-block" id="inverse_fd_half"><a class="viewcode-back" href="../../../api/sarkas.utilities.maths.html#sarkas.utilities.maths.inverse_fd_half">[docs]</a><span class="k">def</span> <span class="nf">inverse_fd_half</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Approximate the inverse of the Fermi-Dirac integral I_(-1/2)(u).</span>
+
+<span class="sd">    function taken from Fukushima&#39;s code.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    u : float</span>
+<span class="sd">        I_(-1/2)(eta)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    difdih : float</span>
+<span class="sd">        Scaled chemical potential.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">u1</span> <span class="o">=</span> <span class="mf">5.8936762325936050502</span>
+    <span class="n">u2</span> <span class="o">=</span> <span class="mf">20.292139527268839575</span>
+    <span class="n">u3</span> <span class="o">=</span> <span class="mf">69.680386701202787485</span>
+    <span class="n">u4</span> <span class="o">=</span> <span class="mf">246.24741525281437791</span>
+    <span class="n">vc</span> <span class="o">=</span> <span class="mf">1543.4606939459401869</span>
+
+    <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">u1</span><span class="p">:</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">u1</span> <span class="o">-</span> <span class="n">u</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="mf">4.4225399543845577739e9</span>
+                 <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.4318826531216930391e9</span>
+                        <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.0024511162084252731e8</span>
+                               <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.5771885953346837109e7</span>
+                                      <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">7.664073281017674960e5</span>
+                                             <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.3599362498847900809e4</span>
+                                                    <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">4.4114601741712557348e2</span>
+                                                           <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.8844451277821727933e0</span><span class="p">))))))))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.448084356710615572e9</span>
+               <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.063907695769060888e8</span>
+                      <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.943821586626002503e6</span>
+                             <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">8.039397005856418743e4</span>
+                                    <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.791261676399435220e3</span>
+                                           <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">7.908051927048792349e1</span>
+                                                  <span class="o">-</span> <span class="n">v</span><span class="p">))))))</span>
+        <span class="n">difd1h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">u2</span><span class="p">:</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">u1</span>
+        <span class="n">difd1h</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="o">+</span><span class="mf">5.849893914158469793e14</span>
+             <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.353389340896418967e14</span>
+                    <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">7.300790845633384552e13</span>
+                           <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">7.531271098292146768e12</span>
+                                  <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.726221594134586141e11</span>
+                                         <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">7.827935737269045014e9</span>
+                                                <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">5.021972425404123509e7</span><span class="p">)))))))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.4397298668421281743e14</span>
+               <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.440007889067504875e13</span>
+                      <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.0498882082904393876e13</span>
+                             <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">7.568424788316453035e11</span>
+                                    <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.3206228235771973103e10</span>
+                                           <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.4329782896354397638e8</span>
+                                                  <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.6768664133860359837e5</span>
+                                                         <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">5.924317283823514482e2</span>
+                                                                <span class="o">+</span> <span class="n">y</span><span class="p">))))))))</span>
+    <span class="k">elif</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">u3</span><span class="p">:</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">u2</span>
+        <span class="n">difd1h</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="o">+</span><span class="mf">6.733834344762314874e18</span>
+             <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.1385291167086018856e18</span>
+                    <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">7.441797125810403052e16</span>
+                           <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.3556527595722738211e15</span>
+                                  <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.6904107711114070061e13</span>
+                                         <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.5927357055940595308e11</span>
+                                                <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">5.989403440741097470e8</span><span class="p">)))))))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.968777783221497285e17</span>
+               <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">9.451599633557071205e16</span>
+                      <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">4.7388759083089595117e15</span>
+                             <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.0766510215928549449e14</span>
+                                    <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.0888539870400255904e12</span>
+                                           <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">4.0374047390260294467e9</span>
+                                                  <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.3126814357531839818e6</span>
+                                                         <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.4788294703774470115e3</span>
+                                                                <span class="o">+</span> <span class="n">y</span><span class="p">))))))))</span>
+    <span class="k">elif</span> <span class="n">u</span> <span class="o">&lt;</span> <span class="n">u4</span><span class="p">:</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">u3</span>
+        <span class="n">difd1h</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="o">+</span><span class="mf">7.884494095314249799e19</span>
+             <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.7486465573810023777e18</span>
+                    <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.934193474730824900e16</span>
+                           <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.302949477641708425e14</span>
+                                  <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.9299316609051704688e12</span>
+                                         <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.591658047866512380e9</span>
+                                                <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">6.082995857672390394e6</span>
+                                                       <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.5054843420905807932e3</span><span class="p">))))))))</span> \
+            <span class="o">/</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.5593247304804720533e18</span>
+               <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.3505797700306451874e17</span>
+                      <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.9160919212553016350e15</span>
+                             <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.2652560651095328402e13</span>
+                                    <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.9491055033213850687e10</span>
+                                           <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">5.253083775042776560e7</span>
+                                                  <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.2252541165920236251e4</span>
+                                                         <span class="o">+</span> <span class="n">y</span><span class="p">)))))))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">vc</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span> <span class="o">**</span> <span class="o">-</span><span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">))</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">t</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.4330125059142833612e7</span>
+             <span class="o">+</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">8.713462091032493289e5</span>
+                    <span class="o">+</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">2.4245560148256419080e3</span>
+                           <span class="o">+</span> <span class="n">s</span><span class="p">)))</span> <span class="o">/</span> \
+            <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">1.2961677595919532465e4</span>
+                  <span class="o">+</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">3.2092883892793106635e2</span>
+                         <span class="o">+</span> <span class="n">s</span> <span class="o">*</span> <span class="p">(</span><span class="o">+</span><span class="mf">0.7192193760323717351e0</span><span class="p">))))</span>
+        <span class="n">difd1h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">difd1h</span></div>
+
+
+<div class="viewcode-block" id="fd_integral"><a class="viewcode-back" href="../../../api/sarkas.utilities.maths.html#sarkas.utilities.maths.fd_integral">[docs]</a><span class="k">def</span> <span class="nf">fd_integral</span><span class="p">(</span><span class="n">eta</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate the unnormalized Fermi-Dirac integral of order p with given chemical potential eta</span>
+<span class="sd">    using scipy.integrate.quad.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    eta : float</span>
+<span class="sd">        Chemical potential divided by temperature.</span>
+
+<span class="sd">    p : float</span>
+<span class="sd">        Order of the FD integral.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    _ : float</span>
+<span class="sd">        FD Integral.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">integrate</span><span class="o">.</span><span class="n">quad</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span><span class="o">**</span><span class="n">p</span><span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">eta</span><span class="p">)),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 </pre></div>
 
     </div>
@@ -400,9 +536,9 @@
       
     </p>
     <p>
-        &copy; Copyright 2019-2021, MurilloGroup.<br/>
-      Last updated on Jan 12, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br/>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 08, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
 </footer>

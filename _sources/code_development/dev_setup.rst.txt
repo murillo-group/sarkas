@@ -63,7 +63,7 @@ affecting the original project.
 Create a virtual environment
 ----------------------------
 
-It is good practice to create virtual environment for your each of your programming projects. This way any changes made
+It is good practice to create virtual environment for each of your programming projects. This way any changes made
 to Sarkas or any other code will remain in this environment and won't affect your python packages.
 Below are instructions for creating the ``sarkas`` virtual environment.
 
@@ -126,28 +126,6 @@ To uninstall Sarkas you can run
     .. code-block:: console
 
         $ pip uninstall sarkas
-
-
-Docker Image
-------------
-
-.. warning:: Not working. Need to update Docker image with latest commits.
-
-Alternatively, you can install Sarkas package including all dependencies/preliminary-packages using Docker_.
-To install Sarkas using Docker, run the following commands:
-
-.. code-block:: console
-
-   $ cd sarkas
-   $ docker build -t sarkas -f Docker/Dockerfile .
-
-Once you install Sarkas using Docker, you can go inside the Docker container by running the following:
-
-.. code-block:: console
-
-   $ docker run -u 0 -it sarkas console
-
-.. _Docker: https://www.docker.com/products/docker-desktop
 
 
 .. _Anaconda: https://www.anaconda.org
