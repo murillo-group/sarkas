@@ -33,10 +33,10 @@ intersphinx_mapping = {
 # -- Project information -----------------------------------------------------
 project = 'Sarkas'
 author = 'MurilloGroup'
-copyright = '2019-2021, ' + author
+copyright = '2019-2022, ' + author
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = sarkas.__version__
 
 
 # -- General configuration ---------------------------------------------------

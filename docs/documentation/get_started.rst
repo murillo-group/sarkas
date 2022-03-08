@@ -5,11 +5,23 @@ Get Started
 It is good practice to create virtual environment for your each of your programming projects. Below are instructions
 for creating the ``sarkas`` virtual environment. Otherwise you can jump to the next section and :ref:`install <sec_installation>` Sarkas
 
+.. warning::
 
-Virtual Environment
-===================
+    If you are unfamiliar with command line interface we strongly suggest to follow the instructions
+    to create a virtual environment via Anaconda Navigator.
 
-Start by checking if you have ``conda`` installed
+
+Step 1. Virtual Environment
+===========================
+
+Anaconda Navigator
+------------------
+You can create a new environment with python 3.7 using Anaconda Navigator.
+Follow the instructions in this `link <https://docs.anaconda.com/anaconda/navigator/getting-started/#managing-environments>`_
+
+Command Line Interface (UNIX systems)
+------------------------------------
+Open a Terminal and check if you have ``conda`` installed
 
 .. code-block:: bash
 
@@ -27,7 +39,7 @@ You can create a virtual environment via
 This command will create the virtual environment ``sarkas`` with python 3.7 and ``pip`` installed. 
 The environment can be found in the ``envs`` directory of your conda directory (the one printed above by the command ``which``). 
 
-Once the enviroment has been created you can activate it by
+Once the environment has been created you can activate it by
 
 .. code-block:: bash
 
@@ -42,14 +54,40 @@ and deactivate it by
 
 .. _sec_installation:
 
-Installation
-============
-Once the environment has been activated you can install sarkas system wide via
+Step 2. Installation
+====================
+
+Anaconda Navigator
+------------------
+Once you created the environment you can activate it by clicking on it. Note that an arrow next to the name indicates
+that the environment is active. See figure below
+
+.. figure:: an_env_active.PNG
+    :alt: Figure an_env_active.PNG not found
+
+Click on the arrow and select `Open in Terminal`. In Terminal you can install sarkas system wide via
 
 .. code-block:: bash
 
     $ pip install sarkas
 
+Command Line Interface (UNIX systems)
+-------------------------------------
+Activate the sarkas environment, if not already active, via
+you can install sarkas system wide via
+
+.. code-block:: bash
+
+    $ conda activate sarkas
+
+You can now install sarkas system wide via
+.. code-block:: bash
+
+    $ pip install sarkas
+
+.. note::
+
+    Unfortunately at the moment Sarkas is available only via PIP. We are working on distributing it via conda.
 
 External packages
 -----------------
@@ -64,7 +102,7 @@ FMM3D is package written in Fortran to compute the potential field using the Mul
 You can find their `section <https://fmm3d.readthedocs.io/en/latest/install.html#building-python-wrappers>`_ on a Python wrapper.
 
 Known Issues
-------------
+============
 
 Sarkas contains two matplotlib configuration files,
 `MSUstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/MSUstyle.mplstyle>`_

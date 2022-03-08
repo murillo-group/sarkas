@@ -365,8 +365,9 @@ def inverse_fd_half(u):
 
     return difd1h
 
+
 def fd_integral(eta, p):
-    """Calculate the unormalized Fermi-Dirac integral of order p with given chemical potential eta
+    """Calculate the unnormalized Fermi-Dirac integral of order p with given chemical potential eta
     using scipy.integrate.quad.
 
     Parameters
