@@ -95,12 +95,12 @@ mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 # '''
 # LaTeX configuration
 latex_engine = 'xelatex'
-latex_elements = {'preamble': r'\usepackage{physics}',}
+latex_elements = {'preamble': r'\usepackage{physics}'}
 # latex_additional_files = ["physics.sty"]
 bibtex_bibfiles = ['references.bib','credits/publications.bib']
 bibtex_reference_style = 'author_year'
 
-autodoc_mock_imports = ['yaml', 'fdint', 'numba', 'scipy', 'optparse', 'time',
+autodoc_mock_imports = ['yaml', 'numba', 'scipy', 'optparse', 'time',
                         'pyfftw', 'pyfiglet', 'tqdm', 'fmm3dpy']
 
 

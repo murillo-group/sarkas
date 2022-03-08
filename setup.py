@@ -58,7 +58,6 @@ BASE_DEPENDENCIES = [
     "pandas",
     "numba>=0.50",
     "pyfftw",
-    "fdint",
     "pyyaml",
     "tables",
     "tqdm",

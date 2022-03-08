@@ -37,5 +37,5 @@ dependencies:
   - nbsphinx
   - recommonmark
   
-  - pip:
-      - fdint
+#  - pip:
+#      - fdint
