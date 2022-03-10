@@ -3,11 +3,11 @@ Module handling the potential class.
 """
 from warnings import warn
 import numpy as np
-import fdint
-from ..utilities.exceptions import AlgorithmWarning
-from ..potentials.force_pm import force_optimized_green_function as gf_opt
-from ..potentials import force_pm, force_pp
 
+from sarkas.utilities.exceptions import AlgorithmWarning
+from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
+from sarkas.potentials import force_pm, force_pp
+from sarkas.utilities.maths import inverse_fd_half, fd_integral
 
 class Potential:
     """
@@ -96,15 +96,6 @@ class Potential:
     kz_v : array
         Array of :math:`k_z` values.
 
-    screening_length_type : str
-        Choice of how to calculate the screening length for short range potentials.
-
-    screening_length : float
-        Screening length of the short range potential.
-
-    screening_length_choices : list
-        Calculation choices of the screening length.
-
     """
 
     def __init__(self):
@@ -122,9 +113,6 @@ class Potential:
         self.total_net_charge = 0.0
         self.pppm_on = False
         self.a_rs = 0.0
-        self.screening_length_type = None
-        self.screening_length = None
-        self.screening_length_choices = ["Thomas-Fermi", "Debye-Huckel", "Custom"]
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -314,8 +302,8 @@ class Potential:
         spin_degeneracy = 2.0  # g in the notes
 
         # FDINT calculates the I integrals not the F integrals see notes.
-        fdint_fdk_vec = np.vectorize(fdint.fdk)
-        fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
+        # fdint_fdk_vec = np.vectorize(fdint.fdk)
+        # fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
 
         # Inverse temperature for convenience
         beta_e = 1.0 / (params.kB * params.electron_temperature)
@@ -335,11 +323,11 @@ class Potential:
         params.landau_length = 4.0 * np.pi * params.qe ** 2 * beta_e / params.fourpie0
 
         # chemical potential of electron gas/(kB T), obtained by inverting the density equation.
-        params.eta_e = fdint_ifd1h_vec(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
+        params.eta_e = inverse_fd_half(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
 
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
         lambda_TF_sq = lambda3 / params.landau_length
-        lambda_TF_sq /= spin_degeneracy / np.sqrt(np.pi) * fdint_fdk_vec(k=-0.5, phi=params.eta_e)
+        lambda_TF_sq /= spin_degeneracy / np.sqrt(np.pi) * fd_integral(eta = params.eta_e, p = -0.5)
         params.lambda_TF = np.sqrt(lambda_TF_sq)
 
         # Electron WS radius

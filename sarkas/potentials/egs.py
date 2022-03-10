@@ -93,10 +93,10 @@ else
 """
 import numpy as np
 from numba import njit
-import fdint
+# import fdint
 
 from sarkas.utilities.exceptions import AlgorithmError
-from sarkas.utilities.maths import force_error_analytic_pp
+from sarkas.utilities.maths import force_error_analytic_pp, fd_integral
 
 
 def update_params(potential, params):
@@ -122,10 +122,11 @@ def update_params(potential, params):
     if not hasattr(potential, "lmbda"):
         potential.lmbda = 1.0 / 9.0
 
-    fdint_dfdk_vec = np.vectorize(fdint.dfdk)
+    # fdint_dfdk_vec = np.vectorize(fdint.dfdk)
     # eq. (14) of Ref. [1]_
     params.nu = 3.0 / np.pi ** 1.5 * params.landau_length / params.lambda_deB
-    params.nu *= potential.lmbda * fdint_dfdk_vec(k=-0.5, phi=params.eta_e)
+    dIdeta = - 3.0/2.0 * fd_integral(params.eta_e, -1.5)
+    params.nu *= potential.lmbda * dIdeta
 
     # Degeneracy Parameter
     theta = params.electron_degeneracy_parameter

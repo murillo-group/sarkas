@@ -11,6 +11,23 @@ automatically producing cross-references, indices, etc.
 If you haven't worked with Sphinx_ before, you should first read their
 `quickstart <https://www.sphinx-doc.org/en/master/usage/quickstart.html>`_ guide.
 
+Install Required Packages
+-------------------------
+Sarkas documentation build requires additional packages. Open a Teminal window and activate your sarkas environment
+
+    .. code-block:: console
+
+        $ conda activate sarkas
+
+Move into the ``sarkas-master/docs/`` directory, using ``cd`` commands, and type the following
+
+    .. code-block:: console
+
+        $ conda install --file requirements.txt -c conda-forge
+
+The above command will install the packages listed in ``requirements.txt`` using the conda channel ``conda-forge``.
+If your changes require the installation of a new package please add to the ``requirements.txt`` file.
+
 Writing Documentation
 ---------------------
 When making or adding changes to Sarkas source code an example ``.ipynb`` notebook and/or an ``.rst`` file
