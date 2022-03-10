@@ -3,7 +3,7 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 """
 
 import numpy as np
-from numba import jit, njit, prange
+from numba import jit, njit
 import pyfftw
 
 # These "ignore" are needed because numba does not support pyfftw yet
@@ -15,7 +15,7 @@ warnings.simplefilter("ignore", category=NumbaWarning)
 warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
 
 
-@njit(parallel = True)
+@njit
 def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constants):
     """
     Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
@@ -98,7 +98,7 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
     four_pi = 4.0 * np.pi if fourpie0 == 1.0 else 4.0 * np.pi / fourpie0
     two_pi = 2.0 * np.pi
 
-    for nz in prange(mesh_sizes[2]):
+    for nz in range(mesh_sizes[2]):
         nz_sh = nz - nz_mid
         kz = two_pi * nz_sh / box_lengths[2]
 
@@ -246,7 +246,7 @@ def assgnmnt_func(cao, x):
     return W
 
 
-@njit(parallel=True)
+@njit
 def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
     """ 
     Assigns Charges to Mesh Points.
@@ -312,7 +312,7 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
 
         izn = iz - pshift  # min. index along z-axis
 
-        for g in prange(cao):
+        for g in range(cao):
 
             # if izn < 0:
             r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
@@ -397,7 +397,7 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
     return E_kx, E_ky, E_kz
 
 
-@njit(parallel = True)
+@njit
 def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_array):
     """ 
     Calculates the long range part of particles' accelerations. 
@@ -471,7 +471,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
 
         izn = iz - pshift  # min. index along z-axis
 
-        for g in prange(cao):
+        for g in range(cao):
             #
             # if izn < 0:
             #     r_g = izn + mesh_sz[2]
