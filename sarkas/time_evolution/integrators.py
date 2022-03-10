@@ -1004,8 +1004,8 @@ class Integrator:
                 )
                 )
 
-                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt/pi))
-                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt/pi))
+                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt/np.pi))
+                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt/np.pi))
         elif potential_type == "lj":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
