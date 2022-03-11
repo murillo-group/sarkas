@@ -2,12 +2,16 @@
 Module handling the potential class.
 """
 from warnings import warn
-import numpy as np
+from numpy import pi, tanh, sqrt, array, ndarray
 
-from sarkas.utilities.exceptions import AlgorithmWarning
-from sarkas.potentials.force_pm import force_optimized_green_function as gf_opt
-from sarkas.potentials import force_pm, force_pp
-from sarkas.utilities.maths import inverse_fd_half, fd_integral
+from ..utilities.exceptions import AlgorithmWarning
+from ..utilities.maths import inverse_fd_half, fd_integral
+
+from .force_pm import force_optimized_green_function as gf_opt
+from .force_pm import update as pm_update
+from .force_pp import update as pp_update
+from .force_pp import update_0D as pp_update_0D
+
 
 class Potential:
     """
@@ -231,45 +235,41 @@ class Potential:
             if self.method == "pp":
                 warn("Use the PP method with care for pure Coulomb interactions.", category=AlgorithmWarning)
 
-            from ..potentials import coulomb
+            from .coulomb import update_params
 
-            coulomb.update_params(self, params)
+            update_params(self, params)
 
         elif self.type == "yukawa":
             # Yukawa potential
-            from ..potentials import yukawa
+            from .yukawa import update_params
 
-            yukawa.update_params(self, params)
+            update_params(self, params)
 
         elif self.type == "egs":
             # exact gradient-corrected screening (EGS) potential
-            from ..potentials import egs
-
-            egs.update_params(self, params)
+            from .egs import update_params
+            update_params(self, params)
 
         elif self.type == "lj":
             # Lennard-Jones potential
-            from ..potentials import lennardjones as lj
+            from .lennardjones import update_params
 
-            lj.update_params(self, params)
+            update_params(self, params)
 
         elif self.type == "moliere":
             # Moliere potential
-            from ..potentials import moliere
-
-            moliere.update_params(self, params)
+            from .moliere import update_params
+            update_params(self, params)
 
         elif self.type == "qsp":
             # QSP potential
-            from ..potentials import qsp
-
-            qsp.update_params(self, params)
+            from .qsp import update_params
+            update_params(self, params)
 
         elif self.type == "hs_yukawa":
             # Hard-Sphere Yukawa
-            from ..potentials import hs_yukawa
-
-            hs_yukawa.update_params(self, params)
+            from .hs_yukawa import update_params
+            update_params(self, params)
 
         # Compute pppm parameters
         if self.method == "pppm":
@@ -277,8 +277,8 @@ class Potential:
             self.pppm_setup(params)
 
         # Copy needed parameters
-        self.box_lengths = np.copy(params.box_lengths)
-        self.pbox_lengths = np.copy(params.pbox_lengths)
+        self.box_lengths = params.box_lengths
+        self.pbox_lengths = params.pbox_lengths
         self.box_volume = params.box_volume
         self.pbox_volume = params.pbox_volume
         self.fourpie0 = params.fourpie0
@@ -298,44 +298,40 @@ class Potential:
 
         """
 
-        twopi = 2.0 * np.pi
+        twopi = 2.0 * pi
         spin_degeneracy = 2.0  # g in the notes
-
-        # FDINT calculates the I integrals not the F integrals see notes.
-        # fdint_fdk_vec = np.vectorize(fdint.fdk)
-        # fdint_ifd1h_vec = np.vectorize(fdint.ifd1h)
 
         # Inverse temperature for convenience
         beta_e = 1.0 / (params.kB * params.electron_temperature)
 
         # Plasma frequency
-        params.electron_plasma_frequency = np.sqrt(
-            4.0 * np.pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me)
+        params.electron_plasma_frequency = sqrt(
+            4.0 * pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me)
         )
 
-        params.electron_debye_length = np.sqrt(params.fourpie0 / (4.0 * np.pi * params.qe ** 2 * params.ne * beta_e))
+        params.electron_debye_length = sqrt(params.fourpie0 / (4.0 * pi * params.qe ** 2 * params.ne * beta_e))
 
         # de Broglie wavelength
-        params.lambda_deB = np.sqrt(twopi * params.hbar2 * beta_e / params.me)
+        params.lambda_deB = sqrt(twopi * params.hbar2 * beta_e / params.me)
         lambda3 = params.lambda_deB ** 3
 
         # Landau length 4pi e^2 beta. The division by fourpie0 is needed for MKS units
-        params.landau_length = 4.0 * np.pi * params.qe ** 2 * beta_e / params.fourpie0
+        params.landau_length = 4.0 * pi * params.qe ** 2 * beta_e / params.fourpie0
 
         # chemical potential of electron gas/(kB T), obtained by inverting the density equation.
-        params.eta_e = inverse_fd_half(lambda3 * np.sqrt(np.pi) * params.ne / 4.0)
+        params.eta_e = inverse_fd_half(lambda3 * sqrt(pi) * params.ne / 4.0)
 
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
         lambda_TF_sq = lambda3 / params.landau_length
-        lambda_TF_sq /= spin_degeneracy / np.sqrt(np.pi) * fd_integral(eta = params.eta_e, p = -0.5)
-        params.lambda_TF = np.sqrt(lambda_TF_sq)
+        lambda_TF_sq /= spin_degeneracy / sqrt(pi) * fd_integral(eta=params.eta_e, p=-0.5)
+        params.lambda_TF = sqrt(lambda_TF_sq)
 
         # Electron WS radius
-        params.ae_ws = (3.0 / (4.0 * np.pi * params.ne)) ** (1.0 / 3.0)
+        params.ae_ws = (3.0 / (4.0 * pi * params.ne)) ** (1.0 / 3.0)
         # Brueckner parameters
         params.rs = params.ae_ws / params.a0
         # Fermi wave number
-        params.kF = (3.0 * np.pi ** 2 * params.ne) ** (1.0 / 3.0)
+        params.kF = (3.0 * pi ** 2 * params.ne) ** (1.0 / 3.0)
 
         # Fermi energy
         params.fermi_energy = params.hbar2 * params.kF ** 2 / (2.0 * params.me)
@@ -346,7 +342,7 @@ class Potential:
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
         params.electron_coupling = params.qe ** 2 / (
-                params.fourpie0 * params.fermi_energy * params.ae_ws * np.sqrt(
+                params.fourpie0 * params.fermi_energy * params.ae_ws * sqrt(
             params.electron_degeneracy_parameter ** 2)
         )
 
@@ -355,12 +351,13 @@ class Potential:
         params.wdm_parameter *= 2.0 / (params.electron_coupling + 1.0 / params.electron_coupling)
 
         if params.magnetized:
+            b_mag = sqrt((params.magnetic_field ** 2).sum())  # magnitude of B
             if params.units == "cgs":
                 params.electron_cyclotron_frequency = (
-                        params.qe * np.linalg.norm(params.magnetic_field) / params.c0 / params.me
+                        params.qe * b_mag / params.c0 / params.me
                 )
             else:
-                params.electron_cyclotron_frequency = params.qe * np.linalg.norm(params.magnetic_field) / params.me
+                params.electron_cyclotron_frequency = params.qe * b_mag / params.me
 
             params.electron_magnetic_energy = params.hbar * params.electron_cyclotron_frequency
             tan_arg = 0.5 * params.hbar * params.electron_cyclotron_frequency * beta_e
@@ -368,7 +365,7 @@ class Potential:
             # Perpendicular correction
             params.horing_perp_correction = (
                                                         params.electron_plasma_frequency / params.electron_cyclotron_frequency) ** 2
-            params.horing_perp_correction *= 1.0 - tan_arg / np.tanh(tan_arg)
+            params.horing_perp_correction *= 1.0 - tan_arg / tanh(tan_arg)
             params.horing_perp_correction += 1
 
             # Parallel correction
@@ -390,29 +387,29 @@ class Potential:
         """
 
         # Change lists to numpy arrays for Numba compatibility
-        if not isinstance(self.pppm_mesh, np.ndarray):
-            self.pppm_mesh = np.array(self.pppm_mesh)
+        if not isinstance(self.pppm_mesh, ndarray):
+            self.pppm_mesh = array(self.pppm_mesh)
 
-        if not isinstance(self.pppm_aliases, np.ndarray):
-            self.pppm_aliases = np.array(self.pppm_aliases)
+        if not isinstance(self.pppm_aliases, ndarray):
+            self.pppm_aliases = array(self.pppm_aliases)
 
         # pppm parameters
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
 
         # Pack constants together for brevity in input list
         kappa = 1.0 / params.lambda_TF if self.type == "yukawa" else 0.0
-        constants = np.array([kappa, self.pppm_alpha_ewald, params.fourpie0])
+        constants = array([kappa, self.pppm_alpha_ewald, params.fourpie0])
         # Calculate the Optimized Green's Function
         self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
             params.box_lengths, self.pppm_mesh, self.pppm_aliases, self.pppm_cao, constants
         )
 
         # Complete PM Force error calculation
-        params.pppm_pm_err *= np.sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
+        params.pppm_pm_err *= sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
         params.pppm_pm_err /= params.box_volume ** (2.0 / 3.0)
 
         # Total Force Error
-        params.force_error = np.sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
+        params.force_error = sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
 
         self.force_error = params.force_error
 
@@ -426,7 +423,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial = force_pp.update(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial = pp_update(
             ptcls.pos,
             ptcls.id,
             ptcls.masses,
@@ -442,7 +439,7 @@ class Potential:
             # Mie Energy of charged systems
             # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
             dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * np.pi * np.sum(dipole ** 2) / (3.0 * self.box_volume * self.fourpie0)
+            ptcls.potential_energy += 2.0 * pi * (dipole ** 2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_brute(self, ptcls):
         """
@@ -454,7 +451,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc = force_pp.update_0D(
+        ptcls.potential_energy, ptcls.acc = pp_update_0D(
             ptcls.pos,
             ptcls.id,
             ptcls.masses,
@@ -469,7 +466,7 @@ class Potential:
             # Mie Energy of charged systems
             # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
             dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * np.pi * np.sum(dipole ** 2) / (3.0 * self.box_volume * self.fourpie0)
+            ptcls.potential_energy += 2.0 * pi * (dipole ** 2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_pm(self, ptcls):
         """Calculate the pm part of the potential and acceleration.
@@ -480,7 +477,7 @@ class Potential:
             Particles' data
 
         """
-        U_long, acc_l_r = force_pm.update(
+        U_long, acc_l_r = pm_update(
             ptcls.pos,
             ptcls.charges,
             ptcls.masses,
@@ -493,9 +490,9 @@ class Potential:
             self.pppm_cao,
         )
         # Ewald Self-energy
-        U_long += self.QFactor * self.pppm_alpha_ewald / np.sqrt(np.pi)
+        U_long += self.QFactor * self.pppm_alpha_ewald / sqrt(pi)
         # Neutrality condition
-        U_long += -np.pi * self.total_net_charge ** 2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald ** 2)
+        U_long += -pi * self.total_net_charge ** 2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald ** 2)
 
         ptcls.potential_energy += U_long
 
@@ -526,13 +523,13 @@ class Potential:
     #
     #     """
     #
-    #     if params.potential.type == 'Coulomb':
-    #         out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=np.transpose(ptcls.pos), charges=ptcls.charges, pg=2)
-    #     elif params.potential.type == 'Yukawa':
-    #         out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.lambda_TF, sources=np.transpose(ptcls.pos),
+    #     if params.potential.type == 'coulomb':
+    #         out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=ptcls.pos.transpose(), charges=ptcls.charges, pg=2)
+    #     elif params.potential.type == 'yukawa':
+    #         out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.lambda_TF, sources=ptcls.pos.transpose(),
     #                          charges=ptcls.charges, pg=2)
     #
-    #     potential_energy = ptcls.charges @ out_fmm.pot.real * 4.0 * np.pi / params.fourpie0
-    #     ptcls.acc = - np.transpose(ptcls.charges * out_fmm.grad.real / ptcls.mass) / params.fourpie0
+    #     potential_energy = ptcls.charges @ out_fmm.pot.real * 4.0 * pi / params.fourpie0
+    #     ptcls.acc = - (ptcls.charges * out_fmm.grad.real / ptcls.mass).transpose() / params.fourpie0
     #
     #     return potential_energy

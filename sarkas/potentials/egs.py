@@ -91,12 +91,12 @@ else
     pot_matrix[5] = 1.0 / gamma_plus
 
 """
-import numpy as np
-from numba import njit
-# import fdint
+from numpy import cos, cosh, exp, pi, sin, sqrt, tanh, zeros
+from numba import jit
+from numba.core.types import float64, UniTuple
 
-from sarkas.utilities.exceptions import AlgorithmError
-from sarkas.utilities.maths import force_error_analytic_pp, fd_integral
+from ..utilities.exceptions import AlgorithmError
+from ..utilities.maths import force_error_analytic_pp, fd_integral
 
 
 def update_params(potential, params):
@@ -122,9 +122,8 @@ def update_params(potential, params):
     if not hasattr(potential, "lmbda"):
         potential.lmbda = 1.0 / 9.0
 
-    # fdint_dfdk_vec = np.vectorize(fdint.dfdk)
     # eq. (14) of Ref. [1]_
-    params.nu = 3.0 / np.pi ** 1.5 * params.landau_length / params.lambda_deB
+    params.nu = 3.0 / pi ** 1.5 * params.landau_length / params.lambda_deB
     dIdeta = - 3.0/2.0 * fd_integral(params.eta_e, -1.5)
     params.nu *= potential.lmbda * dIdeta
 
@@ -137,9 +136,9 @@ def update_params(potential, params):
         # eq. (34) of Ref. [1]_
         Dtheta = 1.0 + 3.9431 * theta ** 2 + 7.9138 * theta ** 4
         # eq. (32) of Ref. [1]_
-        h = Ntheta / Dtheta * np.tanh(1.0 / theta)
+        h = Ntheta / Dtheta * tanh(1.0 / theta)
         # grad h(x)
-        gradh = -(Ntheta / Dtheta) / np.cosh(1 / theta) ** 2 / (theta ** 2) - np.tanh(  # derivative of tanh(1/x)
+        gradh = -(Ntheta / Dtheta) / cosh(1 / theta) ** 2 / (theta ** 2) - tanh(  # derivative of tanh(1/x)
             1.0 / theta
         ) * (
             Ntheta * (7.8862 * theta + 31.6552 * theta ** 3) / Dtheta ** 2  # derivative of 1/Dtheta
@@ -155,18 +154,18 @@ def update_params(potential, params):
     # Monotonic decay
     if params.nu <= 1:
         # eq. (29) of Ref. [1]_
-        params.lambda_p = params.lambda_TF * np.sqrt(params.nu / (2.0 * b + 2.0 * np.sqrt(b ** 2 - params.nu)))
-        params.lambda_m = params.lambda_TF * np.sqrt(params.nu / (2.0 * b - 2.0 * np.sqrt(b ** 2 - params.nu)))
-        params.alpha = b / np.sqrt(b - params.nu)
+        params.lambda_p = params.lambda_TF * sqrt(params.nu / (2.0 * b + 2.0 * sqrt(b ** 2 - params.nu)))
+        params.lambda_m = params.lambda_TF * sqrt(params.nu / (2.0 * b - 2.0 * sqrt(b ** 2 - params.nu)))
+        params.alpha = b / sqrt(b - params.nu)
 
     # Oscillatory behavior
     if params.nu > 1:
         # eq. (29) of Ref. [1]_
-        params.gamma_m = params.lambda_TF * np.sqrt(params.nu / (np.sqrt(params.nu) - b))
-        params.gamma_p = params.lambda_TF * np.sqrt(params.nu / (np.sqrt(params.nu) + b))
-        params.alphap = b / np.sqrt(params.nu - b)
+        params.gamma_m = params.lambda_TF * sqrt(params.nu / (sqrt(params.nu) - b))
+        params.gamma_p = params.lambda_TF * sqrt(params.nu / (sqrt(params.nu) + b))
+        params.alphap = b / sqrt(params.nu - b)
 
-    potential.matrix = np.zeros((7, params.num_species, params.num_species))
+    potential.matrix = zeros((7, params.num_species, params.num_species))
 
     potential.matrix[1, :, :] = params.nu
 
@@ -200,11 +199,11 @@ def update_params(potential, params):
 
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        potential.type, potential.rc, potential.matrix, sqrt(3.0 * params.a_ws / (4.0 * pi))
     )
 
 
-@njit
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def egs_force(r_in, pot_matrix):
     """
     Calculates Potential and force between particles using the EGS Potential.
@@ -217,6 +216,21 @@ def egs_force(r_in, pot_matrix):
     pot_matrix : array
         EGS potential parameters. \n
         Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Examples
+    --------
+    >>> from numpy import array, pi
+    >>> from scipy.constants import epsilon_0
+    >>> r = 2.0
+    >>> alpha = 1.3616
+    >>> lambda_p = 1.778757e-09
+    >>> lambda_m = 4.546000e-09
+    >>> charge = 1.440961e-09
+    >>> c_const = charge**2/( 4.0 * pi * epsilon_0)
+    >>> pot_mat = array([c_const * 0.5, 1.0 + alpha, 1.0 - alpha, 1.0/lambda_m, 1.0 / lambda_p, 1.0e-14])
+    >>> egs_force(r, pot_mat)
+    (-0.9067719924627385, 270184640.33105946)
+
 
     Return
     ------
@@ -234,20 +248,20 @@ def egs_force(r_in, pot_matrix):
 
     # nu = pot_matrix[1]
     if pot_matrix[1] <= 1.0:
-        temp1 = pot_matrix[2] * np.exp(-r * pot_matrix[4])
-        temp2 = pot_matrix[3] * np.exp(-r * pot_matrix[5])
+        temp1 = pot_matrix[2] * exp(-r * pot_matrix[4])
+        temp2 = pot_matrix[3] * exp(-r * pot_matrix[5])
         # Potential
         U = (temp1 + temp2) * pot_matrix[0] / r
         # Force
         fr = U / r + pot_matrix[0] * (temp1 * pot_matrix[4] + temp2 * pot_matrix[5]) / r
 
     else:
-        cos = np.cos(r * pot_matrix[4])
-        sin = np.sin(r * pot_matrix[4])
-        exp = pot_matrix[0] * np.exp(-r * pot_matrix[5])
-        U = (cos + pot_matrix[3] * sin) * exp / r
+        coskr = cos(r * pot_matrix[4])
+        sinkr = sin(r * pot_matrix[4])
+        expkr = pot_matrix[0] * exp(-r * pot_matrix[5])
+        U = (coskr + pot_matrix[3] * sinkr) * expkr / r
         fr = U / r  # derivative of 1/r
         fr += U * pot_matrix[5]  # derivative of exp
-        fr += pot_matrix[4] * (sin - pot_matrix[3] * cos) * exp / r
+        fr += pot_matrix[4] * (sinkr - pot_matrix[3] * coskr) * expkr / r
 
     return U, fr

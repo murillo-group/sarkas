@@ -3,16 +3,17 @@ Module of various types of time_evolution
 """
 
 import numpy as np
-from numba import njit
+from numba import jit, float64, void, int64
+
 from IPython import get_ipython
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
 else:
     from tqdm import tqdm
-# import fmm3dpy as fmm
-# from sarkas.potentials import force_pm, force_pp
 
+
+# import fmm3dpy as fmm
 
 class Integrator:
     """
@@ -385,9 +386,9 @@ class Integrator:
         for ic, num in enumerate(self.species_num):
             sp_end += num
             ptcls.pos[sp_start:sp_end, :] += (
-                self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :]
-                + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :]
-                + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
+                    self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :]
+                    + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :]
+                    + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
             )
             sp_start += num
 
@@ -403,9 +404,9 @@ class Integrator:
             sp_end += num
 
             ptcls.vel[sp_start:sp_end, :] = (
-                self.c1 * self.c2 * ptcls.vel[sp_start:sp_end, :]
-                + 0.5 * self.c2 * self.dt * (ptcls.acc[sp_start:sp_end, :] + acc_old[sp_start:sp_end, :])
-                + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
+                    self.c1 * self.c2 * ptcls.vel[sp_start:sp_end, :]
+                    + 0.5 * self.c2 * self.dt * (ptcls.acc[sp_start:sp_end, :] + acc_old[sp_start:sp_end, :])
+                    + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
             )
             sp_start += num
 
@@ -486,14 +487,14 @@ class Integrator:
         # Magnetic + Const force field x - velocity
         # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
         self.v_F[:, 0] = (
-            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
-            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+                self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+                + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
         )
         # Magnetic + Const force field y - velocity
         # (B x a)_y  = a_x, (B x B x a)_y = -a_y
         self.v_F[:, 1] = (
-            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
-            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+                -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+                + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
         )
 
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
@@ -519,14 +520,14 @@ class Integrator:
         # Magnetic + Const force field x - velocity
         # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
         self.v_F[:, 0] = (
-            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
-            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+                self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+                + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
         )
         # Magnetic + Const force field y - velocity
         # (B x a)_y  = a_x, (B x B x a)_y = -a_y
         self.v_F[:, 1] = (
-            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
-            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+                -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+                + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
         )
 
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
@@ -574,9 +575,9 @@ class Integrator:
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
         ptcls.vel += (
-            0.5 * ptcls.acc * self.dt
-            - self.ccodt / self.omega_c * b_cross_a
-            + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+                0.5 * ptcls.acc * self.dt
+                - self.ccodt / self.omega_c * b_cross_a
+                + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
         )
 
         # Position update
@@ -598,9 +599,9 @@ class Integrator:
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
         ptcls.vel += (
-            0.5 * ptcls.acc * self.dt
-            - self.ccodt / self.omega_c * b_cross_a
-            + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
+                0.5 * ptcls.acc * self.dt
+                - self.ccodt / self.omega_c * b_cross_a
+                + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
         )
 
         return potential_energy
@@ -731,14 +732,14 @@ class Integrator:
         # Magnetic + Const force field x - velocity
         # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
         self.v_F[:, 0] = (
-            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
-            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+                self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+                + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
         )
         # Magnetic + Const force field y - velocity
         # (B x a)_y  = a_x, (B x B x a)_y = -a_y
         self.v_F[:, 1] = (
-            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
-            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+                -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+                + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
         )
 
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
@@ -801,9 +802,9 @@ class Integrator:
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
         ptcls.vel += (
-            ptcls.acc * self.dt
-            - self.ccodt / self.omega_c * b_cross_a
-            + self.dt * self.ssodt * b_cross_b_cross_a
+                ptcls.acc * self.dt
+                - self.ccodt / self.omega_c * b_cross_a
+                + self.dt * self.ssodt * b_cross_b_cross_a
         )
 
         # Second half position update
@@ -833,17 +834,17 @@ class Integrator:
         """
         # Drift half step
         # Rotate Positions
-        ptcls.pos[:, 0] += ptcls.vel[:,0] * self.sdt[:,0]/self.omega_c[:,0] \
-                           + ptcls.vel[:,1] * self.ccodt[:,1] / self.omega_c[:,1]
-        ptcls.pos[:, 1] += ptcls.vel[:,1] * self.sdt[:,1]/self.omega_c[:,1] \
-                           - ptcls.vel[:,0] * self.ccodt[:,0] / self.omega_c[:,0]
+        ptcls.pos[:, 0] += ptcls.vel[:, 0] * self.sdt[:, 0] / self.omega_c[:, 0] \
+                           + ptcls.vel[:, 1] * self.ccodt[:, 1] / self.omega_c[:, 1]
+        ptcls.pos[:, 1] += ptcls.vel[:, 1] * self.sdt[:, 1] / self.omega_c[:, 1] \
+                           - ptcls.vel[:, 0] * self.ccodt[:, 0] / self.omega_c[:, 0]
         ptcls.pos[:, 2] += 0.5 * ptcls.vel[:, 2] * self.dt
         # Enforce boundary condition
         self.enforce_bc(ptcls)
         # Create rotated velocities
-        self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:,1] * ptcls.vel[:, 1]
-        self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:,0] * ptcls.vel[:, 0]
-        ptcls.vel[:, :2] = np.copy(self.v_B[:,:2])
+        self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:, 1] * ptcls.vel[:, 1]
+        self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
+        ptcls.vel[:, :2] = np.copy(self.v_B[:, :2])
         # Compute total potential energy and accelerations
         potential_energy = self.update_accelerations(ptcls)
 
@@ -852,10 +853,10 @@ class Integrator:
 
         # Drift half step
         # Rotate Positions
-        ptcls.pos[:, 0] += ptcls.vel[:,0] * self.sdt[:,0] / self.omega_c[:,0] \
-                           + ptcls.vel[:,1] * self.ccodt[:,1] / self.omega_c[:,1]
-        ptcls.pos[:, 1] += ptcls.vel[:,1] * self.sdt[:,1] / self.omega_c[:,1] \
-                           - ptcls.vel[:,0] * self.ccodt[:,0] / self.omega_c[:,0]
+        ptcls.pos[:, 0] += ptcls.vel[:, 0] * self.sdt[:, 0] / self.omega_c[:, 0] \
+                           + ptcls.vel[:, 1] * self.ccodt[:, 1] / self.omega_c[:, 1]
+        ptcls.pos[:, 1] += ptcls.vel[:, 1] * self.sdt[:, 1] / self.omega_c[:, 1] \
+                           - ptcls.vel[:, 0] * self.ccodt[:, 0] / self.omega_c[:, 0]
         ptcls.pos[:, 2] += 0.5 * ptcls.vel[:, 2] * self.dt
         # Enforce boundary condition
         self.enforce_bc(ptcls)
@@ -863,7 +864,7 @@ class Integrator:
         self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:, 1] * ptcls.vel[:, 1]
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         # Update final velocities
-        ptcls.vel[:,:2] = np.copy(self.v_B[:,:2])
+        ptcls.vel[:, :2] = np.copy(self.v_B[:, :2])
 
         return potential_energy
 
@@ -890,8 +891,8 @@ class Integrator:
         b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
         b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
         # Rotate Positions
-        ptcls.pos += 0.5 * ptcls.vel * self.dt - self.ccodt * b_cross_v /self.omega_c \
-                           + 0.5 * self.dt * self.ssodt * b_cross_b_cross_v
+        ptcls.pos += 0.5 * ptcls.vel * self.dt - self.ccodt * b_cross_v / self.omega_c \
+                     + 0.5 * self.dt * self.ssodt * b_cross_b_cross_v
         # Enforce boundary condition
         self.enforce_bc(ptcls)
         # First half step of velocity update
@@ -967,17 +968,17 @@ class Integrator:
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
-            print("Total plasma frequency = {:.6e} [rad/s]".format(wp_tot) )
+            print("Total plasma frequency = {:.6e} [rad/s]".format(wp_tot))
             print("w_p dt = {:.4f} ~ 1/{}".format(wp_dt, int(1.0 / wp_dt)))
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print('Highest w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt/np.pi))
-                    print('Smallest w_c dt = {:2.4f} = {:.4f} pi'.format(low_wc_dt, low_wc_dt/np.pi))
+                    print('Highest w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
+                    print('Smallest w_c dt = {:2.4f} = {:.4f} pi'.format(low_wc_dt, low_wc_dt / np.pi))
                 else:
-                    print('w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt/np.pi))
+                    print('w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
         elif potential_type == "qsp":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_ions = np.linalg.norm(self.species_plasma_frequencies[1:])
@@ -990,10 +991,10 @@ class Integrator:
             print("total ion plasma frequency = {:.6e} [rad/s]".format(wp_ions))
             print('w_pe dt = {:2.4f} ~ 1/{}'.format(
                 self.dt * self.species_plasma_frequencies[0],
-                int(1.0 /(self.dt * self.species_plasma_frequencies[0]))
+                int(1.0 / (self.dt * self.species_plasma_frequencies[0]))
             )
             )
-            print('w_pi dt = {:2.4f} ~ 1/{}'.format(self.dt * wp_ions, int(1.0 /(self.dt * wp_ions))))
+            print('w_pi dt = {:2.4f} ~ 1/{}'.format(self.dt * wp_ions, int(1.0 / (self.dt * wp_ions))))
 
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies[0]).max() * self.dt
@@ -1004,8 +1005,8 @@ class Integrator:
                 )
                 )
 
-                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt/np.pi))
-                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt/np.pi))
+                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
         elif potential_type == "lj":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
@@ -1140,8 +1141,8 @@ class Integrator:
             print("Total number of snapshots = {} ".format(int(self.production_steps / self.prod_dump_step)))
 
 
-@njit
-def enforce_pbc(pos, cntr, box_vector):
+@jit(void(float64[:, :], float64[:, :], float64[:]), nopython=True)
+def enforce_pbc(pos, cntr, box_vector) -> None:
     """
     Enforce Periodic Boundary conditions.
 
@@ -1172,8 +1173,8 @@ def enforce_pbc(pos, cntr, box_vector):
                 cntr[p, d] -= 1
 
 
-@njit
-def enforce_abc(pos, vel, acc, charges, box_vector):
+@jit(void(float64[:, :], float64[:, :], float64[:, :], float64[:], float64[:]), nopython=True)
+def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
     """
     Enforce Absorbing Boundary conditions.
 
@@ -1214,8 +1215,8 @@ def enforce_abc(pos, vel, acc, charges, box_vector):
                 charges[p] = 0.0
 
 
-@njit
-def enforce_rbc(pos, vel, box_vector, dt):
+@jit(void(float64[:, :], float64[:, :], float64[:], float64), nopython=True)
+def enforce_rbc(pos, vel, box_vector, dt) -> None:
     """
     Enforce Absorbing Boundary conditions.
 
@@ -1250,8 +1251,8 @@ def enforce_rbc(pos, vel, box_vector, dt):
                 pos[p, d] += vel[p, d] * dt
 
 
-@njit
-def remove_drift(vel, nums, masses):
+@jit(void(float64[:, :], int64[:], float64[:]), nopython=True)
+def remove_drift(vel, nums, masses) -> None:
     """
     Enforce conservation of total linear momentum. Updates ``particles.vel``
 

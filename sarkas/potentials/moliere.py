@@ -38,9 +38,11 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[6] = b_3
 
 """
-import numpy as np
-import numba as nb
-from sarkas.utilities.maths import force_error_analytic_pp
+from numpy import exp, sqrt, zeros, pi, array
+from numba import jit
+from numba.core.types import float64, UniTuple
+
+from ..utilities.maths import force_error_analytic_pp
 
 
 def update_params(potential, params):
@@ -56,11 +58,11 @@ def update_params(potential, params):
         Simulation's parameters.
 
     """
-    potential.screening_lengths = np.array(potential.screening_lengths)
-    potential.screening_charges = np.array(potential.screening_charges)
+    potential.screening_lengths = array(potential.screening_lengths)
+    potential.screening_charges = array(potential.screening_charges)
     params_len = len(potential.screening_lengths)
 
-    potential.matrix = np.zeros((2 * params_len + 1, params.num_species, params.num_species))
+    potential.matrix = zeros((2 * params_len + 1, params.num_species, params.num_species))
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
@@ -74,11 +76,11 @@ def update_params(potential, params):
     # This overestimates the Force error, but it doesn't matter.
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], sqrt(3.0 * params.a_ws / (4.0 * pi))
     )
 
 
-@nb.njit
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def moliere_force(r, pot_matrix):
     """
     Calculates the PP force between particles using the Moliere Potential.
@@ -108,8 +110,8 @@ def moliere_force(r, pot_matrix):
     for i in range(int(len(pot_matrix[:-1]) / 2)):
         factor1 = r * pot_matrix[i + 4]
         factor2 = pot_matrix[i + 1] / r
-        U += factor2 * np.exp(-factor1)
-        force += np.exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i + 1])
+        U += factor2 * exp(-factor1)
+        force += exp(-factor1) * factor2 * (1.0 / r + pot_matrix[i + 1])
 
     force *= pot_matrix[0]
     U *= pot_matrix[0]

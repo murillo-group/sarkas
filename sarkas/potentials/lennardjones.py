@@ -52,9 +52,11 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[4] = short-range cutoff
 
 """
-import numpy as np
-import numba as nb
-from sarkas.utilities.maths import force_error_analytic_pp
+from numpy import sqrt, zeros, pi, array
+from numba import jit
+from numba.core.types import float64, UniTuple
+
+from ..utilities.maths import force_error_analytic_pp
 
 
 def update_params(potential, params):
@@ -70,10 +72,10 @@ def update_params(potential, params):
         Simulation's parameters.
 
     """
-    potential.matrix = np.zeros((5, params.num_species, params.num_species))
+    potential.matrix = zeros((5, params.num_species, params.num_species))
     # See Lima Physica A 391 4281 (2012) for the following definitions
     if not hasattr(potential, "powers"):
-        potential.powers = np.array([12, 6])
+        potential.powers = array([12, 6])
 
     exponent = potential.powers[0] / (potential.powers[1] - potential.powers[0])
     lj_constant = potential.powers[1] / (potential.powers[0] - potential.powers[1])
@@ -100,11 +102,11 @@ def update_params(potential, params):
 
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix, np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        potential.type, potential.rc, potential.matrix, sqrt(3.0 * params.a_ws / (4.0 * pi))
     )
 
 
-@nb.njit
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def lj_force(r_in, pot_matrix):
     """
     Calculates the PP force between particles using Lennard-Jones Potential.

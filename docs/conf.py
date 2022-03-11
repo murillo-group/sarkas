@@ -50,24 +50,18 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
-    # 'sphinx_rtd_theme',
     'sphinxcontrib.apidoc',
-    # 'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.viewcode',
-    # 'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
     'nbsphinx',
     'recommonmark',
     'sphinx_panels',
-    # 'gallery_generator',
 ]
-
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -173,6 +167,7 @@ html_css_files = [
     "my-style.css"
     ]
 # panels_add_fontawesome_latex = True
+
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
 # Add any paths that contain custom themes here, relative to this directory.

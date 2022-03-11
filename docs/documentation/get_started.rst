@@ -20,7 +20,7 @@ You can create a new environment with python 3.7 using Anaconda Navigator.
 Follow the instructions in this `link <https://docs.anaconda.com/anaconda/navigator/getting-started/#managing-environments>`_
 
 Command Line Interface (UNIX systems)
-------------------------------------
+-------------------------------------
 Open a Terminal and check if you have ``conda`` installed
 
 .. code-block:: bash

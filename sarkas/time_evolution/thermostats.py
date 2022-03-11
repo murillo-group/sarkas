@@ -1,9 +1,8 @@
 """
 Module containing various thermostat. Berendsen only for now.
 """
-from warnings import warn
 import numpy as np
-from numba import njit
+from numba import jit, float64, int64, void
 
 
 class Thermostat:
@@ -155,30 +154,40 @@ class Thermostat:
         berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep, self.relaxation_rate, it)
 
 
-@njit
+@jit(
+    void(
+        float64[:, :],
+        float64[:],
+        float64[:],
+        int64[:],
+        int64,
+        float64,
+        int64
+    ),
+    nopython=True)
 def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     """
     Update particle velocity based on Berendsen thermostat [Berendsen1984]_.
 
     Parameters
     ----------
-    T : numpy.ndarray
-        Instantaneous temperature of each species.
-
     vel : numpy.ndarray
         Particles' velocities to rescale.
 
     T_desired : numpy.ndarray
         Target temperature of each species.
 
-    tau : float
-        Scale factor.
+    T : numpy.ndarray
+        Instantaneous temperature of each species.
+
+    species_np : numpy.ndarray
+        Number of each species.
 
     therm_timestep : int
         Timestep at which to turn on the thermostat.
 
-    species_np : numpy.ndarray
-        Number of each species.
+    tau : float
+        Scale factor.
 
     it : int
         Current timestep.

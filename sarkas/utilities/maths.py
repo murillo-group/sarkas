@@ -2,7 +2,7 @@
 
 import numpy as np
 import numba as nb
-import scipy.integrate
+from scipy.integrate import quad
 import scipy.signal as scp_signal
 
 TWOPI = 2.0 * np.pi
@@ -385,4 +385,4 @@ def fd_integral(eta, p):
         FD Integral.
 
     """
-    return scipy.integrate.quad(lambda x: x ** p / (1 + np.exp(x - eta)), 0, 100)[0]
+    return quad(lambda x: x ** p / (1 + np.exp(x - eta)), 0, 100)[0]
