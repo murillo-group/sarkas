@@ -66,17 +66,16 @@ def update_params(potential, params):
 
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
-
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
-            potential.matrix[1 : params_len + 1, i, j] = potential.screening_charges
-            potential.matrix[params_len + 1 :, i, j] = potential.screening_lengths
+            potential.matrix[1: params_len + 1, i, j] = potential.screening_charges
+            potential.matrix[params_len + 1:, i, j] = 1./potential.screening_lengths
 
     potential.force = moliere_force
     # Use Yukawa force error formula with the smallest screening length.
     # This overestimates the Force error, but it doesn't matter.
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], sqrt(3.0 * params.a_ws / (4.0 * pi))
+        potential.type, potential.rc, potential.matrix[params_len + 1:, :, :], sqrt(3.0 * params.a_ws / (4.0 * pi))
     )
 
 
@@ -93,6 +92,23 @@ def moliere_force(r, pot_matrix):
     pot_matrix : numpy.ndarray
         Moliere potential parameters. \n
         Shape = (7, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Examples
+    --------
+    >>> from scipy.constants import epsilon_0, pi, elementary_charge
+    >>> from numpy import array, zeros
+    >>> charge = 4.0 * elementary_charge  # = 4e [C] mks units
+    >>> coul_const = 1.0/ (4.0 * pi * epsilon_0)
+    >>> screening_charges = array([0.5, -0.5, 1.0])
+    >>> screening_lengths = array([5.99988000e-11, 1.47732309e-11, 1.47732309e-11])  # [m]
+    >>> params_len = len(screening_lengths)
+    >>> pot_mat = zeros(2 * params_len + 1)
+    >>> pot_mat[0] = coul_const * charge**2
+    >>> pot_mat[1: params_len + 1] = screening_charges.copy()
+    >>> pot_mat[params_len + 1:] = 1./screening_lengths
+    >>> r = 6.629755e-10  # [m] particles distance
+    >>> moliere_force(r, pot_mat)
+    (4.423663010052846e-23, 6.672438139145769e-14)
 
     Returns
     -------

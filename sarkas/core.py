@@ -1673,7 +1673,7 @@ class Species:
             print("[cm]" if units == "cgs" else "[m]")
 
         print("\tDebye Length = {:.6e} ".format(self.debye_length), end="")
-        print("[1/cm]" if units == "cgs" else "[1/m]")
+        print("[cm]" if units == "cgs" else "[m]")
         print("\tPlasma Frequency = {:.6e} [rad/s]".format(self.plasma_frequency))
         if self.cyclotron_frequency:
             print("\tCyclotron Frequency = {:.6e} [rad/s]".format(self.cyclotron_frequency))

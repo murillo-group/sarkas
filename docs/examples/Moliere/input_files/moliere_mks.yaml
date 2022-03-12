@@ -13,7 +13,7 @@ Potential:
     method: PP                    # Linked-cell
     rc: 6.629755e-10           # cut-off radius, meter
     screening_charges: [0.5, -0.5, 1.0]
-    screening_lengths: [1.6667e+10, 6.7690e+10, 6.7690e+10]
+    screening_lengths: [5.99988000e-11, 1.47732309e-11, 1.47732309e-11]
 
 Integrator:
     type: Verlet                  # velocity integrator type

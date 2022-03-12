@@ -192,6 +192,8 @@ def update_params(potential, params):
 
     potential.matrix[1, :, :] = 1.0 / potential.screening_length
 
+    # potential.matrix[0, :, :] = params.species_charges.reshape((len(params.species_charge), 1)) * params.species_charges / params.fourpie0
+    # the above line is the Python version of the for loops below. I believe that the for loops are easier to understand
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0

@@ -19,7 +19,7 @@ In the case of multispecies liquids we use the `Lorentz-Berthelot <https://en.wi
 mixing rules
 
 .. math::
-    \\epsilon_{12} = \\sqrt{\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.
+    \\epsilon_{12} = \\sqrt{\\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.
 
 Force Error
 ***********
@@ -84,7 +84,6 @@ def update_params(potential, params):
     # Use the Lorentz-Berthelot mixing rules.
     # Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)
     # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
-    potential.sigma2 = 0.0
     potential.epsilon_tot = 0.0
     # Recall that species_charges contains sqrt(epsilon)
     for i, q1 in enumerate(params.species_charges):
@@ -93,9 +92,10 @@ def update_params(potential, params):
             potential.matrix[1, i, j] = 0.5 * (params.species_lj_sigmas[i] + params.species_lj_sigmas[j])
             potential.matrix[2, i, j] = potential.powers[0]
             potential.matrix[3, i, j] = potential.powers[1]
-            potential.sigma2 += params.species_lj_sigmas[i]
+
             potential.epsilon_tot += q1 * q2
 
+    potential.sigma_avg = params.species_lj_sigmas.mean()
     potential.matrix[4, :, :] = potential.a_rs
 
     potential.force = lj_force
@@ -119,6 +119,17 @@ def lj_force(r_in, pot_matrix):
     pot_matrix : numpy.ndarray
         LJ potential parameters. \n
         Shape = (5, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Examples
+    --------
+    >>> pot_const = 4.0 * 1.656e-21 # 4*epsilon in [J] (mks units)
+    >>> sigma = 3.4e-10   # [m] (mks units)
+    >>> high_pow, low_pow = 12., 6.
+    >>> short_cutoff = 0.0001 * sigma
+    >>> pot_mat = array([pot_const, sigma, high_pow, low_pow, short_cutoff])
+    >>> r = 15.0 * sigma  # particles' distance in [m]
+    >>> lj_force(r, pot_mat)
+    (-5.815308131440668e-28, -6.841538377536503e-19)
 
     Returns
     -------

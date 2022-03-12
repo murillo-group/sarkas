@@ -14,9 +14,9 @@
 
 Particles:
     - Species:
-        name: Ar                 # species name
+        name: Ar                    # species name
         num: 864                    # total number of Argon
-        mass_density: 1.374   # g/cc
+        mass_density: 1.374         # g/cc
         atomic_weight: 39.95        # A
         temperature: 94.4           # kelvin
         epsilon: 1.656e-14          # 120 K * kb

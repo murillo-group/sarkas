@@ -1011,19 +1011,12 @@ class InputOutput:
             # simulation.parameters.pretty_print()
 
         elif simulation.potential.type == "lj":
-            print("epsilon = {:.6e}".format(simulation.potential.matrix[0, 0, 0]))
-            print("sigma = {:.6e}".format(simulation.potential.matrix[1, 0, 0]))
-            print("reduced density = {:.6e}".format(
-                simulation.potential.sigma2**3 * simulation.parameters.total_num_density
-            )
-            )
-            print("reduced temperature = {:.6e}".format(
-                simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
-            )
-            )
-
-            # print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
-
+            print(f"epsilon_tot = {simulation.potential.epsilon_tot:.6e}")
+            print(f"sigma_avg = {simulation.potential.sigma_avg:.6e}")
+            rho = simulation.potential.sigma_avg**3 * simulation.parameters.total_num_density
+            tau = simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
+            print(f"reduced density = {rho:.6e}")
+            print(f"reduced temperature = {tau:.6e}")
         elif simulation.potential.type == "qsp":
             print("QSP type: {}".format(simulation.potential.qsp_type))
             print("Pauli term: {}".format(simulation.potential.qsp_pauli))
@@ -1069,6 +1062,8 @@ class InputOutput:
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
 
+        elif simulation.potential.type == "moliere":
+            print(f"")
         elif simulation.potential.type == "hs_yukawa":
             b = simulation.potential.hs_diameter / simulation.parameters.a_ws
             print(f"hard sphere diameter = {b:.4f} a_ws = {simulation.potential.hs_diameter:.4e} ", end="")
