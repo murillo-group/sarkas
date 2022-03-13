@@ -7,8 +7,7 @@ API reference
 .. _core_api:
 
 .. autosummary::
-    :toctree: 
-    :nosignatures:
+    :toctree:
 
     core
     processes
@@ -20,18 +19,12 @@ Potentials
 ----------
 
 .. autosummary::
-    :toctree: 
-    :nosignatures:
+   :toctree: potentials
+   :template: custom-module-template.rst
+   :recursive:
+   :nosignatures:
 
     potentials.core
-    potentials.coulomb
-    potentials.egs
-    potentials.force_pm
-    potentials.force_pp
-    potentials.lennardjones
-    potentials.moliere
-    potentials.qsp
-    potentials.yukawa
 
 
 .. _timeEvo_api:
@@ -40,11 +33,12 @@ Time Evolution
 --------------
 
 .. autosummary::
-    :toctree: 
+    :toctree: time_evolution
+    :template: custom-module-template.rst
+    :recursive:
     :nosignatures:
 
     time_evolution
-
 
 
 .. _tools_api:
@@ -53,7 +47,9 @@ Tools
 -----
 
 .. autosummary::
-    :toctree: 
+    :toctree: tools
+    :template: custom-module-template.rst
+    :recursive:
     :nosignatures:
 
     tools
@@ -67,7 +63,7 @@ Utilities
 ---------
 
 .. autosummary::
-    :toctree: 
+    :toctree:
     :nosignatures:
 
     utilities

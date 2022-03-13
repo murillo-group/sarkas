@@ -13,7 +13,6 @@ from matplotlib.gridspec import GridSpec
 
 import os
 import pickle
-import copy as pycopy
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -21,9 +20,8 @@ import matplotlib.pyplot as plt
 
 import scipy.stats as scp_stats
 
-from sarkas.utilities.timing import SarkasTimer
-from sarkas.utilities.io import num_sort
-from sarkas.utilities.maths import correlationfunction
+from ..utilities.timing import SarkasTimer
+from ..utilities.maths import correlationfunction
 
 UNITS = [
     # MKS Units

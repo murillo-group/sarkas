@@ -21,55 +21,55 @@ class Integrator:
 
     Attributes
     ----------
-    dt: float
+    dt : float
         Timestep.
 
-    equilibration_steps: int
+    equilibration_steps : int
         Total number of equilibration timesteps.
 
-    eq_dump_step: int
+    eq_dump_step : int
         Equilibration dump interval.
 
-    kB: float
+    kB : float
         Boltzmann constant.
 
-    magnetized: bool
+    magnetized : bool
         Magnetized simulation flag.
 
-    production_steps: int
+    production_steps : int
         Total number of production timesteps.
 
-    prod_dump_step: int
+    prod_dump_step : int
         Production dump interval.
 
-    species_num: numpy.ndarray
+    species_num : numpy.ndarray
         Number of particles of each species.
 
-    species_plasma_frequencies: numpy.ndarray
+    species_plasma_frequencies : numpy.ndarray
         Plasma frequency of each species.
 
-    box_lengths: numpy.ndarray
+    box_lengths : numpy.ndarray
         Length of each box side.
 
-    pbox_lengths: numpy.ndarray
+    pbox_lengths : numpy.ndarray
         Initial particle box sides' lengths.
 
-    verbose: bool
+    verbose : bool
         Verbose output flag.
 
-    type: str
+    type : str
         Integrator type.
 
-    update: func
+    update : func
         Integrator choice. 'verlet', 'verlet_langevin', 'magnetic_verlet' or 'magnetic_boris'.
 
-    update_accelerations: func
+    update_accelerations : func
         Link to the correct potential update function.
 
-    thermostate: func
+    thermostate : func
         Link to the correct thermostat function.
 
-    enforce_bc: func
+    enforce_bc : func
         Link to the function enforcing boundary conditions. 'periodic' or 'absorbing'.
 
     """
@@ -956,7 +956,7 @@ class Integrator:
 
         enforce_rbc(ptcls.pos, ptcls.vel, self.box_lengths, self.dt)
 
-    def pretty_print(self, potential_type, restart, restart_step):
+    def pretty_print(self, potential_type: str, restart: str, restart_step: int):
         """Print integrator attributes in a user friendly way."""
 
         if self.magnetized and self.electrostatic_equilibration:
