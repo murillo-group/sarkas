@@ -3,7 +3,6 @@ Module for handling Particle-Particle interaction.
 """
 
 import numpy as np
-
 from numba import njit
 
 
@@ -301,7 +300,7 @@ def update(pos, p_id, p_mass, box_lengths, rc, potential_matrix, force, measure,
                                         dz = pos[i, 2] - (pos[j, 2] + rshift[2])
 
                                         # Compute distance between particles i and j
-                                        r = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
 
                                         if measure and int(r / dr_rdf) < rdf_nbins:
                                             rdf_hist[int(r / dr_rdf), p_id[i], p_id[j]] += 1
@@ -492,7 +491,7 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                                         dz = pos[i, 2] - (pos[j, 2] + rshift[2])
 
                                         # Compute distance between particles i and j
-                                        r = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+                                        r = np.sqrt(dx**2 + dy**2 + dz**2)
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:

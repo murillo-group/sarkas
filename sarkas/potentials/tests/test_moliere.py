@@ -15,7 +15,7 @@ def test_moliere_force():
     params_len = len(screening_lengths)
 
     pot_mat = zeros(2 * params_len + 1)
-    pot_mat[0] = coul_const * charge ** 2
+    pot_mat[0] = coul_const * charge**2
     pot_mat[1 : params_len + 1] = screening_charges.copy()
     pot_mat[params_len + 1 :] = 1.0 / screening_lengths
 

@@ -15,7 +15,6 @@ import pandas as pd
 import pickle
 import scipy.stats as scp_stats
 import seaborn as sns
-
 from matplotlib.gridspec import GridSpec
 from numba import njit
 
@@ -87,13 +86,13 @@ PREFIXES = {
 
 def compute_doc(func):
     func.__doc__ = """
-    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n 
+    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n
     The data of each slice is saved in hierarchical dataframes,
     :attr:`~.dataframe_slices` (:attr:`~.dataframe_acf_slices`). \n
-    
+
     The sliced averaged data is saved in other hierarchical dataframes,
     :attr:`~.dataframe` (:attr:`~.dataframe_acf_slices`).
-     
+
     """
     return func
 
@@ -2055,11 +2054,11 @@ class RadialDistributionFunction(Observable):
 
         # Calculate the volume of each bin
         sphere_shell_const = 4.0 * np.pi / 3.0
-        bin_vol[0] = sphere_shell_const * self.dr_rdf ** 3
+        bin_vol[0] = sphere_shell_const * self.dr_rdf**3
         for ir in range(1, self.no_bins):
             r1 = ir * self.dr_rdf
             r2 = (ir + 1) * self.dr_rdf
-            bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
+            bin_vol[ir] = sphere_shell_const * (r2**3 - r1**3)
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
         # Save the ra values for simplicity
@@ -2198,8 +2197,8 @@ class RadialDistributionFunction(Observable):
                 hartrees[obs_indx, 0] = dim_const * densities * np.trapz(u_r * r ** (dims - 1), x=r)
                 corrs[obs_indx, 0] = dim_const * densities * np.trapz(u_r * h_r * r ** (dims - 1), x=r)
 
-                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r ** dims, x=r)
-                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r ** dims, x=r)
+                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r**dims, x=r)
+                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r**dims, x=r)
 
                 hartrees[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
                 corrs[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
@@ -3895,7 +3894,7 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
             blk_avg = observable[t_start:t_end].mean()
             sigma2_blk[i] += (blk_avg - run_avg) ** 2
         sigma2_blk[i] /= i - 1
-        statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std ** 2
+        statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std**2
 
     return tau_blk, sigma2_blk, statistical_efficiency
 
@@ -4192,7 +4191,7 @@ def grad_expansion(x, rms, h_coeff):
         Grad expansion.
 
     """
-    gaussian = np.exp(-0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms ** 2))
+    gaussian = np.exp(-0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms**2))
 
     herm_coef = h_coeff / [np.math.factorial(i) for i in range(len(h_coeff))]
     hermite_series = np.polynomial.hermite_e.hermeval(x, herm_coef)

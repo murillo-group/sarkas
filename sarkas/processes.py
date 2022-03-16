@@ -6,7 +6,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
 from matplotlib.colors import LogNorm
 
 from .core import Parameters, Particles, Species
@@ -685,12 +684,12 @@ class PreProcess(Process):
                 )
                 self.potential.pppm_pp_err *= (
                     np.sqrt(self.parameters.total_num_ptcls)
-                    * self.parameters.a_ws ** 2
+                    * self.parameters.a_ws**2
                     / np.sqrt(self.parameters.box_volume)
                 )
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
-                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err ** 2 + self.parameters.pppm_pm_err ** 2)
+                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err**2 + self.parameters.pppm_pm_err**2)
 
                 if j == 0:
                     pp_xlabels.append("{:.2f}".format(self.potential.rc / self.parameters.a_ws))
@@ -704,13 +703,13 @@ class PreProcess(Process):
         pp_times *= 1e-9
         pm_times *= 1e-9
         # Fit the PM times
-        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x ** 3 * np.log2(x ** 3), self.pm_meshes, pm_times)
+        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x**3 * np.log2(x**3), self.pm_meshes, pm_times)
         fit_str = r"Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]" + "\n" + r"$a_2 = ${:.4e}, $a_3 = ${:.4e} ".format(*pm_popt)
         print("\nPM Time " + fit_str)
 
         # Fit the PP Times
         pp_popt, _ = curve_fit(
-            lambda x, a, b: a + b / x ** 3,
+            lambda x, a, b: a + b / x**3,
             self.pp_cells,
             np.mean(pp_times, axis=0),
             p0=[np.mean(pp_times, axis=0)[0], self.parameters.total_num_ptcls],
@@ -724,7 +723,7 @@ class PreProcess(Process):
         ax_pm.plot(self.pm_meshes, pm_times, "o", label="Measured")
         ax_pm.plot(
             self.pm_meshes,
-            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes ** 3),
+            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes**3 * np.log2(self.pm_meshes**3),
             ls="--",
             label="Fit",
         )
@@ -745,7 +744,7 @@ class PreProcess(Process):
             ax_pp.plot(self.pp_cells, pp_times[j], "o", label=r"@ Mesh {}$^3$".format(mesh_points))
 
         # Plot the Fit PP times
-        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells ** 3, ls="--", label="Fit")
+        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells**3, ls="--", label="Fit")
         ax_pp.legend(ncol=2)
         ax_pp.annotate(
             text=fit_pp_str,
@@ -1123,7 +1122,7 @@ class PreProcess(Process):
         # Calculate the analytic PP error and the total force error
         pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(-rcuts * self.kappa)
         pp_force_error *= np.sqrt(
-            self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+            self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
         )
 
         return pp_force_error, rcuts
@@ -1194,14 +1193,14 @@ class PreProcess(Process):
             pm_force_error[ia] = np.sqrt(3.0 * somma) / (2.0 * np.pi)
         # eq.(35)
         pm_force_error *= np.sqrt(
-            self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+            self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
         )
         # Calculate the analytic PP error and the total force error
         if self.potential.type == "qsp":
             for (ir, rc) in enumerate(rcuts):
                 pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(-rc * kappa)
                 pp_force_error[:, ir] *= np.sqrt(
-                    self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+                    self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
                 )
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
@@ -1211,10 +1210,10 @@ class PreProcess(Process):
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
                     pp_force_error[ia, ir] = (
-                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / np.sqrt(rc)
+                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa**2 * rc**2) / np.sqrt(rc)
                     )
                     pp_force_error[ia, ir] *= np.sqrt(
-                        self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+                        self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
                     )
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
                     total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)

@@ -15,7 +15,7 @@ def test_inverse_fd():
     # Values taken from Tutorial Notebooks
     ne = 1.62e32  # [N/m^3]
     lambda_deB = 1.957093e-11  # [m]
-    u = lambda_deB ** 3 * ne * sqrt(pi) / 4.0
+    u = lambda_deB**3 * ne * sqrt(pi) / 4.0
     eta = inverse_fd_half(u)
 
     assert isclose(eta, -0.28604631569655325)
@@ -81,7 +81,7 @@ def test_moliere_force_analytic_pp():
     screening_lengths = array([5.99988000e-11, 1.47732309e-11, 1.47732309e-11])  # [m]
     params_len = len(screening_lengths)
     pot_mat = zeros((2 * params_len + 1, 2, 2))
-    pot_mat[0] = coul_const * charge ** 2
+    pot_mat[0] = coul_const * charge**2
     pot_mat[1 : params_len + 1] = screening_charges.reshape((3, 1, 1))
     pot_mat[params_len + 1 :] = 1.0 / screening_lengths.reshape((3, 1, 1))
     rc = 6.629e-10

@@ -11,7 +11,7 @@ def test_egs_force():
     lambda_p = 1.778757e-09
     lambda_m = 4.546000e-09
     charge = 1.440961e-09
-    c_const = charge ** 2 / (4.0 * pi * epsilon_0)
+    c_const = charge**2 / (4.0 * pi * epsilon_0)
     pot_mat = array([c_const * 0.5, 1.0 + alpha, 1.0 - alpha, 1.0 / lambda_m, 1.0 / lambda_p, 1.0e-14])
 
     potential, force = egs_force(r, pot_mat)

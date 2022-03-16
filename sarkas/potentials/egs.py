@@ -123,7 +123,7 @@ def update_params(potential, params):
         potential.lmbda = 1.0 / 9.0
 
     # eq. (14) of Ref. [1]_
-    params.nu = 3.0 / pi ** 1.5 * params.landau_length / params.lambda_deB
+    params.nu = 3.0 / pi**1.5 * params.landau_length / params.lambda_deB
     dIdeta = -3.0 / 2.0 * fd_integral(params.eta_e, -1.5)
     params.nu *= potential.lmbda * dIdeta
 
@@ -132,17 +132,17 @@ def update_params(potential, params):
     if 0.1 <= theta <= 12:
         # Regime of validity of the following approximation Perrot et al. Phys Rev A 302619 (1984)
         # eq. (33) of Ref. [1]_
-        Ntheta = 1.0 + 2.8343 * theta ** 2 - 0.2151 * theta ** 3 + 5.2759 * theta ** 4
+        Ntheta = 1.0 + 2.8343 * theta**2 - 0.2151 * theta**3 + 5.2759 * theta**4
         # eq. (34) of Ref. [1]_
-        Dtheta = 1.0 + 3.9431 * theta ** 2 + 7.9138 * theta ** 4
+        Dtheta = 1.0 + 3.9431 * theta**2 + 7.9138 * theta**4
         # eq. (32) of Ref. [1]_
         h = Ntheta / Dtheta * tanh(1.0 / theta)
         # grad h(x)
-        gradh = -(Ntheta / Dtheta) / cosh(1 / theta) ** 2 / (theta ** 2) - tanh(  # derivative of tanh(1/x)
+        gradh = -(Ntheta / Dtheta) / cosh(1 / theta) ** 2 / (theta**2) - tanh(  # derivative of tanh(1/x)
             1.0 / theta
         ) * (
-            Ntheta * (7.8862 * theta + 31.6552 * theta ** 3) / Dtheta ** 2  # derivative of 1/Dtheta
-            + (5.6686 * theta - 0.6453 * theta ** 2 + 21.1036 * theta ** 3) / Dtheta
+            Ntheta * (7.8862 * theta + 31.6552 * theta**3) / Dtheta**2  # derivative of 1/Dtheta
+            + (5.6686 * theta - 0.6453 * theta**2 + 21.1036 * theta**3) / Dtheta
         )  # derivative of Ntheta
         # eq.(31) of Ref. [1]_
         b = 1.0 - 2.0 / (8.0 * (params.kF * params.lambda_TF) ** 2) * (h - 2.0 * theta * gradh)
@@ -154,8 +154,8 @@ def update_params(potential, params):
     # Monotonic decay
     if params.nu <= 1:
         # eq. (29) of Ref. [1]_
-        params.lambda_p = params.lambda_TF * sqrt(params.nu / (2.0 * b + 2.0 * sqrt(b ** 2 - params.nu)))
-        params.lambda_m = params.lambda_TF * sqrt(params.nu / (2.0 * b - 2.0 * sqrt(b ** 2 - params.nu)))
+        params.lambda_p = params.lambda_TF * sqrt(params.nu / (2.0 * b + 2.0 * sqrt(b**2 - params.nu)))
+        params.lambda_m = params.lambda_TF * sqrt(params.nu / (2.0 * b - 2.0 * sqrt(b**2 - params.nu)))
         params.alpha = b / sqrt(b - params.nu)
 
     # Oscillatory behavior

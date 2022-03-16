@@ -3,7 +3,6 @@ Module of various types of time_evolution
 """
 
 import numpy as np
-
 from IPython import get_ipython
 from numba import float64, int64, jit, void
 
@@ -388,8 +387,8 @@ class Integrator:
             sp_end += num
             ptcls.pos[sp_start:sp_end, :] += (
                 self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :]
-                + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :]
-                + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
+                + 0.5 * self.dt**2 * ptcls.acc[sp_start:sp_end, :]
+                + 0.5 * self.sigma[ic] * self.dt**1.5 * beta
             )
             sp_start += num
 

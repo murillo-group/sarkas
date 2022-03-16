@@ -295,16 +295,16 @@ class Potential:
         beta_e = 1.0 / (params.kB * params.electron_temperature)
 
         # Plasma frequency
-        params.electron_plasma_frequency = sqrt(4.0 * pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me))
+        params.electron_plasma_frequency = sqrt(4.0 * pi * params.qe**2 * params.ne / (params.fourpie0 * params.me))
 
-        params.electron_debye_length = sqrt(params.fourpie0 / (4.0 * pi * params.qe ** 2 * params.ne * beta_e))
+        params.electron_debye_length = sqrt(params.fourpie0 / (4.0 * pi * params.qe**2 * params.ne * beta_e))
 
         # de Broglie wavelength
         params.lambda_deB = sqrt(twopi * params.hbar2 * beta_e / params.me)
-        lambda3 = params.lambda_deB ** 3
+        lambda3 = params.lambda_deB**3
 
         # Landau length 4pi e^2 beta. The division by fourpie0 is needed for MKS units
-        params.landau_length = 4.0 * pi * params.qe ** 2 * beta_e / params.fourpie0
+        params.landau_length = 4.0 * pi * params.qe**2 * beta_e / params.fourpie0
 
         # chemical potential of electron gas/(kB T), obtained by inverting the density equation.
         params.eta_e = inverse_fd_half(lambda3 * sqrt(pi) * params.ne / 4.0)
@@ -319,18 +319,18 @@ class Potential:
         # Brueckner parameters
         params.rs = params.ae_ws / params.a0
         # Fermi wave number
-        params.kF = (3.0 * pi ** 2 * params.ne) ** (1.0 / 3.0)
+        params.kF = (3.0 * pi**2 * params.ne) ** (1.0 / 3.0)
 
         # Fermi energy
-        params.fermi_energy = params.hbar2 * params.kF ** 2 / (2.0 * params.me)
+        params.fermi_energy = params.hbar2 * params.kF**2 / (2.0 * params.me)
 
         # Other electron parameters
         params.electron_degeneracy_parameter = params.kB * params.electron_temperature / params.fermi_energy
         params.relativistic_parameter = params.hbar * params.kF / (params.me * params.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        params.electron_coupling = params.qe ** 2 / (
-            params.fourpie0 * params.fermi_energy * params.ae_ws * sqrt(params.electron_degeneracy_parameter ** 2)
+        params.electron_coupling = params.qe**2 / (
+            params.fourpie0 * params.fermi_energy * params.ae_ws * sqrt(params.electron_degeneracy_parameter**2)
         )
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
@@ -338,7 +338,7 @@ class Potential:
         params.wdm_parameter *= 2.0 / (params.electron_coupling + 1.0 / params.electron_coupling)
 
         if params.magnetized:
-            b_mag = sqrt((params.magnetic_field ** 2).sum())  # magnitude of B
+            b_mag = sqrt((params.magnetic_field**2).sum())  # magnitude of B
             if params.units == "cgs":
                 params.electron_cyclotron_frequency = params.qe * b_mag / params.c0 / params.me
             else:
@@ -389,11 +389,11 @@ class Potential:
         )
 
         # Complete PM Force error calculation
-        params.pppm_pm_err *= sqrt(params.total_num_ptcls) * params.a_ws ** 2 * params.fourpie0
+        params.pppm_pm_err *= sqrt(params.total_num_ptcls) * params.a_ws**2 * params.fourpie0
         params.pppm_pm_err /= params.box_volume ** (2.0 / 3.0)
 
         # Total Force Error
-        params.force_error = sqrt(params.pppm_pm_err ** 2 + params.pppm_pp_err ** 2)
+        params.force_error = sqrt(params.pppm_pm_err**2 + params.pppm_pp_err**2)
 
         self.force_error = params.force_error
 
@@ -423,7 +423,7 @@ class Potential:
             # Mie Energy of charged systems
             # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
             dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * pi * (dipole ** 2).sum() / (3.0 * self.box_volume * self.fourpie0)
+            ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_brute(self, ptcls):
         """
@@ -450,7 +450,7 @@ class Potential:
             # Mie Energy of charged systems
             # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
             dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * pi * (dipole ** 2).sum() / (3.0 * self.box_volume * self.fourpie0)
+            ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_pm(self, ptcls):
         """Calculate the pm part of the potential and acceleration.
@@ -476,7 +476,7 @@ class Potential:
         # Ewald Self-energy
         U_long += self.QFactor * self.pppm_alpha_ewald / sqrt(pi)
         # Neutrality condition
-        U_long += -pi * self.total_net_charge ** 2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald ** 2)
+        U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
 
         ptcls.potential_energy += U_long
 

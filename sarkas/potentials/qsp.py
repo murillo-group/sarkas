@@ -144,7 +144,7 @@ def update_params(potential, params):
 
             if name2 == name1:  # e-e
                 potential.matrix[2, i, j] = log2 * params.kB * params.electron_temperature
-                potential.matrix[3, i, j] = four_pi / (log2 * lambda_deB ** 2)
+                potential.matrix[3, i, j] = four_pi / (log2 * lambda_deB**2)
 
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
             potential.matrix[1, i, j] = TWOPI / lambda_deB

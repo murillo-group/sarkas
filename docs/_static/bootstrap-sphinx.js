@@ -89,7 +89,7 @@
     $(".bs-sidenav ul").addClass("nav nav-list");
     $(".bs-sidenav > ul > li > a").addClass("nav-header");
 
-    
+
     // back to top
     setTimeout(function () {
       var $sideBar = $(".bs-sidenav");
@@ -119,7 +119,7 @@
         // Trigger to reset if page content is scrolled to bottom.
         .trigger("scroll.bs.affix.data-api");
     }, 0);
-    
+
 
     // Local TOC.
     patchToc($("ul.localtoc"), 2);

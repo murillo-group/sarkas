@@ -8,7 +8,6 @@ import pickle
 import re
 import sys
 import yaml
-
 from IPython import get_ipython
 from pyfiglet import Figlet, print_figlet
 
@@ -364,7 +363,9 @@ class InputOutput:
 
                 print("\nINTEGRATOR: ")
                 simulation.integrator.pretty_print(
-                    simulation.potential.type, simulation.parameters.load_method, simulation.parameters.restart_step,
+                    simulation.potential.type,
+                    simulation.parameters.load_method,
+                    simulation.parameters.restart_step,
                 )
 
             repeat -= 1
@@ -452,7 +453,7 @@ class InputOutput:
         f_log.close()
 
     def preprocess_sizing(self, sizes):
-        """Print the estimated file sizes. """
+        """Print the estimated file sizes."""
 
         screen = sys.stdout
         f_log = open(self.log_file, "a+")
@@ -1024,7 +1025,7 @@ class InputOutput:
         elif simulation.potential.type == "lj":
             print(f"epsilon_tot = {simulation.potential.epsilon_tot:.6e}")
             print(f"sigma_avg = {simulation.potential.sigma_avg:.6e}")
-            rho = simulation.potential.sigma_avg ** 3 * simulation.parameters.total_num_density
+            rho = simulation.potential.sigma_avg**3 * simulation.parameters.total_num_density
             tau = simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
             print(f"reduced density = {rho:.6e}")
             print(f"reduced temperature = {tau:.6e}")
@@ -1351,7 +1352,7 @@ class InputOutput:
         # Rescale constants. This is needed since OVITO has a small number limit.
         pscale = 1.0 / self.a_ws
         vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
-        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency ** 2)
+        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
 
         # Read the list of dumps and sort them in the correct (natural) order
         dumps = os.listdir(dump_dir)

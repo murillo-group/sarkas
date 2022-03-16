@@ -8,7 +8,7 @@
 
 .. raw:: html
    <link rel="preconnect" href="https://fonts.gstatic.com">
-   <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">  
+   <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
 
    <style media="screen" type="text/css">
      h1 { display:none; }
@@ -26,8 +26,8 @@ SARKAS: Python MD code for plasma physics
       <h2 style="font-size:100px">SARKAS</h2>
       <h3 style="font-size:50px">Python MD code for plasma physics</h3>
    </div>
-   
-   
+
+
    <div style="position: relative; justify-content: center; align-items: center; display: grid; grid-template-columns:repeat(auto-fit,535px);">
       <img src="_static/Sarkas_transparent.svg" alt="logo" width="35%" style="justify-self:center; align-self:center;">
       <div>
@@ -41,7 +41,7 @@ SARKAS: Python MD code for plasma physics
           <!--/.Indicators-->
           <!--Slides-->
           <div class="carousel-inner" role="listbox">
-            
+
             <div class="item active">
               <img src="_static/codesnippet.png" width="800px" height="600px" alt="Code Snippet">
             </div>
@@ -49,9 +49,9 @@ SARKAS: Python MD code for plasma physics
             <div class="item">
               <img src="_static/BYU.gif" width="100%" alt="BYU">
             </div>
-            
+
           </div>
-          
+
           <!--Controls-->
           <a class="carousel-control left" href="#CodeExample" role="button" data-slide="prev">
           &lsaquo;
@@ -70,17 +70,17 @@ SARKAS: Python MD code for plasma physics
    <div class="properties">
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-smile-o fa-3x mb-3 text-muted"></i><br>User Friendly</h4>
-         <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines 
+         <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines
             of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
       </div>
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-rocket fa-3x mb-3 text-muted"></i><br>Fast Pure Python</h4>
-         <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable 
+         <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable
          to that of compiled languages.</p>
       </div>
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-flask fa-3x mb-3 text-muted"></i><br>Plasma Potentials</h4>
-         <p>Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only 
+         <p>Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only
          MD code to support electrons as dynamical particles.</p>
       </div>
 
@@ -90,18 +90,18 @@ SARKAS: Python MD code for plasma physics
       </div>
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-area-chart fa-3x mb-3 text-muted"></i><br>Publications</h4>
-         <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get 
+         <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get
          publication-grade results in less time.</p>
       </div>
 
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-cogs fa-3x mb-3 text-muted"></i><br>Highly Customizable</h4>
-         <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p> 
+         <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
       </div>
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-users fa-3x mb-3 text-muted"></i><br>Collaborative Effort</h4>
-         <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging 
-         open problems in plasma physics.</p> 
+         <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging
+         open problems in plasma physics.</p>
       </div>
       <div class="prprt">
          <h4 class="text-center"><i class="fa fa-github fa-3x mb-3 text-muted"></i><br>Open Source</h4>
@@ -110,7 +110,7 @@ SARKAS: Python MD code for plasma physics
 
    </div>
 
-.. panels:: 
+.. panels::
    :body: bg-light text-left
    :header: bg-light text-center border-0
 
@@ -121,7 +121,7 @@ SARKAS: Python MD code for plasma physics
 
       documentation/why_sarkas
       documentation/get_started
-      
+
 
    .. toctree::
       :maxdepth: 1
@@ -139,9 +139,9 @@ SARKAS: Python MD code for plasma physics
    .. toctree::
       :maxdepth: 1
       :caption: Simulations:
-      
+
       examples/examples
-   
+
    ---
    :column: col-sm-6
 

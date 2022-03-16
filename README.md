@@ -14,7 +14,5 @@ https://murillo-group.github.io/sarkas/
 Sarkas can be installed by running the command
 
     pip install sarkas
- 
+
 in a terminal or command prompt window.
-
-

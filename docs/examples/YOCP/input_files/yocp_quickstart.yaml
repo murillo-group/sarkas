@@ -8,7 +8,7 @@ Particles:
         Z: 1.976599                         # degree of ionization
         temperature: 5.0e+03                 # T = 0.5 eV
 
-Potential: 
+Potential:
     type: Yukawa                            # potential type
     method: PP
     rc: 6.0e-8                              # cm, cut-off radius
@@ -42,4 +42,3 @@ Observables:
 
   - RadialDistributionFunction:
       no_bins: 250
-

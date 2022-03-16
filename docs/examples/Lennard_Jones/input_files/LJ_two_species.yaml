@@ -10,21 +10,21 @@ Particles:
         temperature: 120.
         number_density: 1.03e22      # number/centimeter^3
         mass: 6.6904e-23             # gram
-        num: 386                     # total number of ion1 
+        num: 386                     # total number of ion1
 
     - Species:
         name: ptcl2                  # species name
         temperature: 120.
         number_density: 1.03e22      # number/centimeter^3
         mass: 6.6904e-23             # gram
-        num: 386                    # total number of ion1 
+        num: 386                    # total number of ion1
 
     - load:
         method: random_reject
         r_reject: 3e-8             # centimeter
         rand_seed: 123
 
-Potential: 
+Potential:
     - type: LJ
     - rc: 1.65e-07
     - epsilon: [1.656e-14, 0.4968e-14, 0.4968e-14, 1.656e-14]     # e11, e12, e21 = e12, e22
@@ -42,7 +42,7 @@ Thermostat:
     - timestep: 2000
 
 Control:
-    - dt: 5.4e-15                  # timestep, sec   
+    - dt: 5.4e-15                  # timestep, sec
     - Neq: 10000
     - Nsteps: 10000
     - dump_step: 100

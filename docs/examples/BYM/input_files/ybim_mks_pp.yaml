@@ -4,7 +4,7 @@ Particles:
         name: C
         number_density: 1.0e+30       # /m^3
         # mass: 1.9926467e-26            # /kg
-        num: 500                    # total number of particles of ion1 
+        num: 500                    # total number of particles of ion1
         Z: 6.0                        # degree of ionization
         atomic_weight: 12.011                      # atomic mass
         temperature: 1.02e+5
@@ -18,7 +18,7 @@ Particles:
         atomic_weight: 16                   # atomic mass
         temperature: 1.02e+5
 
-Potential: 
+Potential:
     type: Yukawa                 # potential type
     method: PP                    # Linked-cell
     rc: 2.954235e-10          # cut-off radius, meter

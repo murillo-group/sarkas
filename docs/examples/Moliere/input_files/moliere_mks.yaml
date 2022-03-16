@@ -8,7 +8,7 @@ Particles:
         Z: 4.0                        # degree of ionization
         temperature_eV: 12.0
 
-Potential: 
+Potential:
     type: Moliere                  # potential type
     method: PP                    # Linked-cell
     rc: 6.629755e-10           # cut-off radius, meter
@@ -44,4 +44,3 @@ Observables:
 
   - Thermodynamics:
       phase: production
-

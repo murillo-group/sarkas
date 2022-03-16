@@ -83,8 +83,8 @@ def force_deriv(r, pot_matrix):
 
     """
     kappa_r = pot_matrix[1] * r
-    U2 = pot_matrix[0] * exp(-kappa_r) / r ** 3
-    f_dev = U2 * (2.0 * (1.0 + kappa_r) + kappa_r ** 2)
+    U2 = pot_matrix[0] * exp(-kappa_r) / r**3
+    f_dev = U2 * (2.0 * (1.0 + kappa_r) + kappa_r**2)
     return f_dev
 
 
@@ -102,7 +102,7 @@ def update_params(potential, params):
 
     """
     # Potential specific parameters
-    potential.packing_fraction = pi / 6.0 * params.total_num_density * potential.hs_diameter ** 3
+    potential.packing_fraction = pi / 6.0 * params.total_num_density * potential.hs_diameter**3
 
     if hasattr(potential, "kappa") and potential.screening_length is not None:
         warn(

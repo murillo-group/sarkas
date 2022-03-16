@@ -155,8 +155,8 @@ def force_deriv(r, pot_matrix):
 
     """
     kappa_r = pot_matrix[1] * r
-    U2 = pot_matrix[0] * exp(-kappa_r) / r ** 3
-    f_dev = U2 * (2.0 * (1.0 + kappa_r) + kappa_r ** 2)
+    U2 = pot_matrix[0] * exp(-kappa_r) / r**3
+    f_dev = U2 * (2.0 * (1.0 + kappa_r) + kappa_r**2)
     return f_dev
 
 
@@ -219,4 +219,4 @@ def update_params(potential, params):
         kappa_over_alpha = -0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
         alpha_times_rcut = -((potential.matrix[2, 0, 0] * potential.rc) ** 2)
         params.pppm_pp_err = 2.0 * exp(kappa_over_alpha + alpha_times_rcut) / sqrt(potential.rc)
-        params.pppm_pp_err *= sqrt(params.total_num_ptcls) * params.a_ws ** 2 / sqrt(params.pbox_volume)
+        params.pppm_pp_err *= sqrt(params.total_num_ptcls) * params.a_ws**2 / sqrt(params.pbox_volume)

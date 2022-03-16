@@ -26,7 +26,7 @@ jobs:
         pip install -r docs/requirements.txt
     - name: Make docs
       run: |
-        cd docs 
+        cd docs
         make html
     # Create an artifact of the html output.
     - uses: actions/upload-artifact@v1

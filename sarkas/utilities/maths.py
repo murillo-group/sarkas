@@ -1,7 +1,6 @@
 """Module of mathematical functions."""
 
 import scipy.signal as scp_signal
-
 from numba import njit
 from numpy import arange, array, exp, inf, log, pi, sqrt, trapz, zeros_like
 from scipy.integrate import quad
@@ -119,7 +118,7 @@ def yukawa_green_function(k: float, alpha: float, kappa: float) -> float:
     >>> G_k = yukawa_green_function(k = k, alpha = alpha, kappa = kappa)
 
     """
-    return 4.0 * pi * exp(-(k ** 2 + kappa ** 2) / (2 * alpha) ** 2) / (kappa ** 2 + k ** 2)
+    return 4.0 * pi * exp(-(k**2 + kappa**2) / (2 * alpha) ** 2) / (kappa**2 + k**2)
 
 
 def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
@@ -236,9 +235,9 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
     pm_force_error = sqrt(3.0 * somma) / (2.0 * pi)
 
     # eq.(30) from :cite:`Dharuman2017`
-    pp_force_error = 2.0 * exp(-((0.5 * kappa / alpha) ** 2) - alpha ** 2 * rc ** 2) / sqrt(rc)
+    pp_force_error = 2.0 * exp(-((0.5 * kappa / alpha) ** 2) - alpha**2 * rc**2) / sqrt(rc)
     # eq.(42) from :cite:`Dharuman2017`
-    Tot_DeltaF = sqrt(pm_force_error ** 2 + pp_force_error ** 2)
+    Tot_DeltaF = sqrt(pm_force_error**2 + pp_force_error**2)
 
     return Tot_DeltaF, pp_force_error, pm_force_error
 
@@ -334,7 +333,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
         sigma = potential_matrix[1, :, :].max()
         high_pow = potential_matrix[2, 0, 0]
         exponent = 2 * high_pow - 1
-        force_error_tmp = high_pow ** 2 * sigma ** (2 * high_pow) / cutoff_length ** exponent
+        force_error_tmp = high_pow**2 * sigma ** (2 * high_pow) / cutoff_length**exponent
         force_error_tmp /= exponent
         force_error = sqrt(force_error_tmp)
 
@@ -589,4 +588,4 @@ def fd_integral(eta: float, p: float) -> float:
         FD Integral.
 
     """
-    return quad(lambda x: x ** p / (1 + exp(x - eta)), 0, 100)[0]
+    return quad(lambda x: x**p / (1 + exp(x - eta)), 0, 100)[0]

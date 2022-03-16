@@ -72,7 +72,7 @@ the :math:`\alpha` parameter of the Gaussian charge cloud surrounding each parti
 
 To deal with diverging potentials a short-range cut-off radius, ``rs``, can be specified. If specified, the potential
 :math:`U(r)` will be cut to :math:`U(rs)` for interparticle distances below ``rs``. This short-range cut-off is meant to
-suppress unphysical scenarios where fast particles emerge due to the potential going to infinity. However, this feature 
+suppress unphysical scenarios where fast particles emerge due to the potential going to infinity. However, this feature
 should be used with great care as is can also screen the short-range part of the interaction to unphysical values. That
 is why the default value is zero so that the short-range cut-off is not in use.
 
@@ -113,7 +113,7 @@ of the thermalization phase are defined in the ``Thermostat`` section of the inp
         type: Berendsen               # thermostat type
         relaxation_timestep: 50
         berendsen_tau: 1.0
-        
+
 The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
 but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
 The ``relaxation_timestep`` instance indicates the timestep number at which the Berendsen thermostat will be turned on.
@@ -137,7 +137,7 @@ The next section defines some general parameters
         dt: 2.000e-18                 # sec
         load_method: random_no_reject
         boundary_conditions: periodic
-        
+
 The first instance defines the choice of units (mks or cgs) which must be consistent with all the other dimensional
 parameters defined in previous sections. The second instance is the value of the timestep in seconds.
 ``load_method`` defines the way particles positions are to be initialized. The options are
@@ -147,7 +147,7 @@ parameters defined in previous sections. The second instance is the value of the
 - ``halton``
 
 Next we define the ``boundary_conditions`` of our simulation. At the moment Sarkas supports only ``periodic`` and
-``absorbing`` boundary conditions. 
+``absorbing`` boundary conditions.
 Future implementations of Sarkas accepting open and mixed boundary conditions will be available in the future.
 We accept pull request :) !
 
@@ -180,11 +180,11 @@ Post Processing
 ---------------
 
 The last two blocks are ``Observables`` and ``TransportCoefficientss``. They indicate the quantities
-we want to calculate and their parameters. 
+we want to calculate and their parameters.
 
 Observables
 ***********
-The observables we want to calculate are 
+The observables we want to calculate are
 
 .. code-block:: yaml
 
@@ -194,7 +194,7 @@ The observables we want to calculate are
 
         - Thermodynamics:
             phase: production
-                
+
         - DynamicStructureFactor:
             no_slices: 1
             max_ka_value: 8
@@ -208,8 +208,8 @@ The observables we want to calculate are
         - VelocityAutoCorrelationFunction
             no_slices: 4
 
-Note that ``Observables`` is again a list of dictionaries. This is because each observable is returned as 
-an object in the simulation. The lines below the observables' names are the parameters needed for the calculation. 
+Note that ``Observables`` is again a list of dictionaries. This is because each observable is returned as
+an object in the simulation. The lines below the observables' names are the parameters needed for the calculation.
 The parameters are different depending on the observable. We will discuss them in the next pages of this tutorial.
 
 

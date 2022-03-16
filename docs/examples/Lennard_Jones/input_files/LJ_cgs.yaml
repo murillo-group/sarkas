@@ -1,5 +1,5 @@
 #keywords: single species, LJ, PP, cgs, random_reject
-# for Argon 
+# for Argon
 # Physical Review, 136, 2A, 1964
 # A. Rahman
 # Correlations in the Motion of Atoms in Liquid Argon
@@ -22,7 +22,7 @@ Particles:
         epsilon: 1.656e-14          # 120 K * kb
         sigma: 3.4e-8               # cm
 
-Potential: 
+Potential:
     type: LJ
     powers: [12, 6]
     rc: 1.00e-07                  # cm

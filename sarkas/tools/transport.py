@@ -10,7 +10,6 @@ else:
 
 import numpy as np
 import os
-
 from matplotlib.pyplot import subplots
 from pandas import DataFrame, MultiIndex, read_hdf
 
@@ -464,7 +463,10 @@ class TransportCoefficients:
                 )
 
     def diffusion(
-        self, observable, plot: bool = True, display_plot: bool = False,
+        self,
+        observable,
+        plot: bool = True,
+        display_plot: bool = False,
     ):
         """
         Calculate the transport coefficient from the Green-Kubo formula

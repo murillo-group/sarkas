@@ -4,7 +4,7 @@ Particles:
         name: H
         number_density: 1.62e+32       # /m^3
         mass: 1.673e-27                # kg, ptcl mass of ion1
-        num: 10000                    # total number of particles of ion1 
+        num: 10000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
         temperature_eV: 1.25
 

@@ -5,7 +5,6 @@ import numpy as np
 import os.path
 import scipy.constants as const
 import sys
-
 from scipy.spatial.distance import pdist
 
 
@@ -219,7 +218,7 @@ class Parameters:
         self.me = const.physical_constants["electron mass"][0]
         self.qe = const.physical_constants["elementary charge"][0]
         self.hbar = const.hbar
-        self.hbar2 = self.hbar ** 2
+        self.hbar2 = self.hbar**2
         self.c0 = const.physical_constants["speed of light in vacuum"][0]
         self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
         self.eV2J = const.physical_constants["electron volt-joule relationship"][0]
@@ -324,7 +323,7 @@ class Parameters:
             # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
             C2statC = 1.0e-01 * self.c0
             self.hbar = self.J2erg * self.hbar
-            self.hbar2 = self.hbar ** 2
+            self.hbar2 = self.hbar**2
             self.qe *= C2statC
             self.me *= 1.0e3
             self.eps0 = 1.0
@@ -426,21 +425,21 @@ class Parameters:
             # Calculate the (total) plasma frequency, QFactor, debye_length
             if not self.potential_type == "lj":
                 # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
-                sp.QFactor = sp.num * sp.charge ** 2
+                sp.QFactor = sp.num * sp.charge**2
                 self.QFactor += sp.QFactor / self.fourpie0
 
                 sp.calc_plasma_frequency(self.fourpie0)
-                wp_tot_sq += sp.plasma_frequency ** 2
+                wp_tot_sq += sp.plasma_frequency**2
                 sp.calc_debye_length(self.kB, self.fourpie0)
-                lambda_D += sp.debye_length ** 2
+                lambda_D += sp.debye_length**2
             else:
                 sp.QFactor = 0.0
                 self.QFactor += sp.QFactor / self.fourpie0
-                constant = 4.0 * np.pi * sp.number_density * sp.sigma ** 2
+                constant = 4.0 * np.pi * sp.number_density * sp.sigma**2
                 sp.calc_plasma_frequency(constant)
-                wp_tot_sq += sp.plasma_frequency ** 2
+                wp_tot_sq += sp.plasma_frequency**2
                 sp.calc_debye_length(self.kB, constant)
-                lambda_D += sp.debye_length ** 2
+                lambda_D += sp.debye_length**2
                 self.species_lj_sigmas[i] = sp.sigma
 
             # Calculate cyclotron frequency in case of a magnetized simulation
@@ -479,7 +478,7 @@ class Parameters:
         self.average_mass = np.transpose(self.species_masses) @ self.species_concentrations
         # Hydrodynamic Frequency aka Virtual Average Atom
         self.hydrodynamic_frequency = np.sqrt(
-            4.0 * np.pi * self.average_charge ** 2 * self.total_num_density / (self.fourpie0 * self.average_mass)
+            4.0 * np.pi * self.average_charge**2 * self.total_num_density / (self.fourpie0 * self.average_mass)
         )
 
         # Simulation Box Parameters
@@ -635,7 +634,7 @@ class Parameters:
             print("Fermi Energy: E_F = {:.6e} [eV]".format(self.fermi_energy / self.kB / self.eV2K))
 
             print("Relativistic parameter: x_F = {:.6e}".format(self.relativistic_parameter), end="")
-            kf_xf = self.me * self.c0 ** 2 * (np.sqrt(1.0 + self.relativistic_parameter ** 2) - 1.0)
+            kf_xf = self.me * self.c0**2 * (np.sqrt(1.0 + self.relativistic_parameter**2) - 1.0)
             print(" --> E_F = {:.6e} [eV]".format(kf_xf / self.kB / self.eV2K))
 
             print("Degeneracy parameter: Theta = {:.6e} ".format(self.electron_degeneracy_parameter))
@@ -1132,7 +1131,7 @@ class Particles:
         if round(part_per_side) ** 3 != self.total_num_ptcls:
             part_per_side = np.ceil(self.total_num_ptcls ** (1.0 / 3.0))
             print("\nWARNING: Total number of particles requested is not a perfect cube.")
-            print("Initializing with {} particles.".format(int(part_per_side ** 3)))
+            print("Initializing with {} particles.".format(int(part_per_side**3)))
 
         dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
         dy_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
@@ -1223,7 +1222,7 @@ class Particles:
                     z_diff -= self.pbox_lengths[2]
 
                 # Compute distance
-                r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
+                r = np.sqrt(x_diff**2 + y_diff**2 + z_diff**2)
 
                 # Check if new particle is below rejection radius. If not, break out and try again
                 if r <= r_reject:
@@ -1337,7 +1336,7 @@ class Particles:
                     z_diff = z_diff - self.pbox_lengths[2]
 
                 # Compute distance
-                r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
+                r = np.sqrt(x_diff**2 + y_diff**2 + z_diff**2)
 
                 # Check if new particle is below rejection radius. If not, break out and try again
                 if r <= r_reject:
@@ -1565,7 +1564,7 @@ class Species:
             Neutral systems: :math: `1/n\sigma^2`
 
         """
-        self.plasma_frequency = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * constant))
+        self.plasma_frequency = np.sqrt(4.0 * np.pi * self.charge**2 * self.number_density / (self.mass * constant))
 
     def calc_debye_length(self, kB: float, constant: float):
         """
@@ -1582,7 +1581,7 @@ class Species:
 
         """
         self.debye_length = np.sqrt(
-            (self.temperature * kB * constant) / (4.0 * np.pi * self.charge ** 2 * self.number_density)
+            (self.temperature * kB * constant) / (4.0 * np.pi * self.charge**2 * self.number_density)
         )
 
     def calc_cyclotron_frequency(self, magnetic_field_strength: float):
@@ -1616,7 +1615,7 @@ class Species:
         """
         self.ai_dens = (3.0 / (4.0 * np.pi * self.number_density)) ** (1.0 / 3.0)
         self.ai = (self.charge / z_avg) ** (1.0 / 3.0) * a_ws if z_avg > 0 else self.ai_dens
-        self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
+        self.coupling = self.charge**2 / (self.ai * const * self.temperature)
 
     def pretty_print(self, potential_type: str = None, units: str = "mks"):
         """Print Species information in a user-friendly way.

@@ -2,7 +2,6 @@ import glob
 import os
 import setuptools
 import sys
-
 from configparser import ConfigParser
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -125,5 +124,8 @@ setuptools.setup(
     ],
     python_requires=">=3.7",
     # Call the classes above and run the post installation scripts
-    cmdclass={"develop": PostDevelopCommand, "install": PostInstallCommand,},
+    cmdclass={
+        "develop": PostDevelopCommand,
+        "install": PostInstallCommand,
+    },
 )
