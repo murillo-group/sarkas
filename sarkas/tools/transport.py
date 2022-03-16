@@ -8,14 +8,16 @@ if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
 else:
     from tqdm import tqdm
 
-import os
 import numpy as np
-from pandas import DataFrame, MultiIndex, read_hdf
+import os
+
 from matplotlib.pyplot import subplots
+from pandas import DataFrame, MultiIndex, read_hdf
+
+from ..utilities.maths import fast_integral_loop
 
 # Sarkas Modules
-from .observables import Thermodynamics, plot_labels
-from ..utilities.maths import fast_integral_loop
+from .observables import plot_labels, Thermodynamics
 
 
 class TransportCoefficients:

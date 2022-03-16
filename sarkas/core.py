@@ -3,8 +3,8 @@ Module containing the three basic classes: Parameters, Particles, Species.
 """
 import numpy as np
 import os.path
-import sys
 import scipy.constants as const
+import sys
 
 from scipy.spatial.distance import pdist
 

@@ -1,8 +1,9 @@
 import glob
 import os
-import sys
-from configparser import ConfigParser
 import setuptools
+import sys
+
+from configparser import ConfigParser
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
@@ -16,6 +17,7 @@ class PostDevelopCommand(develop):
         develop.run(self)
         import matplotlib as mpl
         import shutil
+
         # ~ # ref  ->  matplotlib/style/core
         BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), "stylelib")
         STYLE_PATH = os.path.join(os.getcwd(), os.path.join("sarkas", "mplstyles"))
@@ -37,6 +39,7 @@ class PostInstallCommand(install):
         install.run(self)
         import matplotlib as mpl
         import shutil
+
         # ~ # ref  ->  matplotlib/style/core
         BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), "stylelib")
         STYLE_PATH = os.path.join(os.getcwd(), os.path.join("sarkas", "mplstyles"))
@@ -122,8 +125,5 @@ setuptools.setup(
     ],
     python_requires=">=3.7",
     # Call the classes above and run the post installation scripts
-    cmdclass={
-        "develop": PostDevelopCommand,
-        "install": PostInstallCommand,
-    },
+    cmdclass={"develop": PostDevelopCommand, "install": PostInstallCommand,},
 )

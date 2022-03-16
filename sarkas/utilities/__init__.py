@@ -3,9 +3,8 @@ Subpackage containing Sarkas utilities modules. Contains Timing, and Input-Outpu
 """
 
 
-__all__ = ["SarkasTimer",
-           "InputOutput"]
+__all__ = ["SarkasTimer", "InputOutput"]
 
 
-from .timing import SarkasTimer
 from .io import InputOutput
+from .timing import SarkasTimer

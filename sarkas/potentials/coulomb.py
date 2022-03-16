@@ -22,10 +22,10 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
 
 """
 
-from numpy import exp, sqrt, zeros, pi
+from math import erfc
 from numba import jit
 from numba.core.types import float64, UniTuple
-from math import erfc
+from numpy import exp, pi, sqrt, zeros
 
 
 def update_params(potential, params):

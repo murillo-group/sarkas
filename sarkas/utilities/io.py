@@ -1,15 +1,16 @@
 """
 Module handling the I/O for an MD run.
 """
-import os
-import sys
-import re
-import yaml
 import csv
-import pickle
 import numpy as np
-from pyfiglet import print_figlet, Figlet
+import os
+import pickle
+import re
+import sys
+import yaml
+
 from IPython import get_ipython
+from pyfiglet import Figlet, print_figlet
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
@@ -47,6 +48,7 @@ class InputOutput:
         Name of the process class containing MD run info.
 
     """
+
     electrostatic_equilibration: bool = False
     eq_dump_dir: str = "dumps"
     equilibration_dir: str = "Equilibration"
@@ -100,7 +102,7 @@ class InputOutput:
         self.make_directories()
         self.file_header()
 
-    def from_yaml(self, filename: str ):
+    def from_yaml(self, filename: str):
         """
         Parse inputs from YAML file.
 
@@ -362,9 +364,7 @@ class InputOutput:
 
                 print("\nINTEGRATOR: ")
                 simulation.integrator.pretty_print(
-                    simulation.potential.type,
-                    simulation.parameters.load_method,
-                    simulation.parameters.restart_step,
+                    simulation.potential.type, simulation.parameters.load_method, simulation.parameters.restart_step,
                 )
 
             repeat -= 1
@@ -1024,7 +1024,7 @@ class InputOutput:
         elif simulation.potential.type == "lj":
             print(f"epsilon_tot = {simulation.potential.epsilon_tot:.6e}")
             print(f"sigma_avg = {simulation.potential.sigma_avg:.6e}")
-            rho = simulation.potential.sigma_avg**3 * simulation.parameters.total_num_density
+            rho = simulation.potential.sigma_avg ** 3 * simulation.parameters.total_num_density
             tau = simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
             print(f"reduced density = {rho:.6e}")
             print(f"reduced temperature = {tau:.6e}")
@@ -1082,7 +1082,9 @@ class InputOutput:
             print(f"screening length = {simulation.potential.screening_length} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print(f"kappa = sigma/lambda = {simulation.potential.kappa:.4f}")
-            print(f"reduced density = n sigma^3 = {simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density:.4f}")
+            print(
+                f"reduced density = n sigma^3 = {simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density:.4f}"
+            )
             print(f"packing fraction = {simulation.potential.packing_fraction:.4f}")
             print(f"Gamma_eff = {simulation.parameters.coupling_constant / b:.4f}")
 
@@ -1202,7 +1204,7 @@ class InputOutput:
             data = np.load(filename, allow_pickle=True)
             process.__dict__[fl] = py_copy.copy(data)
 
-    def read_pickle_single(self, class_to_read : str):
+    def read_pickle_single(self, class_to_read: str):
         """
         Read the desired pickle file.
 
@@ -1316,7 +1318,7 @@ class InputOutput:
             w = csv.writer(f)
             w.writerow(data.values())
 
-    def dump_xyz(self, phase: str ="production"):
+    def dump_xyz(self, phase: str = "production"):
         """
         Save the XYZ file by reading Sarkas dumps.
 
@@ -1375,7 +1377,7 @@ class InputOutput:
         f_xyz.close()
 
     @staticmethod
-    def read_npz(fldr: str , it: int):
+    def read_npz(fldr: str, it: int):
         """
         Load particles' data from dumps.
 

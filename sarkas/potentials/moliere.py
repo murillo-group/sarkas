@@ -38,9 +38,9 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[6] = b_3
 
 """
-from numpy import exp, sqrt, zeros, pi, array
 from numba import jit
 from numba.core.types import float64, UniTuple
+from numpy import array, exp, pi, sqrt, zeros
 
 from ..utilities.maths import force_error_analytic_pp
 
@@ -67,15 +67,15 @@ def update_params(potential, params):
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
-            potential.matrix[1: params_len + 1, i, j] = potential.screening_charges
-            potential.matrix[params_len + 1:, i, j] = 1./potential.screening_lengths
+            potential.matrix[1 : params_len + 1, i, j] = potential.screening_charges
+            potential.matrix[params_len + 1 :, i, j] = 1.0 / potential.screening_lengths
 
     potential.force = moliere_force
     # Use Yukawa force error formula with the smallest screening length.
     # This overestimates the Force error, but it doesn't matter.
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix[params_len + 1:, :, :], sqrt(3.0 * params.a_ws / (4.0 * pi))
+        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], sqrt(3.0 * params.a_ws / (4.0 * pi))
     )
 
 

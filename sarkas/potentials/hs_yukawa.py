@@ -23,12 +23,12 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[2] = Ewald screening parameter
     pot_matrix[3] = short range cutoff
 """
-from warnings import warn
-from numpy import pi, exp, sqrt
-from numpy import zeros as np_zeros
 from numba import njit
-from ..utilities.maths import force_error_analytic_pp
+from numpy import exp, pi, sqrt
+from numpy import zeros as np_zeros
+from warnings import warn
 
+from ..utilities.maths import force_error_analytic_pp
 
 
 @njit
@@ -104,13 +104,14 @@ def update_params(potential, params):
     # Potential specific parameters
     potential.packing_fraction = pi / 6.0 * params.total_num_density * potential.hs_diameter ** 3
 
-    if hasattr(potential,"kappa") and potential.screening_length is not None:
-        warn("You have defined both kappa and the screening_length. \n"
-             "I will use kappa to calculate the screening_length from lambda = sigma/kappa"
+    if hasattr(potential, "kappa") and potential.screening_length is not None:
+        warn(
+            "You have defined both kappa and the screening_length. \n"
+            "I will use kappa to calculate the screening_length from lambda = sigma/kappa"
         )
         potential.screening_length = potential.hs_diameter / potential.kappa
 
-    elif hasattr(potential,"kappa"):
+    elif hasattr(potential, "kappa"):
         potential.screening_length = potential.hs_diameter / potential.kappa
     elif potential.screening_length:
         potential.kappa = potential.hs_diameter / potential.screening_length

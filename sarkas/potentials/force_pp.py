@@ -3,6 +3,7 @@ Module for handling Particle-Particle interaction.
 """
 
 import numpy as np
+
 from numba import njit
 
 

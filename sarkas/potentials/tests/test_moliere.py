@@ -1,6 +1,6 @@
-from numpy import isclose, array, zeros
+from numpy import array, isclose, zeros
+from scipy.constants import elementary_charge, epsilon_0, pi
 
-from scipy.constants import epsilon_0, pi, elementary_charge
 from ..moliere import moliere_force
 
 
@@ -15,9 +15,9 @@ def test_moliere_force():
     params_len = len(screening_lengths)
 
     pot_mat = zeros(2 * params_len + 1)
-    pot_mat[0] = coul_const * charge**2
-    pot_mat[1: params_len + 1] = screening_charges.copy()
-    pot_mat[params_len + 1:] = 1./screening_lengths
+    pot_mat[0] = coul_const * charge ** 2
+    pot_mat[1 : params_len + 1] = screening_charges.copy()
+    pot_mat[params_len + 1 :] = 1.0 / screening_lengths
 
     r = 6.629755e-10  # [m] particles distance
     potential, force = moliere_force(r, pot_mat)

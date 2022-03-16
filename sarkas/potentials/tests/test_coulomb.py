@@ -1,4 +1,5 @@
-from numpy import isclose, array, pi
+from numpy import array, isclose, pi
+
 from ..coulomb import coulomb_force, coulomb_force_pppm
 
 

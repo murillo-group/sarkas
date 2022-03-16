@@ -1,4 +1,4 @@
-from numpy import isclose, array
+from numpy import array, isclose
 
 from ..yukawa import yukawa_force, yukawa_force_pppm
 

@@ -2,6 +2,7 @@
 Module for handling the timing in a MD run.
 """
 import time
+
 from dataclasses import dataclass, field
 from typing import Optional
 

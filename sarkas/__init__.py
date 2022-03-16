@@ -33,13 +33,12 @@ if sys.version_info < (3, 7):
 # ----------------------------------------------------------------------------
 import pkg_resources
 
-from .processes import PreProcess, Process, PostProcess, Simulation
 from .core import Parameters, Particles, Species
 from .potentials.core import Potential
-from .utilities.io import InputOutput
+from .processes import PostProcess, PreProcess, Process, Simulation
 from .time_evolution.integrators import Integrator
 from .time_evolution.thermostats import Thermostat
-
+from .utilities.io import InputOutput
 from .utilities.maths import correlationfunction, fd_integral, inverse_fd_half
 
 # define version
@@ -63,9 +62,7 @@ except pkg_resources.DistributionNotFound:
         # if setuptools_scm is installed then generate a version
         from setuptools_scm import get_version
 
-        __version__ = get_version(
-            root="..", relative_to=__file__, fallback_version=fallback_version
-        )
+        __version__ = get_version(root="..", relative_to=__file__, fallback_version=fallback_version)
         del get_version
         warn_add = "setuptools_scm failed to detect the version"
     except ModuleNotFoundError:

@@ -69,11 +69,11 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
 
 """
 
-from warnings import warn
-from numpy import exp, sqrt, zeros, pi, log
+from math import erfc
 from numba import jit
 from numba.core.types import float64, UniTuple
-from math import erfc
+from numpy import exp, log, pi, sqrt, zeros
+from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
 from ..utilities.maths import force_error_analytic_pp, TWOPI

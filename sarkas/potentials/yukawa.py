@@ -23,11 +23,11 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[2] = Ewald screening parameter
 
 """
-from warnings import warn
-from numpy import exp, sqrt, zeros, pi
+from math import erfc
 from numba import jit
 from numba.core.types import float64, UniTuple
-from math import erfc
+from numpy import exp, pi, sqrt, zeros
+from warnings import warn
 
 from ..utilities.maths import force_error_analytic_pp
 
@@ -75,20 +75,17 @@ def yukawa_force_pppm(r_in, pot_matrix):
     alpha_r = alpha * r
     kappa_r = kappa * r
     U = (
-            pot_matrix[0]
-            * (0.5 / r)
-            * (
-                    exp(kappa_r) * erfc(alpha_r + 0.5 * kappa_alpha)
-                    + exp(-kappa_r) * erfc(alpha_r - 0.5 * kappa_alpha)
-            )
+        pot_matrix[0]
+        * (0.5 / r)
+        * (exp(kappa_r) * erfc(alpha_r + 0.5 * kappa_alpha) + exp(-kappa_r) * erfc(alpha_r - 0.5 * kappa_alpha))
     )
     # Derivative of the exponential term and 1/r
     f1 = (0.5 / r) * exp(kappa * r) * erfc(alpha_r + 0.5 * kappa_alpha) * (1.0 / r - kappa)
     f2 = (0.5 / r) * exp(-kappa * r) * erfc(alpha_r - 0.5 * kappa_alpha) * (1.0 / r + kappa)
     # Derivative of erfc(a r) = 2a/sqrt(pi) e^{-a^2 r^2}* (x/r)
     f3 = (alpha / sqrt(pi) / r) * (
-            exp(-((alpha_r + 0.5 * kappa_alpha) ** 2)) * exp(kappa_r)
-            + exp(-((alpha_r - 0.5 * kappa_alpha) ** 2)) * exp(-kappa_r)
+        exp(-((alpha_r + 0.5 * kappa_alpha) ** 2)) * exp(kappa_r)
+        + exp(-((alpha_r - 0.5 * kappa_alpha) ** 2)) * exp(-kappa_r)
     )
     fr = pot_matrix[0] * (f1 + f2 + f3)
 
@@ -178,15 +175,16 @@ def update_params(potential, params):
     """
 
     if potential.kappa and potential.screening_length:
-        warn("You have defined both kappa and the screening_length. \n"
-             "I will use kappa to calculate the screening_length from lambda = a_ws/kappa"
-             )
+        warn(
+            "You have defined both kappa and the screening_length. \n"
+            "I will use kappa to calculate the screening_length from lambda = a_ws/kappa"
+        )
         potential.screening_length = params.a_ws / potential.kappa
 
     elif potential.kappa:
         potential.screening_length = params.a_ws / potential.kappa
 
-    potential.kappa = params.a_ws/potential.screening_length
+    potential.kappa = params.a_ws / potential.screening_length
 
     if potential.method == "pppm":
         potential.matrix = zeros((4, params.num_species, params.num_species))

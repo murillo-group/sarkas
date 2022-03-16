@@ -52,9 +52,9 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[4] = short-range cutoff
 
 """
-from numpy import sqrt, zeros, pi, array
 from numba import jit
 from numba.core.types import float64, UniTuple
+from numpy import array, pi, sqrt, zeros
 
 from ..utilities.maths import force_error_analytic_pp
 

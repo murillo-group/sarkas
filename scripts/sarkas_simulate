@@ -14,6 +14,7 @@ Michigan State University
 
 # Python modules
 from optparse import OptionParser
+
 # Sarkas modules
 from sarkas.processes import Simulation
 from sarkas.tools.observables import Thermodynamics

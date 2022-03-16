@@ -14,20 +14,20 @@ __all__ = [
     "Thermodynamics",
     "VelocityAutoCorrelationFunction",
     "VelocityDistribution",
-    "TransportCoefficients"]
+    "TransportCoefficients",
+]
 
 from .observables import (
-    Observable,
     CurrentCorrelationFunction,
     DiffusionFlux,
     DynamicStructureFactor,
     ElectricCurrent,
+    Observable,
     PressureTensor,
     RadialDistributionFunction,
     StaticStructureFactor,
     Thermodynamics,
+    VelocityAutoCorrelationFunction,
     VelocityDistribution,
-    VelocityAutoCorrelationFunction
-    )
-
+)
 from .transport import TransportCoefficients

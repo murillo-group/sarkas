@@ -1,33 +1,35 @@
 """
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
-import numpy as np
 import copy as py_copy
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
-
+import numpy as np
 import os
 
-# Sarkas modules
-from .utilities.io import InputOutput
-from .utilities.timing import SarkasTimer
+from matplotlib.colors import LogNorm
+
+from .core import Parameters, Particles, Species
 from .potentials.core import Potential
 from .time_evolution.integrators import Integrator
 from .time_evolution.thermostats import Thermostat
-from .core import Particles, Parameters, Species
+from .tools.observables import (
+    CurrentCorrelationFunction,
+    DiffusionFlux,
+    DynamicStructureFactor,
+    ElectricCurrent,
+    PressureTensor,
+    RadialDistributionFunction,
+    StaticStructureFactor,
+    Thermodynamics,
+    VelocityAutoCorrelationFunction,
+    VelocityDistribution,
+)
+
+# Sarkas modules
+from .utilities.io import InputOutput
 from .utilities.maths import betamp
-from .tools.observables import (CurrentCorrelationFunction,
-                                DiffusionFlux,
-                                DynamicStructureFactor,
-                                ElectricCurrent,
-                                PressureTensor,
-                                RadialDistributionFunction,
-                                StaticStructureFactor,
-                                Thermodynamics,
-                                VelocityDistribution,
-                                VelocityAutoCorrelationFunction,
-                                )
+from .utilities.timing import SarkasTimer
 
 
 class Process:
@@ -485,13 +487,13 @@ class PreProcess(Process):
         return self.timer.stop()
 
     def run(
-            self,
-            loops: int = None,
-            timing: bool = True,
-            timing_study: bool = False,
-            pppm_estimate: bool = False,
-            postprocessing: bool = False,
-            remove: bool = False,
+        self,
+        loops: int = None,
+        timing: bool = True,
+        timing_study: bool = False,
+        pppm_estimate: bool = False,
+        postprocessing: bool = False,
+        remove: bool = False,
     ):
         """
         Estimate the time of the simulation and best parameters if wanted.
@@ -555,8 +557,7 @@ class PreProcess(Process):
             if self.integrator.electrostatic_equilibration:
                 dump = self.integrator.mag_dump_step
                 mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
-                mag_dump_fldr_size = mag_dump_size * (
-                            self.integrator.magnetization_steps / self.integrator.mag_dump_step)
+                mag_dump_fldr_size = mag_dump_size * (self.integrator.magnetization_steps / self.integrator.mag_dump_step)
                 sizes = np.array(
                     [
                         [eq_dump_size, eq_dump_fldr_size],
@@ -680,12 +681,12 @@ class PreProcess(Process):
                 alpha_times_rcut = -((self.potential.pppm_alpha_ewald * self.potential.rc) ** 2)
                 # Update the Force error
                 self.potential.pppm_pp_err = (
-                        2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(self.potential.rc)
+                    2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(self.potential.rc)
                 )
                 self.potential.pppm_pp_err *= (
-                        np.sqrt(self.parameters.total_num_ptcls)
-                        * self.parameters.a_ws ** 2
-                        / np.sqrt(self.parameters.box_volume)
+                    np.sqrt(self.parameters.total_num_ptcls)
+                    * self.parameters.a_ws ** 2
+                    / np.sqrt(self.parameters.box_volume)
                 )
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
@@ -704,8 +705,7 @@ class PreProcess(Process):
         pm_times *= 1e-9
         # Fit the PM times
         pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x ** 3 * np.log2(x ** 3), self.pm_meshes, pm_times)
-        fit_str = r"Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]" + "\n" + r"$a_2 = ${:.4e}, $a_3 = ${:.4e} ".format(
-            *pm_popt)
+        fit_str = r"Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]" + "\n" + r"$a_2 = ${:.4e}, $a_3 = ${:.4e} ".format(*pm_popt)
         print("\nPM Time " + fit_str)
 
         # Fit the PP Times
@@ -1034,11 +1034,9 @@ class PreProcess(Process):
         ax[1].plot(
             alphas, total_force_error[:, 30], ls=(0, (5, 10)), label=r"$r_c = {:2.2f}".format(rcuts[30]) + " a_{ws}$"
         )
-        ax[1].plot(alphas, total_force_error[:, 40], ls="dashed",
-                   label=r"$r_c = {:2.2f}".format(rcuts[40]) + " a_{ws}$")
+        ax[1].plot(alphas, total_force_error[:, 40], ls="dashed", label=r"$r_c = {:2.2f}".format(rcuts[40]) + " a_{ws}$")
         ax[1].plot(alphas, total_force_error[:, 50], ls="solid", label=r"$r_c = {:2.2f}".format(rcuts[50]) + " a_{ws}$")
-        ax[1].plot(alphas, total_force_error[:, 60], ls="dashdot",
-                   label=r"$r_c = {:2.2f}".format(rcuts[60]) + " a_{ws}$")
+        ax[1].plot(alphas, total_force_error[:, 60], ls="dashdot", label=r"$r_c = {:2.2f}".format(rcuts[60]) + " a_{ws}$")
         ax[1].plot(
             alphas,
             total_force_error[:, 70],
@@ -1213,7 +1211,7 @@ class PreProcess(Process):
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
                     pp_force_error[ia, ir] = (
-                            2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / np.sqrt(rc)
+                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / np.sqrt(rc)
                     )
                     pp_force_error[ia, ir] *= np.sqrt(
                         self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume

@@ -91,12 +91,12 @@ else
     pot_matrix[5] = 1.0 / gamma_plus
 
 """
-from numpy import cos, cosh, exp, pi, sin, sqrt, tanh, zeros
 from numba import jit
 from numba.core.types import float64, UniTuple
+from numpy import cos, cosh, exp, pi, sin, sqrt, tanh, zeros
 
 from ..utilities.exceptions import AlgorithmError
-from ..utilities.maths import force_error_analytic_pp, fd_integral
+from ..utilities.maths import fd_integral, force_error_analytic_pp
 
 
 def update_params(potential, params):
@@ -124,7 +124,7 @@ def update_params(potential, params):
 
     # eq. (14) of Ref. [1]_
     params.nu = 3.0 / pi ** 1.5 * params.landau_length / params.lambda_deB
-    dIdeta = - 3.0/2.0 * fd_integral(params.eta_e, -1.5)
+    dIdeta = -3.0 / 2.0 * fd_integral(params.eta_e, -1.5)
     params.nu *= potential.lmbda * dIdeta
 
     # Degeneracy Parameter

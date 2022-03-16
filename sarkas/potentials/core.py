@@ -1,13 +1,11 @@
 """
 Module handling the potential class.
 """
+from numpy import array, ndarray, pi, sqrt, tanh
 from warnings import warn
 
-from numpy import pi, tanh, sqrt, array, ndarray
-
 from ..utilities.exceptions import AlgorithmWarning
-from ..utilities.maths import inverse_fd_half, fd_integral
-
+from ..utilities.maths import fd_integral, inverse_fd_half
 from .force_pm import force_optimized_green_function as gf_opt
 from .force_pm import update as pm_update
 from .force_pp import update as pp_update
@@ -185,7 +183,7 @@ class Potential:
             params.me = float(params.species_masses[mask])
         else:
             params.ne = (
-                    params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
+                params.species_charges.transpose() @ params.species_concentrations * params.total_num_density / params.qe
             )
 
             # Check electron properties
@@ -236,6 +234,7 @@ class Potential:
         elif self.type == "egs":
             # exact gradient-corrected screening (EGS) potential
             from .egs import update_params
+
             update_params(self, params)
 
         elif self.type == "lj":
@@ -247,16 +246,19 @@ class Potential:
         elif self.type == "moliere":
             # Moliere potential
             from .moliere import update_params
+
             update_params(self, params)
 
         elif self.type == "qsp":
             # QSP potential
             from .qsp import update_params
+
             update_params(self, params)
 
         elif self.type == "hs_yukawa":
             # Hard-Sphere Yukawa
             from .hs_yukawa import update_params
+
             update_params(self, params)
 
         # Compute pppm parameters
@@ -293,9 +295,7 @@ class Potential:
         beta_e = 1.0 / (params.kB * params.electron_temperature)
 
         # Plasma frequency
-        params.electron_plasma_frequency = sqrt(
-            4.0 * pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me)
-        )
+        params.electron_plasma_frequency = sqrt(4.0 * pi * params.qe ** 2 * params.ne / (params.fourpie0 * params.me))
 
         params.electron_debye_length = sqrt(params.fourpie0 / (4.0 * pi * params.qe ** 2 * params.ne * beta_e))
 
@@ -330,8 +330,7 @@ class Potential:
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
         params.electron_coupling = params.qe ** 2 / (
-                params.fourpie0 * params.fermi_energy * params.ae_ws * sqrt(
-            params.electron_degeneracy_parameter ** 2)
+            params.fourpie0 * params.fermi_energy * params.ae_ws * sqrt(params.electron_degeneracy_parameter ** 2)
         )
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
@@ -341,9 +340,7 @@ class Potential:
         if params.magnetized:
             b_mag = sqrt((params.magnetic_field ** 2).sum())  # magnitude of B
             if params.units == "cgs":
-                params.electron_cyclotron_frequency = (
-                        params.qe * b_mag / params.c0 / params.me
-                )
+                params.electron_cyclotron_frequency = params.qe * b_mag / params.c0 / params.me
             else:
                 params.electron_cyclotron_frequency = params.qe * b_mag / params.me
 
@@ -384,7 +381,7 @@ class Potential:
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
 
         # Pack constants together for brevity in input list
-        kappa = 1.0/self.screening_length if self.type == "yukawa" else 0.0
+        kappa = 1.0 / self.screening_length if self.type == "yukawa" else 0.0
         constants = array([kappa, self.pppm_alpha_ewald, params.fourpie0])
         # Calculate the Optimized Green's Function
         self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
