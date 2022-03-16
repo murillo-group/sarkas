@@ -18,7 +18,7 @@ warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
 @njit
 def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constants):
     """
-    Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
+    Numba'd function to calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
 
     Parameters
     ----------

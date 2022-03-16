@@ -1,5 +1,5 @@
 """
-The `~sarkas.potentials` subpackage contains commonly used potentials in plasma physics.
+A subpackage containing commonly used potentials in plasma physics.
 """
 
 __all__ = ["Potential",

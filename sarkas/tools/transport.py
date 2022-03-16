@@ -10,17 +10,28 @@ else:
 
 import os
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
+from pandas import DataFrame, MultiIndex, read_hdf
+from matplotlib.pyplot import subplots
 
 # Sarkas Modules
-import sarkas.tools.observables as obs
-from sarkas.utilities.maths import fast_integral_loop
+from .observables import Thermodynamics, plot_labels
+from ..utilities.maths import fast_integral_loop
 
 
 class TransportCoefficients:
     """
     Transport Coefficients class.
+
+    Parameters
+    ----------
+    params : :class:`sarkas.core.Parameters`
+        Simulation parameters.
+
+    phase : str, optional
+        Simulation's phase. `"equilibration"` or `"production"`. Default = `"production"`.
+
+    no_slices : str, optional
+        Number of slices in which the phase has been divided. Default = 1.
     """
 
     def __init__(self, params, phase: str = "production", no_slices: int = 1):
@@ -42,7 +53,7 @@ class TransportCoefficients:
         self.no_slices = no_slices
         # Calculate the average temperature from the csv data
         self.kB = params.kB
-        energy = obs.Thermodynamics()
+        energy = Thermodynamics()
         energy.setup(params, self.phase)
         energy.parse()
         self.T_avg = energy.dataframe["Temperature"].mean()
@@ -78,7 +89,7 @@ class TransportCoefficients:
         if not os.path.exists(self.saving_dir):
             os.mkdir(self.saving_dir)
 
-    def save_hdf(self, df: pd.DataFrame = None, df_slices: pd.DataFrame = None, tc_name: str = None):
+    def save_hdf(self, df: DataFrame = None, df_slices: DataFrame = None, tc_name: str = None):
         """
         Save the HDF dataframes to disk in the TransportCoefficient folder.
 
@@ -103,13 +114,13 @@ class TransportCoefficients:
 
         """
 
-        df_slices.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in df_slices.columns])
+        df_slices.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in df_slices.columns])
         df_slices = df_slices.sort_index()
         df_slices.to_hdf(
             os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="w", key=tc_name, index=False
         )
 
-        df.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in df.columns])
+        df.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in df.columns])
         df = df.sort_index()
         df.to_hdf(os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="w", key=tc_name, index=False)
 
@@ -120,10 +131,10 @@ class TransportCoefficients:
 
         Parameters
         ----------
-        observable: sarkas.tools.observables.ElectricCurrent
+        observable : :class:`sarkas.tools.observables.Observable`
             Observable object containing the ACF whose time integral leads to the electrical conductivity.
 
-        tc_name: str
+        tc_name : str
             Transport Coefficient name.
 
         Raises
@@ -136,40 +147,40 @@ class TransportCoefficients:
         if tc_name in self.tc_names:
 
             if tc_name == "electricalconductivity":
-                self.conductivity_df = pd.read_hdf(
+                self.conductivity_df = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-                self.conductivity_df_slices = pd.read_hdf(
+                self.conductivity_df_slices = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
             elif tc_name == "diffusion":
-                self.diffusion_df = pd.read_hdf(
+                self.diffusion_df = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-                self.diffusion_df_slices = pd.read_hdf(
+                self.diffusion_df_slices = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
             elif tc_name == "interdiffusion":
 
-                self.interdiffusion_df = pd.read_hdf(
+                self.interdiffusion_df = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-                self.interdiffusion_df_slices = pd.read_hdf(
+                self.interdiffusion_df_slices = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
             elif tc_name == "viscosities":
 
-                self.viscosity_df = pd.read_hdf(
+                self.viscosity_df = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
-                self.viscosity_df_slices = pd.read_hdf(
+                self.viscosity_df_slices = read_hdf(
                     os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
         else:
@@ -222,12 +233,12 @@ class TransportCoefficients:
 
         """
         # Make the plot
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+        fig, (ax1, ax2) = subplots(1, 2, figsize=(16, 7))
         ax3 = ax1.twiny()
         ax4 = ax2.twiny()
 
         # Calculate axis multipliers and labels
-        xmul, ymul, _, _, xlbl, ylbl = obs.plot_labels(time, tc_data[:, 0], "Time", tc_name, self.units)
+        xmul, ymul, _, _, xlbl, ylbl = plot_labels(time, tc_data[:, 0], "Time", tc_name, self.units)
 
         # ACF
         ax1.plot(xmul * time, acf_data[:, 0] / acf_data[0, 0])
@@ -270,9 +281,6 @@ class TransportCoefficients:
 
         Parameters
         ----------
-        observable: sarkas.tools.observables.Observable
-            Physical quantity of the ACF.
-
         tc_name: str
             Name of Transport coefficient to calculate.
         """
@@ -303,7 +311,7 @@ class TransportCoefficients:
 
         Parameters
         ----------
-        observable: sarkas.tools.observables.ElectricCurrent
+        observable : :class:`sarkas.tools.observables.ElectricCurrent`
             Observable object containing the ACF whose time integral leads to the electrical conductivity.
 
         plot : bool, optional
@@ -316,8 +324,8 @@ class TransportCoefficients:
         """
 
         print("\n\n{:=^70} \n".format(" Electrical Conductivity "))
-        self.conductivity_df = pd.DataFrame()
-        self.conductivity_df_slices = pd.DataFrame()
+        self.conductivity_df = DataFrame()
+        self.conductivity_df_slices = DataFrame()
 
         # Check that the phase and no_slices is the same from the one computed in the Observable
         observable.parse()
@@ -472,8 +480,8 @@ class TransportCoefficients:
 
         Parameters
         ----------
-        observable: sarkas.tools.observables.ElectricCurrent
-            Observable object containing the ACF whose time integral leads to the electrical conductivity.
+        observable : :class:`sarkas.tools.observables.VelocityAutoCorrelationFunction`
+            Observable object containing the ACF whose time integral leads to the self diffusion coefficient.
 
         plot : bool, optional
             Flag for making the dual plot of the ACF and transport coefficient. Default = True.
@@ -483,8 +491,8 @@ class TransportCoefficients:
 
         """
         print("\n\n{:=^70} \n".format(" Diffusion Coefficient "))
-        self.diffusion_df = pd.DataFrame()
-        self.diffusion_df_slices = pd.DataFrame()
+        self.diffusion_df = DataFrame()
+        self.diffusion_df_slices = DataFrame()
 
         # Check that the phase and no_slices is the same from the one computed in the Observable
         observable.parse()
@@ -668,7 +676,7 @@ class TransportCoefficients:
 
         Parameters
         ----------
-        observable: sarkas.tools.observables.DiffusionFlux
+        observable : :class:`sarkas.tools.observables.DiffusionFlux`
             Observable object containing the ACF whose time integral leads to the interdiffusion coefficient.
 
         plot : bool, optional
@@ -680,8 +688,8 @@ class TransportCoefficients:
         """
 
         print("\n\n{:=^70} \n".format(" Interdiffusion Coefficient "))
-        self.interdiffusion_df = pd.DataFrame()
-        self.interdiffusion_df_slices = pd.DataFrame()
+        self.interdiffusion_df = DataFrame()
+        self.interdiffusion_df_slices = DataFrame()
 
         # Check that the phase and no_slices is the same from the one computed in the Observable
         observable.parse()
@@ -776,7 +784,7 @@ class TransportCoefficients:
 
         Parameters
         ----------
-        observable: sarkas.tools.observables.DiffusionFlux
+        observable : :class:`sarkas.tools.observables.PressureTensor`
             Observable object containing the ACF whose time integral leads to the interdiffusion coefficient.
 
         plot : bool, optional
@@ -787,8 +795,8 @@ class TransportCoefficients:
 
         """
         print("\n\n{:=^70} \n".format(" Viscosity Coefficient "))
-        self.viscosity_df = pd.DataFrame()
-        self.viscosity_df_slices = pd.DataFrame()
+        self.viscosity_df = DataFrame()
+        self.viscosity_df_slices = DataFrame()
 
         # Check that the phase and no_slices is the same from the one computed in the Observable
         observable.parse()

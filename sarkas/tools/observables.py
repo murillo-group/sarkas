@@ -105,7 +105,7 @@ def setup_doc(func):
 
     Parameters
     ----------
-    params : sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     phase : str, optional
@@ -115,8 +115,8 @@ def setup_doc(func):
         Number of independent runs inside a long simulation. Default = 1.
 
     **kwargs :
-        These will overwrite any :attr:`sarkas.core.Parameters`
-        or default :attr:`sarkas.tools.observables.Observable`
+        These will overwrite any :class:`sarkas.core.Parameters`
+        or default :class:`sarkas.tools.observables.Observable`
         attributes and/or add new ones.
 
    """
@@ -1958,7 +1958,7 @@ class PressureTensor(Observable):
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution function object.
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential object.
 
         Returns
@@ -2129,7 +2129,7 @@ class RadialDistributionFunction(Observable):
 
         Parameters
         ----------
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Sarkas Potential object. Needed for all its attributes.
 
         Returns
@@ -2394,8 +2394,8 @@ class Thermodynamics(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2450,7 +2450,7 @@ class Thermodynamics(Observable):
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution Function object.
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential object.
 
         Returns
@@ -2923,8 +2923,8 @@ class VelocityDistribution(Observable):
             Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -3090,8 +3090,8 @@ class VelocityDistribution(Observable):
             Dictionary with arguments to pass to ``numpy.histogram``.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -3322,7 +3322,7 @@ class VelocityDistribution(Observable):
         Parameters
         ----------
         parse_data: bool
-            Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time.
+            Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time``.
             If True it will parse data from simulations dumps.
 
         vel_raw: np.ndarray, optional

@@ -2,6 +2,7 @@
 Module handling the potential class.
 """
 from warnings import warn
+
 from numpy import pi, tanh, sqrt, array, ndarray
 
 from ..utilities.exceptions import AlgorithmWarning
@@ -19,104 +20,91 @@ class Potential:
 
     Attributes
     ----------
-    matrix : array
-        Potential's parameters.
-
-    method : str
-        Algorithm to use for force calculations.
-        "pp" = Linked Cell List (default).
-        "pppm" = Particle-Particle Particle-Mesh.
-        "fmm" = Fast Multipole Method.
-
-    rc : float
-        Cutoff radius.
-
     a_rs : float
         Short-range cutoff to deal with divergence of the potential for r -> 0.
 
+    box_lengths : array
+        Pointer to :attr:`sarkas.core.Parameters.box_lengths`.
+
+    box_volume : float
+        Pointer to :attr:`sarkas.core.Parameters.box_volume`.
+
+    force_error : float
+        Force error due to the choice of the algorithm.
+
+    fourpie0 : float
+        Coulomb constant :math:`4 \\pi \\epsilon_0`.
+
+    kappa : float
+        Inverse screening length.
+
+    linked_list_on : bool
+        Flag for choosing the Linked cell list algorithem.
+
+    matrix : numpy.ndarray
+        Matrix of potential's parameters.
+
+    measure : bool
+        Flag for calculating the histogram for the radial distribution function.
+        It is set to `False` during equilibration phase and changed to `True` during production phase.
+
+    method : str
+        Algorithm method. Choices = `["PP", "PPPM", "FMM", "Brute"]`. \n
+        `"PP"` = Linked Cell List (default).
+        `"PPPM"` = Particle-Particle Particle-Mesh.
+        `"FMM"` = Fast Multipole Method.
+        `"Brute"` = corresponds to calculating the distance between all pair of particles within a distance :math:`L/2`.
+
+    pbox_lengths : numpy.ndarray
+        Pointer to :attr:`sarkas.core.Parameters.pbox_lengths`
+
+    pbox_volume : float
+        Pointer to :attr:`sarkas.core.Parameters.pbox_lengths`
+
+    pppm_on : bool
+        Flag for turning on the PPPM algorithm.
+
+    QFactor : float
+        Sum of the squared of the charges.
+
+    rc : float
+        Cutoff radius for the Linked Cell List algorithme.
+
+    screening_length_type : str
+        Choice of ways to calculate the screening length. \n
+        Choices = `[thomas-fermi, tf, debye, debye-huckel, db, moliere, custom]`.
+
+    screening_length : float
+        Value of the screening length.
+
+    total_net_charge : float
+        Sum of all the charges.
+
     type : str
-        Interaction potential: LJ, Yukawa, EGS, Coulomb, QSP, Moliere.
-
-    pppm_aliases : array, shape(3)
-        Number of aliases in each direction.
-
-    pppm_cao : int
-        Charge assignment order.
-
-    on : bool
-        Flag.
-
-    pppm_mesh : array, shape(3), int
-        Number of mesh point in each direction.
-
-    Mx : int
-        Number of mesh point along the :math:`x` axis.
-
-    My : int
-        Number of mesh point along the :math:`y` axis.
-
-    Mz : int
-        Number of mesh point along the :math:`z` axis.
-
-    mx_max : int
-        Number of aliases along the reciprocal :math:`x` direction.
-
-    my_max : int
-        Number of aliases along the reciprocal :math:`y` direction.
-
-    mz_max : int
-        Number of aliases along the reciprocal :math:`z` direction.
-
-    G_ew : float
-        Ewald parameter.
-
-    G_k : array
-        Optimized Green's function.
-
-    hx : float
-        Mesh spacing in :math:`x` direction.
-
-    hy : float
-        Mesh spacing in :math:`y` direction.
-
-    hz : float
-        Mesh spacing in :math:`z` direction.
-
-    PP_err : float
-        Force error due to short range cutoff.
-
-    PM_err : float
-        Force error due to long range cutoff.
-
-    F_err : float
-        Total force error.
-
-    kx_v : array
-        Array of :math:`k_x` values.
-
-    ky_v : array
-        Array of :math:`k_y` values.
-
-    kz_v : array
-        Array of :math:`k_z` values.
+        Type of potential. \n
+        Choices = [`"coulomb"`, `"egs"`, `"lennardjones"`, `"moliere"`, `"qsp"`].
 
     """
 
-    def __init__(self):
-        self.type = "yukawa"
-        self.method = "pp"
-        self.matrix = None
-        self.force_error = None
-        self.measure = False
-        self.box_lengths = 0.0
-        self.pbox_lengths = 0.0
-        self.box_volume = 0.0
-        self.pbox_volume = 0.0
-        self.fourpie0 = 0.0
-        self.QFactor = 0.0
-        self.total_net_charge = 0.0
-        self.pppm_on = False
-        self.a_rs = 0.0
+    a_rs: float = 0.0
+    box_lengths: array = None
+    box_volume: float = 0.0
+    force_error: float = None
+    fourpie0: float = 0.0
+    kappa: float = None
+    linked_list_on: bool = True
+    matrix: ndarray = None
+    measure: bool = False
+    method: str = "pp"
+    pbox_lengths: float = 0.0
+    pbox_volume: float = 0.0
+    pppm_on: bool = False
+    QFactor: float = 0.0
+    rc: float = None
+    screening_length_type: str = None
+    screening_length: float = None
+    total_net_charge: float = 0.0
+    type: str = "yukawa"
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -144,7 +132,7 @@ class Potential:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         """
@@ -155,11 +143,11 @@ class Potential:
 
         if self.method == "p3m":
             self.method == "pppm"
-
         # Check for cutoff radius
         if not self.type == "fmm":
             self.linked_list_on = True  # linked list on
-            if not hasattr(self, "rc"):
+
+            if not self.rc:
                 warn(
                     "\nThe cut-off radius is not defined. "
                     "L/2 = {:.4e} will be used as rc".format(0.5 * params.box_lengths.min()),
@@ -224,7 +212,7 @@ class Potential:
                 if self.screening_length is None:
                     raise AttributeError("potential.screening_length not defined!")
         else:
-            if not self.screening_length and not hasattr(self, "kappa"):
+            if not self.screening_length and not self.kappa:
                 warn("You have not defined the screening_length nor kappa. I will use the Thomas-Fermi length")
                 self.screening_length_type = "thomas-fermi"
                 self.screening_length = params.lambda_TF
@@ -293,7 +281,7 @@ class Potential:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         """
@@ -363,8 +351,7 @@ class Potential:
             tan_arg = 0.5 * params.hbar * params.electron_cyclotron_frequency * beta_e
 
             # Perpendicular correction
-            params.horing_perp_correction = (
-                                                        params.electron_plasma_frequency / params.electron_cyclotron_frequency) ** 2
+            params.horing_perp_correction = (params.electron_plasma_frequency / params.electron_cyclotron_frequency) ** 2
             params.horing_perp_correction *= 1.0 - tan_arg / tanh(tan_arg)
             params.horing_perp_correction += 1
 
@@ -381,7 +368,7 @@ class Potential:
 
         Parameters
         ----------
-        params : sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters
 
         """
@@ -397,7 +384,7 @@ class Potential:
         self.pppm_h_array = params.box_lengths / self.pppm_mesh
 
         # Pack constants together for brevity in input list
-        kappa = 1.0 / params.lambda_TF if self.type == "yukawa" else 0.0
+        kappa = 1.0/self.screening_length if self.type == "yukawa" else 0.0
         constants = array([kappa, self.pppm_alpha_ewald, params.fourpie0])
         # Calculate the Optimized Green's Function
         self.pppm_green_function, self.pppm_kx, self.pppm_ky, self.pppm_kz, params.pppm_pm_err = gf_opt(
@@ -419,7 +406,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls : :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -447,7 +434,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -473,7 +460,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.core.Particles`
             Particles' data
 
         """
@@ -503,8 +490,8 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
-            Particles' data
+        ptcls : :class:`sarkas.core.Particles`
+            Particles' data.
 
         """
         self.update_linked_list(ptcls)

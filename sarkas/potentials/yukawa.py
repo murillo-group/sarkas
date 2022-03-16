@@ -35,7 +35,7 @@ from ..utilities.maths import force_error_analytic_pp
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def yukawa_force_pppm(r_in, pot_matrix):
     """
-    Calculates Potential and Force between two particles when the pppm algorithm is chosen.
+    Numba'd function to calculate Potential and Force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------
@@ -46,14 +46,6 @@ def yukawa_force_pppm(r_in, pot_matrix):
         It contains potential dependent variables. \n
         Shape = (4, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
-    Examples
-    --------
-    >>> import numpy as np
-    >>> r = 2.0
-    >>> pot_matrix = np.array([ 1.0, 0.5, 0.25,  0.0001])
-    >>> yukawa_force_pppm(r, pot_matrix)
-    (0.16287410244138842, 0.18025091684402375)
-
     Returns
     -------
     U : float
@@ -61,6 +53,14 @@ def yukawa_force_pppm(r_in, pot_matrix):
 
     fr : float
         Force between two particles calculated using eq.(22) in :cite:`Dharuman2017`.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> r = 2.0
+    >>> pot_matrix = np.array([ 1.0, 0.5, 0.25,  0.0001])
+    >>> yukawa_force_pppm(r, pot_matrix)
+    (0.16287410244138842, 0.18025091684402375)
 
     """
     kappa = pot_matrix[1]
@@ -98,7 +98,7 @@ def yukawa_force_pppm(r_in, pot_matrix):
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def yukawa_force(r_in, pot_matrix):
     """
-    Calculates Potential and Force between two particles.
+    Numba'd function to calculate Potential and Force between two particles.
 
     Parameters
     ----------
@@ -109,13 +109,6 @@ def yukawa_force(r_in, pot_matrix):
         It contains potential dependent variables. \n
         Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
 
-    Examples
-    --------
-    >>> import numpy as np
-    >>> r = 2.0
-    >>> pot_matrix = np.array([ 1.0, 1.0, 0.0001])
-    >>> yukawa_force(r, pot_matrix)
-    (0.06766764161830635, 0.10150146242745953)
 
     Returns
     -------
@@ -124,6 +117,14 @@ def yukawa_force(r_in, pot_matrix):
 
     force : float
         Force between two particles.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> r = 2.0
+    >>> pot_matrix = np.array([ 1.0, 1.0, 0.0001])
+    >>> yukawa_force(r, pot_matrix)
+    (0.06766764161830635, 0.10150146242745953)
 
     """
     # Short-range cutoff to deal with divergence of the Coulomb potential
@@ -139,7 +140,7 @@ def yukawa_force(r_in, pot_matrix):
 
 @jit(float64(float64, float64[:]), nopython=True)
 def force_deriv(r, pot_matrix):
-    """Calculate the second derivative of the potential.
+    """Numba'd function to calculate the second derivative of the potential.
 
     Parameters
     ----------
@@ -168,22 +169,24 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params: sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     """
 
-    if hasattr(potential, "kappa") and hasattr(potential, "screening_length"):
+    if potential.kappa and potential.screening_length:
         warn("You have defined both kappa and the screening_length. \n"
              "I will use kappa to calculate the screening_length from lambda = a_ws/kappa"
              )
         potential.screening_length = params.a_ws / potential.kappa
 
-    elif hasattr(potential, "kappa"):
+    elif potential.kappa:
         potential.screening_length = params.a_ws / potential.kappa
+
+    potential.kappa = params.a_ws/potential.screening_length
 
     if potential.method == "pppm":
         potential.matrix = zeros((4, params.num_species, params.num_species))

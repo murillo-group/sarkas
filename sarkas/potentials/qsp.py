@@ -85,10 +85,10 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params : object
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters
 
 

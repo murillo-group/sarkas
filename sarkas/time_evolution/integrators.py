@@ -130,13 +130,13 @@ class Integrator:
 
         Parameters
         ----------
-        params: sarkas.core.parameters
+        params : :class:`sarkas.core.Parameters`
             Parameters class.
 
         thermostat: sarkas.time_evolution.thermostat
             Thermostat class
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential class.
 
         """
@@ -320,7 +320,7 @@ class Integrator:
         it_start: int
             Initial step of equilibration.
 
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles' class.
 
         checkpoint: sarkas.utilities.InputOutput
@@ -354,7 +354,7 @@ class Integrator:
         it_start: int
             Initial step of production phase.
 
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles' class.
 
         checkpoint: sarkas.utilities.InputOutput
@@ -375,7 +375,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
 
@@ -418,7 +418,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -462,7 +462,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -543,7 +543,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -613,7 +613,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -657,7 +657,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -698,7 +698,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -761,7 +761,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -823,7 +823,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -876,7 +876,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -923,7 +923,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -936,7 +936,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -949,7 +949,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """

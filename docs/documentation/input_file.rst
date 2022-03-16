@@ -57,7 +57,7 @@ The next section of the input file defines our interaction potential's parameter
 
 The instance ``type`` defines the interaction potential. Currently Sarkas supports the following interaction potentials:
 Coulomb, Yukawa, Exact-gradient corrected Yukawa, Quantum Statistical Potentials, Moliere, Lennard-Jones 6-12. More info
-on each of these potential can be found in :ref:`potentials`. Next we define the screening parameter ``kappa``.
+on each of these potential can be found in :doc:`Potentials <../theory/potentials>`. Next we define the screening parameter ``kappa``.
 Notice that this a non-dimensional parameter, i.e. the real screening length will be calculated
 from :math:`\lambda = a/\kappa` where :math:`a` is the Wigner-Seitz radius.
 
@@ -117,7 +117,8 @@ of the thermalization phase are defined in the ``Thermostat`` section of the inp
 The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
 but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
 The ``relaxation_timestep`` instance indicates the timestep number at which the Berendsen thermostat will be turned on.
-The instance ``berendsen_tau`` indicates the relaxation rate of the Berendsen thermostat, see :ref:`thermostats` for more details.
+The instance ``berendsen_tau`` indicates the relaxation rate of the Berendsen thermostat,
+see :doc:`../theory/Berendsen_NB/Berendsen_Thermostat` for more details.
 
 The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
 Notice that this takes a single value in the case of a single species, while it takes is a list in the case of

@@ -8,7 +8,7 @@ def test_moliere_force():
     """Test the calculation of the moliere force and potential."""
 
     charge = 4.0 * elementary_charge  # = 4e [C] mks units
-    coul_const = 1.0/ (4.0 * pi * epsilon_0)
+    coul_const = 1.0 / (4.0 * pi * epsilon_0)
 
     screening_charges = array([0.5, -0.5, 1.0])
     screening_lengths = array([5.99988000e-11, 1.47732309e-11, 1.47732309e-11])  # [m]

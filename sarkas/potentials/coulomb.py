@@ -34,10 +34,10 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential: sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Potential's information
 
-    params: sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters
 
 
@@ -68,7 +68,7 @@ def update_params(potential, params):
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def coulomb_force_pppm(r_in, pot_matrix):
     """
-    Calculate Potential and Force between two particles when the pppm algorithm is chosen.
+    Numba'd function to calculate the potential and force between two particles when the pppm algorithm is chosen.
 
     Parameters
     ----------
@@ -79,14 +79,6 @@ def coulomb_force_pppm(r_in, pot_matrix):
         It contains potential dependent variables.\n
         Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
 
-    Examples
-    --------
-    >>> import numpy as np
-    >>> r = 2.0
-    >>> pot_matrix = np.array([ 1.0, 0.5, 0.0])
-    >>> coulomb_force_pppm(r, pot_matrix)
-    (0.07864960352514257, 0.14310167611771996)
-
     Returns
     -------
     U : float
@@ -94,6 +86,15 @@ def coulomb_force_pppm(r_in, pot_matrix):
 
     fr : float
         Force between two particles.
+
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> r = 2.0
+    >>> pot_matrix = np.array([ 1.0, 0.5, 0.0])
+    >>> coulomb_force_pppm(r, pot_matrix)
+    (0.07864960352514257, 0.14310167611771996)
 
     """
 
@@ -116,7 +117,7 @@ def coulomb_force_pppm(r_in, pot_matrix):
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def coulomb_force(r_in, pot_matrix):
     """
-    Calculate the bare coulomb potential and force between two particles.
+    Numba'd function to calculate the bare coulomb potential and force between two particles.
 
     Parameters
     ----------
@@ -127,14 +128,6 @@ def coulomb_force(r_in, pot_matrix):
         It contains potential dependent variables. \n
         Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
 
-    Examples
-    --------
-    >>> import numpy as np
-    >>> r = 2.0
-    >>> pot_matrix = np.array([ 1.0, 0.0, 0.0])
-    >>> coulomb_force(r, pot_matrix)
-    (0.5, 0.25)
-
     Returns
     -------
     U : float
@@ -142,6 +135,14 @@ def coulomb_force(r_in, pot_matrix):
 
     fr : float
         Force between two particles.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> r = 2.0
+    >>> pot_matrix = np.array([ 1.0, 0.0, 0.0])
+    >>> coulomb_force(r, pot_matrix)
+    (0.5, 0.25)
 
     """
 

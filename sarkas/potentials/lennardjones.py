@@ -65,10 +65,10 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params : sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     """
@@ -109,7 +109,7 @@ def update_params(potential, params):
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def lj_force(r_in, pot_matrix):
     """
-    Calculates the PP force between particles using Lennard-Jones Potential.
+    Numba'd function to calculate the PP force between particles using Lennard-Jones Potential.
 
     Parameters
     ----------
@@ -119,6 +119,14 @@ def lj_force(r_in, pot_matrix):
     pot_matrix : numpy.ndarray
         LJ potential parameters. \n
         Shape = (5, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Returns
+    -------
+    U : float
+        Potential.
+
+    force : float
+        Force.
 
     Examples
     --------
@@ -130,14 +138,6 @@ def lj_force(r_in, pot_matrix):
     >>> r = 15.0 * sigma  # particles' distance in [m]
     >>> lj_force(r, pot_mat)
     (-5.815308131440668e-28, -6.841538377536503e-19)
-
-    Returns
-    -------
-    U : float
-        Potential.
-
-    force : float
-        Force.
 
     """
 

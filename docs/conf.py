@@ -23,11 +23,11 @@ sys.path.insert(0, os.path.abspath('../sarkas/thermostats'))
 sys.path.insert(0, os.path.abspath('../sarkas/tools'))
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/', None),
-    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
-    'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
-    'matplotlib': ('http://matplotlib.org/', None),
-    'pandas': ('http://pandas.pydata.org/pandas-docs/dev/', None),
+    'python': ('https://docs.python.org/3/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
+    'matplotlib': ('https://matplotlib.org/stable/', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/dev/', None),
 }
 
 # -- Project information -----------------------------------------------------
@@ -50,17 +50,14 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
-    'sphinxcontrib.apidoc',
     'sphinx.ext.viewcode',
     'sphinxcontrib.bibtex',
     'sphinx.ext.intersphinx',
     'sphinx_autodoc_typehints',
     'nbsphinx',
     'recommonmark',
-    'sphinx_automodapi.automodapi',
     'sphinx_panels',
 ]
-numpydoc_show_class_members = False
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -194,7 +191,5 @@ autosummary_generate_overwrite = True
 # # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ['sarkas.']
 
-apidoc_module_dir = '../sarkas'
-apidoc_output_dir = 'api'
-apidoc_excluded_paths = ['*tests*', '*notebooks*']
-apidoc_separate_modules = True
+# Make sure the target is unique
+autosectionlabel_prefix_document = True

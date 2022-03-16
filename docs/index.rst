@@ -29,7 +29,7 @@ SARKAS: Python MD code for plasma physics
    
    
    <div style="position: relative; justify-content: center; align-items: center; display: grid; grid-template-columns:repeat(auto-fit,535px);">
-      <img src="_static/logo_green_orange_v5.png" alt="logo" width="35%" style="justify-self:center; align-self:center;">
+      <img src="_static/Sarkas_transparent.svg" alt="logo" width="35%" style="justify-self:center; align-self:center;">
       <div>
       <!--Carousel Wrapper-->
          <div id="CodeExample" class="carousel slide" data-interval="5000" data-ride="carousel">

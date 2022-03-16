@@ -51,10 +51,10 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params : sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     """
@@ -82,7 +82,7 @@ def update_params(potential, params):
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def moliere_force(r, pot_matrix):
     """
-    Calculates the PP force between particles using the Moliere Potential.
+    Numba'd function to calculate the PP force between particles using the Moliere Potential.
 
     Parameters
     ----------
@@ -92,6 +92,14 @@ def moliere_force(r, pot_matrix):
     pot_matrix : numpy.ndarray
         Moliere potential parameters. \n
         Shape = (7, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Returns
+    -------
+    U : float
+        Potential.
+
+    force : float
+        Force between two particles.
 
     Examples
     --------
@@ -109,14 +117,6 @@ def moliere_force(r, pot_matrix):
     >>> r = 6.629755e-10  # [m] particles distance
     >>> moliere_force(r, pot_mat)
     (4.423663010052846e-23, 6.672438139145769e-14)
-
-    Returns
-    -------
-    U : float
-        Potential.
-
-    force : float
-        Force between two particles.
 
     """
 

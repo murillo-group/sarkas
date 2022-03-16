@@ -101,7 +101,7 @@ class Thermostat:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters
 
         Raises
@@ -143,7 +143,7 @@ class Thermostat:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.core.Particles`
             Particles' data.
 
         it : int

@@ -794,7 +794,7 @@ class Particles:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params: :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         species : list
@@ -857,7 +857,7 @@ class Particles:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         """
@@ -1112,13 +1112,6 @@ class Particles:
         perturb : float
             Value of perturbation, p, such that 0 <= p <= 1.
 
-        Notes
-        -----
-        Author: Luke Stanek
-        Date Created: 5/6/19
-        Date Updated: 6/2/19, 9/7/21
-        Updates: Added to S_init_schemes.py for Sarkas import.
-                Place lattice according to pbox parameters into center of simulation box (PWS)
         """
 
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.
@@ -1172,14 +1165,6 @@ class Particles:
         ----------
         r_reject : float
             Value of rejection radius.
-
-        Notes
-        -----
-        Author: Luke Stanek
-        Date Created: 5/6/19
-        Date Updated: 9/7/21
-        Updates: Place initial particles according to pbox parameters into the simulation box center (PWS)
-
         """
 
         # Initialize Arrays
@@ -1274,13 +1259,6 @@ class Particles:
 
         r_reject : float
             Value of rejection radius.
-
-        Notes
-        -----
-        Author: Luke Stanek
-        Date Created: 5/6/19
-        Date Updated: 9/7/21
-        Updates: Place initial particles according to pbox parameters into the simulation box center (PWS)
 
         """
 

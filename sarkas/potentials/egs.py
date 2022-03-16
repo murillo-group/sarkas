@@ -5,14 +5,14 @@ Potential
 *********
 
 The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
-Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
+Density gradient corrections to the free energy functional lead to the first parameter, :math:`\\nu`,
 
 .. math::
    \\nu = - \\frac{3\\lambda}{\\pi^{3/2}}  \\frac{4\\pi \\bar{e}^2 \\beta }{\\Lambda_{e}} \\frac{d}{d\\eta} \\mathcal I_{-1/2}(\\eta),
 
 where :math:`\\lambda` is a correction factor; :math:`\\lambda = 1/9` for the true gradient corrected Thomas-Fermi model
 and :math:`\\lambda = 1` for the traditional von Weissaecker model, :math:`\\mathcal I_{-1/2}[\\eta_0]` is the
-:ref:`Fermi Integral` of order :math:`-1/2`, and :math:`\\Lambda_e` is the :ref:`de Broglie wavelength` of the electrons.
+Fermi Integral of order :math:`-1/2`, and :math:`\\Lambda_e` is the de Broglie wavelength of the electrons.
 
 In the case :math:`\\nu < 1` the EGS potential takes the form
 
@@ -41,7 +41,7 @@ Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise
    b = 1 - \\frac{2}{8} \\frac{1}{k_{\\textrm{F}}^2 \\lambda_{\\textrm{TF}}^2 }  \\left [ h\\left ( \\Theta \\right ) - 2 \\Theta h'(\\Theta) \\right ]
 
 where :math:`k_{\\textrm{F}}` is the Fermi wavenumber and :math:`\\Theta = (\\beta E_{\\textrm{F}})^{-1}` is the electron
-:ref:`Degeneracy Parameter` calculated from the :ref:`Fermi Energy`.
+degeneracy parameter` calculated from the Fermi energy.
 
 .. math::
    h \\left ( \\Theta \\right) = \\frac{N(\\Theta)}{D(\\Theta)}\\tanh \\left( \\Theta^{-1} \\right ),
@@ -105,10 +105,10 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params: sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     Raises
@@ -206,7 +206,7 @@ def update_params(potential, params):
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def egs_force(r_in, pot_matrix):
     """
-    Calculates Potential and force between particles using the EGS Potential.
+    Numba'd function to calculate the potential and force between particles using the EGS Potential.
 
     Parameters
     ----------
@@ -216,6 +216,14 @@ def egs_force(r_in, pot_matrix):
     pot_matrix : array
         EGS potential parameters. \n
         Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Returns
+    -------
+    U : float
+        Potential.
+
+    fr : float
+        Force.
 
     Examples
     --------
@@ -231,14 +239,6 @@ def egs_force(r_in, pot_matrix):
     >>> egs_force(r, pot_mat)
     (-0.9067719924627385, 270184640.33105946)
 
-
-    Return
-    ------
-    U : float
-        Potential.
-
-    fr : float
-        Force.
 
     """
 
