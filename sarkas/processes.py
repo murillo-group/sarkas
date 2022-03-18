@@ -1,27 +1,39 @@
 """
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
-import numpy as np
 import copy as py_copy
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+import os
 from matplotlib.colors import LogNorm
 
-import os
+from .core import Parameters, Particles, Species
+from .potentials.core import Potential
+from .time_evolution.integrators import Integrator
+from .time_evolution.thermostats import Thermostat
+from .tools.observables import (
+    CurrentCorrelationFunction,
+    DiffusionFlux,
+    DynamicStructureFactor,
+    ElectricCurrent,
+    PressureTensor,
+    RadialDistributionFunction,
+    StaticStructureFactor,
+    Thermodynamics,
+    VelocityAutoCorrelationFunction,
+    VelocityDistribution,
+)
 
 # Sarkas modules
-from sarkas.utilities.io import InputOutput
-from sarkas.utilities.timing import SarkasTimer
-from sarkas.potentials.core import Potential
-from sarkas.time_evolution.integrators import Integrator
-from sarkas.time_evolution.thermostats import Thermostat
-from sarkas.core import Particles, Parameters, Species
-from sarkas.utilities.maths import betamp
-import sarkas.tools.observables as sk_obs
+from .utilities.io import InputOutput
+from .utilities.maths import betamp
+from .utilities.timing import SarkasTimer
 
 
 class Process:
-    """Stage of a Molecular Dynamics simulation. This is the Parent class for PreProcess, Simulation, and PostProcess.
+    """Stage of a Molecular Dynamics simulation. \n
+    This is the parent class for PreProcess, Simulation, and PostProcess.
 
     Parameters
     ----------
@@ -33,28 +45,28 @@ class Process:
     potential : sarkas.potential.base.Potential
         Class handling the interaction between particles.
 
-    integrator: sarkas.time_evolution.integrators.Integrator
+    integrator : :class:`: sarkas.time_evolution.integrators.Integrator`
         Class handling the integrator.
 
-    thermostat: sarkas.time_evolution.thermostats.Thermostat
+    thermostat : :class:`: sarkas.time_evolution.thermostats.Thermostat`
         Class handling the equilibration thermostat.
 
-    particles: sarkas.core.Particles
+    particles: :class:`sarkas.core.Particles`
         Class handling particles properties.
 
-    parameters: sarkas.core.Parameters
+    parameters : :class:`sarkas.core.Parameters`
         Class handling simulation's parameters.
 
-    species: list
+    species : list
         List of :meth:`sarkas.core.Species` classes.
 
-    input_file: str
+    input_file : str
         Path to YAML input file.
 
-    timer: sarkas.utilities.timing.SarkasTimer
+    timer : :class:`sarkas.utilities.timing.SarkasTimer`
         Class handling the timing of processes.
 
-    io: sarkas.utilities.io.InputOutput
+    io : :class:`sarkas.utilities.io.InputOutput`
         Class handling the IO in Sarkas.
 
     """
@@ -67,7 +79,7 @@ class Process:
         self.particles = Particles()
         self.species = []
         self.observables_list = []
-        self.input_file = input_file if input_file else None
+        self.input_file = input_file
         self.timer = SarkasTimer()
         self.io = InputOutput(process=self.__name__)
 
@@ -111,58 +123,58 @@ class Process:
                 for key, sub_dict in observable.items():
                     if key == "RadialDistributionFunction":
                         self.observables_list.append("rdf")
-                        self.rdf = sk_obs.RadialDistributionFunction()
+                        self.rdf = RadialDistributionFunction()
                         if sub_dict:
                             self.rdf.from_dict(sub_dict)
                     elif key == "Thermodynamics":
-                        self.therm = sk_obs.Thermodynamics()
+                        self.therm = Thermodynamics()
                         self.therm.from_dict(sub_dict)
                         self.observables_list.append("therm")
                     elif key == "DynamicStructureFactor":
                         self.observables_list.append("dsf")
-                        self.dsf = sk_obs.DynamicStructureFactor()
+                        self.dsf = DynamicStructureFactor()
                         if sub_dict:
                             self.dsf.from_dict(sub_dict)
                     elif key == "CurrentCorrelationFunction":
                         self.observables_list.append("ccf")
-                        self.ccf = sk_obs.CurrentCorrelationFunction()
+                        self.ccf = CurrentCorrelationFunction()
                         if sub_dict:
                             self.ccf.from_dict(sub_dict)
                     elif key == "StaticStructureFactor":
                         self.observables_list.append("ssf")
-                        self.ssf = sk_obs.StaticStructureFactor()
+                        self.ssf = StaticStructureFactor()
                         if sub_dict:
                             self.ssf.from_dict(sub_dict)
                     elif key == "VelocityAutoCorrelationFunction":
                         self.observables_list.append("vacf")
-                        self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                        self.vacf = VelocityAutoCorrelationFunction()
                         if sub_dict:
                             self.vacf.from_dict(sub_dict)
                     elif key == "VelocityDistribution":
                         self.observables_list.append("vd")
-                        self.vm = sk_obs.VelocityDistribution()
+                        self.vm = VelocityDistribution()
                         if sub_dict:
                             self.vm.from_dict(sub_dict)
                     elif key == "ElectricCurrent":
                         self.observables_list.append("ec")
-                        self.ec = sk_obs.ElectricCurrent()
+                        self.ec = ElectricCurrent()
                         if sub_dict:
                             self.ec.from_dict(sub_dict)
                     elif key == "DiffusionFlux":
                         self.observables_list.append("diff_flux")
-                        self.diff_flux = sk_obs.DiffusionFlux()
+                        self.diff_flux = DiffusionFlux()
                         if sub_dict:
                             self.diff_flux.from_dict(sub_dict)
                     elif key == "PressureTensor":
                         self.observables_list.append("p_tensor")
-                        self.p_tensor = sk_obs.PressureTensor()
+                        self.p_tensor = PressureTensor()
                         if sub_dict:
                             self.p_tensor.from_dict(sub_dict)
 
             if "TransportCoefficients" in dics.keys():
                 self.transport_dict = dics["TransportCoefficients"].copy()
 
-    def initialization(self):
+    def initialization(self) -> None:
         """Initialize all classes."""
 
         # initialize the directories and filenames
@@ -224,7 +236,7 @@ class Process:
         self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
 
-    def setup(self, read_yaml=False, other_inputs=None):
+    def setup(self, read_yaml: bool = False, other_inputs: dict = None):
         """Setup simulations' parameters and io subclasses.
 
         Parameters
@@ -272,36 +284,33 @@ class Process:
                     for observable in class_attr:
                         for key, sub_dict in observable.items():
                             if key == "RadialDistributionFunction":
-                                self.rdf = sk_obs.RadialDistributionFunction()
+                                self.rdf = RadialDistributionFunction()
                                 self.rdf.from_dict(sub_dict)
-                            if key == "HermiteCoefficients":
-                                self.hc = sk_obs.HermiteCoefficients()
-                                self.hc.from_dict(sub_dict)
                             if key == "Thermodynamics":
-                                self.therm = sk_obs.Thermodynamics()
+                                self.therm = Thermodynamics()
                                 self.therm.from_dict(sub_dict)
                             if key == "DynamicStructureFactor":
-                                self.dsf = sk_obs.DynamicStructureFactor()
+                                self.dsf = DynamicStructureFactor()
                                 if sub_dict:
                                     self.dsf.from_dict(sub_dict)
                             if key == "CurrentCorrelationFunction":
-                                self.ccf = sk_obs.CurrentCorrelationFunction()
+                                self.ccf = CurrentCorrelationFunction()
                                 if sub_dict:
                                     self.ccf.from_dict(sub_dict)
                             if key == "StaticStructureFactor":
-                                self.ssf = sk_obs.StaticStructureFactor()
+                                self.ssf = StaticStructureFactor()
                                 if sub_dict:
                                     self.ssf.from_dict(sub_dict)
                             if key == "VelocityAutoCorrelationFunction":
-                                self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                                self.vacf = VelocityAutoCorrelationFunction()
                                 if sub_dict:
                                     self.vacf.from_dict(sub_dict)
-                            if key == "VelocityMoments":
-                                self.vm = sk_obs.VelocityMoments()
+                            if key == "VelocityDistribution":
+                                self.vm = VelocityDistribution()
                                 if sub_dict:
                                     self.vm.from_dict(sub_dict)
                             if key == "ElectricCurrent":
-                                self.ec = sk_obs.ElectricCurrent()
+                                self.ec = ElectricCurrent()
                                 if sub_dict:
                                     self.ec.from_dict(sub_dict)
 
@@ -366,13 +375,13 @@ class PostProcess(Process):
 
         if len(self.observables_list) == 0:
             # Make Temperature and Energy plots
-            self.therm = sk_obs.Thermodynamics()
+            self.therm = Thermodynamics()
             self.therm.setup(self.parameters)
             if self.parameters.equilibration_steps > 0:
                 self.therm.temp_energy_plot(self, phase="equilibration")
             self.therm.temp_energy_plot(self, phase="production")
             # Calculate the RDF.
-            self.rdf = sk_obs.RadialDistributionFunction()
+            self.rdf = RadialDistributionFunction()
             self.rdf.setup(self.parameters)
             self.rdf.parse()
         else:
@@ -388,7 +397,7 @@ class PostProcess(Process):
 
                 # Calculate transport coefficients
                 if hasattr(self, "transport_dict"):
-                    from sarkas.tools.transport import TransportCoefficients
+                    from .tools.transport import TransportCoefficients
 
                     tc = TransportCoefficients(self.parameters)
 
@@ -399,7 +408,7 @@ class PostProcess(Process):
                             if key.lower() == "diffusion":
                                 # Calculate if not already
                                 if not self.vacf:
-                                    self.vacf = sk_obs.VelocityAutoCorrelationFunction()
+                                    self.vacf = VelocityAutoCorrelationFunction()
                                     self.vacf.setup(self.parameters)
                                     # Use parse in case you calculated it already
                                     self.vacf.parse()
@@ -408,7 +417,7 @@ class PostProcess(Process):
 
                             elif key.lower() == "interdiffusion":
                                 if not self.diff_flux:
-                                    self.diff_flux = sk_obs.DiffusionFlux()
+                                    self.diff_flux = DiffusionFlux()
                                     self.diff_flux.setup(self.parameters)
                                     self.diff_flux.parse()
 
@@ -416,14 +425,14 @@ class PostProcess(Process):
 
                             elif key.lower() == "viscosity":
                                 if not self.p_tensor:
-                                    self.p_tensor = sk_obs.PressureTensor()
+                                    self.p_tensor = PressureTensor()
                                     self.p_tensor.setup(self.parameters)
                                     self.p_tensor.parse()
                                 tc.viscosity(self.p_tensor)
 
                             elif key.lower() == "electricalconductivity":
                                 if not self.ec:
-                                    self.ec = sk_obs.ElectricCurrent()
+                                    self.ec = ElectricCurrent()
                                     self.ec.setup(self.parameters)
                                     self.ec.parse()
 
@@ -675,12 +684,12 @@ class PreProcess(Process):
                 )
                 self.potential.pppm_pp_err *= (
                     np.sqrt(self.parameters.total_num_ptcls)
-                    * self.parameters.a_ws ** 2
+                    * self.parameters.a_ws**2
                     / np.sqrt(self.parameters.box_volume)
                 )
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
-                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err ** 2 + self.parameters.pppm_pm_err ** 2)
+                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err**2 + self.parameters.pppm_pm_err**2)
 
                 if j == 0:
                     pp_xlabels.append("{:.2f}".format(self.potential.rc / self.parameters.a_ws))
@@ -694,13 +703,13 @@ class PreProcess(Process):
         pp_times *= 1e-9
         pm_times *= 1e-9
         # Fit the PM times
-        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x ** 3 * np.log2(x ** 3), self.pm_meshes, pm_times)
+        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x**3 * np.log2(x**3), self.pm_meshes, pm_times)
         fit_str = r"Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]" + "\n" + r"$a_2 = ${:.4e}, $a_3 = ${:.4e} ".format(*pm_popt)
         print("\nPM Time " + fit_str)
 
         # Fit the PP Times
         pp_popt, _ = curve_fit(
-            lambda x, a, b: a + b / x ** 3,
+            lambda x, a, b: a + b / x**3,
             self.pp_cells,
             np.mean(pp_times, axis=0),
             p0=[np.mean(pp_times, axis=0)[0], self.parameters.total_num_ptcls],
@@ -714,7 +723,7 @@ class PreProcess(Process):
         ax_pm.plot(self.pm_meshes, pm_times, "o", label="Measured")
         ax_pm.plot(
             self.pm_meshes,
-            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes ** 3 * np.log2(self.pm_meshes ** 3),
+            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes**3 * np.log2(self.pm_meshes**3),
             ls="--",
             label="Fit",
         )
@@ -735,7 +744,7 @@ class PreProcess(Process):
             ax_pp.plot(self.pp_cells, pp_times[j], "o", label=r"@ Mesh {}$^3$".format(mesh_points))
 
         # Plot the Fit PP times
-        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells ** 3, ls="--", label="Fit")
+        ax_pp.plot(self.pp_cells, pp_popt[0] + pp_popt[1] / self.pp_cells**3, ls="--", label="Fit")
         ax_pp.legend(ncol=2)
         ax_pp.annotate(
             text=fit_pp_str,
@@ -1113,7 +1122,7 @@ class PreProcess(Process):
         # Calculate the analytic PP error and the total force error
         pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(-rcuts * self.kappa)
         pp_force_error *= np.sqrt(
-            self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+            self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
         )
 
         return pp_force_error, rcuts
@@ -1184,14 +1193,14 @@ class PreProcess(Process):
             pm_force_error[ia] = np.sqrt(3.0 * somma) / (2.0 * np.pi)
         # eq.(35)
         pm_force_error *= np.sqrt(
-            self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+            self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
         )
         # Calculate the analytic PP error and the total force error
         if self.potential.type == "qsp":
             for (ir, rc) in enumerate(rcuts):
                 pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(-rc * kappa)
                 pp_force_error[:, ir] *= np.sqrt(
-                    self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+                    self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
                 )
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
@@ -1201,10 +1210,10 @@ class PreProcess(Process):
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
                     pp_force_error[ia, ir] = (
-                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / np.sqrt(rc)
+                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa**2 * rc**2) / np.sqrt(rc)
                     )
                     pp_force_error[ia, ir] *= np.sqrt(
-                        self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
+                        self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
                     )
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
                     total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)

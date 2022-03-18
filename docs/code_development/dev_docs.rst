@@ -52,10 +52,10 @@ Building Documentation
 ----------------------
 Once you have updated the documentation we can check our changes by building it locally on your machine. Here are the steps:
 
-Make sure to activate your ``sarkas`` environment: open a terminal window and type 
+Make sure to activate your ``sarkas`` environment: open a terminal window and type
 
     .. code-block:: console
-        
+
         $ conda activate sarkas
 
 This is needed because when building the documentation you import the ``sarkas`` package, see the line ``import sarkas``  in the file ``conf.py``.

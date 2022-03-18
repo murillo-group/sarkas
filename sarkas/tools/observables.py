@@ -8,22 +8,18 @@ if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
 else:
     from tqdm import tqdm
 
-from numba import njit
-from matplotlib.gridspec import GridSpec
-
-import os
-import pickle
-import copy as pycopy
-import numpy as np
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
-
+import numpy as np
+import os
+import pandas as pd
+import pickle
 import scipy.stats as scp_stats
+import seaborn as sns
+from matplotlib.gridspec import GridSpec
+from numba import njit
 
-from sarkas.utilities.timing import SarkasTimer
-from sarkas.utilities.io import num_sort
-from sarkas.utilities.maths import correlationfunction
+from ..utilities.maths import correlationfunction
+from ..utilities.timing import SarkasTimer
 
 UNITS = [
     # MKS Units
@@ -90,13 +86,13 @@ PREFIXES = {
 
 def compute_doc(func):
     func.__doc__ = """
-    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n 
+    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n
     The data of each slice is saved in hierarchical dataframes,
     :attr:`~.dataframe_slices` (:attr:`~.dataframe_acf_slices`). \n
-    
+
     The sliced averaged data is saved in other hierarchical dataframes,
     :attr:`~.dataframe` (:attr:`~.dataframe_acf_slices`).
-     
+
     """
     return func
 
@@ -107,7 +103,7 @@ def setup_doc(func):
 
     Parameters
     ----------
-    params : sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     phase : str, optional
@@ -117,8 +113,8 @@ def setup_doc(func):
         Number of independent runs inside a long simulation. Default = 1.
 
     **kwargs :
-        These will overwrite any :attr:`sarkas.core.Parameters`
-        or default :attr:`sarkas.tools.observables.Observable`
+        These will overwrite any :class:`sarkas.core.Parameters`
+        or default :class:`sarkas.tools.observables.Observable`
         attributes and/or add new ones.
 
    """
@@ -206,6 +202,17 @@ class Observable:
     """
 
     def __init__(self):
+        self.filename_hdf_acf = None
+        self.species_index_start = None
+        self.filename_hdf_acf_slices = None
+        self.filename_hdf_slices = None
+        self.filename_hdf = None
+        self.max_aa_harmonics = None
+        self.angle_averaging = None
+        self.max_aa_ka_value = None
+        self.__long_name__ = None
+        self.__name__ = None
+        self.max_k_harmonics = None
         self.saving_dir = None
         self.phase = "production"
         self.multi_run_average = False
@@ -1731,12 +1738,7 @@ class PressureTensor(Observable):
                 time[it] = datap["time"]
 
                 pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
-                    datap["vel"],
-                    datap["virial"],
-                    self.species_masses,
-                    self.species_num,
-                    self.box_volume,
-                    self.dimensions
+                    datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume, self.dimensions
                 )
 
             if isl == 0:
@@ -1950,7 +1952,7 @@ class PressureTensor(Observable):
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution function object.
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential object.
 
         Returns
@@ -1969,11 +1971,11 @@ class PressureTensor(Observable):
         # Eq. 2.3.43 -44 in Boon and Yip
         I_1 = hartrees[:, 1].sum() + corrs[:, 1].sum()
         I_2 = hartrees[:, 2].sum() + corrs[:, 2].sum()
-        nkT = self.total_num_density/beta
+        nkT = self.total_num_density / beta
 
-        sigma_zzzz = (3.0 * nkT + 2.0 / 15.0 * I_1 + I_2 / 5.0 )
-        sigma_zzxx = (nkT - 2.0 / 5.0 * I_1 + I_2 / 15.0 )
-        sigma_xyxy = (nkT + 4.0 / 15.0 * I_1 + I_2 / 15.0)
+        sigma_zzzz = 3.0 * nkT + 2.0 / 15.0 * I_1 + I_2 / 5.0
+        sigma_zzxx = nkT - 2.0 / 5.0 * I_1 + I_2 / 15.0
+        sigma_xyxy = nkT + 4.0 / 15.0 * I_1 + I_2 / 15.0
 
         return sigma_zzzz, sigma_zzxx, sigma_xyxy
 
@@ -2063,11 +2065,11 @@ class RadialDistributionFunction(Observable):
 
         # Calculate the volume of each bin
         sphere_shell_const = 4.0 * np.pi / 3.0
-        bin_vol[0] = sphere_shell_const * self.dr_rdf ** 3
+        bin_vol[0] = sphere_shell_const * self.dr_rdf**3
         for ir in range(1, self.no_bins):
             r1 = ir * self.dr_rdf
             r2 = (ir + 1) * self.dr_rdf
-            bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
+            bin_vol[ir] = sphere_shell_const * (r2**3 - r1**3)
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
         # Save the ra values for simplicity
@@ -2121,7 +2123,7 @@ class RadialDistributionFunction(Observable):
 
         Parameters
         ----------
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Sarkas Potential object. Needed for all its attributes.
 
         Returns
@@ -2183,15 +2185,20 @@ class RadialDistributionFunction(Observable):
                     s_over_r_low = s_over_r ** potential.matrix[3, sp1, sp2]
 
                     u_r = epsilon * (s_over_r_high - s_over_r_low)
-                    dv_dr =  - epsilon * (
-                            potential.matrix[2, sp1, sp2] * s_over_r_high
-                            - potential.matrix[3, sp1, sp2] * s_over_r_low
-                    ) / r
+                    dv_dr = (
+                        -epsilon
+                        * (potential.matrix[2, sp1, sp2] * s_over_r_high - potential.matrix[3, sp1, sp2] * s_over_r_low)
+                        / r
+                    )
 
-                    d2v_dr2 = epsilon * (
+                    d2v_dr2 = (
+                        epsilon
+                        * (
                             potential.matrix[2, sp1, sp2] * (potential.matrix[2, sp1, sp2] + 1) * s_over_r_high
                             - potential.matrix[3, sp1, sp2] * (potential.matrix[3, sp1, sp2] + 1) * s_over_r_low
-                    ) / r2
+                        )
+                        / r2
+                    )
 
                 else:
                     raise ValueError("Unknown potential")
@@ -2201,8 +2208,8 @@ class RadialDistributionFunction(Observable):
                 hartrees[obs_indx, 0] = dim_const * densities * np.trapz(u_r * r ** (dims - 1), x=r)
                 corrs[obs_indx, 0] = dim_const * densities * np.trapz(u_r * h_r * r ** (dims - 1), x=r)
 
-                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r ** dims, x=r)
-                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r ** dims, x=r)
+                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r**dims, x=r)
+                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r**dims, x=r)
 
                 hartrees[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
                 corrs[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
@@ -2386,8 +2393,8 @@ class Thermodynamics(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2442,7 +2449,7 @@ class Thermodynamics(Observable):
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution Function object.
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential object.
 
         Returns
@@ -2915,13 +2922,13 @@ class VelocityDistribution(Observable):
             Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
 
-        super().setup_init(params, self.phase)
+        super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(hist_kwargs, max_no_moment, curve_fit_kwargs, **kwargs)
 
     @arg_update_doc
@@ -3051,6 +3058,7 @@ class VelocityDistribution(Observable):
                         vel_raw[it, 0, start_indx:end_indx] = datap["vel"][datap["names"] == sp_name].flatten("F")
 
                     time[it] = datap["time"]
+
         else:  # Dimensional Average = False
             # Loop over the runs
             for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc="Runs Loop")):
@@ -3067,7 +3075,7 @@ class VelocityDistribution(Observable):
                         # Use a mask to grab only the selected species and transpose the array to put dimensions first
                         vel_raw[it, :, start_indx:end_indx] = datap["vel"][datap["names"] == sp_name].transpose()
 
-                time[it] = datap["time"]
+                    time[it] = datap["time"]
 
         return time, vel_raw
 
@@ -3081,8 +3089,8 @@ class VelocityDistribution(Observable):
             Dictionary with arguments to pass to ``numpy.histogram``.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -3092,6 +3100,8 @@ class VelocityDistribution(Observable):
 
         # Grab simulation data
         time, vel_raw = self.grab_sim_data()
+        # Normality test
+        self.normality_tests(time=time, vel_data=vel_raw)
 
         # Make the velocity distribution
         self.create_distribution(vel_raw, time)
@@ -3102,6 +3112,48 @@ class VelocityDistribution(Observable):
         #
         if compute_Grad_expansion:
             self.compute_hermite_expansion(compute_moments=False)
+
+    def normality_tests(self, time, vel_data):
+        """
+        Calculate the Shapiro-Wilks test for each timestep from the raw velocity data.
+
+
+        Parameters
+        ----------
+        time:
+        vel_data
+
+        Returns
+        -------
+
+        """
+
+        no_dim = vel_data.shape[1]
+
+        stats_df_columns = (
+            "Time",
+            *[
+                "{}_{}_{}".format(sp, d, st)
+                for sp in self.species_names
+                for _, d in zip(range(no_dim), ["X", "Y", "Z"])
+                for st in ["s", "p"]
+            ],
+        )
+
+        stats_mat = np.zeros((len(time), len(self.species_num) * no_dim * 2 + 1))
+        for it, tme in enumerate(time):
+            stats_mat[it, 0] = tme
+            for d, ds in zip(range(no_dim), ["X", "Y", "Z"]):
+                for sp, sp_start in enumerate(self.species_index_start[:-1]):
+                    # Calculate the correct start and end index for storage
+                    sp_end = self.species_index_start[sp + 1]
+
+                    statcs, p_value = scp_stats.shapiro(vel_data[it, d, sp_start:sp_end])
+                    stats_mat[it, 1 + 6 * sp + 2 * d] = statcs
+                    stats_mat[it, 1 + 6 * sp + 2 * d + 1] = p_value
+
+        self.norm_test_df = pd.DataFrame(stats_mat, columns=stats_df_columns)
+        self.norm_test_df.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in stats_df_columns])
 
     def prepare_histogram_args(self):
 
@@ -3270,7 +3322,7 @@ class VelocityDistribution(Observable):
         Parameters
         ----------
         parse_data: bool
-            Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time.
+            Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time``.
             If True it will parse data from simulations dumps.
 
         vel_raw: np.ndarray, optional
@@ -3853,7 +3905,7 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
             blk_avg = observable[t_start:t_end].mean()
             sigma2_blk[i] += (blk_avg - run_avg) ** 2
         sigma2_blk[i] /= i - 1
-        statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std ** 2
+        statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std**2
 
     return tau_blk, sigma2_blk, statistical_efficiency
 
@@ -4150,7 +4202,7 @@ def grad_expansion(x, rms, h_coeff):
         Grad expansion.
 
     """
-    gaussian = np.exp(-0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms ** 2))
+    gaussian = np.exp(-0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms**2))
 
     herm_coef = h_coeff / [np.math.factorial(i) for i in range(len(h_coeff))]
     hermite_series = np.polynomial.hermite_e.hermeval(x, herm_coef)

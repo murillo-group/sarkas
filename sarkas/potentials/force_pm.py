@@ -3,12 +3,16 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 """
 
 import numpy as np
-from numba import jit, njit
 import pyfftw
+import warnings
+from numba import jit, njit
 
 # These "ignore" are needed because numba does not support pyfftw yet
-from numba.core.errors import NumbaWarning, NumbaDeprecationWarning, NumbaPendingDeprecationWarning
-import warnings
+from numba.core.errors import (
+    NumbaDeprecationWarning,
+    NumbaPendingDeprecationWarning,
+    NumbaWarning,
+)
 
 warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
 warnings.simplefilter("ignore", category=NumbaWarning)
@@ -18,7 +22,7 @@ warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
 @njit
 def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constants):
     """
-    Calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
+    Numba'd function to calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
 
     Parameters
     ----------
@@ -145,11 +149,11 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
                                 U_k_sq += U_k_M_sq
 
                     # eq.(22) of Ref.[Dharuman2017]_
-                    G_k[nz, ny, nx] = U_G_k / ((U_k_sq ** 2) * k_sq)
+                    G_k[nz, ny, nx] = U_G_k / ((U_k_sq**2) * k_sq)
                     Gk_hat = four_pi * np.exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq)
 
                     # eq.(28) of Ref.[Dharuman2017]_
-                    PM_err += Gk_hat * Gk_hat * k_sq - U_G_k ** 2 / ((U_k_sq ** 2) * k_sq)
+                    PM_err += Gk_hat * Gk_hat * k_sq - U_G_k**2 / ((U_k_sq**2) * k_sq)
 
     PM_err = np.sqrt(PM_err) / np.prod(box_lengths) ** (1.0 / 3.0)
 
@@ -158,9 +162,9 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
 @njit
 def assgnmnt_func(cao, x):
-    """ 
+    """
     Calculate the charge assignment function as given in Ref. [Deserno1998].
-    
+
     Parameters
     ----------
     cao : int
@@ -168,11 +172,11 @@ def assgnmnt_func(cao, x):
 
     x : float
         Distance to closest mesh point if cao is even.
-    
+
     Returns
     ------
     W : numpy.ndarray
-        Charge Assignment Function. 
+        Charge Assignment Function.
 
     """
     W = np.zeros(cao)
@@ -188,59 +192,59 @@ def assgnmnt_func(cao, x):
 
     elif cao == 3:
 
-        W[0] = (1.0 - 4.0 * x + 4.0 * x ** 2) / 8.0
-        W[1] = (3.0 - 4.0 * x ** 2) / 4.0
-        W[2] = (1.0 + 4.0 * x + 4.0 * x ** 2) / 8.0
+        W[0] = (1.0 - 4.0 * x + 4.0 * x**2) / 8.0
+        W[1] = (3.0 - 4.0 * x**2) / 4.0
+        W[2] = (1.0 + 4.0 * x + 4.0 * x**2) / 8.0
 
     elif cao == 4:
 
-        W[0] = (1.0 - 6.0 * x + 12.0 * x ** 2 - 8.0 * x ** 3) / 48.0
-        W[1] = (23.0 - 30.0 * x - 12.0 * x ** 2 + 24.0 * x ** 3) / 48.0
-        W[2] = (23.0 + 30.0 * x - 12.0 * x ** 2 - 24.0 * x ** 3) / 48.0
-        W[3] = (1.0 + 6.0 * x + 12.0 * x ** 2 + 8.0 * x ** 3) / 48.0
+        W[0] = (1.0 - 6.0 * x + 12.0 * x**2 - 8.0 * x**3) / 48.0
+        W[1] = (23.0 - 30.0 * x - 12.0 * x**2 + 24.0 * x**3) / 48.0
+        W[2] = (23.0 + 30.0 * x - 12.0 * x**2 - 24.0 * x**3) / 48.0
+        W[3] = (1.0 + 6.0 * x + 12.0 * x**2 + 8.0 * x**3) / 48.0
 
     elif cao == 5:
 
-        W[0] = (1.0 - 8.0 * x + 24.0 * x ** 2 - 32.0 * x ** 3 + 16.0 * x ** 4) / 384.0
-        W[1] = (19.0 - 44.0 * x + 24.0 * x ** 2 + 16.0 * x ** 3 - 16.0 * x ** 4) / 96.0
-        W[2] = (115.0 - 120.0 * x ** 2 + 48.0 * x ** 4) / 192.0
-        W[3] = (19.0 + 44.0 * x + 24.0 * x ** 2 - 16.0 * x ** 3 - 16.0 * x ** 4) / 96.0
-        W[4] = (1.0 + 8.0 * x + 24.0 * x ** 2 + 32.0 * x ** 3 + 16.0 * x ** 4) / 384.0
+        W[0] = (1.0 - 8.0 * x + 24.0 * x**2 - 32.0 * x**3 + 16.0 * x**4) / 384.0
+        W[1] = (19.0 - 44.0 * x + 24.0 * x**2 + 16.0 * x**3 - 16.0 * x**4) / 96.0
+        W[2] = (115.0 - 120.0 * x**2 + 48.0 * x**4) / 192.0
+        W[3] = (19.0 + 44.0 * x + 24.0 * x**2 - 16.0 * x**3 - 16.0 * x**4) / 96.0
+        W[4] = (1.0 + 8.0 * x + 24.0 * x**2 + 32.0 * x**3 + 16.0 * x**4) / 384.0
 
     elif cao == 6:
-        W[0] = (1.0 - 10.0 * x + 40.0 * x ** 2 - 80.0 * x ** 3 + 80.0 * x ** 4 - 32.0 * x ** 5) / 3840.0
-        W[1] = (237.0 - 750.0 * x + 840.0 * x ** 2 - 240.0 * x ** 3 - 240.0 * x ** 4 + 160.0 * x ** 5) / 3840.0
-        W[2] = (841.0 - 770.0 * x - 440.0 * x ** 2 + 560.0 * x ** 3 + 80.0 * x ** 4 - 160.0 * x ** 5) / 1920.0
-        W[3] = (841.0 + 770.0 * x - 440.0 * x ** 2 - 560.0 * x ** 3 + 80.0 * x ** 4 + 160.0 * x ** 5) / 1920.0
-        W[4] = (237.0 + 750.0 * x + 840.0 * x ** 2 + 240.0 * x ** 3 - 240.0 * x ** 4 - 160.0 * x ** 5) / 3840.0
-        W[5] = (1.0 + 10.0 * x + 40.0 * x ** 2 + 80.0 * x ** 3 + 80.0 * x ** 4 + 32.0 * x ** 5) / 3840.0
+        W[0] = (1.0 - 10.0 * x + 40.0 * x**2 - 80.0 * x**3 + 80.0 * x**4 - 32.0 * x**5) / 3840.0
+        W[1] = (237.0 - 750.0 * x + 840.0 * x**2 - 240.0 * x**3 - 240.0 * x**4 + 160.0 * x**5) / 3840.0
+        W[2] = (841.0 - 770.0 * x - 440.0 * x**2 + 560.0 * x**3 + 80.0 * x**4 - 160.0 * x**5) / 1920.0
+        W[3] = (841.0 + 770.0 * x - 440.0 * x**2 - 560.0 * x**3 + 80.0 * x**4 + 160.0 * x**5) / 1920.0
+        W[4] = (237.0 + 750.0 * x + 840.0 * x**2 + 240.0 * x**3 - 240.0 * x**4 - 160.0 * x**5) / 3840.0
+        W[5] = (1.0 + 10.0 * x + 40.0 * x**2 + 80.0 * x**3 + 80.0 * x**4 + 32.0 * x**5) / 3840.0
 
     elif cao == 7:
 
         W[0] = (
-            1.0 - 12.0 * x + 60.0 * x * 2 - 160.0 * x ** 3 + 240.0 * x ** 4 - 192.0 * x ** 5 + 64.0 * x ** 6
+            1.0 - 12.0 * x + 60.0 * x * 2 - 160.0 * x**3 + 240.0 * x**4 - 192.0 * x**5 + 64.0 * x**6
         ) / 46080.0
 
         W[1] = (
-            361.0 - 1416.0 * x + 2220.0 * x ** 2 - 1600.0 * x ** 3 + 240.0 * x ** 4 + 384.0 * x ** 5 - 192.0 * x ** 6
+            361.0 - 1416.0 * x + 2220.0 * x**2 - 1600.0 * x**3 + 240.0 * x**4 + 384.0 * x**5 - 192.0 * x**6
         ) / 23040.0
 
         W[2] = (
-            10543.0 - 17340.0 * x + 4740.0 * x ** 2 + 6880.0 * x ** 3 - 4080.0 * x ** 4 - 960.0 * x ** 5 + 960.0 * x ** 6
+            10543.0 - 17340.0 * x + 4740.0 * x**2 + 6880.0 * x**3 - 4080.0 * x**4 - 960.0 * x**5 + 960.0 * x**6
         ) / 46080.0
 
-        W[3] = (5887.0 - 4620.0 * x ** 2 + 1680.0 * x ** 4 - 320.0 * x ** 6) / 11520.0
+        W[3] = (5887.0 - 4620.0 * x**2 + 1680.0 * x**4 - 320.0 * x**6) / 11520.0
 
         W[4] = (
-            10543.0 + 17340.0 * x + 4740.0 * x ** 2 - 6880.0 * x ** 3 - 4080.0 * x ** 4 + 960.0 * x ** 5 + 960.0 * x ** 6
+            10543.0 + 17340.0 * x + 4740.0 * x**2 - 6880.0 * x**3 - 4080.0 * x**4 + 960.0 * x**5 + 960.0 * x**6
         ) / 46080.0
 
         W[5] = (
-            361.0 + 1416.0 * x + 2220.0 * x ** 2 + 1600.0 * x ** 3 + 240.0 * x ** 4 - 384.0 * x ** 5 - 192.0 * x ** 6
+            361.0 + 1416.0 * x + 2220.0 * x**2 + 1600.0 * x**3 + 240.0 * x**4 - 384.0 * x**5 - 192.0 * x**6
         ) / 23040.0
 
         W[6] = (
-            1.0 + 12.0 * x + 60.0 * x ** 2 + 160.0 * x ** 3 + 240.0 * x ** 4 + 192.0 * x ** 5 + 64.0 * x ** 6
+            1.0 + 12.0 * x + 60.0 * x**2 + 160.0 * x**3 + 240.0 * x**4 + 192.0 * x**5 + 64.0 * x**6
         ) / 46080.0
 
     return W
@@ -248,7 +252,7 @@ def assgnmnt_func(cao, x):
 
 @njit
 def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
-    """ 
+    """
     Assigns Charges to Mesh Points.
 
     Parameters
@@ -261,10 +265,10 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
 
     pos: numpy.ndarray
         Particles' positions.
-    
+
     charges: numpy.ndarray
         Particles' charges.
-    
+
     N: int
         Number of particles.
 
@@ -360,7 +364,7 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
 
 @njit
 def calc_field(phi_k, kx_v, ky_v, kz_v):
-    """ 
+    """
     Calculates the Electric field in Fourier space.
 
     Parameters
@@ -376,7 +380,7 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
 
     kz_v : numpy.ndarray
         3D array containing the values of kz.
-    
+
     Returns
     -------
     E_kx : numpy.ndarray
@@ -387,7 +391,7 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
 
     E_kz : numpy.ndarray
        Electric Field along kz-axis.
-    
+
     """
 
     E_kx = -1j * kx_v * phi_k
@@ -399,9 +403,9 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
 
 @njit
 def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_array):
-    """ 
-    Calculates the long range part of particles' accelerations. 
-    
+    """
+    Calculates the long range part of particles' accelerations.
+
     Parameters
     ----------
     E_x_r : numpy.ndarray
@@ -409,22 +413,22 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
 
     E_y_r : numpy.ndarray
         Electric field along y-axis.
-    
+
     E_z_r : numpy.ndarray
         Electric field along z-axis.
-    
+
     pos : numpy.ndarray
         Particles' positions.
-    
+
     charges : numpy.ndarray
         Particles' charges.
-    
+
     N : int
         Number of particles.
 
     cao : int
         Charge assignment order.
-    
+
     masses : numpy.ndarray
         Particles' masses.
 
@@ -528,7 +532,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
 # FFTW version
 @jit  # Numba does not support pyfftw yet, however, this decorator still speeds up the function.
 def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v, cao):
-    """ 
+    """
     Calculate the long range part of particles' accelerations.
 
     Parameters
@@ -559,7 +563,7 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
 
     kz_v : numpy.ndarray
         Array of kz values.
-    
+
     cao : int
         Charge order parameter.
 

@@ -4,8 +4,7 @@ Module containing the three basic classes: Parameters, Particles, Species.
 import numpy as np
 import os.path
 import sys
-import scipy.constants as const
-
+from scipy.constants import physical_constants
 from scipy.spatial.distance import pdist
 
 
@@ -199,33 +198,64 @@ class Parameters:
 
     def __init__(self, dic: dict = None) -> None:
 
+        self.particles_input_file = None
+        self.load_perturb = None
+        self.load_rejection_radius = None
+        self.load_halton_bases = None
+        self.load_method = None
+        self.rs = None
+        self.eta_e = None
+        self.wdm_parameter = None
+        self.electron_cyclotron_frequency = None
+        self.relativistic_parameter = None
+        self.fermi_energy = None
+        self.electron_coupling = None
+        self.electron_degeneracy_parameter = None
+        self.kF = None
+        self.lambda_TF = None
+        self.lambda_deB = None
+        self.electron_temperature = None
+        self.ae_ws = None
+        self.ne = None
+        self.potential_type = None
+        self.units = None
+        self.electron_magnetic_energy = None
         self.input_file = None
-        #
+
+        # Sim box geometry
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
         self.LPx = 0.0
         self.LPy = 0.0
         self.LPz = 0.0
-        self.box_lengths = np.zeros(3)
-        self.pbox_lengths = np.zeros(3)
+        self.e1 = None
+        self.e2 = None
+        self.e3 = None
+        self.ep1 = None
+        self.ep2 = None
+        self.ep3 = None
+        self.box_lengths = None
+        self.pbox_lengths = None
         self.box_volume = 0.0
         self.pbox_volume = 0.0
         self.dimensions = 3
+
+        # Physical Constants and conversion units
         self.J2erg = 1.0e7  # erg/J
-        self.eps0 = const.epsilon_0
+        self.eps0 = physical_constants["vacuum electric permittivity"][0]
         self.fourpie0 = 4.0 * np.pi * self.eps0
-        self.mp = const.physical_constants["proton mass"][0]
-        self.me = const.physical_constants["electron mass"][0]
-        self.qe = const.physical_constants["elementary charge"][0]
-        self.hbar = const.hbar
-        self.hbar2 = self.hbar ** 2
-        self.c0 = const.physical_constants["speed of light in vacuum"][0]
-        self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
-        self.eV2J = const.physical_constants["electron volt-joule relationship"][0]
-        self.a0 = const.physical_constants["Bohr radius"][0]
-        self.kB = const.Boltzmann
-        self.kB_eV = const.physical_constants["Boltzmann constant in eV/K"][0]
+        self.mp = physical_constants["proton mass"][0]
+        self.me = physical_constants["electron mass"][0]
+        self.qe = physical_constants["elementary charge"][0]
+        self.hbar = physical_constants["reduced Planck constant"][0]
+        self.hbar2 = self.hbar**2
+        self.c0 = physical_constants["speed of light in vacuum"][0]
+        self.eV2K = physical_constants["electron volt-kelvin relationship"][0]
+        self.eV2J = physical_constants["electron volt-joule relationship"][0]
+        self.a0 = physical_constants["Bohr radius"][0]
+        self.kB = physical_constants["Boltzmann constant"][0]
+        self.kB_eV = physical_constants["Boltzmann constant in eV/K"][0]
         self.a_ws = 0.0
 
         # Control and Timing
@@ -250,6 +280,8 @@ class Parameters:
         self.restart_step = None
         self.np_per_side = None
         self.num_species = 1
+        self.magnetic_field = None
+        self.species_lj_sigmas = None
         self.species_names = None
         self.species_num = None
         self.species_num_dens = None
@@ -288,7 +320,7 @@ class Parameters:
         disp += ")"
         return disp
 
-    def from_dict(self, input_dict: dict):
+    def from_dict(self, input_dict: dict) -> None:
         """
         Update attributes from input dictionary.
 
@@ -300,7 +332,7 @@ class Parameters:
         """
         self.__dict__.update(input_dict)
 
-    def setup(self, species):
+    def setup(self, species) -> None:
         """
         Setup simulations' parameters.
 
@@ -324,7 +356,7 @@ class Parameters:
             # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
             C2statC = 1.0e-01 * self.c0
             self.hbar = self.J2erg * self.hbar
-            self.hbar2 = self.hbar ** 2
+            self.hbar2 = self.hbar**2
             self.qe *= C2statC
             self.me *= 1.0e3
             self.eps0 = 1.0
@@ -335,14 +367,14 @@ class Parameters:
             self.fourpie0 = 1.0
             self.species_lj_sigmas = np.zeros(self.num_species)
 
-    def calc_parameters(self, species):
+    def calc_parameters(self, species: list):
         """
         Assign the parsed parameters.
 
         Parameters
         ----------
         species : list
-            List of ``sarkas.core.Species`` objects.
+            List of :class:`sarkas.core.Species` .
 
         """
 
@@ -382,7 +414,7 @@ class Parameters:
 
             # Calculate the mass of the species from the mass density if given
             if sp.mass_density:
-                Av = const.physical_constants["Avogadro constant"][0]
+                Av = physical_constants["Avogadro constant"][0]
                 sp.number_density = sp.mass_density * Av / sp.atomic_weight
                 self.total_num_density += sp.number_density
             else:
@@ -426,21 +458,21 @@ class Parameters:
             # Calculate the (total) plasma frequency, QFactor, debye_length
             if not self.potential_type == "lj":
                 # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008)
-                sp.QFactor = sp.num * sp.charge ** 2
+                sp.QFactor = sp.num * sp.charge**2
                 self.QFactor += sp.QFactor / self.fourpie0
 
                 sp.calc_plasma_frequency(self.fourpie0)
-                wp_tot_sq += sp.plasma_frequency ** 2
+                wp_tot_sq += sp.plasma_frequency**2
                 sp.calc_debye_length(self.kB, self.fourpie0)
-                lambda_D += sp.debye_length ** 2
+                lambda_D += sp.debye_length**2
             else:
                 sp.QFactor = 0.0
                 self.QFactor += sp.QFactor / self.fourpie0
-                constant = 4.0 * np.pi * sp.number_density * sp.sigma ** 2
+                constant = 4.0 * np.pi * sp.number_density * sp.sigma**2
                 sp.calc_plasma_frequency(constant)
-                wp_tot_sq += sp.plasma_frequency ** 2
+                wp_tot_sq += sp.plasma_frequency**2
                 sp.calc_debye_length(self.kB, constant)
-                lambda_D += sp.debye_length ** 2
+                lambda_D += sp.debye_length**2
                 self.species_lj_sigmas[i] = sp.sigma
 
             # Calculate cyclotron frequency in case of a magnetized simulation
@@ -479,7 +511,7 @@ class Parameters:
         self.average_mass = np.transpose(self.species_masses) @ self.species_concentrations
         # Hydrodynamic Frequency aka Virtual Average Atom
         self.hydrodynamic_frequency = np.sqrt(
-            4.0 * np.pi * self.average_charge ** 2 * self.total_num_density / (self.fourpie0 * self.average_mass)
+            4.0 * np.pi * self.average_charge**2 * self.total_num_density / (self.fourpie0 * self.average_mass)
         )
 
         # Simulation Box Parameters
@@ -635,7 +667,7 @@ class Parameters:
             print("Fermi Energy: E_F = {:.6e} [eV]".format(self.fermi_energy / self.kB / self.eV2K))
 
             print("Relativistic parameter: x_F = {:.6e}".format(self.relativistic_parameter), end="")
-            kf_xf = self.me * self.c0 ** 2 * (np.sqrt(1.0 + self.relativistic_parameter ** 2) - 1.0)
+            kf_xf = self.me * self.c0**2 * (np.sqrt(1.0 + self.relativistic_parameter**2) - 1.0)
             print(" --> E_F = {:.6e} [eV]".format(kf_xf / self.kB / self.eV2K))
 
             print("Degeneracy parameter: Theta = {:.6e} ".format(self.electron_degeneracy_parameter))
@@ -682,7 +714,7 @@ class Particles:
         Boltzmann constant.
 
     fourpie0: float
-        Electrostatic constant :math:`4\pi \epsilon_0`.
+        Electrostatic constant :math:`4\\pi \\epsilon_0`.
 
     pos : numpy.ndarray
         Particles' positions.
@@ -700,16 +732,16 @@ class Particles:
         Initial particle box sides' lengths.
 
     masses : numpy.ndarray
-        Mass of each particle. Shape = (``total_num_ptcls``).
+        Mass of each particle. Shape = (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     charges : numpy.ndarray
-        Charge of each particle. Shape = (``total_num_ptcls``).
+        Charge of each particle. Shape = (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     id : numpy.ndarray,
-        Species identifier. Shape = (``total_num_ptcls``).
+        Species identifier. Shape = (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     names : numpy.ndarray
-        Species' names. Shape = (``total_num_ptcls``).
+        Species' names. (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     rdf_nbins : int
         Number of bins for radial pair distribution.
@@ -733,7 +765,7 @@ class Particles:
         Number of species.
 
     species_num : numpy.ndarray
-        Number of particles of each species. Shape = ``num_species``.
+        Number of particles of each species. Shape = (attr:`sarkas.core.Particles.num_species`).
 
     dimensions : int
         Number of non-zero dimensions. Default = 3.
@@ -747,6 +779,8 @@ class Particles:
     """
 
     def __init__(self):
+        self.mag_dump_dir = None
+        self.rdf_nbins = None
         self.potential_energy = 0.0
         self.kB = None
         self.fourpie0 = None
@@ -794,7 +828,7 @@ class Particles:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params: :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         species : list
@@ -857,7 +891,7 @@ class Particles:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         """
@@ -1112,13 +1146,6 @@ class Particles:
         perturb : float
             Value of perturbation, p, such that 0 <= p <= 1.
 
-        Notes
-        -----
-        Author: Luke Stanek
-        Date Created: 5/6/19
-        Date Updated: 6/2/19, 9/7/21
-        Updates: Added to S_init_schemes.py for Sarkas import.
-                Place lattice according to pbox parameters into center of simulation box (PWS)
         """
 
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.
@@ -1139,7 +1166,7 @@ class Particles:
         if round(part_per_side) ** 3 != self.total_num_ptcls:
             part_per_side = np.ceil(self.total_num_ptcls ** (1.0 / 3.0))
             print("\nWARNING: Total number of particles requested is not a perfect cube.")
-            print("Initializing with {} particles.".format(int(part_per_side ** 3)))
+            print("Initializing with {} particles.".format(int(part_per_side**3)))
 
         dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
         dy_lattice = self.pbox_lengths[1] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
@@ -1172,14 +1199,6 @@ class Particles:
         ----------
         r_reject : float
             Value of rejection radius.
-
-        Notes
-        -----
-        Author: Luke Stanek
-        Date Created: 5/6/19
-        Date Updated: 9/7/21
-        Updates: Place initial particles according to pbox parameters into the simulation box center (PWS)
-
         """
 
         # Initialize Arrays
@@ -1238,7 +1257,7 @@ class Particles:
                     z_diff -= self.pbox_lengths[2]
 
                 # Compute distance
-                r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
+                r = np.sqrt(x_diff**2 + y_diff**2 + z_diff**2)
 
                 # Check if new particle is below rejection radius. If not, break out and try again
                 if r <= r_reject:
@@ -1274,13 +1293,6 @@ class Particles:
 
         r_reject : float
             Value of rejection radius.
-
-        Notes
-        -----
-        Author: Luke Stanek
-        Date Created: 5/6/19
-        Date Updated: 9/7/21
-        Updates: Place initial particles according to pbox parameters into the simulation box center (PWS)
 
         """
 
@@ -1359,7 +1371,7 @@ class Particles:
                     z_diff = z_diff - self.pbox_lengths[2]
 
                 # Compute distance
-                r = np.sqrt(x_diff ** 2 + y_diff ** 2 + z_diff ** 2)
+                r = np.sqrt(x_diff**2 + y_diff**2 + z_diff**2)
 
                 # Check if new particle is below rejection radius. If not, break out and try again
                 if r <= r_reject:
@@ -1587,7 +1599,7 @@ class Species:
             Neutral systems: :math: `1/n\sigma^2`
 
         """
-        self.plasma_frequency = np.sqrt(4.0 * np.pi * self.charge ** 2 * self.number_density / (self.mass * constant))
+        self.plasma_frequency = np.sqrt(4.0 * np.pi * self.charge**2 * self.number_density / (self.mass * constant))
 
     def calc_debye_length(self, kB: float, constant: float):
         """
@@ -1604,7 +1616,7 @@ class Species:
 
         """
         self.debye_length = np.sqrt(
-            (self.temperature * kB * constant) / (4.0 * np.pi * self.charge ** 2 * self.number_density)
+            (self.temperature * kB * constant) / (4.0 * np.pi * self.charge**2 * self.number_density)
         )
 
     def calc_cyclotron_frequency(self, magnetic_field_strength: float):
@@ -1638,7 +1650,7 @@ class Species:
         """
         self.ai_dens = (3.0 / (4.0 * np.pi * self.number_density)) ** (1.0 / 3.0)
         self.ai = (self.charge / z_avg) ** (1.0 / 3.0) * a_ws if z_avg > 0 else self.ai_dens
-        self.coupling = self.charge ** 2 / (self.ai * const * self.temperature)
+        self.coupling = self.charge**2 / (self.ai * const * self.temperature)
 
     def pretty_print(self, potential_type: str = None, units: str = "mks"):
         """Print Species information in a user-friendly way.
@@ -1673,7 +1685,7 @@ class Species:
             print("[cm]" if units == "cgs" else "[m]")
 
         print("\tDebye Length = {:.6e} ".format(self.debye_length), end="")
-        print("[1/cm]" if units == "cgs" else "[1/m]")
+        print("[cm]" if units == "cgs" else "[m]")
         print("\tPlasma Frequency = {:.6e} [rad/s]".format(self.plasma_frequency))
         if self.cyclotron_frequency:
             print("\tCyclotron Frequency = {:.6e} [rad/s]".format(self.cyclotron_frequency))

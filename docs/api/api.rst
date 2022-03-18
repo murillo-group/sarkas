@@ -6,8 +6,12 @@ API reference
 
 .. _core_api:
 
+Core modules
+------------
 .. autosummary::
-    :toctree: 
+    :toctree: core_pckg
+    :template: custom-module-template.rst
+    :recursive:
     :nosignatures:
 
     core
@@ -16,58 +20,53 @@ API reference
 
 .. _potentials_api:
 
-Potentials
-----------
+Potentials Subpackage
+---------------------
 
 .. autosummary::
-    :toctree: 
-    :nosignatures:
+    :toctree: potentials_subpckg
+    :template: custom-module-template.rst
+    :recursive:
 
-    potentials.core
-    potentials.coulomb
-    potentials.egs
-    potentials.force_pm
-    potentials.force_pp
-    potentials.lennardjones
-    potentials.moliere
-    potentials.qsp
-    potentials.yukawa
-
+    potentials
 
 .. _timeEvo_api:
 
-Time Evolution
---------------
+Time Evolution Subpackage
+-------------------------
 
 .. autosummary::
-    :toctree: 
+    :toctree: time_evolution_subpckg
+    :template: custom-module-template.rst
+    :recursive:
     :nosignatures:
 
     time_evolution
 
 
-
 .. _tools_api:
 
-Tools
------
+Tools Subpackage
+----------------
 
 .. autosummary::
-    :toctree: 
+    :toctree: tools_subpckg
+    :template: custom-module-template.rst
+    :recursive:
     :nosignatures:
 
     tools
 
 
-
-
 .. _utilities_api:
 
-Utilities
----------
+Utilities Subpackage
+--------------------
 
 .. autosummary::
-    :toctree: 
+    :toctree: util_subpckg
+    :template: custom-module-template.rst
+    :recursive:
     :nosignatures:
 
     utilities

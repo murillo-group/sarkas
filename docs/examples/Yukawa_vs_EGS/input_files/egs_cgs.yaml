@@ -9,7 +9,7 @@ Particles:
         Z: 3                        # degree of ionization
         temperature_eV: 0.5         # eV Temperature
 
-Potential: 
+Potential:
     type: EGS                       # potential type
     method: PP                      # Linked-cell
     rc: 9.3471e-08                  # cut-off radius, cm
@@ -52,8 +52,7 @@ Observables:
 
   - StaticStructureFactor:
       max_ka_value: 5
-  
+
 Transport:
   - Diffusion:
         time_averaging: False
-

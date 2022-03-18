@@ -26,7 +26,7 @@ Potential:
     pppm_aliases: [3,3,3]
     pppm_cao: 6
     pppm_alpha_ewald: 1.128394e+12
-    
+
 Integrator:
     type: Verlet                  # velocity integrator type
     equilibration_steps: 10000                      # number of timesteps for the equilibrium
@@ -62,7 +62,7 @@ Observables:
   - DynamicStructureFactor:
       max_k_harmonics: 5
       no_slices: 16
-      
+
   - StaticStructureFactor:
       max_k_harmonics: 5
 

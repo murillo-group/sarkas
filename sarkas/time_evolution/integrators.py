@@ -3,15 +3,16 @@ Module of various types of time_evolution
 """
 
 import numpy as np
-from numba import njit
 from IPython import get_ipython
+from numba import float64, int64, jit, void
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
 else:
     from tqdm import tqdm
+
+
 # import fmm3dpy as fmm
-# from sarkas.potentials import force_pm, force_pp
 
 
 class Integrator:
@@ -20,55 +21,55 @@ class Integrator:
 
     Attributes
     ----------
-    dt: float
+    dt : float
         Timestep.
 
-    equilibration_steps: int
+    equilibration_steps : int
         Total number of equilibration timesteps.
 
-    eq_dump_step: int
+    eq_dump_step : int
         Equilibration dump interval.
 
-    kB: float
+    kB : float
         Boltzmann constant.
 
-    magnetized: bool
+    magnetized : bool
         Magnetized simulation flag.
 
-    production_steps: int
+    production_steps : int
         Total number of production timesteps.
 
-    prod_dump_step: int
+    prod_dump_step : int
         Production dump interval.
 
-    species_num: numpy.ndarray
+    species_num : numpy.ndarray
         Number of particles of each species.
 
-    species_plasma_frequencies: numpy.ndarray
+    species_plasma_frequencies : numpy.ndarray
         Plasma frequency of each species.
 
-    box_lengths: numpy.ndarray
+    box_lengths : numpy.ndarray
         Length of each box side.
 
-    pbox_lengths: numpy.ndarray
+    pbox_lengths : numpy.ndarray
         Initial particle box sides' lengths.
 
-    verbose: bool
+    verbose : bool
         Verbose output flag.
 
-    type: str
+    type : str
         Integrator type.
 
-    update: func
+    update : func
         Integrator choice. 'verlet', 'verlet_langevin', 'magnetic_verlet' or 'magnetic_boris'.
 
-    update_accelerations: func
+    update_accelerations : func
         Link to the correct potential update function.
 
-    thermostate: func
+    thermostate : func
         Link to the correct thermostat function.
 
-    enforce_bc: func
+    enforce_bc : func
         Link to the function enforcing boundary conditions. 'periodic' or 'absorbing'.
 
     """
@@ -94,7 +95,14 @@ class Integrator:
         self.enforce_bc = None
         self.verbose = False
         self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
-        self.supported_integrators = ["verlet", "verlet_langevin", "magnetic_verlet", "magnetic_boris", "cyclotronic"]
+        self.supported_integrators = [
+            "verlet",
+            "verlet_langevin",
+            "magnetic_verlet",
+            "magnetic_pos_verlet",
+            "magnetic_boris",
+            "cyclotronic",
+        ]
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -122,21 +130,21 @@ class Integrator:
 
         Parameters
         ----------
-        params: sarkas.core.parameters
+        params : :class:`sarkas.core.Parameters`
             Parameters class.
 
-        thermostat: sarkas.time_evolution.thermostat
+        thermostat : :class:`sarkas.time_evolution.Thermostat`
             Thermostat class
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential class.
 
         """
-        self.box_lengths = np.copy(params.box_lengths)
-        self.pbox_lengths = np.copy(params.pbox_lengths)
+        self.box_lengths = params.box_lengths
+        self.pbox_lengths = params.pbox_lengths
         self.kB = params.kB
-        self.species_num = np.copy(params.species_num)
-        self.species_plasma_frequencies = np.copy(params.species_plasma_frequencies)
+        self.species_num = params.species_num
+        self.species_plasma_frequencies = params.species_plasma_frequencies
         self.verbose = params.verbose
 
         # Enforce consistency
@@ -233,6 +241,22 @@ class Integrator:
             else:
                 self.update = self.magnetic_verlet
 
+        elif self.type == "magnetic_pos_verlet":
+            # Calculate functions for magnetic integrator
+            # This could be used when the generalization to Forest-Ruth and MacLachlan algorithms will be implemented
+            # In a magnetic Velocity-Verlet the coefficient is 1/2, see eq.~(78) in :cite:`Chin2008`
+            self.magnetic_helpers(1.0)
+
+            # array to temporary store velocities
+            # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
+            # each time step
+            self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
+
+            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+                self.update = self.magnetic_pos_verlet_zdir
+            else:
+                self.update = self.magnetic_pos_verlet
+
         elif self.type == "magnetic_boris":
 
             # In a leapfrog-type algorithm the coefficient is different for the acceleration and magnetic rotation
@@ -296,7 +320,7 @@ class Integrator:
         it_start: int
             Initial step of equilibration.
 
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles' class.
 
         checkpoint: sarkas.utilities.InputOutput
@@ -330,7 +354,7 @@ class Integrator:
         it_start: int
             Initial step of production phase.
 
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles' class.
 
         checkpoint: sarkas.utilities.InputOutput
@@ -351,7 +375,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
 
@@ -363,8 +387,8 @@ class Integrator:
             sp_end += num
             ptcls.pos[sp_start:sp_end, :] += (
                 self.c1 * self.dt * ptcls.vel[sp_start:sp_end, :]
-                + 0.5 * self.dt ** 2 * ptcls.acc[sp_start:sp_end, :]
-                + 0.5 * self.sigma[ic] * self.dt ** 1.5 * beta
+                + 0.5 * self.dt**2 * ptcls.acc[sp_start:sp_end, :]
+                + 0.5 * self.sigma[ic] * self.dt**1.5 * beta
             )
             sp_start += num
 
@@ -394,7 +418,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -438,7 +462,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -519,7 +543,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -530,9 +554,9 @@ class Integrator:
         Notes
         -----
         :cite:`Chin2008` equations are written for a negative charge. This allows him to write
-        :math:`\dot{\mathbf v} = \omega_c \hat{B} \\times \mathbf v`. In the case of positive charges we will have
-        :math:`\dot{\mathbf v} = - \omega_c \hat{B} \\times \mathbf v`. Hence the reason of the different signs in the
-        formulas below compared to Chin's.
+        :math:`\\dot{\\mathbf v} = \\omega_c \\hat{B} \\times \\mathbf v`. In the case of positive charges we will have
+        :math:`\\dot{\\mathbf v} = - \\omega_c \\hat{B} \\times \\mathbf v`.
+        Hence the reason of the different signs in the formulas below compared to Chin's.
 
         Warnings
         --------
@@ -589,7 +613,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -633,7 +657,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -667,6 +691,128 @@ class Integrator:
 
         return potential_energy
 
+    def magnetic_pos_verlet_zdir(self, ptcls):
+        """
+        Update particles' class based on position verlet method in the case of a
+        constant magnetic field along the :math:`z` axis. For more info see eq. (79) of Ref. :cite:`Chin2008`
+
+        Parameters
+        ----------
+        ptcls: :class:`sarkas.core.Particles`
+            Particles data.
+
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        Notes
+        -----
+        This integrator is faster than `magnetic_verlet` but valid only for a magnetic field in the :math:`z`-direction.
+        This is the preferred choice in this case.
+        """
+
+        # Position update
+        ptcls.pos += 0.5 * ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
+
+        # First half step of velocity update
+        # # Magnetic rotation x - velocity
+        # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
+        self.v_B[:, 0] = ptcls.vel[:, 1] * self.sdt[:, 0] + ptcls.vel[:, 0] * self.cdt[:, 0]
+        # Magnetic rotation y - velocity
+        # (B x v)_y  = v_x, (B x B x v)_y = -v_y
+        self.v_B[:, 1] = -ptcls.vel[:, 0] * self.sdt[:, 0] + ptcls.vel[:, 1] * self.cdt[:, 1]
+
+        # Magnetic + Const force field x - velocity
+        # (B x a)_x  = -a_y, (B x B x a)_x = -a_x
+        self.v_F[:, 0] = (
+            self.ccodt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+            + self.sdt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+        )
+        # Magnetic + Const force field y - velocity
+        # (B x a)_y  = a_x, (B x B x a)_y = -a_y
+        self.v_F[:, 1] = (
+            -self.ccodt[:, 0] / self.omega_c[:, 0] * ptcls.acc[:, 0]
+            + self.sdt[:, 1] / self.omega_c[:, 1] * ptcls.acc[:, 1]
+        )
+
+        ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
+        ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
+        ptcls.vel[:, 2] += self.dt * ptcls.acc[:, 2]
+
+        # Position update
+        ptcls.pos += 0.5 * ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        return potential_energy
+
+    def magnetic_pos_verlet(self, ptcls):
+        """
+        Update particles' class based on position verlet method in the case of an arbitrary direction of the
+        constant magnetic field. For more info see eq. (79) of Ref. :cite:`Chin2008`
+
+        Parameters
+        ----------
+        ptcls: :class:`sarkas.core.Particles`
+            Particles data.
+
+        Returns
+        -------
+        potential_energy : float
+             Total potential energy.
+
+        Notes
+        -----
+        :cite:`Chin2008` equations are written for a negative charge. This allows him to write
+        :math:`\\dot{\\mathbf v} = \\omega_c \\hat{B} \\times \\mathbf v`. In the case of positive charges we will have
+        :math:`\\dot{\\mathbf v} = - \\omega_c \\hat{B} \\times \\mathbf v`.
+        Hence the reason of the different signs in the formulas below compared to Chin's.
+
+        Warnings
+        --------
+        This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
+        an arbitrary direction, methods in :ref:`sarkas.tool.observables` work only for a magnetic field in the
+        :math:`z` - direction. Hence, if you choose to use this integrator remember to change your physical observables.
+
+        """
+        # Half position update
+        ptcls.pos += ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        # Compute total potential energy and acceleration for second half step velocity update
+        potential_energy = self.update_accelerations(ptcls)
+
+        # Calculate the cross products
+        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+
+        # First half step of velocity update
+        ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
+
+        ptcls.vel += (
+            ptcls.acc * self.dt - self.ccodt / self.omega_c * b_cross_a + self.dt * self.ssodt * b_cross_b_cross_a
+        )
+
+        # Second half position update
+        ptcls.pos += ptcls.vel * self.dt
+
+        # Enforce boundary condition
+        self.enforce_bc(ptcls)
+
+        return potential_energy
+
     def cyclotronic_zdir(self, ptcls):
         """
         Update particles' class using the cyclotronic algorithm in the case of a
@@ -675,7 +821,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -686,17 +832,21 @@ class Integrator:
         """
         # Drift half step
         # Rotate Positions
-        ptcls.pos[:, 0] += ptcls.vel[:,0] * self.sdt[:,0]/self.omega_c[:,0] \
-                           + ptcls.vel[:,1] * self.ccodt[:,1] / self.omega_c[:,1]
-        ptcls.pos[:, 1] += ptcls.vel[:,1] * self.sdt[:,1]/self.omega_c[:,1] \
-                           - ptcls.vel[:,0] * self.ccodt[:,0] / self.omega_c[:,0]
+        ptcls.pos[:, 0] += (
+            ptcls.vel[:, 0] * self.sdt[:, 0] / self.omega_c[:, 0]
+            + ptcls.vel[:, 1] * self.ccodt[:, 1] / self.omega_c[:, 1]
+        )
+        ptcls.pos[:, 1] += (
+            ptcls.vel[:, 1] * self.sdt[:, 1] / self.omega_c[:, 1]
+            - ptcls.vel[:, 0] * self.ccodt[:, 0] / self.omega_c[:, 0]
+        )
         ptcls.pos[:, 2] += 0.5 * ptcls.vel[:, 2] * self.dt
         # Enforce boundary condition
         self.enforce_bc(ptcls)
         # Create rotated velocities
-        self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:,1] * ptcls.vel[:, 1]
-        self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:,0] * ptcls.vel[:, 0]
-        ptcls.vel[:, :2] = np.copy(self.v_B[:,:2])
+        self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:, 1] * ptcls.vel[:, 1]
+        self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
+        ptcls.vel[:, :2] = np.copy(self.v_B[:, :2])
         # Compute total potential energy and accelerations
         potential_energy = self.update_accelerations(ptcls)
 
@@ -705,10 +855,14 @@ class Integrator:
 
         # Drift half step
         # Rotate Positions
-        ptcls.pos[:, 0] += ptcls.vel[:,0] * self.sdt[:,0] / self.omega_c[:,0] \
-                           + ptcls.vel[:,1] * self.ccodt[:,1] / self.omega_c[:,1]
-        ptcls.pos[:, 1] += ptcls.vel[:,1] * self.sdt[:,1] / self.omega_c[:,1] \
-                           - ptcls.vel[:,0] * self.ccodt[:,0] / self.omega_c[:,0]
+        ptcls.pos[:, 0] += (
+            ptcls.vel[:, 0] * self.sdt[:, 0] / self.omega_c[:, 0]
+            + ptcls.vel[:, 1] * self.ccodt[:, 1] / self.omega_c[:, 1]
+        )
+        ptcls.pos[:, 1] += (
+            ptcls.vel[:, 1] * self.sdt[:, 1] / self.omega_c[:, 1]
+            - ptcls.vel[:, 0] * self.ccodt[:, 0] / self.omega_c[:, 0]
+        )
         ptcls.pos[:, 2] += 0.5 * ptcls.vel[:, 2] * self.dt
         # Enforce boundary condition
         self.enforce_bc(ptcls)
@@ -716,7 +870,7 @@ class Integrator:
         self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:, 1] * ptcls.vel[:, 1]
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         # Update final velocities
-        ptcls.vel[:,:2] = np.copy(self.v_B[:,:2])
+        ptcls.vel[:, :2] = np.copy(self.v_B[:, :2])
 
         return potential_energy
 
@@ -728,7 +882,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         Returns
@@ -743,8 +897,11 @@ class Integrator:
         b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
         b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
         # Rotate Positions
-        ptcls.pos += 0.5 * ptcls.vel * self.dt - self.ccodt * b_cross_v /self.omega_c \
-                           + 0.5 * self.dt * self.ssodt * b_cross_b_cross_v
+        ptcls.pos += (
+            0.5 * ptcls.vel * self.dt
+            - self.ccodt * b_cross_v / self.omega_c
+            + 0.5 * self.dt * self.ssodt * b_cross_b_cross_v
+        )
         # Enforce boundary condition
         self.enforce_bc(ptcls)
         # First half step of velocity update
@@ -760,8 +917,11 @@ class Integrator:
         b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
         b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
         # Rotate Positions
-        ptcls.pos += 0.5 * ptcls.vel * self.dt - self.ccodt * b_cross_v / self.omega_c \
-                     + 0.5 * self.dt * self.ssodt * b_cross_b_cross_v
+        ptcls.pos += (
+            0.5 * ptcls.vel * self.dt
+            - self.ccodt * b_cross_v / self.omega_c
+            + 0.5 * self.dt * self.ssodt * b_cross_b_cross_v
+        )
         # Enforce boundary condition
         self.enforce_bc(ptcls)
         # Second half step of velocity update
@@ -775,7 +935,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -788,7 +948,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
@@ -801,14 +961,14 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: sarkas.core.Particles
+        ptcls: :class:`sarkas.core.Particles`
             Particles data.
 
         """
 
         enforce_rbc(ptcls.pos, ptcls.vel, self.box_lengths, self.dt)
 
-    def pretty_print(self, potential_type, restart, restart_step):
+    def pretty_print(self, potential_type: str, restart: str, restart_step: int):
         """Print integrator attributes in a user friendly way."""
 
         if self.magnetized and self.electrostatic_equilibration:
@@ -820,17 +980,17 @@ class Integrator:
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
-            print("Total plasma frequency = {:.6e} [rad/s]".format(wp_tot) )
+            print("Total plasma frequency = {:.6e} [rad/s]".format(wp_tot))
             print("w_p dt = {:.4f} ~ 1/{}".format(wp_dt, int(1.0 / wp_dt)))
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print('Highest w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt/np.pi))
-                    print('Smallest w_c dt = {:2.4f} = {:.4f} pi'.format(low_wc_dt, low_wc_dt/np.pi))
+                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
                 else:
-                    print('w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt/np.pi))
+                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
         elif potential_type == "qsp":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_ions = np.linalg.norm(self.species_plasma_frequencies[1:])
@@ -841,40 +1001,42 @@ class Integrator:
 
             print("e plasma frequency = {:.6e} [rad/s]".format(self.species_plasma_frequencies[0]))
             print("total ion plasma frequency = {:.6e} [rad/s]".format(wp_ions))
-            print('w_pe dt = {:2.4f} ~ 1/{}'.format(
-                self.dt * self.species_plasma_frequencies[0],
-                int(1.0 /(self.dt * self.species_plasma_frequencies[0]))
+            print(
+                "w_pe dt = {:2.4f} ~ 1/{}".format(
+                    self.dt * self.species_plasma_frequencies[0],
+                    int(1.0 / (self.dt * self.species_plasma_frequencies[0])),
+                )
             )
-            )
-            print('w_pi dt = {:2.4f} ~ 1/{}'.format(self.dt * wp_ions, int(1.0 /(self.dt * wp_ions))))
+            print("w_pi dt = {:2.4f} ~ 1/{}".format(self.dt * wp_ions, int(1.0 / (self.dt * wp_ions))))
 
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies[0]).max() * self.dt
                 low_wc_dt = np.linalg.norm(self.species_cyclotron_frequencies[1:]) * self.dt
                 print("e cyclotron frequency = {:.6e} [rad/s]".format(self.species_cyclotron_frequencies[0]))
-                print("total ion cyclotron frequency = {:.6e} [rad/s]".format(
-                    np.linalg.norm(self.species_cyclotron_frequencies[1:])
-                )
+                print(
+                    "total ion cyclotron frequency = {:.6e} [rad/s]".format(
+                        np.linalg.norm(self.species_cyclotron_frequencies[1:])
+                    )
                 )
 
-                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt/pi))
-                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt/pi))
+                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
         elif potential_type == "lj":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
             print("w_p = sqrt( epsilon / (sigma^2 * mass) )")
             print("Total equivalent plasma frequency = {:1.6e} [rad/s]".format(wp_tot))
-            print('w_p dt = {:2.4f}'.format(wp_dt))
+            print("w_p dt = {:2.4f}".format(wp_dt))
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print('Highest w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
-                    print('Smallest w_c dt = {:2.4f} = {:.4f} pi'.format(low_wc_dt, low_wc_dt / np.pi))
+                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
                 else:
-                    print('w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
+                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
         elif potential_type == "hs_yukawa":
             wp_tot = np.linalg.norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
@@ -886,10 +1048,10 @@ class Integrator:
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print('Highest w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
-                    print('Smallest w_c dt = {:2.4f} = {:.4f} pi'.format(low_wc_dt, low_wc_dt / np.pi))
+                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
                 else:
-                    print('w_c dt = {:2.4f} = {:.4f} pi'.format(high_wc_dt, high_wc_dt / np.pi))
+                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
 
         # Print Time steps information
         # Check for restart simulations
@@ -993,20 +1155,20 @@ class Integrator:
             print("Total number of snapshots = {} ".format(int(self.production_steps / self.prod_dump_step)))
 
 
-@njit
-def enforce_pbc(pos, cntr, box_vector):
+@jit(void(float64[:, :], float64[:, :], float64[:]), nopython=True)
+def enforce_pbc(pos, cntr, box_vector) -> None:
     """
-    Enforce Periodic Boundary conditions.
+    Numba'd function to enforce periodic boundary conditions.
 
     Parameters
     ----------
-    pos: numpy.ndarray
+    pos : numpy.ndarray
         Particles' positions.
 
-    cntr: numpy.ndarray
+    cntr : numpy.ndarray
         Counter for the number of times each particle get folded back into the main simulation box
 
-    box_vector: numpy.ndarray
+    box_vector : numpy.ndarray
         Box Dimensions.
 
     """
@@ -1025,10 +1187,10 @@ def enforce_pbc(pos, cntr, box_vector):
                 cntr[p, d] -= 1
 
 
-@njit
-def enforce_abc(pos, vel, acc, charges, box_vector):
+@jit(void(float64[:, :], float64[:, :], float64[:, :], float64[:], float64[:]), nopython=True)
+def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
     """
-    Enforce Absorbing Boundary conditions.
+    Numba'd function to enforce absorbing boundary conditions.
 
     Parameters
     ----------
@@ -1067,10 +1229,10 @@ def enforce_abc(pos, vel, acc, charges, box_vector):
                 charges[p] = 0.0
 
 
-@njit
-def enforce_rbc(pos, vel, box_vector, dt):
+@jit(void(float64[:, :], float64[:, :], float64[:], float64), nopython=True)
+def enforce_rbc(pos, vel, box_vector, dt) -> None:
     """
-    Enforce Absorbing Boundary conditions.
+    Numba'd function to enforce reflecting boundary conditions.
 
     Parameters
     ----------
@@ -1080,14 +1242,11 @@ def enforce_rbc(pos, vel, box_vector, dt):
     vel : numpy.ndarray
         Particles' velocities.
 
-    acc : numpy.ndarray
-        Particles' accelerations.
-
-    charges : numpy.ndarray
-        Charge of each particle. Shape = (``total_num_ptcls``).
-
     box_vector: numpy.ndarray
         Box Dimensions.
+
+    dt : float
+        Timestep.
 
     """
 
@@ -1103,10 +1262,11 @@ def enforce_rbc(pos, vel, box_vector, dt):
                 pos[p, d] += vel[p, d] * dt
 
 
-@njit
-def remove_drift(vel, nums, masses):
+@jit(void(float64[:, :], int64[:], float64[:]), nopython=True)
+def remove_drift(vel, nums, masses) -> None:
     """
-    Enforce conservation of total linear momentum. Updates ``particles.vel``
+    Numba'd function to enforce conservation of total linear momentum.
+    It updates :attr:`sarkas.core.Particles.vel`.
 
     Parameters
     ----------

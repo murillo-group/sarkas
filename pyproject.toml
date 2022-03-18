@@ -1,5 +1,13 @@
 # Development tools
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "matplotlib"
+]
+build-backend = "setuptools.build_meta"
 
+# Black profile
 [tool.black]
 line-length = 122
 exclude = '''
@@ -12,33 +20,33 @@ exclude = '''
 )/
 '''
 
-[tool.flakehell]
-exclude = []
-# make output nice
-format = "grouped"
-max-line-length = 122
-# show line of source code in output
-# show_source = true
-extended_default_ignore=[]  # workaround for flakehell#10
+#[tool.flakehell]
+#exclude = []
+## make output nice
+#format = "grouped"
+#max-line-length = 122
+## show line of source code in output
+## show_source = true
+#extended_default_ignore=[]  # workaround for flakehell#10
+#
+#[tool.flakehell.plugins]
+#pycodestyle = ["+*",
+##                "-E203",
+##                "-E501",
+##                "-W503",
+##                "-E741",
+##                "-E266",  # too many leading #
+##                "-E731", # do not assign lambda expression, use def
+#               ]
+#pyflakes = ["+*", "-E203"]
+## flake8-bandit = ["+*"]
+## mccabe = ["+*"]
+#pylint = ["+*", "-C0103"]
 
-[tool.flakehell.plugins]
-pycodestyle = ["+*",
-#                "-E203",
-#                "-E501",
-#                "-W503",
-#                "-E741",
-#                "-E266",  # too many leading #
-#                "-E731", # do not assign lambda expression, use def
-               ]
-pyflakes = ["+*", "-E203"]
-# flake8-bandit = ["+*"]
-# mccabe = ["+*"]
-pylint = ["+*", "-C0103"]
 
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "matplotlib"
-]
-build-backend = "setuptools.build_meta"
+[tool.isort]
+profile = "black"
+sections = ["FUTURE", "STDLIB", "FIRSTPARTY", "LOCALFOLDER"]
+known_first_party = ["sarkas", ]
+default_section = "STDLIB"
+force_alphabetical_sort_within_sections = true

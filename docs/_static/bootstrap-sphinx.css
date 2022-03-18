@@ -12,14 +12,14 @@
 @import url("./basic.css");
 
 
-  
 
 
 
-  
-  
+
+
+
     @import url("./bootswatch-3.4.1/flatly/bootstrap.min.css");
-  
+
 
 
 /*
@@ -58,14 +58,14 @@
 
 
   body {
-    
+
       padding-top: 60px;
-    
+
   }
   .page-top {
-    
+
       top: 60px;
-    
+
   }
 
 
@@ -219,5 +219,3 @@ table.field-list {
     width: 263px;
   }
 }
-
-

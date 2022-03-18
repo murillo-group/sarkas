@@ -8,7 +8,7 @@ Particles:
         Z: 6.0
         temperature_eV: 4.0                 # T = 1.0 eV
 
-Potential: 
+Potential:
     type: Yukawa                            # potential type
     method: PP
     kappa: 2.0
@@ -43,4 +43,3 @@ Observables:
 
   - RadialDistributionFunction:
       no_bins: 250
-

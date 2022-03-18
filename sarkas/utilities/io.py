@@ -1,12 +1,15 @@
-import os
-import sys
-import re
-import yaml
+"""
+Module handling the I/O for an MD run.
+"""
 import csv
-import pickle
 import numpy as np
-from pyfiglet import print_figlet, Figlet
+import os
+import pickle
+import re
+import sys
+import yaml
 from IPython import get_ipython
+from pyfiglet import Figlet, print_figlet
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
@@ -36,31 +39,41 @@ DARK_COLORS = ["24;69;49", "0;129;131", "83;80;84", "110;0;95"]
 
 
 class InputOutput:
-    def __init__(self, process: str = None):
-        """Set default directory names."""
-        self.process = process if process else "preprocessing"
-        self.input_file = None
-        self.equilibration_dir = "Equilibration"
-        self.production_dir = "Production"
-        self.magnetization_dir = "Magnetization"
-        self.simulations_dir = "Simulations"
-        self.processes_dir = None
-        self.simulation_dir = "Simulation"
-        self.preprocessing_dir = "PreProcessing"
-        self.postprocessing_dir = "PostProcessing"
-        self.prod_dump_dir = "dumps"
-        self.eq_dump_dir = "dumps"
-        self.mag_dump_dir = "dumps"
-        self.job_dir = None
-        self.job_id = None
-        self.log_file = None
-        self.preprocess_file = None
-        self.preprocessing = False
-        self.magnetized = False
-        self.electrostatic_equilibration = False
-        self.verbose = False
-        self.xyz_dir = None
-        self.xyz_filename = None
+    """Class handling the input and output functions of the MD run
+
+    Parameters
+    ----------
+    process : str
+        Name of the process class containing MD run info.
+
+    """
+
+    electrostatic_equilibration: bool = False
+    eq_dump_dir: str = "dumps"
+    equilibration_dir: str = "Equilibration"
+    input_file: str = None  # MD run input file.
+    job_dir: str = None
+    job_id: str = None
+    log_file: str = None
+    mag_dump_dir: str = "dumps"
+    magnetization_dir: str = "Magnetization"
+    magnetized: bool = False
+    preprocess_file: str = None
+    preprocessing: bool = False
+    preprocessing_dir: str = "PreProcessing"
+    process: str = "preprocessing"
+    processes_dir: str = None
+    prod_dump_dir: str = "dumps"
+    production_dir: str = "Production"
+    postprocessing_dir: str = "PostProcessing"
+    simulations_dir: str = "Simulations"
+    simulation_dir: str = "Simulation"
+    verbose: bool = False
+    xyz_dir: str = None
+    xyz_filename: str = None
+
+    def __init__(self, process: str = "preprocess"):
+        self.process = process
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -88,7 +101,7 @@ class InputOutput:
         self.make_directories()
         self.file_header()
 
-    def from_yaml(self, filename):
+    def from_yaml(self, filename: str):
         """
         Parse inputs from YAML file.
 
@@ -208,7 +221,7 @@ class InputOutput:
             self.log_file = os.path.join(self.processes_dir[indx], self.log_file)
 
     def make_directories(self):
-        """Create directories if non-existent."""
+        """Create directories where to store MD results."""
 
         # Check if the directories exist
         if not os.path.exists(self.simulations_dir):
@@ -268,7 +281,7 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation : sarkas.processes.Process
+        simulation : :class:`sarkas.processes.Process`
             Simulation's parameters
 
         """
@@ -402,8 +415,8 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.core.Simulation
-            Simulation's parameters
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the info to print.
 
         """
         screen = sys.stdout
@@ -440,7 +453,7 @@ class InputOutput:
         f_log.close()
 
     def preprocess_sizing(self, sizes):
-        """Print the estimated file sizes. """
+        """Print the estimated file sizes."""
 
         screen = sys.stdout
         f_log = open(self.log_file, "a+")
@@ -575,8 +588,8 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation : sarkas.processes.PostProcess
-            Sarkas processing stage.
+        simulation : :class:`sarkas.processes.PostProcess`
+            PostProcess class.
 
         write_to_file : bool
             Flag for printing info also to file. Default= False.
@@ -667,8 +680,8 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.core.Simulation
-            Simulation's parameters.
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the timing info and other parameters.
 
         """
         wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
@@ -833,9 +846,8 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.core.Simulation
-            Simulation's parameters.
-
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the algorithm info and other parameters.
 
         """
         if simulation.potential.method == "pppm":
@@ -963,17 +975,14 @@ class InputOutput:
 
         Parameters
         ----------
-        simulation: sarkas.core.Simulation
-            Simulation's parameters.
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the potential info and other parameters.
 
         """
         if simulation.potential.type == "yukawa":
-            print(
-                "electron temperature = {:1.4e} [K] = {:1.4e} [eV]".format(
-                    simulation.parameters.electron_temperature,
-                    simulation.parameters.electron_temperature / simulation.parameters.eV2K,
-                )
-            )
+            print(f"screening type : {simulation.potential.screening_length_type}")
+            print(f"screening length = {simulation.potential.screening_length:.6e} ", end="")
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
             print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
 
@@ -1014,19 +1023,12 @@ class InputOutput:
             # simulation.parameters.pretty_print()
 
         elif simulation.potential.type == "lj":
-            print("epsilon = {:.6e}".format(simulation.potential.matrix[0, 0, 0]))
-            print("sigma = {:.6e}".format(simulation.potential.matrix[1, 0, 0]))
-            print("reduced density = {:.6e}".format(
-                simulation.potential.sigma2**3 * simulation.parameters.total_num_density
-            )
-            )
-            print("reduced temperature = {:.6e}".format(
-                simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
-            )
-            )
-
-            # print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
-
+            print(f"epsilon_tot = {simulation.potential.epsilon_tot:.6e}")
+            print(f"sigma_avg = {simulation.potential.sigma_avg:.6e}")
+            rho = simulation.potential.sigma_avg**3 * simulation.parameters.total_num_density
+            tau = simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
+            print(f"reduced density = {rho:.6e}")
+            print(f"reduced temperature = {tau:.6e}")
         elif simulation.potential.type == "qsp":
             print("QSP type: {}".format(simulation.potential.qsp_type))
             print("Pauli term: {}".format(simulation.potential.qsp_pauli))
@@ -1072,37 +1074,20 @@ class InputOutput:
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
             print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
 
+        elif simulation.potential.type == "moliere":
+            print(f"")
         elif simulation.potential.type == "hs_yukawa":
-            print(
-                "electron temperature = {:1.4e} [K] = {:1.4e} [eV]".format(
-                    simulation.parameters.electron_temperature,
-                    simulation.parameters.electron_temperature / simulation.parameters.eV2K,
-                )
-            )
-            print(
-                "hard sphere diameter = sigma = {:.2f} a_ws = {:.4e} ".format(
-                    simulation.potential.matrix[-1, 0, 0] / simulation.parameters.a_ws,
-                    simulation.potential.matrix[-1, 0, 0],
-                ),
-                end="",
-            )
+            b = simulation.potential.hs_diameter / simulation.parameters.a_ws
+            print(f"hard sphere diameter = {b:.4f} a_ws = {simulation.potential.hs_diameter:.4e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("packing fraction = {:.4f}".format(
-                np.pi/6.0 * simulation.parameters.total_num_density * simulation.potential.hs_diameter**3
-            )
-            )
+            print(f"screening length = {simulation.potential.screening_length} ", end="")
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+            print(f"kappa = sigma/lambda = {simulation.potential.kappa:.4f}")
             print(
-                "kappa = sigma/lambda_TF = {:.4f}".format(
-                    simulation.potential.hs_diameter / simulation.parameters.lambda_TF
-                )
+                f"reduced density = n sigma^3 = {simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density:.4f}"
             )
-
-            print(
-                "Gamma_eff = {:.2f}".format(
-                    simulation.parameters.coupling_constant \
-                    * simulation.parameters.a_ws/simulation.potential.hs_diameter
-                )
-            )
+            print(f"packing fraction = {simulation.potential.packing_fraction:.4f}")
+            print(f"Gamma_eff = {simulation.parameters.coupling_constant / b:.4f}")
 
     def setup_checkpoint(self, params, species):
         """
@@ -1110,10 +1095,10 @@ class InputOutput:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             General simulation parameters.
 
-        species: sarkas.core.Species
+        species : :class:`sarkas.core.Species`
             List of Species classes.
 
         """
@@ -1171,6 +1156,11 @@ class InputOutput:
     def save_pickle(self, simulation):
         """
         Save all simulations parameters in pickle files.
+
+        Parameters
+        ----------
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing MD run info to save.
         """
         file_list = ["parameters", "integrator", "thermostat", "potential", "species"]
 
@@ -1194,9 +1184,9 @@ class InputOutput:
 
         Parameters
         ----------
-        process: cls
-            Simulation's parameters. It can be one of three (sarkas.tools.PreProcess,
-            sarkas.core.Simulation, sarkas.tools.PostProcess)
+        process : :class:`sarkas.processes.Process`
+            Process class containing MD run info to save.
+
         """
         import copy as py_copy
 
@@ -1215,7 +1205,7 @@ class InputOutput:
             data = np.load(filename, allow_pickle=True)
             process.__dict__[fl] = py_copy.copy(data)
 
-    def read_pickle_single(self, class_to_read):
+    def read_pickle_single(self, class_to_read: str):
         """
         Read the desired pickle file.
 
@@ -1227,10 +1217,10 @@ class InputOutput:
         Returns
         -------
         : cls
-            Desired class.
+            Copy of desired class.
 
         """
-        import copy as py_copy
+        from copy import copy as py_copy
 
         # Redirect to the correct process folder
         if self.process == "preprocessing":
@@ -1242,7 +1232,7 @@ class InputOutput:
 
         filename = os.path.join(self.processes_dir[indx], class_to_read + ".pickle")
         data = np.load(filename, allow_pickle=True)
-        return py_copy.copy(data)
+        return py_copy(data)
 
     def dump(self, phase, ptcls, it):
         """
@@ -1250,10 +1240,10 @@ class InputOutput:
 
         Parameters
         ----------
-        phase: str
+        phase : str
             Simulation phase.
 
-        ptcls: sarkas.core.Particles
+        ptcls : :class:`sarkas.core.Particles`
             Particles data.
 
         it : int
@@ -1329,7 +1319,7 @@ class InputOutput:
             w = csv.writer(f)
             w.writerow(data.values())
 
-    def dump_xyz(self, phase="production"):
+    def dump_xyz(self, phase: str = "production"):
         """
         Save the XYZ file by reading Sarkas dumps.
 
@@ -1362,7 +1352,7 @@ class InputOutput:
         # Rescale constants. This is needed since OVITO has a small number limit.
         pscale = 1.0 / self.a_ws
         vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
-        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency ** 2)
+        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
 
         # Read the list of dumps and sort them in the correct (natural) order
         dumps = os.listdir(dump_dir)
@@ -1388,7 +1378,7 @@ class InputOutput:
         f_xyz.close()
 
     @staticmethod
-    def read_npz(fldr, it):
+    def read_npz(fldr: str, it: int):
         """
         Load particles' data from dumps.
 
@@ -1447,17 +1437,31 @@ class InputOutput:
 
 
 def alpha_to_int(text):
+    """Convert strings of numbers into integers.
+
+    Parameters
+    ----------
+    text : str
+        Text to be converted into an int, if `text` is a number.
+
+    Returns
+    -------
+    _ : int, str
+        Integral number otherwise returns a string.
+
+    """
     return int(text) if text.isdigit() else text
 
 
 def num_sort(text):
     """
-    Method copied from
-    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
+    Sort strings with numbers inside.
 
     Notes
     -----
-    originally from http://nedbatchelder.com/blog/200712/human_sorting.html
+    Method copied from
+    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside.
+    Originally from http://nedbatchelder.com/blog/200712/human_sorting.html
     (See Toothy's implementation in the comments)
 
     Parameters
@@ -1476,6 +1480,18 @@ def num_sort(text):
 
 
 def convert_bytes(tot_bytes):
+    """Convert bytes to human readable GB, MB, KB.
+
+    Parameters
+    ----------
+    tot_bytes : int
+        Total number of bytes.
+
+    Returns
+    -------
+    [GB, MB, KB, rem] : list
+        Bytes divided into Giga, Mega, Kilo bytes.
+    """
     GB, rem = divmod(tot_bytes, 1024 * 1024 * 1024)
     MB, rem = divmod(rem, 1024 * 1024)
     KB, rem = divmod(rem, 1024)
