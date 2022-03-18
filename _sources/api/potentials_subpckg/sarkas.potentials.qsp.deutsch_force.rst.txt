@@ -1,0 +1,6 @@
+sarkas.potentials.qsp.deutsch\_force
+====================================
+
+.. currentmodule:: sarkas.potentials.qsp
+
+.. autofunction:: deutsch_force

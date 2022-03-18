@@ -1,0 +1,32 @@
+sarkas.potentials.hs\_yukawa
+============================
+
+.. automodule:: sarkas.potentials.hs_yukawa
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      force_deriv
+      hs_yukawa_force
+      update_params
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

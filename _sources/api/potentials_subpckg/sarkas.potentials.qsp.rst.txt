@@ -1,0 +1,32 @@
+sarkas.potentials.qsp
+=====================
+
+.. automodule:: sarkas.potentials.qsp
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      deutsch_force
+      kelbg_force
+      update_params
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

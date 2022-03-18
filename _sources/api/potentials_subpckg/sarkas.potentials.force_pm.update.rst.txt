@@ -1,0 +1,6 @@
+sarkas.potentials.force\_pm.update
+==================================
+
+.. currentmodule:: sarkas.potentials.force_pm
+
+.. autofunction:: update

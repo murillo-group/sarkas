@@ -1,0 +1,6 @@
+sarkas.processes.PreProcess.time\_integrator\_loop
+==================================================
+
+.. currentmodule:: sarkas.processes
+
+.. automethod:: PreProcess.time_integrator_loop

@@ -1,0 +1,6 @@
+sarkas.potentials.moliere.moliere\_force
+========================================
+
+.. currentmodule:: sarkas.potentials.moliere
+
+.. autofunction:: moliere_force

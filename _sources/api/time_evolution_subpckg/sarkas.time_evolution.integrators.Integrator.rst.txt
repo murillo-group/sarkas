@@ -1,0 +1,38 @@
+sarkas.time\_evolution.integrators.Integrator
+=============================================
+
+.. currentmodule:: sarkas.time_evolution.integrators
+
+.. autoclass:: Integrator
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Integrator_mthds
+
+   
+      Integrator.__init__
+      Integrator.absorbing
+      Integrator.cyclotronic
+      Integrator.cyclotronic_zdir
+      Integrator.equilibrate
+      Integrator.from_dict
+      Integrator.magnetic_boris
+      Integrator.magnetic_boris_zdir
+      Integrator.magnetic_helpers
+      Integrator.magnetic_pos_verlet
+      Integrator.magnetic_pos_verlet_zdir
+      Integrator.magnetic_verlet
+      Integrator.magnetic_verlet_zdir
+      Integrator.magnetize
+      Integrator.periodic
+      Integrator.pretty_print
+      Integrator.produce
+      Integrator.reflecting
+      Integrator.setup
+      Integrator.verlet
+      Integrator.verlet_langevin
+   
+   

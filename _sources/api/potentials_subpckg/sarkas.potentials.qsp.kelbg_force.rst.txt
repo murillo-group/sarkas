@@ -1,0 +1,6 @@
+sarkas.potentials.qsp.kelbg\_force
+==================================
+
+.. currentmodule:: sarkas.potentials.qsp
+
+.. autofunction:: kelbg_force

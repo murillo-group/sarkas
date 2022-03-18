@@ -1,0 +1,6 @@
+sarkas.processes.PreProcess.analytical\_approx\_pp
+==================================================
+
+.. currentmodule:: sarkas.processes
+
+.. automethod:: PreProcess.analytical_approx_pp

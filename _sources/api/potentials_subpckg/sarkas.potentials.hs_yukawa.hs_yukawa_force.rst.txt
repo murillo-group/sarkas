@@ -1,0 +1,6 @@
+sarkas.potentials.hs\_yukawa.hs\_yukawa\_force
+==============================================
+
+.. currentmodule:: sarkas.potentials.hs_yukawa
+
+.. autofunction:: hs_yukawa_force

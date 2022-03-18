@@ -20,14 +20,14 @@ You can create a new environment with python 3.7 using Anaconda Navigator.
 Follow the instructions in this `link <https://docs.anaconda.com/anaconda/navigator/getting-started/#managing-environments>`_
 
 Command Line Interface (UNIX systems)
-------------------------------------
+-------------------------------------
 Open a Terminal and check if you have ``conda`` installed
 
 .. code-block:: bash
 
     $ which conda
 
-This command will print the path of your ``conda`` binaries. If nothing is printed then you need to install it. 
+This command will print the path of your ``conda`` binaries. If nothing is printed then you need to install it.
 Visit `Anaconda`_ and download their Python 3.* installer.
 
 You can create a virtual environment via
@@ -36,8 +36,8 @@ You can create a virtual environment via
 
     $ conda create --name sarkas python=3.7 pip
 
-This command will create the virtual environment ``sarkas`` with python 3.7 and ``pip`` installed. 
-The environment can be found in the ``envs`` directory of your conda directory (the one printed above by the command ``which``). 
+This command will create the virtual environment ``sarkas`` with python 3.7 and ``pip`` installed.
+The environment can be found in the ``envs`` directory of your conda directory (the one printed above by the command ``which``).
 
 Once the environment has been created you can activate it by
 
@@ -92,7 +92,7 @@ You can now install sarkas system wide via
 External packages
 -----------------
 
-Sarkas uses two external packages: `FFTW <http://www.fftw.org/>`_ and `FMM3D <https://fmm3d.readthedocs.io/en/latest/>`_ . 
+Sarkas uses two external packages: `FFTW <http://www.fftw.org/>`_ and `FMM3D <https://fmm3d.readthedocs.io/en/latest/>`_ .
 The first is used to perform fast Fourier transforms and the second to simulate systems with open boundary conditions.
 
 FFTW3 is a very commong library in scientific computation, however, it may happen that you don't have it already installed on your computer.
@@ -134,7 +134,7 @@ Remember to point to the right STYLE_PATH.
 
 Run the code
 ============
-In the following pages you will find a quickstart notebook to check that Sarkas runs correctly and a long tutorial on how to 
+In the following pages you will find a quickstart notebook to check that Sarkas runs correctly and a long tutorial on how to
 setup and run simulations.
 
 .. toctree::

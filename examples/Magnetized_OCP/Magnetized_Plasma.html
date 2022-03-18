@@ -801,12 +801,12 @@ Total Run Time: 0 hrs 50 min 35 sec
 <p>where, for the case of a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction</p>
 <div class="math notranslate nohighlight">
 \[Z_{\parallel}(t) = \langle v_z(t)v_z(0) \rangle, \quad Z_{\perp}(t) = \frac{1}{2} \left [ \langle v_x(t)v_x(0) \rangle + \langle v_y(t)v_y(0) \rangle \right ],\]</div>
-<p>are the velocity autocorrelation functions. These functions are calculated by the class <a class="reference internal" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction"><span class="std std-ref">VelocityAutocorrelationFunction</span></a> in <a class="reference internal" href="../../api/sarkas.tools.observables.html"><span class="doc">sarkas.tools.observables</span></a>. This class calculates and saves <span class="math notranslate nohighlight">\(Z(t)\)</span> for each axis and the total <span class="math notranslate nohighlight">\(Z(t) = \frac{1}{3} \left [ Z_x(t) + Z_y(t) + Z_z(t) \right ]\)</span>.</p>
-<p>Transport coefficient are calculated using the <a class="reference internal" href="../../api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficients"><span class="std std-ref">TransportCoefficients</span></a> class from the <a class="reference internal" href="../../api/sarkas.tools.transport.html"><span class="doc">sarkas.tools.transport</span></a>. This method requires the parameters of the simulation passed as <code class="docutils literal notranslate"><span class="pre">postproc.parameters</span></code>. The <code class="docutils literal notranslate"><span class="pre">phase</span></code> argument in this case is not needed since <code class="docutils literal notranslate"><span class="pre">production</span></code> is the default phase, and the number of slices in which to divide the simulation,<code class="docutils literal notranslate"><span class="pre">no_slices</span></code>. As
+<p>are the velocity autocorrelation functions. These functions are calculated by the class <a class="reference external" href="../../api/sarkas.tools.observables.rst#sarkas.tools.observables.VelocityAutocorrelationFunction">VelocityAutocorrelationFunction</a> in <a class="reference external" href="../../api/sarkas.tools.observables.rst">sarkas.tools.observables</a>. This class calculates and saves <span class="math notranslate nohighlight">\(Z(t)\)</span> for each axis and the total <span class="math notranslate nohighlight">\(Z(t) = \frac{1}{3} \left [ Z_x(t) + Z_y(t) + Z_z(t) \right ]\)</span>.</p>
+<p>Transport coefficient are calculated using the <a class="reference external" href="../../api/sarkas.tools.transport.rst#sarkas.tools.transport.TransportCoefficients">TransportCoefficients</a> class from the <a class="reference external" href="../../api/sarkas.tools.transport.rst">sarkas.tools.transport</a>. This method requires the parameters of the simulation passed as <code class="docutils literal notranslate"><span class="pre">postproc.parameters</span></code>. The <code class="docutils literal notranslate"><span class="pre">phase</span></code> argument in this case is not needed since <code class="docutils literal notranslate"><span class="pre">production</span></code> is the default phase, and the number of slices in which to divide the simulation,<code class="docutils literal notranslate"><span class="pre">no_slices</span></code>. As
 mentioned above we decided to run our simulation 5 times longer than Bernu’s. This is because we wanted to divide our long simulation into 5 small simulations of length ~ 258 <span class="math notranslate nohighlight">\(\omega_p T\)</span> (Bernu’s was 244 <span class="math notranslate nohighlight">\(\omega_p T\)</span>), calculate the diffusion coefficients for each of them, and average them.</p>
 <p>Sarkas was created with this workflow in mind and the option <code class="docutils literal notranslate"><span class="pre">no_slices</span></code> allows to do exactly this.</p>
-<p>Once the class is imported the diffusion coefficient is calculated by calling the method <a class="reference internal" href="../../api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficients.diffusion"><span class="std std-ref">diffusion</span></a>. This method takes care of calculating the perpendicular and parallel diffusion coefficients, and plot their averages with a shaded area.</p>
-<p>It is important to note that the <a class="reference internal" href="../../api/sarkas.tools.transport.html#sarkas.tools.transport.TransportCoefficients.diffusion"><span class="std std-ref">diffusion</span></a> method assume a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction. Arbitrary directions of the magnetic field are not supported at the moment.</p>
+<p>Once the class is imported the diffusion coefficient is calculated by calling the method <a class="reference external" href="../../api/sarkas.tools.transport.rst#sarkas.tools.transport.TransportCoefficients.diffusion">diffusion</a>. This method takes care of calculating the perpendicular and parallel diffusion coefficients, and plot their averages with a shaded area.</p>
+<p>It is important to note that the <a class="reference external" href="../../api/sarkas.tools.transport.rst#sarkas.tools.transport.TransportCoefficients.diffusion">diffusion</a> method assume a constant magnetic field in the <span class="math notranslate nohighlight">\(z\)</span>-direction. Arbitrary directions of the magnetic field are not supported at the moment.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -1113,7 +1113,7 @@ The parallel diffusion is D_z = 0.0029 w_p a_ws^2
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -1124,7 +1124,7 @@ The parallel diffusion is D_z = 0.0029 w_p a_ws^2
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

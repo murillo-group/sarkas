@@ -1,0 +1,6 @@
+sarkas.potentials.force\_pm.calc\_field
+=======================================
+
+.. currentmodule:: sarkas.potentials.force_pm
+
+.. autofunction:: calc_field

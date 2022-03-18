@@ -1,0 +1,24 @@
+sarkas.core.Species
+===================
+
+.. currentmodule:: sarkas.core
+
+.. autoclass:: Species
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Species_mthds
+
+   
+      Species.__init__
+      Species.calc_coupling
+      Species.calc_cyclotron_frequency
+      Species.calc_debye_length
+      Species.calc_plasma_frequency
+      Species.from_dict
+      Species.pretty_print
+   
+   

@@ -1,0 +1,6 @@
+sarkas.core.Species.calc\_coupling
+==================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Species.calc_coupling

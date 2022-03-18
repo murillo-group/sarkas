@@ -155,12 +155,12 @@
   <div class="row">
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><!-- <div class="sidenav-header">
-    <div class="h4"> 
+    <div class="h4">
       Sarkas Documentation
     </div>
-  
+
   </div> -->
-  
+
   <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a><ul>
@@ -315,30 +315,25 @@
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pp.html">sarkas.potentials.force_pp module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.lennardjones.html">sarkas.potentials.lennardjones module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#core-modules">Core modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/core_pckg/sarkas.core.html">sarkas.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/core_pckg/sarkas.processes.html">sarkas.processes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials-subpackage">Potentials Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/potentials_subpckg/sarkas.potentials.html">sarkas.potentials</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#tools">Tools</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution-subpackage">Time Evolution Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/time_evolution_subpckg/sarkas.time_evolution.html">sarkas.time_evolution</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#utilities">Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.utilities.html">sarkas.utilities package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#tools-subpackage">Tools Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/tools_subpckg/sarkas.tools.html">sarkas.tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#utilities-subpackage">Utilities Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/util_subpckg/sarkas.utilities.html">sarkas.utilities</a></li>
 </ul>
 </li>
 </ul>
@@ -357,7 +352,6 @@
 </li>
 </ul>
 
-  
         </div>
       </div>
     <div class="body col-md-9 content" role="main">
@@ -410,7 +404,7 @@ distribution of the directions.</p>
 </div>
 <p>The instance <code class="docutils literal notranslate"><span class="pre">type</span></code> defines the interaction potential. Currently Sarkas supports the following interaction potentials:
 Coulomb, Yukawa, Exact-gradient corrected Yukawa, Quantum Statistical Potentials, Moliere, Lennard-Jones 6-12. More info
-on each of these potential can be found in <a class="reference internal" href="../theory/potentials.html#potentials"><span class="std std-ref">Potentials</span></a>. Next we define the screening parameter <code class="docutils literal notranslate"><span class="pre">kappa</span></code>.
+on each of these potential can be found in <a class="reference internal" href="../theory/potentials.html"><span class="doc">Potentials</span></a>. Next we define the screening parameter <code class="docutils literal notranslate"><span class="pre">kappa</span></code>.
 Notice that this a non-dimensional parameter, i.e. the real screening length will be calculated
 from <span class="math notranslate nohighlight">\(\lambda = a/\kappa\)</span> where <span class="math notranslate nohighlight">\(a\)</span> is the Wigner-Seitz radius.</p>
 <p>The following parameters refer to our choice of the interaction algorithm. Details on how to choose these parameters
@@ -463,7 +457,8 @@ of the thermalization phase are defined in the <code class="docutils literal not
 <p>The first instance defines the type of Thermostat. Currently Sarkas supports only the Berendsen and Langevin type,
 but other thermostats like Nose-Hoover, etc are, you guessed it!, in development.
 The <code class="docutils literal notranslate"><span class="pre">relaxation_timestep</span></code> instance indicates the timestep number at which the Berendsen thermostat will be turned on.
-The instance <code class="docutils literal notranslate"><span class="pre">berendsen_tau</span></code> indicates the relaxation rate of the Berendsen thermostat, see <a class="reference internal" href="../theory/Berendsen_NB/Berendsen_Thermostat.html#Thermostats"><span class="std std-ref">Thermostats</span></a> for more details.</p>
+The instance <code class="docutils literal notranslate"><span class="pre">berendsen_tau</span></code> indicates the relaxation rate of the Berendsen thermostat,
+see <a class="reference internal" href="../theory/Berendsen_NB/Berendsen_Thermostat.html"><span class="doc">Thermostats</span></a> for more details.</p>
 <p>The last instance defines the temperature (be careful with units!) at which the system is to be thermalized.
 Notice that this takes a single value in the case of a single species, while it takes is a list in the case of
 multicomponent plasmas. Note that these temperatures need not be the same as those defined in the <code class="docutils literal notranslate"><span class="pre">Particles</span></code> block as
@@ -574,7 +569,7 @@ Soon we will have support for any mixture.</p>
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -585,7 +580,7 @@ Soon we will have support for any mixture.</p>
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

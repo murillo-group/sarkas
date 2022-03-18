@@ -19,7 +19,7 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 
 which when substituted in gives the equivalent mks formula.
 
-Electron parameters and thermodynamic formulas are given in :ref:`here <Electron Properties>`.
+Electron parameters and thermodynamic formulas are given in :doc:`here <electron_properties>`.
 
 .. _coulomb_pot:
 
@@ -46,7 +46,7 @@ number :math:`Z_a` and :math:`Z_b` is given by
 
 where :math:`\lambda_{\textrm{TF}}` is the Thomas-Fermi wavelength and :math:`\kappa` is the screening parameter.
 In Sarkas :math:`\kappa` can be given as an input or it can be calculated from the
-:ref:`Thomas-Fermi Wavelength` formula.
+:ref:`Thomas-Fermi Wavelength <theory/electron_properties:thomas-fermi wavelength>` formula.
 
 Notice that when :math:`\kappa = 0` we recover the Coulomb Potential.
 
@@ -67,7 +67,8 @@ Density gradient corrections to the free energy functional lead to the first par
 
 where :math:`\lambda` is a correction factor; :math:`\lambda = 1/9` for the true gradient corrected Thomas-Fermi model
 and :math:`\lambda = 1` for the traditional von Weissaecker model, :math:`\mathcal I_{-1/2}[\eta_0]` is the
-:ref:`Fermi Integral` of order :math:`-1/2`, and :math:`\Lambda_e` is the :ref:`de Broglie wavelength` of the electrons.
+:ref:`Fermi Integral <theory/electron_properties:fermi integral>` of order :math:`-1/2`, and :math:`\Lambda_e` is the
+:ref:`theory/electron_properties:de Broglie wavelength` of the electrons.
 
 In the case :math:`\nu < 1` the EGS potential takes the form
 
@@ -96,7 +97,7 @@ Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise
    b = 1 - \frac{2}{8} \frac{1}{k_{\textrm{F}}^2 \lambda_{\textrm{TF}}^2 }  \left [ h\left ( \Theta \right ) - 2 \Theta h'(\Theta) \right ]
 
 where :math:`k_{\textrm{F}}` is the Fermi wavenumber and :math:`\Theta = (\beta E_{\textrm{F}})^{-1}` is the electron
-:ref:`Degeneracy Parameter` calculated from the :ref:`Fermi Energy`.
+:ref:`theory/electron_properties:Degeneracy Parameter` calculated from the :ref:`theory/electron_properties:Fermi Energy`.
 
 .. math::
    h \left ( \Theta \right) = \frac{N(\Theta)}{D(\Theta)}\tanh \left( \Theta^{-1} \right ),

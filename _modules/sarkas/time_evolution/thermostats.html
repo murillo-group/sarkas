@@ -138,12 +138,11 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Module containing various thermostat. Berendsen only for now.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">float64</span><span class="p">,</span> <span class="n">int64</span><span class="p">,</span> <span class="n">jit</span><span class="p">,</span> <span class="n">void</span>
 
 
-<div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
+<div class="viewcode-block" id="Thermostat"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/sarkas.time_evolution.thermostats.Thermostat.html#sarkas.time_evolution.thermostats.Thermostat">[docs]</a><span class="k">class</span> <span class="nc">Thermostat</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Thermostat object.</span>
 
@@ -175,7 +174,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.__init__"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/Thermostat_mthds/sarkas.time_evolution.thermostats.Thermostat.__init__.html#sarkas.time_evolution.thermostats.Thermostat.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="kc">None</span>
@@ -186,7 +185,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_masses</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">berendsen_tau</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eV_temp_flag</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sortedDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()))</span>
@@ -196,7 +195,7 @@
         <span class="n">disp</span> <span class="o">+=</span> <span class="s2">&quot;)&quot;</span>
         <span class="k">return</span> <span class="n">disp</span>
 
-<div class="viewcode-block" id="Thermostat.from_dict"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.from_dict"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/Thermostat_mthds/sarkas.time_evolution.thermostats.Thermostat.from_dict.html#sarkas.time_evolution.thermostats.Thermostat.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update attributes from input dictionary.</span>
 
@@ -219,27 +218,27 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">K_temp_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Thermostat.pretty_print"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.pretty_print"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/Thermostat_mthds/sarkas.time_evolution.thermostats.Thermostat.pretty_print.html#sarkas.time_evolution.thermostats.Thermostat.pretty_print">[docs]</a>    <span class="k">def</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print Thermostat information in a user-friendly way.&quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;First thermostating timestep, i.e. relaxation_timestep = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen parameter tau: </span><span class="si">{:.3f}</span><span class="s2"> [timesteps]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">berendsen_tau</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Berendsen relaxation rate: </span><span class="si">{:.3f}</span><span class="s2"> [1/timesteps] &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;First thermostating timestep, i.e. relaxation_timestep = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Berendsen parameter tau: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">berendsen_tau</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> [timesteps]&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Berendsen relaxation rate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> [1/timesteps] &quot;</span><span class="p">)</span>
         <span class="c1"># if not self.eV_temp_flag and not self.K_temp_flag:</span>
         <span class="c1">#     # If you forgot to give thermostating temperatures</span>
         <span class="c1">#     warn(&quot;Equilibration temperatures not defined. &quot;</span>
         <span class="c1">#          &quot;I will use the species&#39;s temperatures&quot;)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Thermostating temperatures: &quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">t_ev</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">)):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Species ID </span><span class="si">{}</span><span class="s2">: T_eq = </span><span class="si">{:.6e}</span><span class="s2"> [K] = </span><span class="si">{:.6e}</span><span class="s2"> [eV]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">t_ev</span><span class="p">))</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Species ID </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: T_eq = </span><span class="si">{</span><span class="n">t</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2"> [K] = </span><span class="si">{</span><span class="n">t_ev</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2"> [eV]&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Thermostat.setup"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.setup"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/Thermostat_mthds/sarkas.time_evolution.thermostats.Thermostat.setup.html#sarkas.time_evolution.thermostats.Thermostat.setup">[docs]</a>    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign attributes from simulation&#39;s parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        params: sarkas.core.Parameters</span>
+<span class="sd">        params : :class:`sarkas.core.Parameters`</span>
 <span class="sd">            Simulation&#39;s parameters</span>
 
 <span class="sd">        Raises</span>
@@ -275,13 +274,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;berendsen&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only Berendsen thermostat is supported.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../../../api/sarkas.time_evolution.thermostats.html#sarkas.time_evolution.thermostats.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
+<div class="viewcode-block" id="Thermostat.update"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/Thermostat_mthds/sarkas.time_evolution.thermostats.Thermostat.update.html#sarkas.time_evolution.thermostats.Thermostat.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptcls</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update particles&#39; velocities according to the chosen thermostat</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ptcls : sarkas.core.Particles</span>
+<span class="sd">        ptcls : :class:`sarkas.core.Particles`</span>
 <span class="sd">            Particles&#39; data.</span>
 
 <span class="sd">        it : int</span>
@@ -292,37 +291,33 @@
         <span class="n">berendsen</span><span class="p">(</span><span class="n">ptcls</span><span class="o">.</span><span class="n">vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatures</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_timestep</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">relaxation_rate</span><span class="p">,</span> <span class="n">it</span><span class="p">)</span></div></div>
 
 
-<span class="nd">@njit</span>
+<div class="viewcode-block" id="berendsen"><a class="viewcode-back" href="../../../api/time_evolution_subpckg/sarkas.time_evolution.thermostats.berendsen.html#sarkas.time_evolution.thermostats.berendsen">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:],</span> <span class="n">int64</span><span class="p">[:],</span> <span class="n">int64</span><span class="p">,</span> <span class="n">float64</span><span class="p">,</span> <span class="n">int64</span><span class="p">),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">berendsen</span><span class="p">(</span><span class="n">vel</span><span class="p">,</span> <span class="n">T_desired</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">species_np</span><span class="p">,</span> <span class="n">therm_timestep</span><span class="p">,</span> <span class="n">tau</span><span class="p">,</span> <span class="n">it</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.</span>
+<span class="sd">    Numba&#39;d function to update particle velocity based on Berendsen thermostat :cite:`Berendsen1984`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    T : numpy.ndarray</span>
-<span class="sd">        Instantaneous temperature of each species.</span>
-
 <span class="sd">    vel : numpy.ndarray</span>
 <span class="sd">        Particles&#39; velocities to rescale.</span>
 
 <span class="sd">    T_desired : numpy.ndarray</span>
 <span class="sd">        Target temperature of each species.</span>
 
-<span class="sd">    tau : float</span>
-<span class="sd">        Scale factor.</span>
-
-<span class="sd">    therm_timestep : int</span>
-<span class="sd">        Timestep at which to turn on the thermostat.</span>
+<span class="sd">    T : numpy.ndarray</span>
+<span class="sd">        Instantaneous temperature of each species.</span>
 
 <span class="sd">    species_np : numpy.ndarray</span>
 <span class="sd">        Number of each species.</span>
 
+<span class="sd">    therm_timestep : int</span>
+<span class="sd">        Timestep at which to turn on the thermostat.</span>
+
+<span class="sd">    tau : float</span>
+<span class="sd">        Scale factor.</span>
+
 <span class="sd">    it : int</span>
 <span class="sd">        Current timestep.</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    .. [Berendsen1984] `H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984) &lt;https://doi.org/10.1063/1.448118&gt;`_</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -339,7 +334,7 @@
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_np</span><span class="p">):</span>
         <span class="n">species_end</span> <span class="o">+=</span> <span class="n">num</span>
         <span class="n">vel</span><span class="p">[</span><span class="n">species_start</span><span class="p">:</span><span class="n">species_end</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*=</span> <span class="n">fact</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">species_start</span> <span class="o">+=</span> <span class="n">num</span>
+        <span class="n">species_start</span> <span class="o">+=</span> <span class="n">num</span></div>
 </pre></div>
 
     </div>
@@ -354,7 +349,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -365,7 +360,7 @@
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

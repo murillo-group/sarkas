@@ -1,0 +1,6 @@
+sarkas.utilities.tests.test\_maths.test\_inverse\_fd
+====================================================
+
+.. currentmodule:: sarkas.utilities.tests.test_maths
+
+.. autofunction:: test_inverse_fd

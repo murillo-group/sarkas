@@ -156,7 +156,7 @@
 <span class="sd">mixing rules</span>
 
 <span class="sd">.. math::</span>
-<span class="sd">    \\epsilon_{12} = \\sqrt{\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.</span>
+<span class="sd">    \\epsilon_{12} = \\sqrt{\\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.</span>
 
 <span class="sd">Force Error</span>
 <span class="sd">***********</span>
@@ -189,28 +189,30 @@
 <span class="sd">    pot_matrix[4] = short-range cutoff</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">numba</span> <span class="k">as</span> <span class="nn">nb</span>
-<span class="kn">from</span> <span class="nn">sarkas.utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span>
+<span class="kn">from</span> <span class="nn">numba.core.types</span> <span class="kn">import</span> <span class="n">float64</span><span class="p">,</span> <span class="n">UniTuple</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">zeros</span>
+
+<span class="kn">from</span> <span class="nn">..utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span>
 
 
-<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.lennardjones.html#sarkas.potentials.lennardjones.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.lennardjones.update_params.html#sarkas.potentials.lennardjones.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assign potential dependent simulation&#39;s parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    potential : sarkas.potentials.core.Potential</span>
+<span class="sd">    potential : :class:`sarkas.potentials.core.Potential`</span>
 <span class="sd">        Class handling potential form.</span>
 
-<span class="sd">    params : sarkas.core.Parameters</span>
+<span class="sd">    params : :class:`sarkas.core.Parameters`</span>
 <span class="sd">        Simulation&#39;s parameters.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
     <span class="c1"># See Lima Physica A 391 4281 (2012) for the following definitions</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s2">&quot;powers&quot;</span><span class="p">):</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">powers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">powers</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
 
     <span class="n">exponent</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">lj_constant</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -219,7 +221,6 @@
     <span class="c1"># Use the Lorentz-Berthelot mixing rules.</span>
     <span class="c1"># Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)</span>
     <span class="c1"># Berthelot: epsilon_12 = sqrt( eps_1 eps2)</span>
-    <span class="n">potential</span><span class="o">.</span><span class="n">sigma2</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">epsilon_tot</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="c1"># Recall that species_charges contains sqrt(epsilon)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
@@ -228,23 +229,24 @@
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">powers</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">potential</span><span class="o">.</span><span class="n">sigma2</span> <span class="o">+=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
             <span class="n">potential</span><span class="o">.</span><span class="n">epsilon_tot</span> <span class="o">+=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span>
 
+    <span class="n">potential</span><span class="o">.</span><span class="n">sigma_avg</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">species_lj_sigmas</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">a_rs</span>
 
     <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">lj_force</span>
 
     <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
     <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span><span class="p">))</span>
     <span class="p">)</span></div>
 
 
-<span class="nd">@nb</span><span class="o">.</span><span class="n">njit</span>
+<div class="viewcode-block" id="lj_force"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.lennardjones.lj_force.html#sarkas.potentials.lennardjones.lj_force">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">UniTuple</span><span class="p">(</span><span class="n">float64</span><span class="p">,</span> <span class="mi">2</span><span class="p">)(</span><span class="n">float64</span><span class="p">,</span> <span class="n">float64</span><span class="p">[:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">lj_force</span><span class="p">(</span><span class="n">r_in</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates the PP force between particles using Lennard-Jones Potential.</span>
+<span class="sd">    Numba&#39;d function to calculate the PP force between particles using Lennard-Jones Potential.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -263,6 +265,17 @@
 <span class="sd">    force : float</span>
 <span class="sd">        Force.</span>
 
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; pot_const = 4.0 * 1.656e-21 # 4*epsilon in [J] (mks units)</span>
+<span class="sd">    &gt;&gt;&gt; sigma = 3.4e-10   # [m] (mks units)</span>
+<span class="sd">    &gt;&gt;&gt; high_pow, low_pow = 12., 6.</span>
+<span class="sd">    &gt;&gt;&gt; short_cutoff = 0.0001 * sigma</span>
+<span class="sd">    &gt;&gt;&gt; pot_mat = array([pot_const, sigma, high_pow, low_pow, short_cutoff])</span>
+<span class="sd">    &gt;&gt;&gt; r = 15.0 * sigma  # particles&#39; distance in [m]</span>
+<span class="sd">    &gt;&gt;&gt; lj_force(r, pot_mat)</span>
+<span class="sd">    (-5.815308131440668e-28, -6.841538377536503e-19)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">rs</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
@@ -278,7 +291,7 @@
     <span class="n">U</span> <span class="o">=</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="n">s_over_r_high</span> <span class="o">-</span> <span class="n">s_over_r_low</span><span class="p">)</span>
     <span class="n">force</span> <span class="o">=</span> <span class="n">epsilon</span> <span class="o">*</span> <span class="p">(</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">s_over_r_high</span> <span class="o">-</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">s_over_r_low</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
 
-    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
 </pre></div>
 
     </div>
@@ -293,7 +306,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -304,7 +317,7 @@
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

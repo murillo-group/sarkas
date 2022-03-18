@@ -93,5 +93,3 @@ Dev Team
       </p>
     </div>
   </div>
-
-

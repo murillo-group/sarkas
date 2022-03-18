@@ -142,12 +142,12 @@
   <div class="row">
       <div class="col-md-3">
         <div id="sidebar" class="bs-sidenav" role="complementary"><!-- <div class="sidenav-header">
-    <div class="h4"> 
+    <div class="h4">
       Sarkas Documentation
     </div>
-  
+
   </div> -->
-  
+
   <p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="why_sarkas.html">Why Sarkas</a><ul>
@@ -302,30 +302,25 @@
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.core.html">sarkas.core module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/sarkas.processes.html">sarkas.processes module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials">Potentials</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.core.html">sarkas.potentials.core module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.coulomb.html">sarkas.potentials.coulomb module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.egs.html">sarkas.potentials.egs module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pm.html">sarkas.potentials.force_pm module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.force_pp.html">sarkas.potentials.force_pp module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.lennardjones.html">sarkas.potentials.lennardjones module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.moliere.html">sarkas.potentials.moliere module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.qsp.html">sarkas.potentials.qsp module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.potentials.yukawa.html">sarkas.potentials.yukawa module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#core-modules">Core modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/core_pckg/sarkas.core.html">sarkas.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/core_pckg/sarkas.processes.html">sarkas.processes</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution">Time Evolution</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.time_evolution.html">sarkas.time_evolution package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#potentials-subpackage">Potentials Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/potentials_subpckg/sarkas.potentials.html">sarkas.potentials</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#tools">Tools</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.tools.html">sarkas.tools package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#time-evolution-subpackage">Time Evolution Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/time_evolution_subpckg/sarkas.time_evolution.html">sarkas.time_evolution</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api.html#utilities">Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../api/sarkas.utilities.html">sarkas.utilities package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#tools-subpackage">Tools Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/tools_subpckg/sarkas.tools.html">sarkas.tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#utilities-subpackage">Utilities Subpackage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/util_subpckg/sarkas.utilities.html">sarkas.utilities</a></li>
 </ul>
 </li>
 </ul>
@@ -344,7 +339,6 @@
 </li>
 </ul>
 
-  
         </div>
       </div>
     <div class="body col-md-9 content" role="main">
@@ -380,7 +374,7 @@ at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span> in
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -391,7 +385,7 @@ at a temperature <span class="math notranslate nohighlight">\(0.5 eV\)</span> in
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

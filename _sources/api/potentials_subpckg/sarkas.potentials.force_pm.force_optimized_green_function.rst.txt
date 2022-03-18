@@ -1,0 +1,6 @@
+sarkas.potentials.force\_pm.force\_optimized\_green\_function
+=============================================================
+
+.. currentmodule:: sarkas.potentials.force_pm
+
+.. autofunction:: force_optimized_green_function

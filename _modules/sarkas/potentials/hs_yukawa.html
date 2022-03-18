@@ -160,13 +160,15 @@
 <span class="sd">    pot_matrix[2] = Ewald screening parameter</span>
 <span class="sd">    pot_matrix[3] = short range cutoff</span>
 <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
-<span class="kn">from</span> <span class="nn">sarkas.utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">zeros</span> <span class="k">as</span> <span class="n">np_zeros</span>
+<span class="kn">from</span> <span class="nn">warnings</span> <span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span> <span class="nn">..utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span>
 
 
-<span class="nd">@njit</span>
+<div class="viewcode-block" id="hs_yukawa_force"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.hs_yukawa.hs_yukawa_force.html#sarkas.potentials.hs_yukawa.hs_yukawa_force">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">hs_yukawa_force</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculates Potential and Force between two particles.</span>
@@ -189,15 +191,15 @@
 <span class="sd">        Force between two particles.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">U_y</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
+    <span class="n">U_y</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span>
     <span class="n">U_hs</span> <span class="o">=</span> <span class="p">(</span><span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">50</span><span class="p">)</span>
     <span class="n">U</span> <span class="o">=</span> <span class="n">U_y</span> <span class="o">+</span> <span class="n">U_hs</span>
     <span class="n">force</span> <span class="o">=</span> <span class="n">U_y</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="mf">50.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">U_hs</span> <span class="o">/</span> <span class="n">r</span>
 
-    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">force</span></div>
 
 
-<span class="nd">@njit</span>
+<div class="viewcode-block" id="force_deriv"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.hs_yukawa.force_deriv.html#sarkas.potentials.hs_yukawa.force_deriv">[docs]</a><span class="nd">@njit</span>
 <span class="k">def</span> <span class="nf">force_deriv</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculate the second derivative of the potential.</span>
 
@@ -218,28 +220,42 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">kappa_r</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">r</span>
-    <span class="n">U2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa_r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span> <span class="o">**</span> <span class="mi">3</span>
-    <span class="n">f_dev</span> <span class="o">=</span> <span class="n">U2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">kappa_r</span><span class="p">)</span> <span class="o">+</span> <span class="n">kappa_r</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">f_dev</span>
+    <span class="n">U2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kappa_r</span><span class="p">)</span> <span class="o">/</span> <span class="n">r</span><span class="o">**</span><span class="mi">3</span>
+    <span class="n">f_dev</span> <span class="o">=</span> <span class="n">U2</span> <span class="o">*</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">kappa_r</span><span class="p">)</span> <span class="o">+</span> <span class="n">kappa_r</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">f_dev</span></div>
 
 
-<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.hs_yukawa.html#sarkas.potentials.hs_yukawa.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.hs_yukawa.update_params.html#sarkas.potentials.hs_yukawa.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assign potential dependent simulation&#39;s parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    potential : sarkas.potentials.core.Potential</span>
+<span class="sd">    potential : :class:`sarkas.potentials.core.Potential`</span>
 <span class="sd">        Class handling potential form.</span>
 
-<span class="sd">    params: sarkas.core.Parameters</span>
+<span class="sd">    params : :class:`sarkas.core.Parameters`</span>
 <span class="sd">        Simulation&#39;s parameters.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Potential specific parameters</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">packing_fraction</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">/</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">total_num_density</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">hs_diameter</span><span class="o">**</span><span class="mi">3</span>
 
-    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
-    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s2">&quot;kappa&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;You have defined both kappa and the screening_length. </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;I will use kappa to calculate the screening_length from lambda = sigma/kappa&quot;</span>
+        <span class="p">)</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">screening_length</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">hs_diameter</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">kappa</span>
 
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s2">&quot;kappa&quot;</span><span class="p">):</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">screening_length</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">hs_diameter</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">kappa</span>
+    <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_length</span><span class="p">:</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">kappa</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">hs_diameter</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_length</span>
+
+    <span class="c1"># Interaction Matrix</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np_zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">potential</span><span class="o">.</span><span class="n">screening_length</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">q1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">species_charges</span><span class="p">):</span>
             <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">fourpie0</span>
@@ -247,15 +263,15 @@
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">potential</span><span class="o">.</span><span class="n">hs_diameter</span>
 
     <span class="k">if</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pp&quot;</span><span class="p">:</span>
-        <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
+        <span class="c1"># The rescaling constant is sqrt ( n sigma^4 ) = sqrt(  6 eta *sigma/pi )</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">force</span> <span class="o">=</span> <span class="n">hs_yukawa_force</span>
         <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
-            <span class="s2">&quot;yukawa&quot;</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+            <span class="s2">&quot;yukawa&quot;</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">6.0</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">packing_fraction</span> <span class="o">*</span> <span class="n">potential</span><span class="o">.</span><span class="n">hs_diameter</span> <span class="o">/</span> <span class="n">pi</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="c1"># # Force error calculated from eq.(43) in Ref.[1]_</span>
-        <span class="c1"># params.force_error = np.sqrt( TWOPI / params.lambda_TF) * np.exp(- potential.rc / params.lambda_TF)</span>
+        <span class="c1"># params.force_error = sqrt( TWOPI / params.lambda_TF) * exp(- potential.rc / params.lambda_TF)</span>
         <span class="c1"># # Renormalize</span>
-        <span class="c1"># params.force_error *= params.a_ws ** 2 * np.sqrt(params.total_num_ptcls / params.pbox_volume)</span>
+        <span class="c1"># params.force_error *= params.a_ws ** 2 * sqrt(params.total_num_ptcls / params.pbox_volume)</span>
     <span class="k">elif</span> <span class="n">potential</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pppm&quot;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;PPPM algorithm not supported.&quot;</span><span class="p">)</span></div>
 </pre></div>
@@ -272,7 +288,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -283,7 +299,7 @@
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

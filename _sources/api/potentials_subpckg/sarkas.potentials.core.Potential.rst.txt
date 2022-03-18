@@ -1,0 +1,26 @@
+sarkas.potentials.core.Potential
+================================
+
+.. currentmodule:: sarkas.potentials.core
+
+.. autoclass:: Potential
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Potential_mthds
+
+   
+      Potential.__init__
+      Potential.calc_electron_properties
+      Potential.from_dict
+      Potential.pppm_setup
+      Potential.setup
+      Potential.update_brute
+      Potential.update_linked_list
+      Potential.update_pm
+      Potential.update_pppm
+   
+   

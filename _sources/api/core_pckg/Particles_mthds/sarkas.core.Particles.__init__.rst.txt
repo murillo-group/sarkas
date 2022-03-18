@@ -1,0 +1,6 @@
+sarkas.core.Particles.\_\_init\_\_
+==================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Particles.__init__

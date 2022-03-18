@@ -1,0 +1,6 @@
+sarkas.potentials.egs.egs\_force
+================================
+
+.. currentmodule:: sarkas.potentials.egs
+
+.. autofunction:: egs_force

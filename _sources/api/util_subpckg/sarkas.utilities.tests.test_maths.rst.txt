@@ -1,0 +1,35 @@
+sarkas.utilities.tests.test\_maths
+==================================
+
+.. automodule:: sarkas.utilities.tests.test_maths
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      test_fd_integral
+      test_inverse_fd
+      test_lj_force_analytic_pp
+      test_moliere_force_analytic_pp
+      test_yukawa_force_analytic_pp
+      test_yukawa_gk
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

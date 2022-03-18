@@ -431,18 +431,18 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <p>Similar to the <strong>Pre Processing</strong> and <strong>Simulation</strong> stages three lines are enough. The <code class="docutils literal notranslate"><span class="pre">run</span></code> method will calculate everything that was included in the input YAML file. This was shown in the <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Quickstart.html">Quickstart notebook</a> where we calculated the Radial Distribution Function. In this notebook we want to calculate the Radial Distribution Function and the Static Structure Function.</p>
 <p>Each observable is an object and it is stored as an attribute of the PostProcess. The class names are</p>
-<p><code class="docutils literal notranslate"><span class="pre">therm</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics">Thermodynamics</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">rdf</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.RadialDistributionFunction">Radial Distribution Function</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">ssf</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.StaticStructureFactor">Static Structure Factor</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">therm</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.Thermodynamics.html">Thermodynamics</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">rdf</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.RadialDistributionFunction.html">Radial Distribution Function</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">ssf</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.StaticStructureFactor.html">Static Structure Factor</a></p>
 <p>Other class names that we are not calculating here are:</p>
-<p><code class="docutils literal notranslate"><span class="pre">dsf</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.DynamicStructureFunction">Dynamic Structure Function</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">ccf</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.CurrentCorrelationFunction">Current Correlation Function</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">ec</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.ElectricCurrent">Electric Current</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">vd</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityDistribuiton">Velocity Distribution</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">vacf</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.VelocityAutoCorrelationFunction">Velocity AutoCorrelation Function</a></p>
-<p><code class="docutils literal notranslate"><span class="pre">diff_flux</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.DiffusionFlux">Flux AutoCorrelation Function</a> ( mixtures only)</p>
-<p><code class="docutils literal notranslate"><span class="pre">p_tensor</span></code> = <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.PressureTensor">Pressure Tensor</a></p>
-<p>You can find more information for each observable on the <a class="reference external" href="../../api/sarkas.tools.observables.html">Observable page</a> and our <a class="reference external" href="../../examples/examples/examples.html">Examples page</a> for more info on how to use them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dsf</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.DynamicStructureFunction.html">Dynamic Structure Function</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">ccf</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.CurrentCorrelationFunction.html">Current Correlation Function</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">ec</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.ElectricCurrent.html">Electric Current</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">vd</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.VelocityDistribution.html">Velocity Distribution</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">vacf</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.VelocityAutoCorrelationFunction.html">Velocity AutoCorrelation Function</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">diff_flux</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.DiffusionFlux.html">Flux AutoCorrelation Function</a> ( mixtures only)</p>
+<p><code class="docutils literal notranslate"><span class="pre">p_tensor</span></code> = <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.PressureTensor.html">Pressure Tensor</a></p>
+<p>You can find more information for each observable on the <a class="reference external" href="../../apit/tools_subpckg/sarkas.tools.observables.html">Observable page</a> and our <a class="reference external" href="../../examples/examples.html">Examples page</a> for more info on how to use them.</p>
 <p>Let’s run the postprocessing</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -1160,7 +1160,7 @@ No. of unique ka values to calculate = 14344
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -1171,7 +1171,7 @@ No. of unique ka values to calculate = 14344
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

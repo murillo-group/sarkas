@@ -1,0 +1,6 @@
+sarkas.time\_evolution.integrators.remove\_drift
+================================================
+
+.. currentmodule:: sarkas.time_evolution.integrators
+
+.. autofunction:: remove_drift

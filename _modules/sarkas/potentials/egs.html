@@ -142,14 +142,14 @@
 <span class="sd">*********</span>
 
 <span class="sd">The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.</span>
-<span class="sd">Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,</span>
+<span class="sd">Density gradient corrections to the free energy functional lead to the first parameter, :math:`\\nu`,</span>
 
 <span class="sd">.. math::</span>
 <span class="sd">   \\nu = - \\frac{3\\lambda}{\\pi^{3/2}}  \\frac{4\\pi \\bar{e}^2 \\beta }{\\Lambda_{e}} \\frac{d}{d\\eta} \\mathcal I_{-1/2}(\\eta),</span>
 
 <span class="sd">where :math:`\\lambda` is a correction factor; :math:`\\lambda = 1/9` for the true gradient corrected Thomas-Fermi model</span>
 <span class="sd">and :math:`\\lambda = 1` for the traditional von Weissaecker model, :math:`\\mathcal I_{-1/2}[\\eta_0]` is the</span>
-<span class="sd">:ref:`Fermi Integral` of order :math:`-1/2`, and :math:`\\Lambda_e` is the :ref:`de Broglie wavelength` of the electrons.</span>
+<span class="sd">Fermi Integral of order :math:`-1/2`, and :math:`\\Lambda_e` is the de Broglie wavelength of the electrons.</span>
 
 <span class="sd">In the case :math:`\\nu &lt; 1` the EGS potential takes the form</span>
 
@@ -178,7 +178,7 @@
 <span class="sd">   b = 1 - \\frac{2}{8} \\frac{1}{k_{\\textrm{F}}^2 \\lambda_{\\textrm{TF}}^2 }  \\left [ h\\left ( \\Theta \\right ) - 2 \\Theta h&#39;(\\Theta) \\right ]</span>
 
 <span class="sd">where :math:`k_{\\textrm{F}}` is the Fermi wavenumber and :math:`\\Theta = (\\beta E_{\\textrm{F}})^{-1}` is the electron</span>
-<span class="sd">:ref:`Degeneracy Parameter` calculated from the :ref:`Fermi Energy`.</span>
+<span class="sd">degeneracy parameter` calculated from the Fermi energy.</span>
 
 <span class="sd">.. math::</span>
 <span class="sd">   h \\left ( \\Theta \\right) = \\frac{N(\\Theta)}{D(\\Theta)}\\tanh \\left( \\Theta^{-1} \\right ),</span>
@@ -228,24 +228,24 @@
 <span class="sd">    pot_matrix[5] = 1.0 / gamma_plus</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span>
-<span class="c1"># import fdint</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span>
+<span class="kn">from</span> <span class="nn">numba.core.types</span> <span class="kn">import</span> <span class="n">float64</span><span class="p">,</span> <span class="n">UniTuple</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">cos</span><span class="p">,</span> <span class="n">cosh</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">tanh</span><span class="p">,</span> <span class="n">zeros</span>
 
-<span class="kn">from</span> <span class="nn">sarkas.utilities.exceptions</span> <span class="kn">import</span> <span class="n">AlgorithmError</span>
-<span class="kn">from</span> <span class="nn">sarkas.utilities.maths</span> <span class="kn">import</span> <span class="n">force_error_analytic_pp</span><span class="p">,</span> <span class="n">fd_integral</span>
+<span class="kn">from</span> <span class="nn">..utilities.exceptions</span> <span class="kn">import</span> <span class="n">AlgorithmError</span>
+<span class="kn">from</span> <span class="nn">..utilities.maths</span> <span class="kn">import</span> <span class="n">fd_integral</span><span class="p">,</span> <span class="n">force_error_analytic_pp</span>
 
 
-<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/sarkas.potentials.egs.html#sarkas.potentials.egs.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="update_params"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.egs.update_params.html#sarkas.potentials.egs.update_params">[docs]</a><span class="k">def</span> <span class="nf">update_params</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Assign potential dependent simulation&#39;s parameters.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    potential : sarkas.potentials.core.Potential</span>
+<span class="sd">    potential : :class:`sarkas.potentials.core.Potential`</span>
 <span class="sd">        Class handling potential form.</span>
 
-<span class="sd">    params: sarkas.core.Parameters</span>
+<span class="sd">    params : :class:`sarkas.core.Parameters`</span>
 <span class="sd">        Simulation&#39;s parameters.</span>
 
 <span class="sd">    Raises</span>
@@ -259,10 +259,9 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">potential</span><span class="p">,</span> <span class="s2">&quot;lmbda&quot;</span><span class="p">):</span>
         <span class="n">potential</span><span class="o">.</span><span class="n">lmbda</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">9.0</span>
 
-    <span class="c1"># fdint_dfdk_vec = np.vectorize(fdint.dfdk)</span>
     <span class="c1"># eq. (14) of Ref. [1]_</span>
-    <span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">landau_length</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_deB</span>
-    <span class="n">dIdeta</span> <span class="o">=</span> <span class="o">-</span> <span class="mf">3.0</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">fd_integral</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">eta_e</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">/</span> <span class="n">pi</span><span class="o">**</span><span class="mf">1.5</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">landau_length</span> <span class="o">/</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_deB</span>
+    <span class="n">dIdeta</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.0</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">fd_integral</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">eta_e</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.5</span><span class="p">)</span>
     <span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">*=</span> <span class="n">potential</span><span class="o">.</span><span class="n">lmbda</span> <span class="o">*</span> <span class="n">dIdeta</span>
 
     <span class="c1"># Degeneracy Parameter</span>
@@ -270,17 +269,17 @@
     <span class="k">if</span> <span class="mf">0.1</span> <span class="o">&lt;=</span> <span class="n">theta</span> <span class="o">&lt;=</span> <span class="mi">12</span><span class="p">:</span>
         <span class="c1"># Regime of validity of the following approximation Perrot et al. Phys Rev A 302619 (1984)</span>
         <span class="c1"># eq. (33) of Ref. [1]_</span>
-        <span class="n">Ntheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.8343</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">0.2151</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">3</span> <span class="o">+</span> <span class="mf">5.2759</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">4</span>
+        <span class="n">Ntheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.8343</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">0.2151</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">5.2759</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">4</span>
         <span class="c1"># eq. (34) of Ref. [1]_</span>
-        <span class="n">Dtheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">3.9431</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">7.9138</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">4</span>
+        <span class="n">Dtheta</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">3.9431</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">7.9138</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">4</span>
         <span class="c1"># eq. (32) of Ref. [1]_</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">Ntheta</span> <span class="o">/</span> <span class="n">Dtheta</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">Ntheta</span> <span class="o">/</span> <span class="n">Dtheta</span> <span class="o">*</span> <span class="n">tanh</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span>
         <span class="c1"># grad h(x)</span>
-        <span class="n">gradh</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">Ntheta</span> <span class="o">/</span> <span class="n">Dtheta</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span>  <span class="c1"># derivative of tanh(1/x)</span>
+        <span class="n">gradh</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">Ntheta</span> <span class="o">/</span> <span class="n">Dtheta</span><span class="p">)</span> <span class="o">/</span> <span class="n">cosh</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">theta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">theta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">tanh</span><span class="p">(</span>  <span class="c1"># derivative of tanh(1/x)</span>
             <span class="mf">1.0</span> <span class="o">/</span> <span class="n">theta</span>
         <span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
-            <span class="n">Ntheta</span> <span class="o">*</span> <span class="p">(</span><span class="mf">7.8862</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">+</span> <span class="mf">31.6552</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">Dtheta</span> <span class="o">**</span> <span class="mi">2</span>  <span class="c1"># derivative of 1/Dtheta</span>
-            <span class="o">+</span> <span class="p">(</span><span class="mf">5.6686</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">-</span> <span class="mf">0.6453</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">21.1036</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">Dtheta</span>
+            <span class="n">Ntheta</span> <span class="o">*</span> <span class="p">(</span><span class="mf">7.8862</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">+</span> <span class="mf">31.6552</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">Dtheta</span><span class="o">**</span><span class="mi">2</span>  <span class="c1"># derivative of 1/Dtheta</span>
+            <span class="o">+</span> <span class="p">(</span><span class="mf">5.6686</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">-</span> <span class="mf">0.6453</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">21.1036</span> <span class="o">*</span> <span class="n">theta</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="n">Dtheta</span>
         <span class="p">)</span>  <span class="c1"># derivative of Ntheta</span>
         <span class="c1"># eq.(31) of Ref. [1]_</span>
         <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">8.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">kF</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">theta</span> <span class="o">*</span> <span class="n">gradh</span><span class="p">)</span>
@@ -292,18 +291,18 @@
     <span class="c1"># Monotonic decay</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># eq. (29) of Ref. [1]_</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">lambda_p</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)))</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">lambda_m</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)))</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">lambda_p</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">lambda_m</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">b</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span>
 
     <span class="c1"># Oscillatory behavior</span>
     <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># eq. (29) of Ref. [1]_</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">gamma_m</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">gamma_p</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
-        <span class="n">params</span><span class="o">.</span><span class="n">alphap</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">gamma_m</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">gamma_p</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">lambda_TF</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">/</span> <span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">alphap</span> <span class="o">=</span> <span class="n">b</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nu</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
 
-    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
+    <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">num_species</span><span class="p">))</span>
 
     <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">nu</span>
 
@@ -337,14 +336,14 @@
 
     <span class="c1"># The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )</span>
     <span class="n">params</span><span class="o">.</span><span class="n">force_error</span> <span class="o">=</span> <span class="n">force_error_analytic_pp</span><span class="p">(</span>
-        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
+        <span class="n">potential</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">rc</span><span class="p">,</span> <span class="n">potential</span><span class="o">.</span><span class="n">matrix</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">a_ws</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">pi</span><span class="p">))</span>
     <span class="p">)</span></div>
 
 
-<span class="nd">@njit</span>
+<div class="viewcode-block" id="egs_force"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.egs.egs_force.html#sarkas.potentials.egs.egs_force">[docs]</a><span class="nd">@jit</span><span class="p">(</span><span class="n">UniTuple</span><span class="p">(</span><span class="n">float64</span><span class="p">,</span> <span class="mi">2</span><span class="p">)(</span><span class="n">float64</span><span class="p">,</span> <span class="n">float64</span><span class="p">[:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">egs_force</span><span class="p">(</span><span class="n">r_in</span><span class="p">,</span> <span class="n">pot_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates Potential and force between particles using the EGS Potential.</span>
+<span class="sd">    Numba&#39;d function to calculate the potential and force between particles using the EGS Potential.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -355,13 +354,28 @@
 <span class="sd">        EGS potential parameters. \n</span>
 <span class="sd">        Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 <span class="sd">    U : float</span>
 <span class="sd">        Potential.</span>
 
 <span class="sd">    fr : float</span>
 <span class="sd">        Force.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from numpy import array, pi</span>
+<span class="sd">    &gt;&gt;&gt; from scipy.constants import epsilon_0</span>
+<span class="sd">    &gt;&gt;&gt; r = 2.0</span>
+<span class="sd">    &gt;&gt;&gt; alpha = 1.3616</span>
+<span class="sd">    &gt;&gt;&gt; lambda_p = 1.778757e-09</span>
+<span class="sd">    &gt;&gt;&gt; lambda_m = 4.546000e-09</span>
+<span class="sd">    &gt;&gt;&gt; charge = 1.440961e-09</span>
+<span class="sd">    &gt;&gt;&gt; c_const = charge**2/( 4.0 * pi * epsilon_0)</span>
+<span class="sd">    &gt;&gt;&gt; pot_mat = array([c_const * 0.5, 1.0 + alpha, 1.0 - alpha, 1.0/lambda_m, 1.0 / lambda_p, 1.0e-14])</span>
+<span class="sd">    &gt;&gt;&gt; egs_force(r, pot_mat)</span>
+<span class="sd">    (-0.9067719924627385, 270184640.33105946)</span>
+
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -371,23 +385,23 @@
 
     <span class="c1"># nu = pot_matrix[1]</span>
     <span class="k">if</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
-        <span class="n">temp1</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-        <span class="n">temp2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">temp1</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">temp2</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
         <span class="c1"># Potential</span>
         <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">+</span> <span class="n">temp2</span><span class="p">)</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
         <span class="c1"># Force</span>
         <span class="n">fr</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp1</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp2</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">/</span> <span class="n">r</span>
 
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-        <span class="n">sin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-        <span class="n">exp</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-        <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">sin</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">coskr</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">sinkr</span> <span class="o">=</span> <span class="n">sin</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">expkr</span> <span class="o">=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="p">(</span><span class="n">coskr</span> <span class="o">+</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">sinkr</span><span class="p">)</span> <span class="o">*</span> <span class="n">expkr</span> <span class="o">/</span> <span class="n">r</span>
         <span class="n">fr</span> <span class="o">=</span> <span class="n">U</span> <span class="o">/</span> <span class="n">r</span>  <span class="c1"># derivative of 1/r</span>
         <span class="n">fr</span> <span class="o">+=</span> <span class="n">U</span> <span class="o">*</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>  <span class="c1"># derivative of exp</span>
-        <span class="n">fr</span> <span class="o">+=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">sin</span> <span class="o">-</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">cos</span><span class="p">)</span> <span class="o">*</span> <span class="n">exp</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">fr</span> <span class="o">+=</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">sinkr</span> <span class="o">-</span> <span class="n">pot_matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">coskr</span><span class="p">)</span> <span class="o">*</span> <span class="n">expkr</span> <span class="o">/</span> <span class="n">r</span>
 
-    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">fr</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">,</span> <span class="n">fr</span></div>
 </pre></div>
 
     </div>
@@ -402,7 +416,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -413,7 +427,7 @@
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

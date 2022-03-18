@@ -1,0 +1,24 @@
+sarkas.processes.Simulation
+===========================
+
+.. currentmodule:: sarkas.processes
+
+.. autoclass:: Simulation
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Simulation_mthds
+
+   
+      Simulation.__init__
+      Simulation.common_parser
+      Simulation.equilibrate
+      Simulation.evolve
+      Simulation.initialization
+      Simulation.run
+      Simulation.setup
+   
+   

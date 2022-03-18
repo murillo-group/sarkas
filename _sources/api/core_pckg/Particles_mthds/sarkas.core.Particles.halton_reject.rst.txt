@@ -1,0 +1,6 @@
+sarkas.core.Particles.halton\_reject
+====================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Particles.halton_reject

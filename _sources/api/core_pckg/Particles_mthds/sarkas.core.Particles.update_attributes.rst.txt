@@ -1,0 +1,6 @@
+sarkas.core.Particles.update\_attributes
+========================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Particles.update_attributes

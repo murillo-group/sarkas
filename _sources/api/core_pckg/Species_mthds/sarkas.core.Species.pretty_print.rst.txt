@@ -1,0 +1,6 @@
+sarkas.core.Species.pretty\_print
+=================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Species.pretty_print

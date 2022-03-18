@@ -1,0 +1,6 @@
+sarkas.potentials.force\_pp.calculate\_virial
+=============================================
+
+.. currentmodule:: sarkas.potentials.force_pp
+
+.. autofunction:: calculate_virial

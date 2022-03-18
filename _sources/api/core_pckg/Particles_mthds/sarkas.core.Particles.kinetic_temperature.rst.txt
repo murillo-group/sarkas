@@ -1,0 +1,6 @@
+sarkas.core.Particles.kinetic\_temperature
+==========================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Particles.kinetic_temperature

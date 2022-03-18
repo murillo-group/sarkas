@@ -1,0 +1,6 @@
+sarkas.potentials.coulomb.coulomb\_force\_pppm
+==============================================
+
+.. currentmodule:: sarkas.potentials.coulomb
+
+.. autofunction:: coulomb_force_pppm

@@ -26,7 +26,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="sarkas.core module" href="sarkas.core.html" />
+    <link rel="next" title="sarkas.core" href="core_pckg/sarkas.core.html" />
     <link rel="prev" title="Ultrafast electron cooling in an expanding ultracold plasma" href="../examples/Ultrafast_EC/Ultrafast_EC_Validation.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -109,10 +109,11 @@
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">API reference</a><ul>
-<li><a class="reference internal" href="#potentials">Potentials</a></li>
-<li><a class="reference internal" href="#time-evolution">Time Evolution</a></li>
-<li><a class="reference internal" href="#tools">Tools</a></li>
-<li><a class="reference internal" href="#utilities">Utilities</a></li>
+<li><a class="reference internal" href="#core-modules">Core modules</a></li>
+<li><a class="reference internal" href="#potentials-subpackage">Potentials Subpackage</a></li>
+<li><a class="reference internal" href="#time-evolution-subpackage">Time Evolution Subpackage</a></li>
+<li><a class="reference internal" href="#tools-subpackage">Tools Subpackage</a></li>
+<li><a class="reference internal" href="#utilities-subpackage">Utilities Subpackage</a></li>
 </ul>
 </li>
 </ul>
@@ -148,96 +149,75 @@
       
   <section id="api-reference">
 <h1>API reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<section id="core-modules">
+<span id="core-api"></span><h2>Core modules<a class="headerlink" href="#core-modules" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.core.html#module-sarkas.core" title="sarkas.core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="core_pckg/sarkas.core.html#module-sarkas.core" title="sarkas.core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core</span></code></a></p></td>
 <td><p>Module containing the three basic classes: Parameters, Particles, Species.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.processes.html#module-sarkas.processes" title="sarkas.processes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">processes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="core_pckg/sarkas.processes.html#module-sarkas.processes" title="sarkas.processes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">processes</span></code></a></p></td>
 <td><p>Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.</p></td>
 </tr>
 </tbody>
 </table>
-<section id="potentials">
-<span id="potentials-api"></span><h2>Potentials<a class="headerlink" href="#potentials" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="potentials-subpackage">
+<span id="potentials-api"></span><h2>Potentials Subpackage<a class="headerlink" href="#potentials-subpackage" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.core.html#module-sarkas.potentials.core" title="sarkas.potentials.core"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.core</span></code></a></p></td>
-<td><p>Module handling the potential class.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.coulomb.html#module-sarkas.potentials.coulomb" title="sarkas.potentials.coulomb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.coulomb</span></code></a></p></td>
-<td><p>Module for handling Coulomb interaction.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.egs.html#module-sarkas.potentials.egs" title="sarkas.potentials.egs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.egs</span></code></a></p></td>
-<td><p>Module for handling Exact Gradient corrected Screened (EGS) Potential.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.force_pm.html#module-sarkas.potentials.force_pm" title="sarkas.potentials.force_pm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pm</span></code></a></p></td>
-<td><p>Module for handling the Particle-Mesh part of the force and potential calculation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.force_pp.html#module-sarkas.potentials.force_pp" title="sarkas.potentials.force_pp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.force_pp</span></code></a></p></td>
-<td><p>Module for handling Particle-Particle interaction.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.lennardjones.html#module-sarkas.potentials.lennardjones" title="sarkas.potentials.lennardjones"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.lennardjones</span></code></a></p></td>
-<td><p>Module for handling Lennard-Jones interaction.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.moliere.html#module-sarkas.potentials.moliere" title="sarkas.potentials.moliere"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.moliere</span></code></a></p></td>
-<td><p>Module for handling Moliere Potential.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="sarkas.potentials.qsp.html#module-sarkas.potentials.qsp" title="sarkas.potentials.qsp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.qsp</span></code></a></p></td>
-<td><p>Module for handling Quantum Statistical Potentials.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.potentials.yukawa.html#module-sarkas.potentials.yukawa" title="sarkas.potentials.yukawa"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials.yukawa</span></code></a></p></td>
-<td><p>Module for handling Yukawa potential.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="potentials_subpckg/sarkas.potentials.html#module-sarkas.potentials" title="sarkas.potentials"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potentials</span></code></a></p></td>
+<td><p>A subpackage containing commonly used potentials in plasma physics.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="time-evolution">
-<span id="timeevo-api"></span><h2>Time Evolution<a class="headerlink" href="#time-evolution" title="Permalink to this headline">¶</a></h2>
+<section id="time-evolution-subpackage">
+<span id="timeevo-api"></span><h2>Time Evolution Subpackage<a class="headerlink" href="#time-evolution-subpackage" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.time_evolution.html#module-sarkas.time_evolution" title="sarkas.time_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_evolution</span></code></a></p></td>
-<td><p>Module handling the time evolution of the MD run.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="time_evolution_subpckg/sarkas.time_evolution.html#module-sarkas.time_evolution" title="sarkas.time_evolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_evolution</span></code></a></p></td>
+<td><p>Subpackage handling the time evolution of the MD run.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="tools">
-<span id="tools-api"></span><h2>Tools<a class="headerlink" href="#tools" title="Permalink to this headline">¶</a></h2>
+<section id="tools-subpackage">
+<span id="tools-api"></span><h2>Tools Subpackage<a class="headerlink" href="#tools-subpackage" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.tools.html#module-sarkas.tools" title="sarkas.tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tools</span></code></a></p></td>
-<td><p>Module handling postprocessing classes.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="tools_subpckg/sarkas.tools.html#module-sarkas.tools" title="sarkas.tools"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tools</span></code></a></p></td>
+<td><p>Subpackage for handling postprocessing classes.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="utilities">
-<span id="utilities-api"></span><h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
+<section id="utilities-subpackage">
+<span id="utilities-api"></span><h2>Utilities Subpackage<a class="headerlink" href="#utilities-subpackage" title="Permalink to this headline">¶</a></h2>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="sarkas.utilities.html#module-sarkas.utilities" title="sarkas.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utilities</span></code></a></p></td>
-<td><p>Module containing Sarkas utilities classes.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="util_subpckg/sarkas.utilities.html#module-sarkas.utilities" title="sarkas.utilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utilities</span></code></a></p></td>
+<td><p>Subpackage containing Sarkas utilities modules.</p></td>
 </tr>
 </tbody>
 </table>
@@ -257,7 +237,7 @@
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -268,7 +248,7 @@
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

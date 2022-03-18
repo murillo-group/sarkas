@@ -1,0 +1,6 @@
+sarkas.utilities.maths.fast\_integral\_loop
+===========================================
+
+.. currentmodule:: sarkas.utilities.maths
+
+.. autofunction:: fast_integral_loop

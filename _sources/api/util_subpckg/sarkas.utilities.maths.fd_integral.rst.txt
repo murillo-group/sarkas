@@ -1,0 +1,6 @@
+sarkas.utilities.maths.fd\_integral
+===================================
+
+.. currentmodule:: sarkas.utilities.maths
+
+.. autofunction:: fd_integral

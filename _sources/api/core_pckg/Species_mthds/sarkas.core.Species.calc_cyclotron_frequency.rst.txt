@@ -1,0 +1,6 @@
+sarkas.core.Species.calc\_cyclotron\_frequency
+==============================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Species.calc_cyclotron_frequency

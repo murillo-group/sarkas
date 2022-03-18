@@ -1,0 +1,31 @@
+sarkas.potentials.egs
+=====================
+
+.. automodule:: sarkas.potentials.egs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      egs_force
+      update_params
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

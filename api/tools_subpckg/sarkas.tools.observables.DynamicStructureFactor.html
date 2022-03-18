@@ -1,0 +1,279 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>sarkas.tools.observables.DynamicStructureFactor &#8212; Sarkas 1.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
+    <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/myscript.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="sarkas.tools.observables.DynamicStructureFactor.__init__" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.__init__.html" />
+    <link rel="prev" title="sarkas.tools.observables.DiffusionFlux.update_finish" href="DiffusionFlux_mthds/sarkas.tools.observables.DiffusionFlux.update_finish.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><span><img src="../../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../documentation/get_started.html">Get Started</a></li>
+                <li><a href="../../examples/examples.html">Examples</a></li>
+                <li><a href="../../code_development/code_dev.html">Code Development</a></li>
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">sarkas.tools.observables.DynamicStructureFactor</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <section id="sarkas-tools-observables-dynamicstructurefactor">
+<h1>sarkas.tools.observables.DynamicStructureFactor<a class="headerlink" href="#sarkas-tools-observables-dynamicstructurefactor" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sarkas.tools.observables.DynamicStructureFactor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sarkas.tools.observables.</span></span><span class="sig-name descname"><span class="pre">DynamicStructureFactor</span></span><a class="reference internal" href="../../_modules/sarkas/tools/observables.html#DynamicStructureFactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dynamic Structure factor.</p>
+<p>The species dependent DSF <span class="math notranslate nohighlight">\(S_{AB}(k,\omega)\)</span> is calculated from</p>
+<div class="math notranslate nohighlight">
+\[S_{AB }(k,\omega) = \int_0^\infty dt \,
+\left \langle | n_{A}( \mathbf k, t)n_{B}( -\mathbf k, t) \right \rangle e^{i \omega t},\]</div>
+<p>where the microscopic density of species <span class="math notranslate nohighlight">\(A\)</span> with number of particles <span class="math notranslate nohighlight">\(N_{A}\)</span> is given by</p>
+<div class="math notranslate nohighlight">
+\[n_{A}(\mathbf k,t) = \sum^{N_{A}}_{j} e^{-i \mathbf k \cdot \mathbf r_j(t)} .\]</div>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.__init__.html#sarkas.tools.observables.DynamicStructureFactor.__init__" title="sarkas.tools.observables.DynamicStructureFactor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.__init__</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.calc_k_data.html#sarkas.tools.observables.DynamicStructureFactor.calc_k_data" title="sarkas.tools.observables.DynamicStructureFactor.calc_k_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.calc_k_data</span></code></a>()</p></td>
+<td><p>Calculate and save Fourier space data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.calc_kt_data.html#sarkas.tools.observables.DynamicStructureFactor.calc_kt_data" title="sarkas.tools.observables.DynamicStructureFactor.calc_kt_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.calc_kt_data</span></code></a>([...])</p></td>
+<td><p>Calculate Time dependent Fourier space quantities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.compute.html#sarkas.tools.observables.DynamicStructureFactor.compute" title="sarkas.tools.observables.DynamicStructureFactor.compute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.compute</span></code></a>()</p></td>
+<td><p>Calculate the observable (and its autocorrelation function).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.create_dirs_filenames.html#sarkas.tools.observables.DynamicStructureFactor.create_dirs_filenames" title="sarkas.tools.observables.DynamicStructureFactor.create_dirs_filenames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.create_dirs_filenames</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.from_dict.html#sarkas.tools.observables.DynamicStructureFactor.from_dict" title="sarkas.tools.observables.DynamicStructureFactor.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.from_dict</span></code></a>(input_dict)</p></td>
+<td><p>Update attributes from input dictionary.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.parse.html#sarkas.tools.observables.DynamicStructureFactor.parse" title="sarkas.tools.observables.DynamicStructureFactor.parse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.parse</span></code></a>()</p></td>
+<td><p>Grab the pandas dataframe from the saved csv file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.parse_k_data.html#sarkas.tools.observables.DynamicStructureFactor.parse_k_data" title="sarkas.tools.observables.DynamicStructureFactor.parse_k_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.parse_k_data</span></code></a>()</p></td>
+<td><p>Read in the precomputed Fourier space data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.parse_kt_data.html#sarkas.tools.observables.DynamicStructureFactor.parse_kt_data" title="sarkas.tools.observables.DynamicStructureFactor.parse_kt_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.parse_kt_data</span></code></a>([...])</p></td>
+<td><p>Read in the precomputed time dependent Fourier space data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.plot.html#sarkas.tools.observables.DynamicStructureFactor.plot" title="sarkas.tools.observables.DynamicStructureFactor.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.plot</span></code></a>([scaling, acf, ...])</p></td>
+<td><p>Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.pretty_print.html#sarkas.tools.observables.DynamicStructureFactor.pretty_print" title="sarkas.tools.observables.DynamicStructureFactor.pretty_print"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.pretty_print</span></code></a>()</p></td>
+<td><p>Print dynamic structure factor calculation parameters for help in choice of simulation parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.read_pickle.html#sarkas.tools.observables.DynamicStructureFactor.read_pickle" title="sarkas.tools.observables.DynamicStructureFactor.read_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.read_pickle</span></code></a>()</p></td>
+<td><p>Read the observable's info from the pickle file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.save_hdf.html#sarkas.tools.observables.DynamicStructureFactor.save_hdf" title="sarkas.tools.observables.DynamicStructureFactor.save_hdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.save_hdf</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.save_pickle.html#sarkas.tools.observables.DynamicStructureFactor.save_pickle" title="sarkas.tools.observables.DynamicStructureFactor.save_pickle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.save_pickle</span></code></a>()</p></td>
+<td><p>Save the observable's info into a pickle file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.setup.html#sarkas.tools.observables.DynamicStructureFactor.setup" title="sarkas.tools.observables.DynamicStructureFactor.setup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.setup</span></code></a>(params[, ...])</p></td>
+<td><p>Assign attributes from simulation's parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.setup_init.html#sarkas.tools.observables.DynamicStructureFactor.setup_init" title="sarkas.tools.observables.DynamicStructureFactor.setup_init"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.setup_init</span></code></a>(params[, ...])</p></td>
+<td><p>Assign Observables attributes and copy the simulation's parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.time_stamp.html#sarkas.tools.observables.DynamicStructureFactor.time_stamp" title="sarkas.tools.observables.DynamicStructureFactor.time_stamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.time_stamp</span></code></a>(message, ...)</p></td>
+<td><p>Print to screen the elapsed time of the calculation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.update_args.html#sarkas.tools.observables.DynamicStructureFactor.update_args" title="sarkas.tools.observables.DynamicStructureFactor.update_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.update_args</span></code></a>(**kwargs)</p></td>
+<td><p>Update observable specific attributes and call <a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.update_finish.html#sarkas.tools.observables.DynamicStructureFactor.update_finish" title="sarkas.tools.observables.DynamicStructureFactor.update_finish"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update_finish()</span></code></a> to save info.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="DynamicStructureFactor_mthds/sarkas.tools.observables.DynamicStructureFactor.update_finish.html#sarkas.tools.observables.DynamicStructureFactor.update_finish" title="sarkas.tools.observables.DynamicStructureFactor.update_finish"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicStructureFactor.update_finish</span></code></a>()</p></td>
+<td><p>Update the <code class="xref py py-attr docutils literal notranslate"><span class="pre">slice_steps</span></code>, CCF's and DSF's attributes, and save pickle file with observable's info.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 18, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
+    </p>
+  </div>
+</footer>
+
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

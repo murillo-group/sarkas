@@ -1,0 +1,6 @@
+sarkas.potentials.lennardjones.lj\_force
+========================================
+
+.. currentmodule:: sarkas.potentials.lennardjones
+
+.. autofunction:: lj_force

@@ -1,0 +1,817 @@
+  <!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sarkas.potentials.force_pm &#8212; Sarkas 1.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/bootstrap-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/my-style.css" />
+    <link rel="stylesheet" href="../../../_static/my-styles.css" type="text/css" />
+    
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/myscript.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js"></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html"><span><img src="../../../_static/logo_s_orange.png"></span>
+          ARKAS</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../../../documentation/get_started.html">Get Started</a></li>
+                <li><a href="../../../examples/examples.html">Examples</a></li>
+                <li><a href="../../../code_development/code_dev.html">Code Development</a></li>
+                <li><a href="../../../api/api.html">API</a></li>
+                <li><a href="../../../credits/credits.html">Credits</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><p class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../documentation/get_started.html">Get Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Theory:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../theory/theory.html">Theoretical Background</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../code_development/code_dev.html">Code Development</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/api.html">API reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Credits:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../credits/credits.html">Credits</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <h1>Source code for sarkas.potentials.force_pm</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Module for handling the Particle-Mesh part of the force and potential calculation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyfftw</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">jit</span><span class="p">,</span> <span class="n">njit</span>
+
+<span class="c1"># These &quot;ignore&quot; are needed because numba does not support pyfftw yet</span>
+<span class="kn">from</span> <span class="nn">numba.core.errors</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NumbaDeprecationWarning</span><span class="p">,</span>
+    <span class="n">NumbaPendingDeprecationWarning</span><span class="p">,</span>
+    <span class="n">NumbaWarning</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaDeprecationWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">NumbaPendingDeprecationWarning</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="force_optimized_green_function"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.force_pm.force_optimized_green_function.html#sarkas.potentials.force_pm.force_optimized_green_function">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">force_optimized_green_function</span><span class="p">(</span><span class="n">box_lengths</span><span class="p">,</span> <span class="n">mesh_sizes</span><span class="p">,</span> <span class="n">aliases</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Numba&#39;d function to calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    mesh_sizes : numpy.ndarray</span>
+<span class="sd">        number of mesh points in x,y,z</span>
+
+<span class="sd">    aliases : numpy.ndarray</span>
+<span class="sd">        number of aliases in each direction</span>
+
+<span class="sd">    box_lengths : numpy.ndarray</span>
+<span class="sd">        Length of simulation&#39;s box in each direction</span>
+
+<span class="sd">    p : int</span>
+<span class="sd">        Charge assignment order (CAO)</span>
+
+<span class="sd">    constants : numpy.ndarray</span>
+<span class="sd">        Screening parameter, Ewald parameter, 4 pi eps0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    G_k : numpy.ndarray</span>
+<span class="sd">        optimal Green Function</span>
+
+<span class="sd">    kx_v : numpy.ndarray</span>
+<span class="sd">       array of reciprocal space vectors along the x-axis</span>
+
+<span class="sd">    ky_v : numpy.ndarray</span>
+<span class="sd">       array of reciprocal space vectors along the y-axis</span>
+
+<span class="sd">    kz_v : numpy.ndarray</span>
+<span class="sd">       array of reciprocal space vectors along the z-axis</span>
+
+<span class="sd">    PM_err : float</span>
+<span class="sd">        Error in the force calculation due to the optimized Green&#39;s function. eq.(28) of :cite:`Dharuman2017` .</span>
+
+<span class="sd">    PP_err : float</span>
+<span class="sd">        Error in the force calculation due to the distance cutoff. eq.(30) of :cite:`Stern2008` .</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kappa</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Gew</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">fourpie0</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">h_array</span> <span class="o">=</span> <span class="n">box_lengths</span> <span class="o">/</span> <span class="n">mesh_sizes</span>
+
+    <span class="n">kappa_sq</span> <span class="o">=</span> <span class="n">kappa</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">Gew_sq</span> <span class="o">=</span> <span class="n">Gew</span> <span class="o">*</span> <span class="n">Gew</span>
+
+    <span class="n">G_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">nz_mid</span> <span class="o">=</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">ny_mid</span> <span class="o">=</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">nx_mid</span> <span class="o">=</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+    <span class="c1"># nx_v = np.arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))</span>
+    <span class="c1"># ny_v = np.arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))</span>
+    <span class="c1"># nz_v = np.arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))</span>
+    <span class="c1"># Dev Note:</span>
+    <span class="c1"># The above three lines where giving a problem with Numba in Windows only.</span>
+    <span class="c1"># I replaced them with the ones below. I don&#39;t know why it was giving a problem.</span>
+    <span class="n">nx_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">nx_v</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">ny_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">ny_v</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">nz_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">nz_v</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">kx_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx_v</span> <span class="o">-</span> <span class="n">nx_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ky_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ny_v</span> <span class="o">-</span> <span class="n">ny_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">kz_v</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nz_v</span> <span class="o">-</span> <span class="n">nz_mid</span><span class="p">)</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">PM_err</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="n">four_pi</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="k">if</span> <span class="n">fourpie0</span> <span class="o">==</span> <span class="mf">1.0</span> <span class="k">else</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">fourpie0</span>
+    <span class="n">two_pi</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="k">for</span> <span class="n">nz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="n">nz_sh</span> <span class="o">=</span> <span class="n">nz</span> <span class="o">-</span> <span class="n">nz_mid</span>
+        <span class="n">kz</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="n">nz_sh</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">ny</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">ny_sh</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">-</span> <span class="n">ny_mid</span>
+            <span class="n">ky</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="n">ny_sh</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">nx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">nx_sh</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">-</span> <span class="n">nx_mid</span>
+                <span class="n">kx</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="n">nx_sh</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="n">k_sq</span> <span class="o">=</span> <span class="n">kx</span> <span class="o">*</span> <span class="n">kx</span> <span class="o">+</span> <span class="n">ky</span> <span class="o">*</span> <span class="n">ky</span> <span class="o">+</span> <span class="n">kz</span> <span class="o">*</span> <span class="n">kz</span>
+
+                <span class="k">if</span> <span class="n">k_sq</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+
+                    <span class="n">U_k_sq</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="n">U_G_k</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                    <span class="c1"># Sum over the aliases</span>
+                    <span class="k">for</span> <span class="n">mz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">aliases</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">kz_M</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nz_sh</span> <span class="o">+</span> <span class="n">mz</span> <span class="o">*</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">U_kz_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="n">kz_M</span> <span class="o">!=</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">1.0</span>
+
+                        <span class="k">for</span> <span class="n">my</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">aliases</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">ky_M</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">ny_sh</span> <span class="o">+</span> <span class="n">my</span> <span class="o">*</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="n">U_ky_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">ky_M</span> <span class="o">!=</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">1.0</span>
+
+                            <span class="k">for</span> <span class="n">mx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">aliases</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">aliases</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                                <span class="n">kx_M</span> <span class="o">=</span> <span class="n">two_pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">nx_sh</span> <span class="o">+</span> <span class="n">mx</span> <span class="o">*</span> <span class="n">mesh_sizes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="n">U_kx_M</span> <span class="o">=</span> <span class="p">(</span>
+                                    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">kx_M</span> <span class="o">!=</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">1.0</span>
+                                <span class="p">)</span>
+
+                                <span class="n">k_M_sq</span> <span class="o">=</span> <span class="n">kx_M</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">+</span> <span class="n">ky_M</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">+</span> <span class="n">kz_M</span> <span class="o">*</span> <span class="n">kz_M</span>
+
+                                <span class="n">U_k_M</span> <span class="o">=</span> <span class="p">(</span><span class="n">U_kx_M</span> <span class="o">*</span> <span class="n">U_ky_M</span> <span class="o">*</span> <span class="n">U_kz_M</span><span class="p">)</span> <span class="o">**</span> <span class="n">p</span>
+                                <span class="n">U_k_M_sq</span> <span class="o">=</span> <span class="n">U_k_M</span> <span class="o">*</span> <span class="n">U_k_M</span>
+
+                                <span class="n">G_k_M</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_M_sq</span><span class="p">)</span> <span class="o">/</span> <span class="n">Gew_sq</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_M_sq</span><span class="p">)</span>
+
+                                <span class="n">k_dot_k_M</span> <span class="o">=</span> <span class="n">kx</span> <span class="o">*</span> <span class="n">kx_M</span> <span class="o">+</span> <span class="n">ky</span> <span class="o">*</span> <span class="n">ky_M</span> <span class="o">+</span> <span class="n">kz</span> <span class="o">*</span> <span class="n">kz_M</span>
+
+                                <span class="n">U_G_k</span> <span class="o">+=</span> <span class="n">U_k_M_sq</span> <span class="o">*</span> <span class="n">G_k_M</span> <span class="o">*</span> <span class="n">k_dot_k_M</span>
+                                <span class="n">U_k_sq</span> <span class="o">+=</span> <span class="n">U_k_M_sq</span>
+
+                    <span class="c1"># eq.(22) of Ref.[Dharuman2017]_</span>
+                    <span class="n">G_k</span><span class="p">[</span><span class="n">nz</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">]</span> <span class="o">=</span> <span class="n">U_G_k</span> <span class="o">/</span> <span class="p">((</span><span class="n">U_k_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_sq</span><span class="p">)</span>
+                    <span class="n">Gk_hat</span> <span class="o">=</span> <span class="n">four_pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_sq</span><span class="p">)</span> <span class="o">/</span> <span class="n">Gew_sq</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">kappa_sq</span> <span class="o">+</span> <span class="n">k_sq</span><span class="p">)</span>
+
+                    <span class="c1"># eq.(28) of Ref.[Dharuman2017]_</span>
+                    <span class="n">PM_err</span> <span class="o">+=</span> <span class="n">Gk_hat</span> <span class="o">*</span> <span class="n">Gk_hat</span> <span class="o">*</span> <span class="n">k_sq</span> <span class="o">-</span> <span class="n">U_G_k</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">((</span><span class="n">U_k_sq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">k_sq</span><span class="p">)</span>
+
+    <span class="n">PM_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PM_err</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">box_lengths</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">PM_err</span></div>
+
+
+<div class="viewcode-block" id="assgnmnt_func"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.force_pm.assgnmnt_func.html#sarkas.potentials.force_pm.assgnmnt_func">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the charge assignment function as given in Ref. [Deserno1998].</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cao : int</span>
+<span class="sd">        Charge assignment order.</span>
+
+<span class="sd">    x : float</span>
+<span class="sd">        Distance to closest mesh point if cao is even.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ------</span>
+<span class="sd">    W : numpy.ndarray</span>
+<span class="sd">        Charge Assignment Function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cao</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">elif</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">8.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">-</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">8.0</span>
+
+    <span class="k">elif</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">12.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">48.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">23.0</span> <span class="o">-</span> <span class="mf">30.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">12.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">48.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">23.0</span> <span class="o">+</span> <span class="mf">30.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">12.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">48.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">12.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">48.0</span>
+
+    <span class="k">elif</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">32.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mf">384.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">19.0</span> <span class="o">-</span> <span class="mf">44.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mf">96.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">115.0</span> <span class="o">-</span> <span class="mf">120.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">48.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mf">192.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">19.0</span> <span class="o">+</span> <span class="mf">44.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mf">96.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">8.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">24.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">32.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">16.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="o">/</span> <span class="mf">384.0</span>
+
+    <span class="k">elif</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">40.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">80.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">80.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">32.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3840.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">237.0</span> <span class="o">-</span> <span class="mf">750.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">840.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">160.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3840.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">841.0</span> <span class="o">-</span> <span class="mf">770.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">440.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">560.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">80.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">160.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1920.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">841.0</span> <span class="o">+</span> <span class="mf">770.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">440.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">560.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">80.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">160.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1920.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">237.0</span> <span class="o">+</span> <span class="mf">750.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">840.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">160.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3840.0</span>
+        <span class="n">W</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">40.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">80.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">80.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">32.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3840.0</span>
+
+    <span class="k">elif</span> <span class="n">cao</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">12.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">60.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mf">160.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">192.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mf">64.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">46080.0</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">361.0</span> <span class="o">-</span> <span class="mf">1416.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">2220.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">1600.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">384.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span> <span class="o">-</span> <span class="mf">192.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">23040.0</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">10543.0</span> <span class="o">-</span> <span class="mf">17340.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">4740.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">6880.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">4080.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">960.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mf">960.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">46080.0</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">5887.0</span> <span class="o">-</span> <span class="mf">4620.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1680.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">320.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span><span class="p">)</span> <span class="o">/</span> <span class="mf">11520.0</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">10543.0</span> <span class="o">+</span> <span class="mf">17340.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">4740.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mf">6880.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="mf">4080.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">960.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mf">960.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">46080.0</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">361.0</span> <span class="o">+</span> <span class="mf">1416.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">2220.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1600.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">-</span> <span class="mf">384.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span> <span class="o">-</span> <span class="mf">192.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">23040.0</span>
+
+        <span class="n">W</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">12.0</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mf">60.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">160.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">3</span> <span class="o">+</span> <span class="mf">240.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">4</span> <span class="o">+</span> <span class="mf">192.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">5</span> <span class="o">+</span> <span class="mf">64.0</span> <span class="o">*</span> <span class="n">x</span><span class="o">**</span><span class="mi">6</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">46080.0</span>
+
+    <span class="k">return</span> <span class="n">W</span></div>
+
+
+<div class="viewcode-block" id="calc_charge_dens"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.force_pm.calc_charge_dens.html#sarkas.potentials.force_pm.calc_charge_dens">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">calc_charge_dens</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">mesh_sz</span><span class="p">,</span> <span class="n">h_array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assigns Charges to Mesh Points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    h_array: numpy.ndarray</span>
+<span class="sd">        Distances between mesh points per dimension.</span>
+
+<span class="sd">    mesh_sz: numpy.ndarray</span>
+<span class="sd">        Mesh points per direction.</span>
+
+<span class="sd">    pos: numpy.ndarray</span>
+<span class="sd">        Particles&#39; positions.</span>
+
+<span class="sd">    charges: numpy.ndarray</span>
+<span class="sd">        Particles&#39; charges.</span>
+
+<span class="sd">    N: int</span>
+<span class="sd">        Number of particles.</span>
+
+<span class="sd">    cao: int</span>
+<span class="sd">        Charge assignment order.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    rho_r: numpy.ndarray</span>
+<span class="sd">        Charge density distributed on mesh.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rho_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="c1"># Mid point calculation</span>
+    <span class="k">if</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Choose the midpoint between the two closest mesh point to the particle&#39;s position</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Choose the mesh point closes to the particle</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">ipart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+
+        <span class="c1"># ix = x-coord of the (left) closest mesh point</span>
+        <span class="c1"># (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle</span>
+        <span class="c1"># x = the difference between the particle&#39;s position and the midpoint</span>
+        <span class="c1"># Rescale</span>
+
+        <span class="n">ix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ix</span> <span class="o">+</span> <span class="n">mid</span><span class="p">)</span>
+
+        <span class="n">iy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iy</span> <span class="o">+</span> <span class="n">mid</span><span class="p">)</span>
+
+        <span class="n">iz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iz</span> <span class="o">+</span> <span class="n">mid</span><span class="p">)</span>
+
+        <span class="n">wx</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">wy</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">wz</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="n">izn</span> <span class="o">=</span> <span class="n">iz</span> <span class="o">-</span> <span class="n">pshift</span>  <span class="c1"># min. index along z-axis</span>
+
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+
+            <span class="c1"># if izn &lt; 0:</span>
+            <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span> <span class="o">+</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">izn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">izn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="c1"># elif izn &gt; (mesh_sz[2] - 1):</span>
+            <span class="c1">#     r_g = izn - mesh_sz[2]</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#     r_g = izn</span>
+
+            <span class="n">iyn</span> <span class="o">=</span> <span class="n">iy</span> <span class="o">-</span> <span class="n">pshift</span>  <span class="c1"># min. index along y-axis</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+
+                <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">+</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">iyn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">iyn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+                <span class="c1"># if iyn &lt; 0:</span>
+                <span class="c1">#     r_i = iyn + mesh_sz[1]</span>
+                <span class="c1"># elif iyn &gt; (mesh_sz[1] - 1):</span>
+                <span class="c1">#     r_i = iyn - mesh_sz[1]</span>
+                <span class="c1"># else:</span>
+                <span class="c1">#     r_i = iyn</span>
+
+                <span class="n">ixn</span> <span class="o">=</span> <span class="n">ix</span> <span class="o">-</span> <span class="n">pshift</span>  <span class="c1"># min. index along x-axis</span>
+
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+
+                    <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+                    <span class="c1"># if ixn &lt; 0:</span>
+                    <span class="c1">#     r_j = ixn + mesh_sz[0]</span>
+                    <span class="c1"># elif ixn &gt; (mesh_sz[0] - 1):</span>
+                    <span class="c1">#     r_j = ixn - mesh_sz[0]</span>
+                    <span class="c1"># else:</span>
+                    <span class="c1">#     r_j = ixn</span>
+
+                    <span class="n">rho_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span> <span class="n">r_i</span><span class="p">,</span> <span class="n">r_j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">charges</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">*</span> <span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+                    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">iyn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">izn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">rho_r</span></div>
+
+
+<div class="viewcode-block" id="calc_field"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.force_pm.calc_field.html#sarkas.potentials.force_pm.calc_field">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">calc_field</span><span class="p">(</span><span class="n">phi_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the Electric field in Fourier space.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi_k : numpy.ndarray</span>
+<span class="sd">        3D array of the Potential.</span>
+
+<span class="sd">    kx_v : numpy.ndarray</span>
+<span class="sd">        3D array containing the values of kx.</span>
+
+<span class="sd">    ky_v : numpy.ndarray</span>
+<span class="sd">        3D array containing the values of ky.</span>
+
+<span class="sd">    kz_v : numpy.ndarray</span>
+<span class="sd">        3D array containing the values of kz.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    E_kx : numpy.ndarray</span>
+<span class="sd">       Electric Field along kx-axis.</span>
+
+<span class="sd">    E_ky : numpy.ndarray</span>
+<span class="sd">       Electric Field along ky-axis.</span>
+
+<span class="sd">    E_kz : numpy.ndarray</span>
+<span class="sd">       Electric Field along kz-axis.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">E_kx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">kx_v</span> <span class="o">*</span> <span class="n">phi_k</span>
+    <span class="n">E_ky</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">ky_v</span> <span class="o">*</span> <span class="n">phi_k</span>
+    <span class="n">E_kz</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">kz_v</span> <span class="o">*</span> <span class="n">phi_k</span>
+
+    <span class="k">return</span> <span class="n">E_kx</span><span class="p">,</span> <span class="n">E_ky</span><span class="p">,</span> <span class="n">E_kz</span></div>
+
+
+<div class="viewcode-block" id="calc_acc_pm"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.force_pm.calc_acc_pm.html#sarkas.potentials.force_pm.calc_acc_pm">[docs]</a><span class="nd">@njit</span>
+<span class="k">def</span> <span class="nf">calc_acc_pm</span><span class="p">(</span><span class="n">E_x_r</span><span class="p">,</span> <span class="n">E_y_r</span><span class="p">,</span> <span class="n">E_z_r</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">mesh_sz</span><span class="p">,</span> <span class="n">h_array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the long range part of particles&#39; accelerations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    E_x_r : numpy.ndarray</span>
+<span class="sd">        Electric field along x-axis.</span>
+
+<span class="sd">    E_y_r : numpy.ndarray</span>
+<span class="sd">        Electric field along y-axis.</span>
+
+<span class="sd">    E_z_r : numpy.ndarray</span>
+<span class="sd">        Electric field along z-axis.</span>
+
+<span class="sd">    pos : numpy.ndarray</span>
+<span class="sd">        Particles&#39; positions.</span>
+
+<span class="sd">    charges : numpy.ndarray</span>
+<span class="sd">        Particles&#39; charges.</span>
+
+<span class="sd">    N : int</span>
+<span class="sd">        Number of particles.</span>
+
+<span class="sd">    cao : int</span>
+<span class="sd">        Charge assignment order.</span>
+
+<span class="sd">    masses : numpy.ndarray</span>
+<span class="sd">        Particles&#39; masses.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    acc : numpy.ndarray</span>
+<span class="sd">          Acceleration from Electric Field.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">E_x_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">E_y_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">E_z_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+    <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="c1"># Mid point calculation</span>
+    <span class="k">if</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Choose the midpoint between the two closest mesh point to the particle&#39;s position</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="c1"># Number of points to the left of the chosen one</span>
+        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Choose the mesh point closes to the particle</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="c1"># Number of points to the left of the chosen one</span>
+        <span class="n">pshift</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">ipart</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+
+        <span class="n">ix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ix</span> <span class="o">+</span> <span class="n">mid</span><span class="p">)</span>
+
+        <span class="n">iy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iy</span> <span class="o">+</span> <span class="n">mid</span><span class="p">)</span>
+
+        <span class="n">iz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">ipart</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">iz</span> <span class="o">+</span> <span class="n">mid</span><span class="p">)</span>
+
+        <span class="n">wx</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">wy</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">wz</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+        <span class="n">izn</span> <span class="o">=</span> <span class="n">iz</span> <span class="o">-</span> <span class="n">pshift</span>  <span class="c1"># min. index along z-axis</span>
+
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+            <span class="c1">#</span>
+            <span class="c1"># if izn &lt; 0:</span>
+            <span class="c1">#     r_g = izn + mesh_sz[2]</span>
+            <span class="c1"># elif izn &gt; (mesh_sz[2] - 1):</span>
+            <span class="c1">#     r_g = izn - mesh_sz[2]</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#     r_g = izn</span>
+
+            <span class="n">r_g</span> <span class="o">=</span> <span class="n">izn</span> <span class="o">+</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">izn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">izn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+            <span class="n">iyn</span> <span class="o">=</span> <span class="n">iy</span> <span class="o">-</span> <span class="n">pshift</span>  <span class="c1"># min. index along y-axis</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+
+                <span class="c1"># if iyn &lt; 0:</span>
+                <span class="c1">#     r_i = iyn + mesh_sz[1]</span>
+                <span class="c1"># elif iyn &gt; (mesh_sz[1] - 1):</span>
+                <span class="c1">#     r_i = iyn - mesh_sz[1]</span>
+                <span class="c1"># else:</span>
+                <span class="c1">#     r_i = iyn</span>
+                <span class="n">r_i</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">+</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">iyn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">iyn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+                <span class="n">ixn</span> <span class="o">=</span> <span class="n">ix</span> <span class="o">-</span> <span class="n">pshift</span>  <span class="c1"># min. index along x-axis</span>
+
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+
+                    <span class="n">r_j</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+                    <span class="c1"># if ixn &lt; 0:</span>
+                    <span class="c1">#     r_j = ixn + mesh_sz[0]</span>
+                    <span class="c1"># elif ixn &gt; (mesh_sz[0] - 1):</span>
+                    <span class="c1">#     r_j = ixn - mesh_sz[0]</span>
+                    <span class="c1"># else:</span>
+                    <span class="c1">#     r_j = ixn</span>
+
+                    <span class="n">q_over_m</span> <span class="o">=</span> <span class="n">charges</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">/</span> <span class="n">masses</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span>
+                    <span class="n">E_x_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">+=</span> <span class="n">q_over_m</span> <span class="o">*</span> <span class="n">E_x_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span> <span class="n">r_i</span><span class="p">,</span> <span class="n">r_j</span><span class="p">]</span> <span class="o">*</span> <span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">E_y_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">+=</span> <span class="n">q_over_m</span> <span class="o">*</span> <span class="n">E_y_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span> <span class="n">r_i</span><span class="p">,</span> <span class="n">r_j</span><span class="p">]</span> <span class="o">*</span> <span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                    <span class="n">E_z_p</span><span class="p">[</span><span class="n">ipart</span><span class="p">]</span> <span class="o">+=</span> <span class="n">q_over_m</span> <span class="o">*</span> <span class="n">E_z_r</span><span class="p">[</span><span class="n">r_g</span><span class="p">,</span> <span class="n">r_i</span><span class="p">,</span> <span class="n">r_j</span><span class="p">]</span> <span class="o">*</span> <span class="n">wz</span><span class="p">[</span><span class="n">g</span><span class="p">]</span> <span class="o">*</span> <span class="n">wy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">wx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+                    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">iyn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">izn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">acc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_x_p</span>
+    <span class="n">acc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_y_p</span>
+    <span class="n">acc</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">E_z_p</span>
+
+    <span class="k">return</span> <span class="n">acc</span></div>
+
+
+<span class="c1"># FFTW version</span>
+<div class="viewcode-block" id="update"><a class="viewcode-back" href="../../../api/potentials_subpckg/sarkas.potentials.force_pm.update.html#sarkas.potentials.force_pm.update">[docs]</a><span class="nd">@jit</span>  <span class="c1"># Numba does not support pyfftw yet, however, this decorator still speeds up the function.</span>
+<span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">mesh_sizes</span><span class="p">,</span> <span class="n">box_lengths</span><span class="p">,</span> <span class="n">G_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">,</span> <span class="n">cao</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the long range part of particles&#39; accelerations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    box_lengths: numpy.ndarray</span>
+<span class="sd">        Box length in each direction.</span>
+
+<span class="sd">    mesh_sizes: numpy.ndarray</span>
+<span class="sd">        Mesh points per direction.</span>
+
+<span class="sd">    pos: numpy.ndarray</span>
+<span class="sd">        Particles&#39; positions.</span>
+
+<span class="sd">    charges: numpy.ndarray</span>
+<span class="sd">        Particles&#39; charges.</span>
+
+<span class="sd">    masses: numpy.ndarray</span>
+<span class="sd">        Particles&#39; masses.</span>
+
+<span class="sd">    G_k : numpy.ndarray</span>
+<span class="sd">        Optimized Green&#39;s function.</span>
+
+<span class="sd">    kx_v : numpy.ndarray</span>
+<span class="sd">        Array of kx values.</span>
+
+<span class="sd">    ky_v : numpy.ndarray</span>
+<span class="sd">        Array of ky values.</span>
+
+<span class="sd">    kz_v : numpy.ndarray</span>
+<span class="sd">        Array of kz values.</span>
+
+<span class="sd">    cao : int</span>
+<span class="sd">        Charge order parameter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    U_f : float</span>
+<span class="sd">        Long range part of the potential.</span>
+
+<span class="sd">    acc_f : numpy.ndarray</span>
+<span class="sd">        Long range part of particles&#39; accelerations.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># number of particles</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Mesh spacings = h_x, h_y, h_z</span>
+    <span class="n">mesh_spacings</span> <span class="o">=</span> <span class="n">box_lengths</span> <span class="o">/</span> <span class="n">mesh_sizes</span>
+    <span class="c1"># Calculate charge density on mesh</span>
+    <span class="n">rho_r</span> <span class="o">=</span> <span class="n">calc_charge_dens</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">mesh_sizes</span><span class="p">,</span> <span class="n">mesh_spacings</span><span class="p">)</span>
+    <span class="c1"># Prepare for fft</span>
+    <span class="n">fftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">fftn</span><span class="p">(</span><span class="n">rho_r</span><span class="p">)</span>
+    <span class="c1"># Calculate fft</span>
+    <span class="n">rho_k_fft</span> <span class="o">=</span> <span class="n">fftw_n</span><span class="p">()</span>
+
+    <span class="c1"># Shift the DC value at the center of the ndarray</span>
+    <span class="n">rho_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">rho_k_fft</span><span class="p">)</span>
+
+    <span class="c1"># Potential from Poisson eq.</span>
+    <span class="n">phi_k</span> <span class="o">=</span> <span class="n">G_k</span> <span class="o">*</span> <span class="n">rho_k</span>
+
+    <span class="c1"># Charge density</span>
+    <span class="n">rho_k_real</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">rho_k</span><span class="p">)</span>
+    <span class="n">rho_k_imag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">rho_k</span><span class="p">)</span>
+    <span class="n">rho_k_sq</span> <span class="o">=</span> <span class="n">rho_k_real</span> <span class="o">*</span> <span class="n">rho_k_real</span> <span class="o">+</span> <span class="n">rho_k_imag</span> <span class="o">*</span> <span class="n">rho_k_imag</span>
+
+    <span class="c1"># Long range part of the potential</span>
+    <span class="n">U_f</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rho_k_sq</span> <span class="o">*</span> <span class="n">G_k</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">box_lengths</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the Electric field&#39;s component on the mesh</span>
+    <span class="n">E_kx</span><span class="p">,</span> <span class="n">E_ky</span><span class="p">,</span> <span class="n">E_kz</span> <span class="o">=</span> <span class="n">calc_field</span><span class="p">(</span><span class="n">phi_k</span><span class="p">,</span> <span class="n">kx_v</span><span class="p">,</span> <span class="n">ky_v</span><span class="p">,</span> <span class="n">kz_v</span><span class="p">)</span>
+
+    <span class="c1"># Prepare for fft. Shift the DC value back to its original position that is [0, 0, 0]</span>
+    <span class="n">E_kx_unsh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">E_kx</span><span class="p">)</span>
+    <span class="n">E_ky_unsh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">E_ky</span><span class="p">)</span>
+    <span class="n">E_kz_unsh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">ifftshift</span><span class="p">(</span><span class="n">E_kz</span><span class="p">)</span>
+
+    <span class="c1"># Prepare and compute IFFT</span>
+    <span class="n">ifftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">E_kx_unsh</span><span class="p">)</span>
+    <span class="n">E_x</span> <span class="o">=</span> <span class="n">ifftw_n</span><span class="p">()</span>
+    <span class="n">ifftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">E_ky_unsh</span><span class="p">)</span>
+    <span class="n">E_y</span> <span class="o">=</span> <span class="n">ifftw_n</span><span class="p">()</span>
+    <span class="n">ifftw_n</span> <span class="o">=</span> <span class="n">pyfftw</span><span class="o">.</span><span class="n">builders</span><span class="o">.</span><span class="n">ifftn</span><span class="p">(</span><span class="n">E_kz_unsh</span><span class="p">)</span>
+    <span class="n">E_z</span> <span class="o">=</span> <span class="n">ifftw_n</span><span class="p">()</span>
+
+    <span class="c1"># I am worried that this normalization is not needed</span>
+    <span class="n">E_x_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">mesh_spacings</span><span class="p">)</span>
+    <span class="n">E_y_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_y</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">mesh_spacings</span><span class="p">)</span>
+    <span class="n">E_z_r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">E_z</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">mesh_spacings</span><span class="p">)</span>
+
+    <span class="n">acc_f</span> <span class="o">=</span> <span class="n">calc_acc_pm</span><span class="p">(</span><span class="n">E_x_r</span><span class="p">,</span> <span class="n">E_y_r</span><span class="p">,</span> <span class="n">E_z_r</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">masses</span><span class="p">,</span> <span class="n">mesh_sizes</span><span class="p">,</span> <span class="n">mesh_spacings</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">U_f</span><span class="p">,</span> <span class="n">acc_f</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div> 
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2019-2022, MurilloGroup.<br/>
+      Last updated on Mar 18, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
+    </p>
+  </div>
+</footer>
+
+  <script type="text/javascript">
+    jQuery(function () {
+        SphinxRtdTheme.Navigation.enable(true);
+      })
+  </script>
+
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* .wy-side-nav-search,  */
+    .wy-nav-top {
+      background: #18453b;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #535054;
+    }
+    .wy-menu-vertical p.caption {
+	  color: #fff;
+	}
+	.wy-menu-vertical a {
+	  color: #eee;
+	}
+	.wy-menu-vertical a:hover {
+    background-color: #18453b;
+  }
+ /* .wy-nav-content {
+    max-width: 900px !important;
+  } */
+}
+  </style>
+
+  </body>
+</html>

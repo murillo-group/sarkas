@@ -1,0 +1,6 @@
+sarkas.potentials.force\_pm.assgnmnt\_func
+==========================================
+
+.. currentmodule:: sarkas.potentials.force_pm
+
+.. autofunction:: assgnmnt_func

@@ -1,0 +1,6 @@
+sarkas.time\_evolution.integrators.Integrator.produce
+=====================================================
+
+.. currentmodule:: sarkas.time_evolution.integrators
+
+.. automethod:: Integrator.produce

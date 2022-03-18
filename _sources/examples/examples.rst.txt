@@ -18,7 +18,7 @@ Examples
                     </p>
             </div>
     </div>
-    
+
     <div class="ex-thumbcontainer">
             <div class="figure align-default">
                     <img src="../_images/examples_BIM_H-He_Mixture_30_1.png" alt="">
@@ -105,4 +105,3 @@ Examples
     Moliere/Moliere_Simulation
     UNP/UCP_Experiment_Validation
     Ultrafast_EC/Ultrafast_EC_Validation
-

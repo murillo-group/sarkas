@@ -1,0 +1,6 @@
+sarkas.tools.observables.calc\_nk
+=================================
+
+.. currentmodule:: sarkas.tools.observables
+
+.. autofunction:: calc_nk

@@ -1,0 +1,6 @@
+sarkas.tools.observables.calc\_statistical\_efficiency
+======================================================
+
+.. currentmodule:: sarkas.tools.observables
+
+.. autofunction:: calc_statistical_efficiency

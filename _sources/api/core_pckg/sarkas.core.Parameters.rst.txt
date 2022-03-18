@@ -1,0 +1,24 @@
+sarkas.core.Parameters
+======================
+
+.. currentmodule:: sarkas.core
+
+.. autoclass:: Parameters
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Parameters_mthds
+
+   
+      Parameters.__init__
+      Parameters.calc_coupling_constant
+      Parameters.calc_parameters
+      Parameters.check_units
+      Parameters.from_dict
+      Parameters.pretty_print
+      Parameters.setup
+   
+   

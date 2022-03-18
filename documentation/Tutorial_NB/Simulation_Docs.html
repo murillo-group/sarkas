@@ -395,7 +395,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Running-a-Simulation">
 <h1>Running a Simulation<a class="headerlink" href="#Running-a-Simulation" title="Permalink to this headline">¶</a></h1>
-<p>Now that we have tuned the simulation’s parameter it is time to run it. Because this is another notebook we copy the first cell of the <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Tutorial_NB/Pre_Simulation_Testing.html">Pre Simulation Testing notebook</a> and then run the simulation with only three lines of code.</p>
+<p>Now that we have tuned the simulation’s parameter it is time to run it. Because this is another notebook we copy the first cell of the <a class="reference external" href="Pre_Simulation_Testing.html">Pre Simulation Testing notebook</a> and then run the simulation with only three lines of code.</p>
 <p>The YAML input file can be found at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/input_files/yukawa_mks_p3m.yaml">input_file</a> and this notebook at <a class="reference external" href="https://raw.githubusercontent.com/murillo-group/sarkas/master/docs/documentation/Tutorial_NB/Simulation_Docs.ipynb">notebook</a></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -638,13 +638,13 @@ Production:
  time = Time in seconds
 </pre></div>
 </div>
-<p>This information is saved by the <code class="docutils literal notranslate"><span class="pre">`.dump()</span></code> &lt;<a class="reference external" href="https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html">https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html</a>&gt;`__ method found in <code class="docutils literal notranslate"><span class="pre">`sarkas.utilities.io</span></code> &lt;<a class="reference external" href="https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html">https://murillo-group.github.io/sarkas/api/sarkas.utilities.io.html</a>&gt;`__.</p>
+<p>This information is saved by the <code class="docutils literal notranslate"><span class="pre">`.dump()</span></code> &lt;../../api/util_subpckg/InputOutput_mthds/sarkas.utilities.io.InputOutput.dump.html#sarkas.utilities.io.InputOutput.dump&gt;`__ method of the <a class="reference external" href="../../api/util_subpckg/sarkas.utilities.io.InputOutput.html">InputOutput</a>.</p>
 <p>The same method saves Energy and Temperature information in the Thermodynamics files also. This can be accessed by <code class="docutils literal notranslate"><span class="pre">sim.io.eq_energy_filename</span></code> and <code class="docutils literal notranslate"><span class="pre">sim.io.prod_energy_filename</span></code>. The information saved is the following:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Time, Total Energy, Total Kinetic Energy, Potential Energy, Total Temperature
 </pre></div>
 </div>
 <p>In addition, in the case of multispecies plasmas, the kinetic energy and the temperature of each species will be saved.</p>
-<p>Once the simulation is complete it is time to analyze the data. Follow this <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/Tutorial_NB/Post_Processing_Docs.html">link</a>.</p>
+<p>Once the simulation is complete it is time to analyze the data. Follow this <a class="reference external" href="Post_Processing_Docs.html">link</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -669,7 +669,7 @@ Production:
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 08, 2022.<br/>
+      Last updated on Mar 18, 2022.<br/>
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
     </p>
   </div>
@@ -680,7 +680,7 @@ Production:
         SphinxRtdTheme.Navigation.enable(true);
       })
   </script>
-  
+
   <style>
     /* Sidebar header (and topbar for mobile) */
     /* .wy-side-nav-search,  */

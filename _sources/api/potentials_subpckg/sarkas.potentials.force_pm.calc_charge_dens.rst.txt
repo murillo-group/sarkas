@@ -1,0 +1,6 @@
+sarkas.potentials.force\_pm.calc\_charge\_dens
+==============================================
+
+.. currentmodule:: sarkas.potentials.force_pm
+
+.. autofunction:: calc_charge_dens

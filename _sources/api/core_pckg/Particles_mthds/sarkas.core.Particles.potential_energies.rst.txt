@@ -1,0 +1,6 @@
+sarkas.core.Particles.potential\_energies
+=========================================
+
+.. currentmodule:: sarkas.core
+
+.. automethod:: Particles.potential_energies
