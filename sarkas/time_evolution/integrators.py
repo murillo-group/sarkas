@@ -133,18 +133,18 @@ class Integrator:
         params : :class:`sarkas.core.Parameters`
             Parameters class.
 
-        thermostat: sarkas.time_evolution.thermostat
+        thermostat : :class:`sarkas.time_evolution.Thermostat`
             Thermostat class
 
         potential : :class:`sarkas.potentials.core.Potential`
             Potential class.
 
         """
-        self.box_lengths = np.copy(params.box_lengths)
-        self.pbox_lengths = np.copy(params.pbox_lengths)
+        self.box_lengths = params.box_lengths
+        self.pbox_lengths = params.pbox_lengths
         self.kB = params.kB
-        self.species_num = np.copy(params.species_num)
-        self.species_plasma_frequencies = np.copy(params.species_plasma_frequencies)
+        self.species_num = params.species_num
+        self.species_plasma_frequencies = params.species_plasma_frequencies
         self.verbose = params.verbose
 
         # Enforce consistency
@@ -554,9 +554,9 @@ class Integrator:
         Notes
         -----
         :cite:`Chin2008` equations are written for a negative charge. This allows him to write
-        :math:`\dot{\mathbf v} = \omega_c \hat{B} \\times \mathbf v`. In the case of positive charges we will have
-        :math:`\dot{\mathbf v} = - \omega_c \hat{B} \\times \mathbf v`. Hence the reason of the different signs in the
-        formulas below compared to Chin's.
+        :math:`\\dot{\\mathbf v} = \\omega_c \\hat{B} \\times \\mathbf v`. In the case of positive charges we will have
+        :math:`\\dot{\\mathbf v} = - \\omega_c \\hat{B} \\times \\mathbf v`.
+        Hence the reason of the different signs in the formulas below compared to Chin's.
 
         Warnings
         --------
@@ -772,14 +772,14 @@ class Integrator:
         Notes
         -----
         :cite:`Chin2008` equations are written for a negative charge. This allows him to write
-        :math:`\dot{\mathbf v} = \omega_c \hat{B} \\times \mathbf v`. In the case of positive charges we will have
-        :math:`\dot{\mathbf v} = - \omega_c \hat{B} \\times \mathbf v`. Hence the reason of the different signs in the
-        formulas below compared to Chin's.
+        :math:`\\dot{\\mathbf v} = \\omega_c \\hat{B} \\times \\mathbf v`. In the case of positive charges we will have
+        :math:`\\dot{\\mathbf v} = - \\omega_c \\hat{B} \\times \\mathbf v`.
+        Hence the reason of the different signs in the formulas below compared to Chin's.
 
         Warnings
         --------
         This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
-        an arbitrary direction, methods in `sarkas.tool.observables` work only for a magnetic field in the
+        an arbitrary direction, methods in :ref:`sarkas.tool.observables` work only for a magnetic field in the
         :math:`z` - direction. Hence, if you choose to use this integrator remember to change your physical observables.
 
         """
@@ -1158,17 +1158,17 @@ class Integrator:
 @jit(void(float64[:, :], float64[:, :], float64[:]), nopython=True)
 def enforce_pbc(pos, cntr, box_vector) -> None:
     """
-    Enforce Periodic Boundary conditions.
+    Numba'd function to enforce periodic boundary conditions.
 
     Parameters
     ----------
-    pos: numpy.ndarray
+    pos : numpy.ndarray
         Particles' positions.
 
-    cntr: numpy.ndarray
+    cntr : numpy.ndarray
         Counter for the number of times each particle get folded back into the main simulation box
 
-    box_vector: numpy.ndarray
+    box_vector : numpy.ndarray
         Box Dimensions.
 
     """
@@ -1190,7 +1190,7 @@ def enforce_pbc(pos, cntr, box_vector) -> None:
 @jit(void(float64[:, :], float64[:, :], float64[:, :], float64[:], float64[:]), nopython=True)
 def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
     """
-    Enforce Absorbing Boundary conditions.
+    Numba'd function to enforce absorbing boundary conditions.
 
     Parameters
     ----------
@@ -1232,7 +1232,7 @@ def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
 @jit(void(float64[:, :], float64[:, :], float64[:], float64), nopython=True)
 def enforce_rbc(pos, vel, box_vector, dt) -> None:
     """
-    Enforce Absorbing Boundary conditions.
+    Numba'd function to enforce reflecting boundary conditions.
 
     Parameters
     ----------
@@ -1242,14 +1242,11 @@ def enforce_rbc(pos, vel, box_vector, dt) -> None:
     vel : numpy.ndarray
         Particles' velocities.
 
-    acc : numpy.ndarray
-        Particles' accelerations.
-
-    charges : numpy.ndarray
-        Charge of each particle. Shape = (``total_num_ptcls``).
-
     box_vector: numpy.ndarray
         Box Dimensions.
+
+    dt : float
+        Timestep.
 
     """
 
@@ -1268,7 +1265,8 @@ def enforce_rbc(pos, vel, box_vector, dt) -> None:
 @jit(void(float64[:, :], int64[:], float64[:]), nopython=True)
 def remove_drift(vel, nums, masses) -> None:
     """
-    Enforce conservation of total linear momentum. Updates ``particles.vel``
+    Numba'd function to enforce conservation of total linear momentum.
+    It updates :attr:`sarkas.core.Particles.vel`.
 
     Parameters
     ----------

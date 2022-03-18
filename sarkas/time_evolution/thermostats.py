@@ -2,7 +2,6 @@
 Module containing various thermostat. Berendsen only for now.
 """
 import numpy as np
-
 from numba import float64, int64, jit, void
 
 
@@ -84,17 +83,17 @@ class Thermostat:
 
     def pretty_print(self):
         """Print Thermostat information in a user-friendly way."""
-        print("Type: {}".format(self.type))
-        print("First thermostating timestep, i.e. relaxation_timestep = {}".format(self.relaxation_timestep))
-        print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.berendsen_tau))
-        print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
+        print(f"Type: {self.type}")
+        print(f"First thermostating timestep, i.e. relaxation_timestep = {self.relaxation_timestep}")
+        print(f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]")
+        print(f"Berendsen relaxation rate: {self.relaxation_rate:.3f} [1/timesteps] ")
         # if not self.eV_temp_flag and not self.K_temp_flag:
         #     # If you forgot to give thermostating temperatures
         #     warn("Equilibration temperatures not defined. "
         #          "I will use the species's temperatures")
         print("Thermostating temperatures: ")
         for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
-            print("Species ID {}: T_eq = {:.6e} [K] = {:.6e} [eV]".format(i, t, t_ev))
+            print(f"Species ID {i}: T_eq = {t:.6e} [K] = {t_ev:.6e} [eV]")
 
     def setup(self, params):
         """
@@ -158,7 +157,7 @@ class Thermostat:
 @jit(void(float64[:, :], float64[:], float64[:], int64[:], int64, float64, int64), nopython=True)
 def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     """
-    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.
+    Numba'd function to update particle velocity based on Berendsen thermostat :cite:`Berendsen1984`.
 
     Parameters
     ----------
@@ -182,10 +181,6 @@ def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
 
     it : int
         Current timestep.
-
-    References
-    ----------
-    .. [Berendsen1984] `H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984) <https://doi.org/10.1063/1.448118>`_
 
     """
 

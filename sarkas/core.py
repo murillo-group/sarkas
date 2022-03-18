@@ -3,8 +3,8 @@ Module containing the three basic classes: Parameters, Particles, Species.
 """
 import numpy as np
 import os.path
-import scipy.constants as const
 import sys
+from scipy.constants import physical_constants
 from scipy.spatial.distance import pdist
 
 
@@ -198,33 +198,64 @@ class Parameters:
 
     def __init__(self, dic: dict = None) -> None:
 
+        self.particles_input_file = None
+        self.load_perturb = None
+        self.load_rejection_radius = None
+        self.load_halton_bases = None
+        self.load_method = None
+        self.rs = None
+        self.eta_e = None
+        self.wdm_parameter = None
+        self.electron_cyclotron_frequency = None
+        self.relativistic_parameter = None
+        self.fermi_energy = None
+        self.electron_coupling = None
+        self.electron_degeneracy_parameter = None
+        self.kF = None
+        self.lambda_TF = None
+        self.lambda_deB = None
+        self.electron_temperature = None
+        self.ae_ws = None
+        self.ne = None
+        self.potential_type = None
+        self.units = None
+        self.electron_magnetic_energy = None
         self.input_file = None
-        #
+
+        # Sim box geometry
         self.Lx = 0.0
         self.Ly = 0.0
         self.Lz = 0.0
         self.LPx = 0.0
         self.LPy = 0.0
         self.LPz = 0.0
-        self.box_lengths = np.zeros(3)
-        self.pbox_lengths = np.zeros(3)
+        self.e1 = None
+        self.e2 = None
+        self.e3 = None
+        self.ep1 = None
+        self.ep2 = None
+        self.ep3 = None
+        self.box_lengths = None
+        self.pbox_lengths = None
         self.box_volume = 0.0
         self.pbox_volume = 0.0
         self.dimensions = 3
+
+        # Physical Constants and conversion units
         self.J2erg = 1.0e7  # erg/J
-        self.eps0 = const.epsilon_0
+        self.eps0 = physical_constants["vacuum electric permittivity"][0]
         self.fourpie0 = 4.0 * np.pi * self.eps0
-        self.mp = const.physical_constants["proton mass"][0]
-        self.me = const.physical_constants["electron mass"][0]
-        self.qe = const.physical_constants["elementary charge"][0]
-        self.hbar = const.hbar
+        self.mp = physical_constants["proton mass"][0]
+        self.me = physical_constants["electron mass"][0]
+        self.qe = physical_constants["elementary charge"][0]
+        self.hbar = physical_constants["reduced Planck constant"][0]
         self.hbar2 = self.hbar**2
-        self.c0 = const.physical_constants["speed of light in vacuum"][0]
-        self.eV2K = const.physical_constants["electron volt-kelvin relationship"][0]
-        self.eV2J = const.physical_constants["electron volt-joule relationship"][0]
-        self.a0 = const.physical_constants["Bohr radius"][0]
-        self.kB = const.Boltzmann
-        self.kB_eV = const.physical_constants["Boltzmann constant in eV/K"][0]
+        self.c0 = physical_constants["speed of light in vacuum"][0]
+        self.eV2K = physical_constants["electron volt-kelvin relationship"][0]
+        self.eV2J = physical_constants["electron volt-joule relationship"][0]
+        self.a0 = physical_constants["Bohr radius"][0]
+        self.kB = physical_constants["Boltzmann constant"][0]
+        self.kB_eV = physical_constants["Boltzmann constant in eV/K"][0]
         self.a_ws = 0.0
 
         # Control and Timing
@@ -249,6 +280,8 @@ class Parameters:
         self.restart_step = None
         self.np_per_side = None
         self.num_species = 1
+        self.magnetic_field = None
+        self.species_lj_sigmas = None
         self.species_names = None
         self.species_num = None
         self.species_num_dens = None
@@ -287,7 +320,7 @@ class Parameters:
         disp += ")"
         return disp
 
-    def from_dict(self, input_dict: dict):
+    def from_dict(self, input_dict: dict) -> None:
         """
         Update attributes from input dictionary.
 
@@ -299,7 +332,7 @@ class Parameters:
         """
         self.__dict__.update(input_dict)
 
-    def setup(self, species):
+    def setup(self, species) -> None:
         """
         Setup simulations' parameters.
 
@@ -334,14 +367,14 @@ class Parameters:
             self.fourpie0 = 1.0
             self.species_lj_sigmas = np.zeros(self.num_species)
 
-    def calc_parameters(self, species):
+    def calc_parameters(self, species: list):
         """
         Assign the parsed parameters.
 
         Parameters
         ----------
         species : list
-            List of ``sarkas.core.Species`` objects.
+            List of :class:`sarkas.core.Species` .
 
         """
 
@@ -381,7 +414,7 @@ class Parameters:
 
             # Calculate the mass of the species from the mass density if given
             if sp.mass_density:
-                Av = const.physical_constants["Avogadro constant"][0]
+                Av = physical_constants["Avogadro constant"][0]
                 sp.number_density = sp.mass_density * Av / sp.atomic_weight
                 self.total_num_density += sp.number_density
             else:
@@ -681,7 +714,7 @@ class Particles:
         Boltzmann constant.
 
     fourpie0: float
-        Electrostatic constant :math:`4\pi \epsilon_0`.
+        Electrostatic constant :math:`4\\pi \\epsilon_0`.
 
     pos : numpy.ndarray
         Particles' positions.
@@ -699,16 +732,16 @@ class Particles:
         Initial particle box sides' lengths.
 
     masses : numpy.ndarray
-        Mass of each particle. Shape = (``total_num_ptcls``).
+        Mass of each particle. Shape = (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     charges : numpy.ndarray
-        Charge of each particle. Shape = (``total_num_ptcls``).
+        Charge of each particle. Shape = (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     id : numpy.ndarray,
-        Species identifier. Shape = (``total_num_ptcls``).
+        Species identifier. Shape = (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     names : numpy.ndarray
-        Species' names. Shape = (``total_num_ptcls``).
+        Species' names. (attr:`sarkas.core.Parameters.total_num_ptcls`).
 
     rdf_nbins : int
         Number of bins for radial pair distribution.
@@ -732,7 +765,7 @@ class Particles:
         Number of species.
 
     species_num : numpy.ndarray
-        Number of particles of each species. Shape = ``num_species``.
+        Number of particles of each species. Shape = (attr:`sarkas.core.Particles.num_species`).
 
     dimensions : int
         Number of non-zero dimensions. Default = 3.
@@ -746,6 +779,8 @@ class Particles:
     """
 
     def __init__(self):
+        self.mag_dump_dir = None
+        self.rdf_nbins = None
         self.potential_energy = 0.0
         self.kB = None
         self.fourpie0 = None

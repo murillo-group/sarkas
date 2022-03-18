@@ -202,6 +202,17 @@ class Observable:
     """
 
     def __init__(self):
+        self.filename_hdf_acf = None
+        self.species_index_start = None
+        self.filename_hdf_acf_slices = None
+        self.filename_hdf_slices = None
+        self.filename_hdf = None
+        self.max_aa_harmonics = None
+        self.angle_averaging = None
+        self.max_aa_ka_value = None
+        self.__long_name__ = None
+        self.__name__ = None
+        self.max_k_harmonics = None
         self.saving_dir = None
         self.phase = "production"
         self.multi_run_average = False
