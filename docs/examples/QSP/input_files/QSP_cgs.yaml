@@ -4,9 +4,9 @@ Particles:
         name: e
         number_density: 1.6e+24       # N/cc
         mass: 9.1093837015e-28        # g, electron mass
-        num: 1024                     
+        num: 1024
         Z: -1.0                       # degree of ionization
-        temperature: 6.32e+5 
+        temperature: 6.32e+5
 
     - Species:
         name: p
@@ -16,10 +16,10 @@ Particles:
         Z: 1.0                        # degree of ionization
         temperature: 6.32e+5
 
-Potential: 
+Potential:
     type: QSP                         # potential type
     qsp_type: Deutsch
-    method: pppm                    
+    method: pppm
     rc: 3.119964e-08                  # cut-off radius, cm
     pppm_mesh: [32,32,32]
     pppm_aliases: [3,3,3]
@@ -29,7 +29,7 @@ Potential:
 Integrator:
     type: verlet
     dt: 7.0208e-20                    # sec
-    equilibration_steps: 100000       
+    equilibration_steps: 100000
     eq_dump_step: 10
     production_steps: 400000
     prod_dump_step: 6
@@ -41,7 +41,7 @@ Thermostat:
 
 Parameters:
     units: cgs                        # units
-    load_method: random_reject    
+    load_method: random_reject
     load_rejection_radius: 10.0e-10
 
 IO:

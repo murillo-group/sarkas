@@ -3,63 +3,63 @@ Module for calculating physical quantities from Sarkas checkpoints.
 """
 from IPython import get_ipython
 
-if get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
 else:
     from tqdm import tqdm
 
-from numba import njit
-from matplotlib.gridspec import GridSpec
-
-import os
-import pickle
-import copy as pycopy
-import numpy as np
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
-
+import numpy as np
+import os
+import pandas as pd
+import pickle
 import scipy.stats as scp_stats
+import seaborn as sns
+from matplotlib.gridspec import GridSpec
+from numba import njit
 
-from sarkas.utilities.timing import SarkasTimer
-from sarkas.utilities.io import num_sort
-from sarkas.utilities.maths import correlationfunction
+from ..utilities.maths import correlationfunction
+from ..utilities.timing import SarkasTimer
 
 UNITS = [
     # MKS Units
-    {"Energy": 'J',
-     "Time": 's',
-     "Length": 'm',
-     "Charge": 'C',
-     "Temperature": 'K',
-     "ElectronVolt": 'eV',
-     "Mass": 'kg',
-     "Magnetic Field": 'T',
-     "Current": "A",
-     "Power": "erg/s",
-     "Pressure": "Pa",
-     "Electrical Conductivity": "S/m",
-     "Diffusion": r"m$^2$/s",
-     "Bulk Viscosity": r"kg/m s",
-     "Shear Viscosity": r"kg/m s",
-     "none": ""},
+    {
+        "Energy": "J",
+        "Time": "s",
+        "Length": "m",
+        "Charge": "C",
+        "Temperature": "K",
+        "ElectronVolt": "eV",
+        "Mass": "kg",
+        "Magnetic Field": "T",
+        "Current": "A",
+        "Power": "erg/s",
+        "Pressure": "Pa",
+        "Electrical Conductivity": "S/m",
+        "Diffusion": r"m$^2$/s",
+        "Bulk Viscosity": r"kg/m s",
+        "Shear Viscosity": r"kg/m s",
+        "none": "",
+    },
     # CGS Units
-    {"Energy": 'erg',
-     "Time": 's',
-     "Length": 'm',
-     "Charge": 'esu',
-     "Temperature": 'K',
-     "ElectronVolt": 'eV',
-     "Mass": 'g',
-     "Magnetic Field": 'G',
-     "Current": "esu/s",
-     "Power": "erg/s",
-     "Pressure": "Ba",
-     "Electrical Conductivity": "mho/m",
-     "Diffusion": r"m$^2$/s",
-     "Bulk Viscosity": r"g/ cm s",
-     "Shear Viscosity": r"g/ cm s",
-     "none": ""}
+    {
+        "Energy": "erg",
+        "Time": "s",
+        "Length": "m",
+        "Charge": "esu",
+        "Temperature": "K",
+        "ElectronVolt": "eV",
+        "Mass": "g",
+        "Magnetic Field": "G",
+        "Current": "esu/s",
+        "Power": "erg/s",
+        "Pressure": "Ba",
+        "Electrical Conductivity": "mho/m",
+        "Diffusion": r"m$^2$/s",
+        "Bulk Viscosity": r"g/ cm s",
+        "Shear Viscosity": r"g/ cm s",
+        "none": "",
+    },
 ]
 
 PREFIXES = {
@@ -80,19 +80,19 @@ PREFIXES = {
     "P": 1e15,  # peta
     "E": 1e18,  # exa
     "Z": 1e21,  # zetta
-    "Y": 1e24  # yotta
+    "Y": 1e24,  # yotta
 }
 
 
 def compute_doc(func):
     func.__doc__ = """
-    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n 
+    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n
     The data of each slice is saved in hierarchical dataframes,
     :attr:`~.dataframe_slices` (:attr:`~.dataframe_acf_slices`). \n
-    
+
     The sliced averaged data is saved in other hierarchical dataframes,
     :attr:`~.dataframe` (:attr:`~.dataframe_acf_slices`).
-     
+
     """
     return func
 
@@ -103,7 +103,7 @@ def setup_doc(func):
 
     Parameters
     ----------
-    params : sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     phase : str, optional
@@ -113,8 +113,8 @@ def setup_doc(func):
         Number of independent runs inside a long simulation. Default = 1.
 
     **kwargs :
-        These will overwrite any :attr:`sarkas.core.Parameters`
-        or default :attr:`sarkas.tools.observables.Observable`
+        These will overwrite any :class:`sarkas.core.Parameters`
+        or default :class:`sarkas.tools.observables.Observable`
         attributes and/or add new ones.
 
    """
@@ -202,6 +202,17 @@ class Observable:
     """
 
     def __init__(self):
+        self.filename_hdf_acf = None
+        self.species_index_start = None
+        self.filename_hdf_acf_slices = None
+        self.filename_hdf_slices = None
+        self.filename_hdf = None
+        self.max_aa_harmonics = None
+        self.angle_averaging = None
+        self.max_aa_ka_value = None
+        self.__long_name__ = None
+        self.__name__ = None
+        self.max_k_harmonics = None
         self.saving_dir = None
         self.phase = "production"
         self.multi_run_average = False
@@ -221,16 +232,12 @@ class Observable:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Observable( ' + self.__class__.__name__ + '\n'
-        exclude_list = ['dataframe',
-                        'dataframe_slices',
-                        'dataframe_acf',
-                        'dataframe_acf_slices'
-                        ]
+        disp = "Observable( " + self.__class__.__name__ + "\n"
+        exclude_list = ["dataframe", "dataframe_slices", "dataframe_acf", "dataframe_acf_slices"]
         for key, value in sortedDict.items():
             if not key in exclude_list:
                 disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict):
@@ -245,10 +252,7 @@ class Observable:
         """
         self.__dict__.update(input_dict)
 
-    def setup_init(self,
-                   params,
-                   phase: str = None,
-                   no_slices: int = None):
+    def setup_init(self, params, phase: str = None, no_slices: int = None):
         """
         Assign Observables attributes and copy the simulation's parameters.
 
@@ -283,17 +287,17 @@ class Observable:
 
         if self.k_observable:
             # Check for k space information.
-            if not hasattr(self, 'angle_averaging'):
-                self.angle_averaging = 'principal_axis'
+            if not hasattr(self, "angle_averaging"):
+                self.angle_averaging = "principal_axis"
                 self.max_aa_harmonics = np.array([0, 0, 0])
 
-            if self.angle_averaging == 'custom':
-                if not hasattr(self, 'max_aa_ka_value'):
+            if self.angle_averaging == "custom":
+                if not hasattr(self, "max_aa_ka_value"):
                     if self.max_aa_harmonics is None:
                         raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
-                elif not hasattr(self, 'max_aa_harmonics'):
+                elif not hasattr(self, "max_aa_harmonics"):
                     if self.max_aa_ka_value is None:
-                        raise AttributeError('max_aa_harmonics and max_aa_ka_value not defined.')
+                        raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
 
             # More checks on k attributes and initialization of k vectors
 
@@ -302,36 +306,36 @@ class Observable:
             #           The user can either define max_k_harmonics or max_ka_value
             #           Based on this choice the user can define max_aa_harmonics or max_aa_ka_value
 
-            if hasattr(self, 'max_k_harmonics'):
+            if hasattr(self, "max_k_harmonics"):
                 # Convert max_k_harmonics to a numpy array
                 if isinstance(self.max_k_harmonics, np.ndarray) == 0:
                     self.max_k_harmonics = np.ones(3, dtype=int) * self.max_k_harmonics
 
                 # Calculate max_aa_harmonics based on the choice of angle averaging and inputs
-                if self.angle_averaging == 'full':
+                if self.angle_averaging == "full":
                     self.max_aa_harmonics = np.copy(self.max_k_harmonics)
 
-                elif self.angle_averaging == 'custom':
+                elif self.angle_averaging == "custom":
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
                         nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
                         self.max_aa_harmonics = np.array([nx, nx, nx])
                     # else max_aa_harmonics is user defined
-                elif self.angle_averaging == 'principal_axis':
+                elif self.angle_averaging == "principal_axis":
                     self.max_aa_harmonics = np.array([0, 0, 0])
 
-            elif hasattr(self, 'max_ka_value'):
+            elif hasattr(self, "max_ka_value"):
                 # Calculate max_k_harmonics from max_ka_value
 
                 # Check for angle_averaging choice
-                if self.angle_averaging == 'full':
+                if self.angle_averaging == "full":
                     # The maximum value is calculated assuming that max nx = max ny = max nz
                     # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
                     nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
                     self.max_k_harmonics = np.array([nx, nx, nx])
                     self.max_aa_harmonics = np.array([nx, nx, nx])
 
-                elif self.angle_averaging == 'custom':
+                elif self.angle_averaging == "custom":
                     # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
                     nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws))
                     self.max_k_harmonics = np.array([nx, nx, nx])
@@ -340,7 +344,7 @@ class Observable:
                         nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
                         self.max_aa_harmonics = np.array([nx, nx, nx])
                     # else max_aa_harmonics is user defined
-                elif self.angle_averaging == 'principal_axis':
+                elif self.angle_averaging == "principal_axis":
                     # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
                     nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws))
                     self.max_k_harmonics = np.array([nx, nx, nx])
@@ -350,21 +354,20 @@ class Observable:
                 # Executive decision
                 self.max_k_harmonics = np.array([5, 5, 5])
                 self.max_aa_harmonics = np.array([0, 0, 0])
-                self.angle_averaging = 'principal_axis'
+                self.angle_averaging = "principal_axis"
 
             # Calculate the maximum ka value based on user's choice of angle_averaging
             # Dev notes: Make sure max_ka_value, max_aa_ka_value are defined when this if is done
-            if self.angle_averaging == 'full':
+            if self.angle_averaging == "full":
                 self.max_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_k_harmonics / self.box_lengths)
                 self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_k_harmonics / self.box_lengths)
 
-            elif self.angle_averaging == 'principal_axis':
+            elif self.angle_averaging == "principal_axis":
                 self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
                 self.max_aa_ka_value = 0.0
 
-            elif self.angle_averaging == 'custom':
-                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(
-                    self.max_aa_harmonics / self.box_lengths)
+            elif self.angle_averaging == "custom":
+                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_aa_harmonics / self.box_lengths)
                 self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
 
             # Create paths for files
@@ -385,28 +388,30 @@ class Observable:
             self.mag_no_dumps = len(os.listdir(self.mag_dump_dir))
 
         # Assign dumps variables based on the choice of phase
-        if self.phase == 'equilibration':
+        if self.phase == "equilibration":
             self.no_dumps = self.eq_no_dumps
             self.dump_step = self.eq_dump_step
             self.no_steps = self.equilibration_steps
             self.dump_dir = self.eq_dump_dir
 
-        elif self.phase == 'production':
+        elif self.phase == "production":
             self.no_dumps = self.prod_no_dumps
             self.dump_step = self.prod_dump_step
             self.no_steps = self.production_steps
             self.dump_dir = self.prod_dump_dir
 
-        elif self.phase == 'magnetization':
+        elif self.phase == "magnetization":
             self.no_dumps = self.mag_no_dumps
             self.dump_step = self.mag_dump_step
             self.no_steps = self.magnetization_steps
             self.dump_dir = self.mag_dump_dir
 
         # Needed for preprocessing pretty print
-        self.slice_steps = int(
-            self.no_steps / self.dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
-            int(self.no_dumps / self.no_slices)
+        self.slice_steps = (
+            int(self.no_steps / self.dump_step / self.no_slices)
+            if self.no_dumps < self.no_slices
+            else int(self.no_dumps / self.no_slices)
+        )
 
         # Array containing the start index of each species.
         self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int)
@@ -422,22 +427,20 @@ class Observable:
             os.mkdir(self.saving_dir)
 
         # Filenames and strings
-        self.filename_hdf = os.path.join(
-            self.saving_dir,
-            self.__long_name__.replace(" ", "") + "_" + self.job_id + '.h5')
+        self.filename_hdf = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
 
         self.filename_hdf_slices = os.path.join(
-            self.saving_dir,
-            self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + '.h5')
+            self.saving_dir, self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
+        )
 
         if self.acf_observable:
             self.filename_hdf_acf = os.path.join(
-                self.saving_dir,
-                self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + '.h5')
+                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + ".h5"
+            )
 
             self.filename_hdf_acf_slices = os.path.join(
-                self.saving_dir,
-                self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + '.h5')
+                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
+            )
 
     def parse(self):
         """
@@ -445,7 +448,7 @@ class Observable:
         """
         if self.k_observable:
             try:
-                self.dataframe = pd.read_hdf(self.filename_hdf, mode='r', index_col=False)
+                self.dataframe = pd.read_hdf(self.filename_hdf, mode="r", index_col=False)
 
                 k_data = np.load(self.k_file)
                 self.k_list = k_data["k_list"]
@@ -458,13 +461,13 @@ class Observable:
                 self.compute()
         else:
             try:
-                if hasattr(self, 'filename_csv'):
+                if hasattr(self, "filename_csv"):
                     self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
                 else:
-                    self.dataframe = pd.read_hdf(self.filename_hdf, mode='r', index_col=False)
+                    self.dataframe = pd.read_hdf(self.filename_hdf, mode="r", index_col=False)
 
             except FileNotFoundError:
-                if hasattr(self, 'filename_csv'):
+                if hasattr(self, "filename_csv"):
                     data_file = self.filename_csv
                 else:
                     data_file = self.filename_hdf
@@ -472,12 +475,12 @@ class Observable:
                 print("\nComputing Observable now ...")
                 self.compute()
 
-            if hasattr(self, 'dataframe_slices'):
-                self.dataframe_slices = pd.read_hdf(self.filename_hdf_slices, mode='r', index_col=False)
+            if hasattr(self, "dataframe_slices"):
+                self.dataframe_slices = pd.read_hdf(self.filename_hdf_slices, mode="r", index_col=False)
 
             if self.acf_observable:
-                self.dataframe_acf = pd.read_hdf(self.filename_hdf_acf, mode='r', index_col=False)
-                self.dataframe_acf_slices = pd.read_hdf(self.filename_hdf_acf_slices, mode='r', index_col=False)
+                self.dataframe_acf = pd.read_hdf(self.filename_hdf_acf, mode="r", index_col=False)
+                self.dataframe_acf_slices = pd.read_hdf(self.filename_hdf_acf_slices, mode="r", index_col=False)
 
     def parse_k_data(self):
         """Read in the precomputed Fourier space data. Recalculate if not correct."""
@@ -508,19 +511,17 @@ class Observable:
 
         # Do some checks
         if not isinstance(self.angle_averaging, str):
-            raise TypeError("angle_averaging not a string. "
-                            "Choose from ['full', 'custom', 'principal_axis']")
-        elif self.angle_averaging not in ['full', 'custom', 'principal_axis']:
-            raise ValueError("Option not available. "
-                             "Choose from ['full', 'custom', 'principal_axis']"
-                             "Note case sensitivity.")
-        assert self.max_k_harmonics.all(), 'max_k_harmonics not defined.'
+            raise TypeError("angle_averaging not a string. " "Choose from ['full', 'custom', 'principal_axis']")
+        elif self.angle_averaging not in ["full", "custom", "principal_axis"]:
+            raise ValueError(
+                "Option not available. " "Choose from ['full', 'custom', 'principal_axis']" "Note case sensitivity."
+            )
+        assert self.max_k_harmonics.all(), "max_k_harmonics not defined."
 
         # Calculate the k arrays
-        self.k_list, self.k_counts, k_unique, self.k_harmonics = kspace_setup(self.box_lengths,
-                                                                              self.angle_averaging,
-                                                                              self.max_k_harmonics,
-                                                                              self.max_aa_harmonics)
+        self.k_list, self.k_counts, k_unique, self.k_harmonics = kspace_setup(
+            self.box_lengths, self.angle_averaging, self.max_k_harmonics, self.max_aa_harmonics
+        )
         # Save the ka values
         self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
         self.k_values = 2.0 * np.pi * k_unique
@@ -531,19 +532,19 @@ class Observable:
             os.mkdir(self.k_space_dir)
 
         # Write the npz file
-        np.savez(self.k_file,
-                 k_list=self.k_list,
-                 k_harmonics=self.k_harmonics,
-                 k_counts=self.k_counts,
-                 k_values=self.k_values,
-                 ka_values=self.ka_values,
-                 angle_averaging=self.angle_averaging,
-                 max_k_harmonics=self.max_k_harmonics,
-                 max_aa_harmonics=self.max_aa_harmonics)
+        np.savez(
+            self.k_file,
+            k_list=self.k_list,
+            k_harmonics=self.k_harmonics,
+            k_counts=self.k_counts,
+            k_values=self.k_values,
+            ka_values=self.ka_values,
+            angle_averaging=self.angle_averaging,
+            max_k_harmonics=self.max_k_harmonics,
+            max_aa_harmonics=self.max_aa_harmonics,
+        )
 
-    def parse_kt_data(self,
-                      nkt_flag: bool = False,
-                      vkt_flag: bool = False):
+    def parse_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
         """
         Read in the precomputed time dependent Fourier space data. Recalculate if not.
 
@@ -561,10 +562,10 @@ class Observable:
         if nkt_flag:
             try:
                 # Check that what was already calculated is correct
-                with pd.HDFStore(self.nkt_hdf_file, mode='r') as nkt_hfile:
-                    metadata = nkt_hfile.get_storer('nkt').attrs.metadata
+                with pd.HDFStore(self.nkt_hdf_file, mode="r") as nkt_hfile:
+                    metadata = nkt_hfile.get_storer("nkt").attrs.metadata
 
-                if metadata['no_slices'] == self.no_slices:
+                if metadata["no_slices"] == self.no_slices:
                     # Check for the correct number of k values
                     if metadata["angle_averaging"] == self.angle_averaging:
                         # Check for the correct max harmonics
@@ -593,10 +594,10 @@ class Observable:
 
             try:
                 # Check that what was already calculated is correct
-                with pd.HDFStore(self.vkt_hdf_file, mode='r') as vkt_hfile:
-                    metadata = vkt_hfile.get_storer('vkt').attrs.metadata
+                with pd.HDFStore(self.vkt_hdf_file, mode="r") as vkt_hfile:
+                    metadata = vkt_hfile.get_storer("vkt").attrs.metadata
 
-                if metadata['no_slices'] == self.no_slices:
+                if metadata["no_slices"] == self.no_slices:
                     # Check for the correct number of k values
                     if metadata["angle_averaging"] == self.angle_averaging:
                         # Check for the correct max harmonics
@@ -611,9 +612,7 @@ class Observable:
             except OSError:
                 self.calc_kt_data(vkt_flag=True)
 
-    def calc_kt_data(self,
-                     nkt_flag: bool = False,
-                     vkt_flag: bool = False):
+    def calc_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
         """Calculate Time dependent Fourier space quantities.
 
         Parameters
@@ -634,12 +633,14 @@ class Observable:
             tinit = self.timer.current()
             for isl in range(self.no_slices):
                 print("\nCalculating n(k,t) for slice {}/{}.".format(isl + 1, self.no_slices))
-                nkt = calc_nkt(self.dump_dir,
-                               (start_slice, end_slice, self.slice_steps),
-                               self.dump_step,
-                               self.species_num,
-                               self.k_list,
-                               self.verbose)
+                nkt = calc_nkt(
+                    self.dump_dir,
+                    (start_slice, end_slice, self.slice_steps),
+                    self.dump_step,
+                    self.species_num,
+                    self.k_list,
+                    self.verbose,
+                )
                 start_slice += self.slice_steps * self.dump_step
                 end_slice += self.slice_steps * self.dump_step
                 # n(k,t).shape = [no_species, time, k vectors]
@@ -647,14 +648,14 @@ class Observable:
                 slc_column = "slice {}".format(isl + 1)
                 for isp, sp_name in enumerate(self.species_names):
                     df_columns = [
-                        slc_column + '_{}_k = [{}, {}, {}]'.format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))]
+                        slc_column + "_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))
+                    ]
                     # df_columns = [time_column, *k_columns]
-                    nkt_dataframe = pd.concat([nkt_dataframe, pd.DataFrame(nkt[isp, :, :], columns=df_columns)],
-                                              axis=1)
+                    nkt_dataframe = pd.concat([nkt_dataframe, pd.DataFrame(nkt[isp, :, :], columns=df_columns)], axis=1)
 
             tuples = [tuple(c.split("_")) for c in nkt_dataframe.columns]
-            nkt_dataframe.columns = pd.MultiIndex.from_tuples(tuples, names=['slices', 'species', 'harmonics'])
+            nkt_dataframe.columns = pd.MultiIndex.from_tuples(tuples, names=["slices", "species", "harmonics"])
 
             # Sample nkt_dataframe
             # slices slice 1
@@ -665,16 +666,16 @@ class Observable:
             if os.path.exists(self.nkt_hdf_file):
                 os.remove(self.nkt_hdf_file)
 
-            hfile = pd.HDFStore(self.nkt_hdf_file, mode='w')
-            hfile.put('nkt', nkt_dataframe)
+            hfile = pd.HDFStore(self.nkt_hdf_file, mode="w")
+            hfile.put("nkt", nkt_dataframe)
             # This metadata is needed to check if I need to recalculate
             metadata = {
-                'no_slices': self.no_slices,
-                'max_k_harmonics': self.max_k_harmonics,
-                'angle_averaging': self.angle_averaging
+                "no_slices": self.no_slices,
+                "max_k_harmonics": self.max_k_harmonics,
+                "angle_averaging": self.angle_averaging,
             }
 
-            hfile.get_storer('nkt').attrs.metadata = metadata
+            hfile.get_storer("nkt").attrs.metadata = metadata
             hfile.close()
 
             tend = self.timer.current()
@@ -684,51 +685,55 @@ class Observable:
             vkt_dataframe = pd.DataFrame()
             tinit = self.timer.current()
             for isl in range(self.no_slices):
-                print("\nCalculating longitudinal and transverse "
-                      "velocity fluctuations v(k,t) for slice {}/{}.".format(isl + 1, self.no_slices))
-                vkt, vkt_i, vkt_j, vkt_k = calc_vkt(self.dump_dir,
-                                                    (start_slice, end_slice, self.slice_steps),
-                                                    self.dump_step,
-                                                    self.species_num,
-                                                    self.k_list,
-                                                    self.verbose)
+                print(
+                    "\nCalculating longitudinal and transverse "
+                    "velocity fluctuations v(k,t) for slice {}/{}.".format(isl + 1, self.no_slices)
+                )
+                vkt, vkt_i, vkt_j, vkt_k = calc_vkt(
+                    self.dump_dir,
+                    (start_slice, end_slice, self.slice_steps),
+                    self.dump_step,
+                    self.species_num,
+                    self.k_list,
+                    self.verbose,
+                )
                 start_slice += self.slice_steps * self.dump_step
                 end_slice += self.slice_steps * self.dump_step
 
                 slc_column = "slice {}".format(isl + 1)
                 for isp, sp_name in enumerate(self.species_names):
                     df_columns = [
-                        slc_column + '_Longitudinal_{}_k = [{}, {}, {}]'.format(sp_name,
-                                                                                *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))]
+                        slc_column
+                        + "_Longitudinal_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))
+                    ]
                     # df_columns = [time_column, *k_columns]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt[isp, :, :], columns=df_columns)],
-                                              axis=1)
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt[isp, :, :], columns=df_columns)], axis=1)
                     df_columns = [
-                        slc_column + '_Transverse i_{}_k = [{}, {}, {}]'.format(sp_name,
-                                                                                *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_i[isp, :, :], columns=df_columns)],
-                                              axis=1)
+                        slc_column
+                        + "_Transverse i_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))
+                    ]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_i[isp, :, :], columns=df_columns)], axis=1)
                     df_columns = [
-                        slc_column + '_Transverse j_{}_k = [{}, {}, {}]'.format(sp_name,
-                                                                                *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_j[isp, :, :], columns=df_columns)],
-                                              axis=1)
+                        slc_column
+                        + "_Transverse j_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))
+                    ]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_j[isp, :, :], columns=df_columns)], axis=1)
 
                     df_columns = [
-                        slc_column + '_Transverse k_{}_k = [{}, {}, {}]'.format(sp_name,
-                                                                                *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_k[isp, :, :], columns=df_columns)],
-                                              axis=1)
+                        slc_column
+                        + "_Transverse k_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                        for ik in range(len(self.k_harmonics))
+                    ]
+                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_k[isp, :, :], columns=df_columns)], axis=1)
 
             # Full string: slice 1_Longitudinal_He_k = [1, 0, 0]
             tuples = [tuple(c.split("_")) for c in vkt_dataframe.columns]
             vkt_dataframe.columns = pd.MultiIndex.from_tuples(
-                tuples,
-                names=['slices', 'species', 'direction', 'harmonics'])
+                tuples, names=["slices", "species", "direction", "harmonics"]
+            )
 
             # Sample nkt_dataframe
             # slices slice 1
@@ -739,16 +744,16 @@ class Observable:
             if os.path.exists(self.vkt_hdf_file):
                 os.remove(self.vkt_hdf_file)
             # Save the data and append metadata
-            hfile = pd.HDFStore(self.vkt_hdf_file, mode='w')
-            hfile.put('vkt', vkt_dataframe)
+            hfile = pd.HDFStore(self.vkt_hdf_file, mode="w")
+            hfile.put("vkt", vkt_dataframe)
             # This metadata is needed to check if I need to recalculate
             metadata = {
-                'no_slices': self.no_slices,
-                'max_k_harmonics': self.max_k_harmonics,
-                'angle_averaging': self.angle_averaging
+                "no_slices": self.no_slices,
+                "max_k_harmonics": self.max_k_harmonics,
+                "angle_averaging": self.angle_averaging,
             }
 
-            hfile.get_storer('vkt').attrs.metadata = metadata
+            hfile.get_storer("vkt").attrs.metadata = metadata
             hfile.close()
 
             tend = self.timer.current()
@@ -762,12 +767,7 @@ class Observable:
             #          max_harmonics=self.max_k_harmonics,
             #          angle_averaging=self.angle_averaging)
 
-    def plot(self,
-             scaling: tuple = None,
-             acf: bool = False,
-             figname: str = None,
-             show: bool = False,
-             **kwargs):
+    def plot(self, scaling: tuple = None, acf: bool = False, figname: str = None, show: bool = False, **kwargs):
         """
         Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
 
@@ -804,15 +804,16 @@ class Observable:
         if scaling:
             if isinstance(scaling, tuple):
                 plot_dataframe.iloc[:, 0] /= scaling[0]
-                plot_dataframe[kwargs['y']] /= scaling[1]
+                plot_dataframe[kwargs["y"]] /= scaling[1]
             else:
                 plot_dataframe.iloc[:, 0] /= scaling
 
         # Autocorrelation function renormalization
         if acf:
+            plot_dataframe = self.dataframe_acf.copy()
             for i, col in enumerate(plot_dataframe.columns[1:], 1):
                 plot_dataframe[col] /= plot_dataframe[col].iloc[0]
-            kwargs['logx'] = True
+            kwargs["logx"] = True
             # kwargs['xlabel'] = 'Time difference'
 
         # if self.__class__.__name__ == 'StaticStructureFactor':
@@ -832,19 +833,16 @@ class Observable:
 
         # Saving
         if figname:
-            fig.savefig(os.path.join(self.saving_dir, figname + '_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, figname + "_" + self.job_id + ".png"))
         else:
-            fig.savefig(os.path.join(self.saving_dir, 'Plot_' + self.__name__ + '_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, "Plot_" + self.__name__ + "_" + self.job_id + ".png"))
 
         if show:
             fig.show()
 
         return axes_handle
 
-    def time_stamp(
-            self,
-            message: str,
-            timing: tuple):
+    def time_stamp(self, message: str, timing: tuple):
         """Print to screen the elapsed time of the calculation.
 
         Parameters
@@ -860,14 +858,12 @@ class Observable:
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
 
         if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-            print_message = '\n{} Time: {} sec {} msec {} usec {} nsec'.format(message,
-                                                                               int(t_sec),
-                                                                               int(t_msec),
-                                                                               int(t_usec),
-                                                                               int(t_nsec))
+            print_message = "\n{} Time: {} sec {} msec {} usec {} nsec".format(
+                message, int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
+            )
 
         else:
-            print_message = '\n{} Time: {} hrs {} min {} sec'.format(message, int(t_hrs), int(t_min), int(t_sec))
+            print_message = "\n{} Time: {} hrs {} min {} sec".format(message, int(t_hrs), int(t_min), int(t_sec))
 
         # logging.info(print_message)
         print(print_message)
@@ -878,11 +874,11 @@ class Observable:
         if not self.k_observable:
             if not isinstance(self.dataframe_slices.columns, pd.MultiIndex):
                 self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
-                    [tuple(c.split("_")) for c in self.dataframe_slices.columns])
+                    [tuple(c.split("_")) for c in self.dataframe_slices.columns]
+                )
 
         if not isinstance(self.dataframe.columns, pd.MultiIndex):
-            self.dataframe.columns = pd.MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in self.dataframe.columns])
+            self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
 
         # Sort the index for speed
         # see https://stackoverflow.com/questions/54307300/what-causes-indexing-past-lexsort-depth-warning-in-pandas
@@ -893,33 +889,34 @@ class Observable:
         # Save the data.
         if os.path.exists(self.filename_hdf_slices):
             os.remove(self.filename_hdf_slices)
-        self.dataframe_slices.to_hdf(self.filename_hdf_slices, mode='w', key=self.__name__)
+        self.dataframe_slices.to_hdf(self.filename_hdf_slices, mode="w", key=self.__name__)
 
         if os.path.exists(self.filename_hdf):
             os.remove(self.filename_hdf)
-        self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
+        self.dataframe.to_hdf(self.filename_hdf, mode="w", key=self.__name__)
 
         if self.acf_observable:
 
             if not isinstance(self.dataframe_acf.columns, pd.MultiIndex):
                 self.dataframe_acf.columns = pd.MultiIndex.from_tuples(
-                    [tuple(c.split("_")) for c in self.dataframe_acf.columns])
+                    [tuple(c.split("_")) for c in self.dataframe_acf.columns]
+                )
 
             if not isinstance(self.dataframe_acf_slices.columns, pd.MultiIndex):
                 self.dataframe_acf_slices.columns = pd.MultiIndex.from_tuples(
-                    [tuple(c.split("_")) for c in self.dataframe_acf_slices.columns])
+                    [tuple(c.split("_")) for c in self.dataframe_acf_slices.columns]
+                )
 
             self.dataframe_acf = self.dataframe_acf.sort_index()
             self.dataframe_acf_slices = self.dataframe_acf_slices.sort_index()
 
-
             if os.path.exists(self.filename_hdf_acf):
                 os.remove(self.filename_hdf_acf)
-            self.dataframe_acf.to_hdf(self.filename_hdf_acf, mode='w', key=self.__name__)
+            self.dataframe_acf.to_hdf(self.filename_hdf_acf, mode="w", key=self.__name__)
 
             if os.path.exists(self.filename_hdf_acf_slices):
                 os.remove(self.filename_hdf_acf_slices)
-            self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode='w', key=self.__name__)
+            self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode="w", key=self.__name__)
 
     def save_pickle(self):
         """Save the observable's info into a pickle file."""
@@ -931,7 +928,7 @@ class Observable:
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
         self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
-        with open(self.filename_pickle, 'rb') as pkl_data:
+        with open(self.filename_pickle, "rb") as pkl_data:
             data = pickle.load()
         self.from_dict(data.__dict__)
 
@@ -944,9 +941,11 @@ class Observable:
 
         """
         # Needed if no_slices has been passed
-        self.slice_steps = int(
-            self.no_steps / self.dump_step / self.no_slices) if self.no_dumps < self.no_slices else \
-            int(self.no_dumps / self.no_slices)
+        self.slice_steps = (
+            int(self.no_steps / self.dump_step / self.no_slices)
+            if self.no_dumps < self.no_slices
+            else int(self.no_dumps / self.no_slices)
+        )
 
         if self.k_observable:
             self.parse_k_data()
@@ -1019,17 +1018,13 @@ class CurrentCorrelationFunction(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'ccf'
-        self.__long_name__ = 'Current Correlation Function'
+        self.__name__ = "ccf"
+        self.__long_name__ = "Current Correlation Function"
         self.k_observable = True
         self.kw_observable = True
 
     @setup_doc
-    def setup(self,
-              params,
-              phase: str = None,
-              no_slices: int = None,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
         super().setup_init(params, phase=phase, no_slices=no_slices)
 
@@ -1049,7 +1044,7 @@ class CurrentCorrelationFunction(Observable):
 
         tinit = self.timer.current()
 
-        vkt_df = pd.read_hdf(self.vkt_hdf_file, mode='r', key='vkt')
+        vkt_df = pd.read_hdf(self.vkt_hdf_file, mode="r", key="vkt")
         # Containers
         vkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
         vkt_i = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
@@ -1076,7 +1071,7 @@ class CurrentCorrelationFunction(Observable):
             # Lkw_tot += Lkw / self.no_slices
             # Tkw_tot += Tkw / self.no_slices
             # Create the dataframe's column names
-            slc_column = 'slice {}'.format(isl + 1)
+            slc_column = "slice {}".format(isl + 1)
             ka_columns = ["ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
 
             # Save the full Lkw into a Dataframe
@@ -1084,66 +1079,80 @@ class CurrentCorrelationFunction(Observable):
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
                     columns = [
-                        "Longitudinal_{}-{}_".format(sp1, sp2) + slc_column +
-                        "_{}_k = [{}, {}, {}]".format(
-                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int))
+                        "Longitudinal_{}-{}_".format(sp1, sp2)
+                        + slc_column
+                        + "_{}_k = [{}, {}, {}]".format(
+                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int)
+                        )
                         # Final string : Longitudinal_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
-                        for ik in range(len(self.k_harmonics))]
+                        for ik in range(len(self.k_harmonics))
+                    ]
                     self.dataframe_slices = pd.concat(
-                        [self.dataframe_slices, pd.DataFrame(Lkw[sp_indx, :, :].T, columns=columns)],
-                        axis=1)
+                        [self.dataframe_slices, pd.DataFrame(Lkw[sp_indx, :, :].T, columns=columns)], axis=1
+                    )
 
                     columns = [
-                        "Transverse_{}-{}_".format(sp1, sp2) + slc_column +
-                        "_{}_k = [{}, {}, {}]".format(
-                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int))
+                        "Transverse_{}-{}_".format(sp1, sp2)
+                        + slc_column
+                        + "_{}_k = [{}, {}, {}]".format(
+                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int)
+                        )
                         # Final string : Transverse_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
-                        for ik in range(len(self.k_harmonics))]
+                        for ik in range(len(self.k_harmonics))
+                    ]
                     self.dataframe_slices = pd.concat(
-                        [self.dataframe_slices, pd.DataFrame(Tkw[sp_indx, :, :].T, columns=columns)],
-                        axis=1)
+                        [self.dataframe_slices, pd.DataFrame(Tkw[sp_indx, :, :].T, columns=columns)], axis=1
+                    )
 
                     sp_indx += 1
 
         # Create the MultiIndex
         tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
-        self.dataframe_slices.columns = pd.MultiIndex.from_tuples(tuples,
-                                                                  names=['direction', 'species', 'slices', 'ka_value',
-                                                                         'k_harmonics'])
+        self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
+            tuples, names=["direction", "species", "slices", "ka_value", "k_harmonics"]
+        )
         # Now the actual dataframe
-        self.dataframe[' _ _ _ _Frequencies'] = self.frequencies
+        self.dataframe[" _ _ _ _Frequencies"] = self.frequencies
         # Take the mean and std and store them into the dataframe to return
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
-                comp_name = '{}-{}'.format(sp1_name, sp2_name)
+                comp_name = "{}-{}".format(sp1_name, sp2_name)
                 ### LONGITUDINAL
                 # Rename the columns with values of ka
-                ka_columns = ['Longitudinal_' + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
-                              for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [
+                    "Longitudinal_" + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
+                    for ik, ka in enumerate(self.ka_values)
+                ]
 
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
-                df_mean = self.dataframe_slices['Longitudinal'][comp_name].mean(level=1, axis='columns')
+                df_mean = self.dataframe_slices["Longitudinal"][comp_name].mean(level=1, axis="columns")
                 df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = ['Longitudinal_' + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
-                              for ik, ka in enumerate(self.ka_values)]
-                df_std = self.dataframe_slices['Longitudinal'][comp_name].std(level=1, axis='columns')
+                ka_columns = [
+                    "Longitudinal_" + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
+                    for ik, ka in enumerate(self.ka_values)
+                ]
+                df_std = self.dataframe_slices["Longitudinal"][comp_name].std(level=1, axis="columns")
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
 
                 self.dataframe = pd.concat([self.dataframe, df_mean, df_std], axis=1)
 
                 ### Transverse
                 # Rename the columns with values of ka
-                ka_columns = ['Transverse_' + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
-                              for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [
+                    "Transverse_" + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
+                    for ik, ka in enumerate(self.ka_values)
+                ]
 
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
-                tdf_mean = self.dataframe_slices['Transverse'][comp_name].mean(level=1, axis='columns')
+                tdf_mean = self.dataframe_slices["Transverse"][comp_name].mean(level=1, axis="columns")
                 tdf_mean = tdf_mean.rename(col_mapper(tdf_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = ['Transverse_' + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
-                              for ik, ka in enumerate(self.ka_values)]
-                tdf_std = self.dataframe_slices['Transverse'][comp_name].std(level=1, axis='columns')
+                ka_columns = [
+                    "Transverse_" + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
+                    for ik, ka in enumerate(self.ka_values)
+                ]
+                tdf_std = self.dataframe_slices["Transverse"][comp_name].std(level=1, axis="columns")
                 tdf_std = tdf_std.rename(col_mapper(tdf_std.columns, ka_columns), axis=1)
 
                 self.dataframe = pd.concat([self.dataframe, tdf_mean, tdf_std], axis=1)
@@ -1159,55 +1168,54 @@ class CurrentCorrelationFunction(Observable):
 
     def pretty_print(self):
         """Print current correlation function calculation parameters for help in choice of simulation parameters."""
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('k wavevector information saved in: \n', self.k_file)
-        print('v(k,t) data saved in: \n', self.vkt_hdf_file)
-        print('Data saved in: \n{}'.format(self.filename_hdf))
-        print('Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies,'
-              ' \n\t self.dataframe')
-        print('\nFrequency Space Parameters:')
-        print('\tNo. of slices = {}'.format(self.no_slices))
-        print('\tNo. dumps per slice = {}'.format(self.slice_steps))
-        print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
-        print('\tdw = {:1.4f} w_p = {:1.4e} [rad/s]'.format(
-            self.w_min / self.total_plasma_frequency, self.w_min))
-        print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
-        print('\tw_max = {:1.4f} w_p = {:1.4e} [rad/s]'.format(
-            self.w_max / self.total_plasma_frequency, self.w_max))
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("k wavevector information saved in: \n", self.k_file)
+        print("v(k,t) data saved in: \n", self.vkt_hdf_file)
+        print("Data saved in: \n{}".format(self.filename_hdf))
+        print("Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies," " \n\t self.dataframe")
+        print("\nFrequency Space Parameters:")
+        print("\tNo. of slices = {}".format(self.no_slices))
+        print("\tNo. dumps per slice = {}".format(self.slice_steps))
+        print("\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)")
+        print("\tdw = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_min / self.total_plasma_frequency, self.w_min))
+        print("\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)")
+        print("\tw_max = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_max / self.total_plasma_frequency, self.w_max))
 
-        print('\n\nWavevector parameters:')
-        print('Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
-        print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
+        print("\n\nWavevector parameters:")
+        print("Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)")
+        print("k_min = {:.4f} / a_ws = {:.4e} ".format(self.ka_values[0], self.ka_values[0] / self.a_ws), end="")
         print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nAngle averaging choice: {}'.format(self.angle_averaging))
-        if self.angle_averaging == 'full':
-            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
-            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                              self.max_aa_ka_value / self.a_ws), end='')
+        print("\nAngle averaging choice: {}".format(self.angle_averaging))
+        if self.angle_averaging == "full":
+            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
+            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
+            print(
+                "\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
+                end="",
+            )
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == 'custom':
-            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
-            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-            print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                                 self.max_aa_ka_value / self.a_ws), end='')
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
-            print('\tLargest wavector k_max = k_min * n_x')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                              self.max_ka_value / self.a_ws), end='')
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == 'principal_axis':
-            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
-            print('\tLargest wavector k_max = k_min * n_x')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                              self.max_ka_value / self.a_ws), end='')
+        elif self.angle_averaging == "custom":
+            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
+            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
+            print(
+                "\tAA k_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
+                end="",
+            )
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
-        print('No. of unique ka values to calculate = {}'.format(len(self.ka_values)))
+            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
+            print("\tLargest wavector k_max = k_min * n_x")
+            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == "principal_axis":
+            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
+            print("\tLargest wavector k_max = k_min * n_x")
+            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print("\nTotal number of k values to calculate = {}".format(len(self.k_list)))
+        print("No. of unique ka values to calculate = {}".format(len(self.ka_values)))
 
 
 class DiffusionFlux(Observable):
@@ -1233,16 +1241,12 @@ class DiffusionFlux(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'diff_flux'
-        self.__long_name__ = 'Diffusion Flux'
+        self.__name__ = "diff_flux"
+        self.__long_name__ = "Diffusion Flux"
         self.acf_observable = True
 
     @setup_doc
-    def setup(self,
-              params,
-              phase: str = None,
-              no_slices: int = None,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
         super().setup_init(params, phase, no_slices)
         self.update_args(**kwargs)
@@ -1276,9 +1280,9 @@ class DiffusionFlux(Observable):
             vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
             # print("\nParsing particles' velocities.")
-            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
-                                           desc='Read in data',
-                                           disable=not self.verbose)):
+            for it, dump in enumerate(
+                tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
+            ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
                 vel[0, it, :] = datap["vel"][:, 0]
@@ -1294,10 +1298,9 @@ class DiffusionFlux(Observable):
             # This returns two arrays
             # diff_fluxes = array of shape (no_fluxes, no_dim, no_dumps_per_slice)
             # df_acf = array of shape (no_fluxes_acf, no_dim + 1, no_dumps_per_slice)
-            diff_fluxes, df_acf = calc_diff_flux_acf(vel,
-                                                     self.species_num,
-                                                     self.species_concentrations,
-                                                     self.species_masses)
+            diff_fluxes, df_acf = calc_diff_flux_acf(
+                vel, self.species_num, self.species_concentrations, self.species_masses
+            )
 
             # # Store the data
             for i, flux in enumerate(diff_fluxes):
@@ -1341,9 +1344,11 @@ class DiffusionFlux(Observable):
             self.dataframe_acf[df_acf_str + " {}_Z_Mean".format(i)] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
             self.dataframe_acf[df_acf_str + " {}_Z_Std".format(i)] = self.dataframe_acf_slices[zcol_str].std(axis=1)
             self.dataframe_acf[df_acf_str + " {}_Total_Mean".format(i)] = self.dataframe_acf_slices[tot_col_str].mean(
-                axis=1)
+                axis=1
+            )
             self.dataframe_acf[df_acf_str + " {}_Total_Std".format(i)] = self.dataframe_acf_slices[tot_col_str].std(
-                axis=1)
+                axis=1
+            )
 
         self.save_hdf()
         tend = self.timer.current()
@@ -1352,15 +1357,17 @@ class DiffusionFlux(Observable):
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_hdf)
-        print('Data accessible at: self.dataframe')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("Data saved in: \n", self.filename_hdf)
+        print("Data accessible at: self.dataframe")
 
-        print('\nNo. of slices = {}'.format(self.no_slices))
-        print('No. dumps per slice = {}'.format(int(self.slice_steps / self.dump_step)))
-        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            self.dt * self.slice_steps,
-            int(self.dt * self.slice_steps * self.total_plasma_frequency)))
+        print("\nNo. of slices = {}".format(self.no_slices))
+        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
+        print(
+            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
+                self.dt * self.slice_steps, int(self.dt * self.slice_steps * self.total_plasma_frequency)
+            )
+        )
 
 
 class DynamicStructureFactor(Observable):
@@ -1381,16 +1388,13 @@ class DynamicStructureFactor(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'dsf'
-        self.__long_name__ = 'Dynamic Structure Factor'
+        self.__name__ = "dsf"
+        self.__long_name__ = "Dynamic Structure Factor"
         self.kw_observable = True
         self.k_observable = True
 
     @setup_doc
-    def setup(self, params,
-              phase: str = None,
-              no_slices: int = 1,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = 1, **kwargs):
 
         super().setup_init(params, phase, no_slices)
         self.update_args(**kwargs)
@@ -1409,7 +1413,7 @@ class DynamicStructureFactor(Observable):
         self.parse_kt_data(nkt_flag=True)
 
         tinit = self.timer.current()
-        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode='r', key='nkt')
+        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
         for isl in range(0, self.no_slices):
             # Initialize container
             nkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
@@ -1420,26 +1424,30 @@ class DynamicStructureFactor(Observable):
             Skw_all = calc_Skw(nkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
 
             # Create the dataframe's column names
-            slc_column = 'slice {}'.format(isl + 1)
+            slc_column = "slice {}".format(isl + 1)
             ka_columns = ["ka = {:.8f}".format(ka) for ik, ka in enumerate(self.ka_values)]
             # Save the full Skw into a Dataframe
             sp_indx = 0
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
                     columns = [
-                        "{}-{}_".format(sp1, sp2) + slc_column +
-                        "_{}_k = [{}, {}, {}]".format(
-                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))]
+                        "{}-{}_".format(sp1, sp2)
+                        + slc_column
+                        + "_{}_k = [{}, {}, {}]".format(
+                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int)
+                        )
+                        for ik in range(len(self.k_harmonics))
+                    ]
                     self.dataframe_slices = pd.concat(
-                        [self.dataframe_slices, pd.DataFrame(Skw_all[sp_indx, :, :].T, columns=columns)],
-                        axis=1)
+                        [self.dataframe_slices, pd.DataFrame(Skw_all[sp_indx, :, :].T, columns=columns)], axis=1
+                    )
                     sp_indx += 1
 
         # Create the MultiIndex
         tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
-        self.dataframe_slices.columns = pd.MultiIndex.from_tuples(tuples,
-                                                                  names=['species', 'slices', 'k_index', 'k_harmonics'])
+        self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
+            tuples, names=["species", "slices", "k_index", "k_harmonics"]
+        )
 
         # Now for the actual df
         self.dataframe[" _ _Frequencies"] = self.frequencies
@@ -1447,17 +1455,15 @@ class DynamicStructureFactor(Observable):
         # Take the mean and std and store them into the dataframe to return
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
-                skw_name = '{}-{}'.format(sp1_name, sp2_name)
+                skw_name = "{}-{}".format(sp1_name, sp2_name)
                 # Rename the columns with values of ka
-                ka_columns = [skw_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in
-                              enumerate(self.ka_values)]
+                ka_columns = [skw_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
-                df_mean = self.dataframe_slices[skw_name].mean(level=1, axis='columns')
+                df_mean = self.dataframe_slices[skw_name].mean(level=1, axis="columns")
                 df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = [skw_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in
-                              enumerate(self.ka_values)]
-                df_std = self.dataframe_slices[skw_name].std(level=1, axis='columns')
+                ka_columns = [skw_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
+                df_std = self.dataframe_slices[skw_name].std(level=1, axis="columns")
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
 
                 self.dataframe = pd.concat([self.dataframe, df_mean, df_std], axis=1)
@@ -1470,55 +1476,55 @@ class DynamicStructureFactor(Observable):
     def pretty_print(self):
         """Print dynamic structure factor calculation parameters for help in choice of simulation parameters."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('k wavevector information saved in: \n', self.k_file)
-        print('n(k,t) data saved in: \n', self.nkt_hdf_file)
-        print('Data saved in: \n', self.filename_hdf)
-        print('Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("k wavevector information saved in: \n", self.k_file)
+        print("n(k,t) data saved in: \n", self.nkt_hdf_file)
+        print("Data saved in: \n", self.filename_hdf)
+        print("Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe")
 
-        print('\nFrequency Space Parameters:')
-        print('\tNo. of slices = {}'.format(self.no_slices))
-        print('\tNo. dumps per slice = {}'.format(self.slice_steps))
-        print('\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)')
-        print('\tdw = {:1.4f} w_p = {:1.4e} [rad/s]'.format(
-            self.w_min / self.total_plasma_frequency, self.w_min))
-        print('\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)')
-        print('\tw_max = {:1.4f} w_p = {:1.4e} [rad/s]'.format(
-            self.w_max / self.total_plasma_frequency, self.w_max))
+        print("\nFrequency Space Parameters:")
+        print("\tNo. of slices = {}".format(self.no_slices))
+        print("\tNo. dumps per slice = {}".format(self.slice_steps))
+        print("\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)")
+        print("\tdw = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_min / self.total_plasma_frequency, self.w_min))
+        print("\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)")
+        print("\tw_max = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_max / self.total_plasma_frequency, self.w_max))
 
-        print('\n\nWavevector parameters:')
-        print('Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
-        print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
+        print("\n\nWavevector parameters:")
+        print("Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)")
+        print("k_min = {:.4f} / a_ws = {:.4e} ".format(self.ka_values[0], self.ka_values[0] / self.a_ws), end="")
         print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nAngle averaging choice: {}'.format(self.angle_averaging))
-        if self.angle_averaging == 'full':
-            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
-            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                              self.max_aa_ka_value / self.a_ws), end='')
+        print("\nAngle averaging choice: {}".format(self.angle_averaging))
+        if self.angle_averaging == "full":
+            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
+            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
+            print(
+                "\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
+                end="",
+            )
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == 'custom':
-            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
-            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-            print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                                 self.max_aa_ka_value / self.a_ws), end='')
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
-            print('\tLargest wavector k_max = k_min * n_x')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                              self.max_ka_value / self.a_ws), end='')
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == 'principal_axis':
-            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
-            print('\tLargest wavector k_max = k_min * n_x')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                              self.max_ka_value / self.a_ws), end='')
+        elif self.angle_averaging == "custom":
+            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
+            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
+            print(
+                "\tAA k_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
+                end="",
+            )
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
-        print('No. of unique ka values to calculate = {}'.format(len(self.ka_values)))
+            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
+            print("\tLargest wavector k_max = k_min * n_x")
+            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == "principal_axis":
+            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
+            print("\tLargest wavector k_max = k_min * n_x")
+            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print("\nTotal number of k values to calculate = {}".format(len(self.k_list)))
+        print("No. of unique ka values to calculate = {}".format(len(self.ka_values)))
 
 
 class ElectricCurrent(Observable):
@@ -1526,16 +1532,12 @@ class ElectricCurrent(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'ec'
-        self.__long_name__ = 'Electric Current'
+        self.__name__ = "ec"
+        self.__long_name__ = "Electric Current"
         self.acf_observable = True
 
     @setup_doc
-    def setup(self,
-              params,
-              phase: str = None,
-              no_slices: int = None,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
         super().setup_init(params, phase, no_slices)
         self.update_args(**kwargs)
@@ -1565,9 +1567,9 @@ class ElectricCurrent(Observable):
             vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
             # print("\nParsing particles' velocities.")
-            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
-                                           desc='Read in data',
-                                           disable=not self.verbose)):
+            for it, dump in enumerate(
+                tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
+            ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
                 vel[0, it, :] = datap["vel"][:, 0]
@@ -1681,8 +1683,8 @@ class PressureTensor(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'pressure_tensor'
-        self.__long_name__ = 'Pressure Tensor'
+        self.__name__ = "pressure_tensor"
+        self.__long_name__ = "Pressure Tensor"
         self.acf_observable = True
 
     @setup_doc
@@ -1707,6 +1709,7 @@ class PressureTensor(Observable):
         # Initialize timer
         t0 = self.timer.current()
 
+        # Dataframes' columns names
         pt_str_kin = "Pressure Tensor Kinetic"
         pt_str_pot = "Pressure Tensor Potential"
         pt_str = "Pressure Tensor"
@@ -1724,18 +1727,18 @@ class PressureTensor(Observable):
             pt_pot_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
             pt_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
 
-            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
-                                           desc='Calculating Pressure Tensor',
-                                           disable=not self.verbose)):
+            for it, dump in enumerate(
+                tqdm(
+                    range(start_slice, end_slice, self.dump_step),
+                    desc="Calculating Pressure Tensor",
+                    disable=not self.verbose,
+                )
+            ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
 
                 pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
-                    datap["vel"],
-                    datap["virial"],
-                    self.species_masses,
-                    self.species_num,
-                    self.box_volume
+                    datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume, self.dimensions
                 )
 
             if isl == 0:
@@ -1749,13 +1752,17 @@ class PressureTensor(Observable):
             # This is needed for the bulk viscosity
             delta_pressure = pressure - pressure.mean()
             self.dataframe_slices["Delta Pressure_slice {}".format(isl)] = delta_pressure
-            self.dataframe_acf_slices["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(delta_pressure,
-                                                                                                       delta_pressure)
+            self.dataframe_acf_slices["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(
+                delta_pressure, delta_pressure
+            )
 
             if self.dimensions == 3:
-                dim_lbl = ['x', 'y', 'z']
+                dim_lbl = ["x", "y", "z"]
             elif self.dimensions == 2:
-                dim_lbl = ['x', 'y']
+                dim_lbl = ["x", "y"]
+
+            for i, ax1 in enumerate(dim_lbl):
+                pt_temp[i, i, :] -= pressure.mean()
 
             # The reason for dividing these two loops is because I want a specific order in the dataframe.
             # Pressure, Stress Tensor, All
@@ -1765,7 +1772,7 @@ class PressureTensor(Observable):
                     self.dataframe_slices[pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_pot_temp[i, j, :]
                     self.dataframe_slices[pt_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_temp[i, j, :]
 
-            # Calculate the (thermal fluctuations of the) elastic moduli from the acf of the stress tensor elements
+            # Calculate the ACF of the thermal fluctuations of the pressure tensor elements
             # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
             for i, ax1 in enumerate(dim_lbl):
                 for j, ax2 in enumerate(dim_lbl):
@@ -1778,18 +1785,26 @@ class PressureTensor(Observable):
 
                             C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
 
+                            # Kinetic
                             self.dataframe_acf_slices[
-                                pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_kin
+                                pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            ] = C_ijkl_kin
+                            # Potential
                             self.dataframe_acf_slices[
-                                pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl_pot
+                                pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            ] = C_ijkl_pot
+                            # Kin-Pot
                             self.dataframe_acf_slices[
-                                pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
-                                                                                isl)] = C_ijkl_kinpot
+                                pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            ] = C_ijkl_kinpot
+                            # Pot-Kin
                             self.dataframe_acf_slices[
-                                pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4,
-                                                                                isl)] = C_ijkl_potkin
+                                pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            ] = C_ijkl_potkin
+                            # Total
                             self.dataframe_acf_slices[
-                                pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)] = C_ijkl
+                                pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            ] = C_ijkl
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
@@ -1817,16 +1832,16 @@ class PressureTensor(Observable):
                 # Kinetic Terms
                 ij_col_str = [pt_str_kin + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
                 self.dataframe[pt_str_kin + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(
-                    axis=1)
-                self.dataframe[pt_str_kin + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(
-                    axis=1)
+                    axis=1
+                )
+                self.dataframe[pt_str_kin + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
 
                 # Potential Terms
                 ij_col_str = [pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
                 self.dataframe[pt_str_pot + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(
-                    axis=1)
-                self.dataframe[pt_str_pot + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(
-                    axis=1)
+                    axis=1
+                )
+                self.dataframe[pt_str_pot + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
 
                 # Full
                 ij_col_str = [pt_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
@@ -1838,40 +1853,46 @@ class PressureTensor(Observable):
                 for k, ax3 in enumerate(dim_lbl):
                     for l, ax4 in enumerate(dim_lbl):
                         # Kinetic Terms
-                        ij_col_acf_str = [pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                                          for isl in range(self.no_slices)]
+                        ij_col_acf_str = [
+                            pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            for isl in range(self.no_slices)
+                        ]
                         mean_column = pt_acf_str_kin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_kin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Potential Terms
-                        ij_col_acf_str = [pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                                          for isl in range(self.no_slices)]
+                        ij_col_acf_str = [
+                            pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            for isl in range(self.no_slices)
+                        ]
                         mean_column = pt_acf_str_pot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_pot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Kinetic-Potential Terms
-                        ij_col_acf_str = [pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                                          for isl in range(self.no_slices)]
+                        ij_col_acf_str = [
+                            pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            for isl in range(self.no_slices)
+                        ]
                         mean_column = pt_acf_str_kinpot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_kinpot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Potential-Kinetic Terms
-                        ij_col_acf_str = [pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                                          for isl in range(self.no_slices)]
+                        ij_col_acf_str = [
+                            pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            for isl in range(self.no_slices)
+                        ]
                         mean_column = pt_acf_str_potkin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str_potkin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-                        #
                         # Full
-                        ij_col_acf_str = [pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                                          for isl in range(self.no_slices)]
+                        ij_col_acf_str = [
+                            pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
+                            for isl in range(self.no_slices)
+                        ]
                         mean_column = pt_acf_str + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
                         std_column = pt_acf_str + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
@@ -1931,7 +1952,7 @@ class PressureTensor(Observable):
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution function object.
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential object.
 
         Returns
@@ -1948,27 +1969,30 @@ class PressureTensor(Observable):
 
         hartrees, corrs = rdf.compute_sum_rule_integrals(potential)
         # Eq. 2.3.43 -44 in Boon and Yip
-        I_1 = beta * (hartrees[:, 1].sum() + corrs[:, 1].sum())
-        I_2 = beta * (hartrees[:, 2].sum() + corrs[:, 2].sum())
+        I_1 = hartrees[:, 1].sum() + corrs[:, 1].sum()
+        I_2 = hartrees[:, 2].sum() + corrs[:, 2].sum()
+        nkT = self.total_num_density / beta
 
-        sigma_zzzz = (3.0 * self.total_num_density ** 2 + 2.0 / 15.0 * I_1 + 1.0 / 5.0 * I_2) / beta ** 2
-        sigma_zzxx = (1.0 * self.total_num_density ** 2 - 2.0 / 5.0 * I_1 + 1.0 / 15.0 * I_2) / beta ** 2
-        sigma_xyxy = (1.0 * self.total_num_density ** 2 + 4.0 / 15.0 * I_1 + 1.0 / 15.0 * I_2) / beta ** 2
+        sigma_zzzz = 3.0 * nkT + 2.0 / 15.0 * I_1 + I_2 / 5.0
+        sigma_zzxx = nkT - 2.0 / 5.0 * I_1 + I_2 / 15.0
+        sigma_xyxy = nkT + 4.0 / 15.0 * I_1 + I_2 / 15.0
 
         return sigma_zzzz, sigma_zzxx, sigma_xyxy
 
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_hdf)
-        print('Data accessible at: self.dataframe')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("Data saved in: \n", self.filename_hdf)
+        print("Data accessible at: self.dataframe")
 
-        print('\nNo. of slices = {}'.format(self.no_slices))
-        print('No. dumps per slice = {}'.format(int(self.slice_steps / self.dump_step)))
-        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            self.dt * self.slice_steps,
-            int(self.dt * self.slice_steps * self.total_plasma_frequency)))
+        print("\nNo. of slices = {}".format(self.no_slices))
+        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
+        print(
+            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
+                self.dt * self.slice_steps, int(self.dt * self.slice_steps * self.total_plasma_frequency)
+            )
+        )
 
 
 class RadialDistributionFunction(Observable):
@@ -1987,8 +2011,8 @@ class RadialDistributionFunction(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'rdf'
-        self.__long_name__ = 'Radial Distribution Function'
+        self.__name__ = "rdf"
+        self.__long_name__ = "Radial Distribution Function"
 
     @setup_doc
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
@@ -2036,16 +2060,16 @@ class RadialDistributionFunction(Observable):
         for i, sp1 in enumerate(self.species_num):
             pair_density[i, i] = sp1 * (sp1 - 1) / self.box_volume
             if self.num_species > 1:
-                for j, sp2 in enumerate(self.species_num[i + 1:], i + 1):
+                for j, sp2 in enumerate(self.species_num[i + 1 :], i + 1):
                     pair_density[i, j] = sp1 * sp2 / self.box_volume
 
         # Calculate the volume of each bin
         sphere_shell_const = 4.0 * np.pi / 3.0
-        bin_vol[0] = sphere_shell_const * self.dr_rdf ** 3
+        bin_vol[0] = sphere_shell_const * self.dr_rdf**3
         for ir in range(1, self.no_bins):
             r1 = ir * self.dr_rdf
             r2 = (ir + 1) * self.dr_rdf
-            bin_vol[ir] = sphere_shell_const * (r2 ** 3 - r1 ** 3)
+            bin_vol[ir] = sphere_shell_const * (r2**3 - r1**3)
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
         # Save the ra values for simplicity
@@ -2060,16 +2084,17 @@ class RadialDistributionFunction(Observable):
             datap = load_from_restart(self.dump_dir, int(dump_no))
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:], i):
-                    denom_const = (pair_density[i, j] * self.slice_steps * self.dump_step)
-                    col_str = '{}-{} RDF_slice {}'.format(sp1, sp2, isl)
-                    self.dataframe_slices[col_str] = (datap["rdf_hist"][:, i, j]
-                                                      + datap["rdf_hist"][:, j, i]) / denom_const / bin_vol
+                    denom_const = pair_density[i, j] * self.slice_steps * self.dump_step
+                    col_str = "{}-{} RDF_slice {}".format(sp1, sp2, isl)
+                    self.dataframe_slices[col_str] = (
+                        (datap["rdf_hist"][:, i, j] + datap["rdf_hist"][:, j, i]) / denom_const / bin_vol
+                    )
 
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
-                col_str = ['{}-{} RDF_slice {}'.format(sp1, sp2, isl) for isl in range(self.no_slices)]
-                self.dataframe['{}-{} RDF_Mean'.format(sp1, sp2)] = self.dataframe_slices[col_str].mean(axis=1)
-                self.dataframe['{}-{} RDF_Std'.format(sp1, sp2)] = self.dataframe_slices[col_str].std(axis=1)
+                col_str = ["{}-{} RDF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+                self.dataframe["{}-{} RDF_Mean".format(sp1, sp2)] = self.dataframe_slices[col_str].mean(axis=1)
+                self.dataframe["{}-{} RDF_Std".format(sp1, sp2)] = self.dataframe_slices[col_str].std(axis=1)
 
         self.save_hdf()
         self.save_pickle()
@@ -2098,7 +2123,7 @@ class RadialDistributionFunction(Observable):
 
         Parameters
         ----------
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Sarkas Potential object. Needed for all its attributes.
 
         Returns
@@ -2112,7 +2137,7 @@ class RadialDistributionFunction(Observable):
             Shape = ( :attr:`~.no_obs`, 3).
 
         """
-        r = np.copy(self.dataframe['Distance'].iloc[:, 0])
+        r = np.copy(self.dataframe["Distance"].iloc[:, 0])
 
         dims = self.dimensions
         dim_const = 2.0 ** (dims - 2) * np.pi
@@ -2129,11 +2154,11 @@ class RadialDistributionFunction(Observable):
         obs_indx = 0
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
-                h_r = self.dataframe[('{}-{} RDF'.format(sp1_name, sp2_name), "Mean")].to_numpy() - 1.0
+                h_r = self.dataframe[("{}-{} RDF".format(sp1_name, sp2_name), "Mean")].to_numpy() - 1.0
 
                 if potential.type == "coulomb":
                     u_r = potential.matrix[0, sp1, sp2] / r
-                    dv_dr = - potential.matrix[0, sp1, sp2] / r2
+                    dv_dr = -potential.matrix[0, sp1, sp2] / r2
                     d2v_dr2 = 2.0 * potential.matrix[0, sp1, sp2] / r3
                     # Check for finiteness of first element when r[0] = 0.0
                     if not np.isfinite(dv_dr[0]):
@@ -2143,27 +2168,48 @@ class RadialDistributionFunction(Observable):
                 elif potential.type == "yukawa":
                     kappa = potential.matrix[1, sp1, sp2]
                     u_r = potential.matrix[0, sp1, sp2] * np.exp(-kappa * r) / r
-                    dv_dr = - (1.0 + kappa * r) * u_r / r
+                    dv_dr = -(1.0 + kappa * r) * u_r / r
 
-                    d2v_dr2 = - u_r / r \
-                              - (1.0 + kappa * r) ** 2 * u_r / r2 \
-                              + (1.0 + kappa * r) * u_r / r2
+                    d2v_dr2 = -u_r / r - (1.0 + kappa * r) ** 2 * u_r / r2 + (1.0 + kappa * r) * u_r / r2
 
                     # Check for finiteness of first element when r[0] = 0.0
                     if not np.isfinite(dv_dr[0]):
                         dv_dr[0] = dv_dr[1]
                         d2v_dr2[0] = d2v_dr2[1]
 
+                elif potential.type == "lj":
+                    epsilon = potential.matrix[0, sp1, sp2]
+                    sigma = potential.matrix[1, sp1, sp2]
+                    s_over_r = sigma / r
+                    s_over_r_high = s_over_r ** potential.matrix[2, sp1, sp2]
+                    s_over_r_low = s_over_r ** potential.matrix[3, sp1, sp2]
+
+                    u_r = epsilon * (s_over_r_high - s_over_r_low)
+                    dv_dr = (
+                        -epsilon
+                        * (potential.matrix[2, sp1, sp2] * s_over_r_high - potential.matrix[3, sp1, sp2] * s_over_r_low)
+                        / r
+                    )
+
+                    d2v_dr2 = (
+                        epsilon
+                        * (
+                            potential.matrix[2, sp1, sp2] * (potential.matrix[2, sp1, sp2] + 1) * s_over_r_high
+                            - potential.matrix[3, sp1, sp2] * (potential.matrix[3, sp1, sp2] + 1) * s_over_r_low
+                        )
+                        / r2
+                    )
+
                 else:
-                    raise ValueError('Unknown potential')
+                    raise ValueError("Unknown potential")
 
                 densities = self.species_num_dens[sp1] * self.species_num_dens[sp2]
 
                 hartrees[obs_indx, 0] = dim_const * densities * np.trapz(u_r * r ** (dims - 1), x=r)
                 corrs[obs_indx, 0] = dim_const * densities * np.trapz(u_r * h_r * r ** (dims - 1), x=r)
 
-                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r ** dims, x=r)
-                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r ** dims, x=r)
+                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r**dims, x=r)
+                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r**dims, x=r)
 
                 hartrees[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
                 corrs[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
@@ -2175,14 +2221,15 @@ class RadialDistributionFunction(Observable):
     def pretty_print(self):
         """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_hdf)
-        print('Data accessible at: self.ra_values, self.dataframe')
-        print('\nNo. bins = {}'.format(self.no_bins))
-        print('dr = {:1.4f} a_ws = {:1.4e} '.format(self.dr_rdf / self.a_ws, self.dr_rdf), end='')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("Data saved in: \n", self.filename_hdf)
+        print("Data accessible at: self.ra_values, self.dataframe")
+        print("\nNo. bins = {}".format(self.no_bins))
+        print("dr = {:1.4f} a_ws = {:1.4e} ".format(self.dr_rdf / self.a_ws, self.dr_rdf), end="")
         print("[cm]" if self.units == "cgs" else "[m]")
-        print('Maximum Distance (i.e. potential.rc)= {:1.4f} a_ws = {:1.4e} '.format(
-            self.rc / self.a_ws, self.rc), end='')
+        print(
+            "Maximum Distance (i.e. potential.rc)= {:1.4f} a_ws = {:1.4e} ".format(self.rc / self.a_ws, self.rc), end=""
+        )
         print("[cm]" if self.units == "cgs" else "[m]")
 
 
@@ -2220,17 +2267,13 @@ class StaticStructureFactor(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'ssf'
-        self.__long_name__ = 'Static Structure Function'
+        self.__name__ = "ssf"
+        self.__long_name__ = "Static Structure Function"
         self.k_observable = True
         self.kw_observable = False
 
     @setup_doc
-    def setup(self,
-              params,
-              phase: str = None,
-              no_slices: int = None,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
         super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(**kwargs)
@@ -2254,7 +2297,7 @@ class StaticStructureFactor(Observable):
         self.dataframe[k_column] = self.k_values
 
         tinit = self.timer.current()
-        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode='r', key='nkt')
+        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
         for isl in tqdm(range(self.no_slices)):
             # Initialize container
             nkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
@@ -2276,7 +2319,7 @@ class StaticStructureFactor(Observable):
                 column = ["{}-{} SSF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
 
                 self.dataframe["{}-{} SSF_Mean".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
-                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
+                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].std(axis=1)
 
         self.save_hdf()
 
@@ -2286,43 +2329,45 @@ class StaticStructureFactor(Observable):
     def pretty_print(self):
         """Print static structure factor calculation parameters for help in choice of simulation parameters."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('k wavevector information saved in: \n', self.k_file)
-        print('n(k,t) Data saved in: \n', self.nkt_hdf_file)
-        print('Data saved in: \n', self.filename_hdf)
-        print('Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe')
-        print('\nSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)')
-        print('k_min = {:.4f} / a_ws = {:.4e} '.format(self.ka_values[0], self.ka_values[0] / self.a_ws), end='')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("k wavevector information saved in: \n", self.k_file)
+        print("n(k,t) Data saved in: \n", self.nkt_hdf_file)
+        print("Data saved in: \n", self.filename_hdf)
+        print("Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe")
+        print("\nSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)")
+        print("k_min = {:.4f} / a_ws = {:.4e} ".format(self.ka_values[0], self.ka_values[0] / self.a_ws), end="")
         print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nAngle averaging choice: {}'.format(self.angle_averaging))
-        if self.angle_averaging == 'full':
-            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
-            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                              self.max_aa_ka_value / self.a_ws), end='')
+        print("\nAngle averaging choice: {}".format(self.angle_averaging))
+        if self.angle_averaging == "full":
+            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
+            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
+            print(
+                "\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
+                end="",
+            )
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == 'custom':
-            print('\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_aa_harmonics))
-            print('\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)')
-            print('\tAA k_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_aa_ka_value,
-                                                                 self.max_aa_ka_value / self.a_ws), end='')
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
-            print('\tLargest wavector k_max = k_min * n_x')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                              self.max_ka_value / self.a_ws), end='')
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == 'principal_axis':
-            print('\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}'.format(*self.max_k_harmonics))
-            print('\tLargest wavector k_max = k_min * n_x')
-            print('\tk_max = {:.4f} / a_ws = {:1.4e} '.format(self.max_ka_value,
-                                                              self.max_ka_value / self.a_ws), end='')
+        elif self.angle_averaging == "custom":
+            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
+            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
+            print(
+                "\tAA k_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
+                end="",
+            )
             print("[1/cm]" if self.units == "cgs" else "[1/m]")
 
-        print('\nTotal number of k values to calculate = {}'.format(len(self.k_list)))
-        print('No. of unique ka values to calculate = {}'.format(len(self.ka_values)))
+            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
+            print("\tLargest wavector k_max = k_min * n_x")
+            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+        elif self.angle_averaging == "principal_axis":
+            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
+            print("\tLargest wavector k_max = k_min * n_x")
+            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
+            print("[1/cm]" if self.units == "cgs" else "[1/m]")
+
+        print("\nTotal number of k values to calculate = {}".format(len(self.k_list)))
+        print("No. of unique ka values to calculate = {}".format(len(self.ka_values)))
 
 
 class Thermodynamics(Observable):
@@ -2332,13 +2377,10 @@ class Thermodynamics(Observable):
 
     def __init__(self):
         super().__init__()
-        self.__name__ = 'therm'
-        self.__long_name__ = 'Thermodynamics'
+        self.__name__ = "therm"
+        self.__long_name__ = "Thermodynamics"
 
-    def setup(self,
-              params,
-              phase: str = None,
-              **kwargs):
+    def setup(self, params, phase: str = None, **kwargs):
         """
         Assign attributes from simulation's parameters.
 
@@ -2351,8 +2393,8 @@ class Thermodynamics(Observable):
             Phase to compute. Default = 'production'.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -2368,19 +2410,17 @@ class Thermodynamics(Observable):
     @arg_update_doc
     def update_args(self, **kwargs):
 
-        if self.phase.lower() == 'production':
+        if self.phase.lower() == "production":
             self.saving_dir = self.production_dir
-        elif self.phase.lower() == 'equilibration':
+        elif self.phase.lower() == "equilibration":
             self.saving_dir = self.equilibration_dir
-        elif self.phase.lower() == 'magnetization':
+        elif self.phase.lower() == "magnetization":
             self.saving_dir = self.magnetization_dir
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
-    def compute_from_rdf(self,
-                         rdf,
-                         potential):
+    def compute_from_rdf(self, rdf, potential):
         """
         Calculate the correlational energy and correlation pressure using
         :meth:`sarkas.tools.observables.RadialDistributionFunction.compute_sum_rule_integrals` method.
@@ -2409,7 +2449,7 @@ class Thermodynamics(Observable):
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution Function object.
 
-        potential: sarkas.potentials.core.Potential
+        potential : :class:`sarkas.potentials.core.Potential`
             Potential object.
 
         Returns
@@ -2436,8 +2476,8 @@ class Thermodynamics(Observable):
         u_hartree = self.box_volume * hartrees[:, 0]
         u_corr = self.box_volume * corrs[:, 0]
 
-        p_hartree = - hartrees[:, 1] / 3.0
-        p_corr = - corrs[:, 1] / 3.0
+        p_hartree = -hartrees[:, 1] / 3.0
+        p_corr = -corrs[:, 1] / 3.0
 
         nkT = self.total_num_density / self.beta
         return nkT, u_hartree, u_corr, p_hartree, p_corr
@@ -2449,26 +2489,27 @@ class Thermodynamics(Observable):
         if phase:
             self.phase = phase.lower()
 
-        if self.phase == 'equilibration':
+        if self.phase == "equilibration":
             self.dataframe = pd.read_csv(self.eq_energy_filename, index_col=False)
             self.fldr = self.equilibration_dir
-        elif self.phase == 'production':
+        elif self.phase == "production":
             self.dataframe = pd.read_csv(self.prod_energy_filename, index_col=False)
             self.fldr = self.production_dir
-        elif self.phase == 'magnetization':
+        elif self.phase == "magnetization":
             self.dataframe = pd.read_csv(self.mag_energy_filename, index_col=False)
             self.fldr = self.magnetization_dir
 
         self.beta = 1.0 / (self.dataframe["Temperature"].mean() * self.kB)
 
-    def temp_energy_plot(self,
-                         process,
-                         info_list: list = None,
-                         phase: str = None,
-                         show: bool = False,
-                         publication: bool = False,
-                         figname: str = None,
-                         ):
+    def temp_energy_plot(
+        self,
+        process,
+        info_list: list = None,
+        phase: str = None,
+        show: bool = False,
+        publication: bool = False,
+        figname: str = None,
+    ):
         """
         Plot Temperature and Energy as a function of time with their cumulative sum and average.
 
@@ -2497,7 +2538,7 @@ class Thermodynamics(Observable):
         if phase:
             phase = phase.lower()
             self.phase = phase
-            if self.phase == 'equilibration':
+            if self.phase == "equilibration":
                 self.no_dumps = self.eq_no_dumps
                 self.dump_dir = self.eq_dump_dir
                 self.dump_step = self.eq_dump_step
@@ -2506,7 +2547,7 @@ class Thermodynamics(Observable):
                 self.parse(self.phase)
                 self.dataframe = self.dataframe.iloc[1:, :]
 
-            elif self.phase == 'production':
+            elif self.phase == "production":
                 self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
                 self.dump_step = self.prod_dump_step
@@ -2514,7 +2555,7 @@ class Thermodynamics(Observable):
                 self.no_steps = self.production_steps
                 self.parse(self.phase)
 
-            elif self.phase == 'magnetization':
+            elif self.phase == "magnetization":
                 self.no_dumps = self.mag_no_dumps
                 self.dump_dir = self.mag_dump_dir
                 self.dump_step = self.mag_dump_step
@@ -2530,7 +2571,7 @@ class Thermodynamics(Observable):
         fsz = 16
         if publication:
 
-            plt.style.use('PUBstyle')
+            plt.style.use("PUBstyle")
             gs = GridSpec(3, 7)
 
             # Temperature plots
@@ -2558,21 +2599,20 @@ class Thermodynamics(Observable):
         # Grab the current rcParams so that I can restore it later
         current_rcParams = plt.rcParams.copy()
         # Update rcParams with the necessary values
-        plt.rc('font', size=fsz)  # controls default text sizes
-        plt.rc('axes', titlesize=fsz)  # fontsize of the axes title
-        plt.rc('axes', labelsize=fsz)  # fontsize of the x and y labels
-        plt.rc('xtick', labelsize=fsz - 2)  # fontsize of the tick labels
-        plt.rc('ytick', labelsize=fsz - 2)  # fontsize of the tick labels
+        plt.rc("font", size=fsz)  # controls default text sizes
+        plt.rc("axes", titlesize=fsz)  # fontsize of the axes title
+        plt.rc("axes", labelsize=fsz)  # fontsize of the x and y labels
+        plt.rc("xtick", labelsize=fsz - 2)  # fontsize of the tick labels
+        plt.rc("ytick", labelsize=fsz - 2)  # fontsize of the tick labels
 
         # Grab the color line list from the plt cycler. I will used this in the hist plots
-        color_from_cycler = plt.rcParams['axes.prop_cycle'].by_key()["color"]
+        color_from_cycler = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
         # ------------------------------------------- Temperature -------------------------------------------#
         # Calculate Temperature plot's labels and multipliers
-        time_mul, temp_mul, time_prefix, temp_prefix, time_lbl, temp_lbl = plot_labels(self.dataframe["Time"],
-                                                                                       self.dataframe["Temperature"],
-                                                                                       "Time",
-                                                                                       "Temperature", self.units)
+        time_mul, temp_mul, time_prefix, temp_prefix, time_lbl, temp_lbl = plot_labels(
+            self.dataframe["Time"], self.dataframe["Temperature"], "Time", "Temperature", self.units
+        )
         # Rescale quantities
         time = time_mul * self.dataframe["Time"]
         Temperature = temp_mul * self.dataframe["Temperature"]
@@ -2587,36 +2627,29 @@ class Thermodynamics(Observable):
 
         # Temperature Main plot
         T_main_plot.plot(time, Temperature, alpha=0.7)
-        T_main_plot.plot(time, T_cumavg, label='Moving Average')
-        T_main_plot.axhline(T_desired, ls='--', c='r', alpha=0.7, label='Desired T')
-        T_main_plot.legend(loc='best')
+        T_main_plot.plot(time, T_cumavg, label="Moving Average")
+        T_main_plot.axhline(T_desired, ls="--", c="r", alpha=0.7, label="Desired T")
+        T_main_plot.legend(loc="best")
         T_main_plot.set(ylabel="Temperature" + temp_lbl, xlabel="Time" + time_lbl)
 
         # Temperature Deviation plot
         T_delta_plot.plot(time, Delta_T, alpha=0.5)
         T_delta_plot.plot(time, Delta_T_cum_avg, alpha=0.8)
-        T_delta_plot.set(xticks=[], ylabel=r'Deviation [%]')
+        T_delta_plot.set(xticks=[], ylabel=r"Deviation [%]")
 
         # This was a failed attempt to calculate the theoretical Temperature distribution.
         # Gaussian
         T_dist = scp_stats.norm(loc=T_desired, scale=Temperature.std())
         # Histogram plot
-        sns.histplot(y=Temperature,
-                     bins='auto',
-                     stat='density',
-                     alpha=0.75,
-                     legend='False',
-                     ax=T_hist_plot)
+        sns.histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
         T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
-        T_hist_plot.plot(T_dist.pdf(Temperature), Temperature, color=color_from_cycler[1])
+        T_hist_plot.plot(T_dist.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1])
 
         # ------------------------------------------- Total Energy -------------------------------------------#
         # Calculate Energy plot's labels and multipliers
-        time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(self.dataframe["Time"],
-                                                                       self.dataframe["Total Energy"],
-                                                                       "Time",
-                                                                       "Energy",
-                                                                       self.units)
+        time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
+            self.dataframe["Time"], self.dataframe["Total Energy"], "Time", "Energy", self.units
+        )
 
         Energy = energy_mul * self.dataframe["Total Energy"]
         # Total Energy moving average
@@ -2627,15 +2660,15 @@ class Thermodynamics(Observable):
 
         # Energy main plot
         E_main_plot.plot(time, Energy, alpha=0.7)
-        E_main_plot.plot(time, E_cumavg, label='Moving Average')
-        E_main_plot.axhline(Energy.mean(), ls='--', c='r', alpha=0.7, label='Avg')
-        E_main_plot.legend(loc='best')
+        E_main_plot.plot(time, E_cumavg, label="Moving Average")
+        E_main_plot.axhline(Energy.mean(), ls="--", c="r", alpha=0.7, label="Avg")
+        E_main_plot.legend(loc="best")
         E_main_plot.set(ylabel="Total Energy" + energy_lbl, xlabel="Time" + time_lbl)
 
         # Deviation Plot
         E_delta_plot.plot(time, Delta_E, alpha=0.5)
         E_delta_plot.plot(time, Delta_E_cum_avg, alpha=0.8)
-        E_delta_plot.set(xticks=[], ylabel=r'Deviation [%]')
+        E_delta_plot.set(xticks=[], ylabel=r"Deviation [%]")
 
         # (Failed) Attempt to calculate the theoretical Energy distribution
         # In an NVT ensemble Energy fluctuation are given by sigma(E) = sqrt( k_B T^2 C_v)
@@ -2643,37 +2676,31 @@ class Thermodynamics(Observable):
         # Since this requires a lot of prior calculation I skip it and just make a Gaussian
         E_dist = scp_stats.norm(loc=Energy.mean(), scale=Energy.std())
         # Histogram plot
-        sns.histplot(y=Energy,
-                     bins='auto',
-                     stat='density',
-                     alpha=0.75,
-                     legend='False',
-                     ax=E_hist_plot)
+        sns.histplot(y=Energy, bins="auto", stat="density", alpha=0.75, legend="False", ax=E_hist_plot)
         # Grab the second color since the first is used for histplot
-        E_hist_plot.plot(E_dist.pdf(Energy), Energy, color=color_from_cycler[1])
+        E_hist_plot.plot(E_dist.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
 
         E_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
 
         if not publication:
-            dt_mul, _, _, _, dt_lbl, _ = plot_labels(process.integrator.dt,
-                                                     self.dataframe["Total Energy"],
-                                                     "Time",
-                                                     "Energy",
-                                                     self.units)
+            dt_mul, _, _, _, dt_lbl, _ = plot_labels(
+                process.integrator.dt, self.dataframe["Total Energy"], "Time", "Energy", self.units
+            )
 
             # Information section
             Info_plot.axis([0, 10, 0, 10])
             Info_plot.grid(False)
 
-            Info_plot.text(0., 10, "Job ID: {}".format(self.job_id))
-            Info_plot.text(0., 9.5, "Phase: {}".format(self.phase.capitalize()))
-            Info_plot.text(0., 9.0, "No. of species = {}".format(len(self.species_num)))
+            Info_plot.text(0.0, 10, "Job ID: {}".format(self.job_id))
+            Info_plot.text(0.0, 9.5, "Phase: {}".format(self.phase.capitalize()))
+            Info_plot.text(0.0, 9.0, "No. of species = {}".format(len(self.species_num)))
             y_coord = 8.5
             for isp, sp in enumerate(process.species):
-                Info_plot.text(0., y_coord, "Species {} : {}".format(isp + 1, sp.name))
+                Info_plot.text(0.0, y_coord, "Species {} : {}".format(isp + 1, sp.name))
                 Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num))
-                Info_plot.text(0.0, y_coord - 1.,
-                               "  Temperature = {:.2f} {}".format(temp_mul * sp.temperature, temp_lbl))
+                Info_plot.text(
+                    0.0, y_coord - 1.0, "  Temperature = {:.2f} {}".format(temp_mul * sp.temperature, temp_lbl)
+                )
                 y_coord -= 1.5
 
             y_coord -= 0.25
@@ -2684,7 +2711,12 @@ class Thermodynamics(Observable):
                     "Thermostat: {}".format(process.thermostat.type),
                     "  Berendsen rate = {:.2f}".format(process.thermostat.relaxation_rate),
                     "  Equilibration cycles = {}".format(
-                        int(process.parameters.equilibration_steps * process.integrator.dt * process.parameters.total_plasma_frequency)),
+                        int(
+                            process.parameters.equilibration_steps
+                            * process.integrator.dt
+                            * process.parameters.total_plasma_frequency
+                        )
+                    ),
                     "Potential: {}".format(process.potential.type),
                     "  Coupling Const = {:.2e}".format(process.parameters.coupling_constant),
                     "  Tot Force Error = {:.2e}".format(process.parameters.force_error),
@@ -2698,22 +2730,27 @@ class Thermodynamics(Observable):
                     # "Completed time = {:.2f} {}".format(completed_steps * delta_t / dt_mul * time_mul, time_lbl),
                     "Production time = {:.2f} {}".format(self.no_steps * delta_t / dt_mul * time_mul, time_lbl),
                     "Production cycles = {}".format(
-                        int(process.parameters.production_steps * process.integrator.dt * process.parameters.total_plasma_frequency))
+                        int(
+                            process.parameters.production_steps
+                            * process.integrator.dt
+                            * process.parameters.total_plasma_frequency
+                        )
+                    ),
                 ]
             for itext, text_str in enumerate(info_list):
-                Info_plot.text(0., y_coord, text_str)
+                Info_plot.text(0.0, y_coord, text_str)
                 y_coord -= 0.5
 
-            Info_plot.axis('off')
+            Info_plot.axis("off")
 
         if not publication:
             fig.tight_layout()
 
         # Saving
         if figname:
-            fig.savefig(os.path.join(self.saving_dir, figname + '_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, figname + "_" + self.job_id + ".png"))
         else:
-            fig.savefig(os.path.join(self.saving_dir, 'Plot_EnsembleCheck_' + self.job_id + '.png'))
+            fig.savefig(os.path.join(self.saving_dir, "Plot_EnsembleCheck_" + self.job_id + ".png"))
 
         if show:
             fig.show()
@@ -2727,16 +2764,12 @@ class VelocityAutoCorrelationFunction(Observable):
 
     def __init__(self):
         super(VelocityAutoCorrelationFunction, self).__init__()
-        self.__name__ = 'vacf'
-        self.__long_name__ = 'Velocity AutoCorrelation Function'
+        self.__name__ = "vacf"
+        self.__long_name__ = "Velocity AutoCorrelation Function"
         self.acf_observable = True
 
     @setup_doc
-    def setup(self,
-              params,
-              phase: str = None,
-              no_slices: int = None,
-              **kwargs):
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
 
         super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(**kwargs)
@@ -2754,16 +2787,16 @@ class VelocityAutoCorrelationFunction(Observable):
         end_slice = self.slice_steps * self.dump_step
         time = np.zeros(self.slice_steps)
 
-        vacf_str = 'VACF'
+        vacf_str = "VACF"
         t0 = self.timer.current()
         for isl in range(self.no_slices):
             print("\nCalculating vacf for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
             vel = np.zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
             #
-            for it, dump in enumerate(tqdm(range(start_slice, end_slice, self.dump_step),
-                                           desc='Read in data',
-                                           disable=not self.verbose)):
+            for it, dump in enumerate(
+                tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
+            ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
                 vel[0, :, it] = datap["vel"][:, 0]
@@ -2813,16 +2846,18 @@ class VelocityAutoCorrelationFunction(Observable):
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('Data saved in: \n', self.filename_acf_hdf)
-        print('Data accessible at: self.dataframe_acf')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("Data saved in: \n", self.filename_acf_hdf)
+        print("Data accessible at: self.dataframe_acf")
 
-        print('\nNo. of slices = {}'.format(self.no_slices))
-        print('No. dumps per slice = {}'.format(int(self.slice_steps / self.dump_step)))
+        print("\nNo. of slices = {}".format(self.no_slices))
+        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
 
-        print('Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T'.format(
-            self.dt * self.slice_steps,
-            int(self.dt * self.slice_steps * self.total_plasma_frequency)))
+        print(
+            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
+                self.dt * self.slice_steps, int(self.dt * self.slice_steps * self.total_plasma_frequency)
+            )
+        )
 
 
 class VelocityDistribution(Observable):
@@ -2850,17 +2885,19 @@ class VelocityDistribution(Observable):
 
     def __init__(self):
         super(VelocityDistribution, self).__init__()
-        self.__name__ = 'vd'
-        self.__long_name__ = 'Velocity Distribution'
+        self.__name__ = "vd"
+        self.__long_name__ = "Velocity Distribution"
 
-    def setup(self,
-              params,
-              phase: str = None,
-              no_slices: int = None,
-              hist_kwargs: dict = None,
-              max_no_moment: int = None,
-              curve_fit_kwargs: dict = None,
-              **kwargs):
+    def setup(
+        self,
+        params,
+        phase: str = None,
+        no_slices: int = None,
+        hist_kwargs: dict = None,
+        max_no_moment: int = None,
+        curve_fit_kwargs: dict = None,
+        **kwargs
+    ):
 
         """
         Assign attributes from simulation's parameters.
@@ -2885,21 +2922,17 @@ class VelocityDistribution(Observable):
             Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
 
-        super().setup_init(params, self.phase)
+        super().setup_init(params, phase=phase, no_slices=no_slices)
         self.update_args(hist_kwargs, max_no_moment, curve_fit_kwargs, **kwargs)
 
     @arg_update_doc
-    def update_args(self,
-                    hist_kwargs: dict = None,
-                    max_no_moment: int = None,
-                    curve_fit_kwargs: dict = None,
-                    **kwargs):
+    def update_args(self, hist_kwargs: dict = None, max_no_moment: int = None, curve_fit_kwargs: dict = None, **kwargs):
 
         if curve_fit_kwargs:
             self.curve_fit_kwargs = curve_fit_kwargs
@@ -2908,7 +2941,7 @@ class VelocityDistribution(Observable):
         if hist_kwargs:
             # Is it a dictionary ?
             if not isinstance(hist_kwargs, dict):
-                raise TypeError('hist_kwargs not a dictionary. Please pass a dictionary.')
+                raise TypeError("hist_kwargs not a dictionary. Please pass a dictionary.")
             # Did you pass a single dictionary for multispecies?
             for key, value in hist_kwargs.items():
                 # The elements of hist_kwargs should be lists
@@ -2928,7 +2961,7 @@ class VelocityDistribution(Observable):
 
         # Create the directory where to store the computed data
         # First the name of the observable
-        saving_dir = os.path.join(self.postprocessing_dir, 'VelocityDistribution')
+        saving_dir = os.path.join(self.postprocessing_dir, "VelocityDistribution")
         if not os.path.exists(saving_dir):
             os.mkdir(saving_dir)
         # then the phase
@@ -2939,18 +2972,19 @@ class VelocityDistribution(Observable):
         if self.multi_run_average:
             for r in range(self.runs):
                 # Direct to the correct dumps directory
-                dump_dir = os.path.join('run{}'.format(r), os.path.join('Simulation',
-                                                                        os.path.join(self.phase.capitalize(), 'dumps')))
+                dump_dir = os.path.join(
+                    "run{}".format(r), os.path.join("Simulation", os.path.join(self.phase.capitalize(), "dumps"))
+                )
                 dump_dir = os.path.join(self.simulations_dir, dump_dir)
                 self.adjusted_dump_dir.append(dump_dir)
             # Re-path the saving directory
-            saving_dir = os.path.join(self.simulations_dir, 'PostProcessing')
+            saving_dir = os.path.join(self.simulations_dir, "PostProcessing")
             if not os.path.exists(saving_dir):
                 os.mkdir(saving_dir)
             saving_dir = os.path.join(saving_dir, self.phase.capitalize())
             if not os.path.exists(saving_dir):
                 os.mkdir(saving_dir)
-            self.saving_dir = os.path.join(saving_dir, 'VelocityDistribution')
+            self.saving_dir = os.path.join(saving_dir, "VelocityDistribution")
         else:
             self.adjusted_dump_dir = [self.dump_dir]
 
@@ -2958,7 +2992,7 @@ class VelocityDistribution(Observable):
             os.mkdir(self.saving_dir)
 
         # Directories in which to store plots
-        self.plots_dir = os.path.join(self.saving_dir, 'Plots')
+        self.plots_dir = os.path.join(self.saving_dir, "Plots")
         if not os.path.exists(self.plots_dir):
             os.mkdir(self.plots_dir)
 
@@ -2967,18 +3001,18 @@ class VelocityDistribution(Observable):
             self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution.csv")
             self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution.h5")
         else:
-            self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + '.csv')
-            self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + '.h5')
+            self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + ".csv")
+            self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + ".h5")
 
-        if hasattr(self, 'max_no_moment'):
+        if hasattr(self, "max_no_moment"):
             self.moments_dataframe = None
-            self.mom_df_filename_csv = os.path.join(self.saving_dir, "Moments_" + self.job_id + '.csv')
+            self.mom_df_filename_csv = os.path.join(self.saving_dir, "Moments_" + self.job_id + ".csv")
 
-        if hasattr(self, 'max_hermite_order'):
+        if hasattr(self, "max_hermite_order"):
             self.hermite_dataframe = None
-            self.herm_df_filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + '.csv')
+            self.herm_df_filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + ".csv")
             # some checks
-            if not hasattr(self, 'hermite_rms_tol'):
+            if not hasattr(self, "hermite_rms_tol"):
                 self.hermite_rms_tol = 0.05
 
         self.species_plots_dirs = None
@@ -3003,9 +3037,9 @@ class VelocityDistribution(Observable):
         print("\nCollecting data from snapshots ...")
         if self.dimensional_average:
             # Loop over the runs
-            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
+            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc="Runs Loop")):
                 # Loop over the timesteps
-                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc='Timestep Loop'):
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
                     # Read data from file
                     dump = int(it * self.dump_step)
                     datap = load_from_restart(dump_dir_r, dump)
@@ -3021,14 +3055,15 @@ class VelocityDistribution(Observable):
                         #          ...)
                         # The flatten array would like this
                         # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
-                        vel_raw[it, 0, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].flatten('F')
+                        vel_raw[it, 0, start_indx:end_indx] = datap["vel"][datap["names"] == sp_name].flatten("F")
 
                     time[it] = datap["time"]
+
         else:  # Dimensional Average = False
             # Loop over the runs
-            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc='Runs Loop')):
+            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc="Runs Loop")):
                 # Loop over the timesteps
-                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc='Timestep Loop'):
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
                     # Read data from file
                     dump = int(it * self.dump_step)
                     datap = load_from_restart(dump_dir_r, dump)
@@ -3038,16 +3073,13 @@ class VelocityDistribution(Observable):
                         start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
                         end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
                         # Use a mask to grab only the selected species and transpose the array to put dimensions first
-                        vel_raw[it, :, start_indx: end_indx] = datap["vel"][datap["names"] == sp_name].transpose()
+                        vel_raw[it, :, start_indx:end_indx] = datap["vel"][datap["names"] == sp_name].transpose()
 
-                time[it] = datap["time"]
+                    time[it] = datap["time"]
 
         return time, vel_raw
 
-    def compute(self,
-                compute_moments: bool = False,
-                compute_Grad_expansion: bool = False
-                ):
+    def compute(self, compute_moments: bool = False, compute_Grad_expansion: bool = False):
         """
         Calculate the moments of the velocity distributions and save them to a pandas dataframes and csv.
 
@@ -3057,8 +3089,8 @@ class VelocityDistribution(Observable):
             Dictionary with arguments to pass to ``numpy.histogram``.
 
         **kwargs :
-            These will overwrite any :attr:`sarkas.core.Parameters`
-            or default :attr:`sarkas.tools.observables.Observable`
+            These will overwrite any :class:`sarkas.core.Parameters`
+            or default :class:`sarkas.tools.observables.Observable`
             attributes and/or add new ones.
 
         """
@@ -3068,28 +3100,66 @@ class VelocityDistribution(Observable):
 
         # Grab simulation data
         time, vel_raw = self.grab_sim_data()
+        # Normality test
+        self.normality_tests(time=time, vel_data=vel_raw)
 
         # Make the velocity distribution
         self.create_distribution(vel_raw, time)
 
         # Calculate velocity moments
         if compute_moments:
-            self.compute_moments(
-                parse_data=False,
-                vel_raw=vel_raw,
-                time=time)
+            self.compute_moments(parse_data=False, vel_raw=vel_raw, time=time)
         #
         if compute_Grad_expansion:
             self.compute_hermite_expansion(compute_moments=False)
 
+    def normality_tests(self, time, vel_data):
+        """
+        Calculate the Shapiro-Wilks test for each timestep from the raw velocity data.
+
+
+        Parameters
+        ----------
+        time:
+        vel_data
+
+        Returns
+        -------
+
+        """
+
+        no_dim = vel_data.shape[1]
+
+        stats_df_columns = (
+            "Time",
+            *[
+                "{}_{}_{}".format(sp, d, st)
+                for sp in self.species_names
+                for _, d in zip(range(no_dim), ["X", "Y", "Z"])
+                for st in ["s", "p"]
+            ],
+        )
+
+        stats_mat = np.zeros((len(time), len(self.species_num) * no_dim * 2 + 1))
+        for it, tme in enumerate(time):
+            stats_mat[it, 0] = tme
+            for d, ds in zip(range(no_dim), ["X", "Y", "Z"]):
+                for sp, sp_start in enumerate(self.species_index_start[:-1]):
+                    # Calculate the correct start and end index for storage
+                    sp_end = self.species_index_start[sp + 1]
+
+                    statcs, p_value = scp_stats.shapiro(vel_data[it, d, sp_start:sp_end])
+                    stats_mat[it, 1 + 6 * sp + 2 * d] = statcs
+                    stats_mat[it, 1 + 6 * sp + 2 * d + 1] = p_value
+
+        self.norm_test_df = pd.DataFrame(stats_mat, columns=stats_df_columns)
+        self.norm_test_df.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in stats_df_columns])
+
     def prepare_histogram_args(self):
 
         # Initialize histograms arguments
-        if not hasattr(self, 'hist_kwargs'):
-            self.hist_kwargs = {'density': [],
-                                'bins': [],
-                                'range': []
-                                }
+        if not hasattr(self, "hist_kwargs"):
+            self.hist_kwargs = {"density": [], "bins": [], "range": []}
         # Default values
         bin_width = 0.05
         # Range of the histogram = (-wid * vth, wid * vth)
@@ -3098,8 +3168,8 @@ class VelocityDistribution(Observable):
         no_bins = int(2.0 * wid / bin_width)
         # Calculate thermal speed from energy/temperature data.
         try:
-            energy_fle = self.prod_energy_filename if self.phase == 'production' else self.eq_energy_filename
-            energy_df = pd.read_csv(energy_fle, index_col=False, encoding='utf-8')
+            energy_fle = self.prod_energy_filename if self.phase == "production" else self.eq_energy_filename
+            energy_df = pd.read_csv(energy_fle, index_col=False, encoding="utf-8")
             if self.num_species > 1:
                 vth = np.zeros(self.num_species)
                 for sp, (sp_mass, sp_name) in enumerate(zip(self.species_masses, self.species_names)):
@@ -3114,22 +3184,20 @@ class VelocityDistribution(Observable):
         self.vth = np.copy(vth)
 
         # Create the default dictionary of histogram args
-        default_hist_kwargs = {'density': [],
-                               'bins': [],
-                               'range': []}
+        default_hist_kwargs = {"density": [], "bins": [], "range": []}
         if self.num_species > 1:
             for sp in range(self.num_species):
-                default_hist_kwargs['density'].append(True)
-                default_hist_kwargs['bins'].append(no_bins)
-                default_hist_kwargs['range'].append((-wid * vth[sp], wid * vth[sp]))
+                default_hist_kwargs["density"].append(True)
+                default_hist_kwargs["bins"].append(no_bins)
+                default_hist_kwargs["range"].append((-wid * vth[sp], wid * vth[sp]))
         else:
-            default_hist_kwargs['density'].append(True)
-            default_hist_kwargs['bins'].append(no_bins)
-            default_hist_kwargs['range'].append((-wid * vth[0], wid * vth[0]))
+            default_hist_kwargs["density"].append(True)
+            default_hist_kwargs["bins"].append(no_bins)
+            default_hist_kwargs["range"].append((-wid * vth[0], wid * vth[0]))
 
         # Now do some checks.
         # Check for numpy.histogram args in kwargs
-        must_have_keys = ['bins', 'range', 'density']
+        must_have_keys = ["bins", "range", "density"]
 
         for k, key in enumerate(must_have_keys):
             try:
@@ -3216,14 +3284,13 @@ class VelocityDistribution(Observable):
                     if it == 0:
                         # Create the column array
                         full_df_columns.append(["{}_{}_Time".format(sp_name, ds)])
-                        full_df_columns.append(
-                            ["{}_{}_{:6e}".format(sp_name, ds, be) for be in bin_loc])
+                        full_df_columns.append(["{}_{}_{:6e}".format(sp_name, ds, be) for be in bin_loc])
                         self.species_bin_edges[sp_name][ds] = bin_edges
                         # Ok. Now I have created the bins columns' names
                     # Time to insert in the huge matrix.
                     indx_1 = indx_0 + 1 + len(bin_count)
                     dist_matrix[it, indx_0] = time[it]
-                    dist_matrix[it, indx_0 + 1:indx_1] = bin_count
+                    dist_matrix[it, indx_0 + 1 : indx_1] = bin_count
                     indx_0 = indx_1
         # Alright. The matrix is filled now onto the dataframe
         # First let's flatten the columns array. This is because I have something like this
@@ -3237,27 +3304,25 @@ class VelocityDistribution(Observable):
         full_df_columns = list(np.concatenate(full_df_columns).flat)
         self.dataframe = pd.DataFrame(dist_matrix, columns=full_df_columns)
         # Save it
-        self.dataframe.to_csv(self.filename_csv, encoding='utf-8', index=False)
+        self.dataframe.to_csv(self.filename_csv, encoding="utf-8", index=False)
 
         # Hierarchical DataFrame
         self.hierarchical_dataframe = self.dataframe.copy()
         self.hierarchical_dataframe.columns = pd.MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in self.hierarchical_dataframe.columns])
-        self.hierarchical_dataframe.to_hdf(self.filename_hdf, key=self.__name__, encoding='utf-8')
+            [tuple(c.split("_")) for c in self.hierarchical_dataframe.columns]
+        )
+        self.hierarchical_dataframe.to_hdf(self.filename_hdf, key=self.__name__, encoding="utf-8")
 
         tend = self.timer.current()
         self.time_stamp("Velocity distribution calculation", self.timer.time_division(tend - tinit))
 
-    def compute_moments(self,
-                        parse_data: bool = False,
-                        vel_raw: np.ndarray = None,
-                        time: np.ndarray = None):
+    def compute_moments(self, parse_data: bool = False, vel_raw: np.ndarray = None, time: np.ndarray = None):
         """Calculate and save moments of the distribution.
 
         Parameters
         ----------
         parse_data: bool
-            Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time.
+            Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time``.
             If True it will parse data from simulations dumps.
 
         vel_raw: np.ndarray, optional
@@ -3302,26 +3367,21 @@ class VelocityDistribution(Observable):
                 for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
                     self.moments_hdf_dataframe["{}_{}_Time".format(sp, ds)] = time
                     for m in range(self.max_no_moment):
-                        self.moments_dataframe[
-                            "{} {} moment ratio axis {}".format(sp, m + 1, ds)] = ratios[i, :, d, m][:, 0]
-                        self.moments_hdf_dataframe[
-                            "{}_{}_{}-2 ratio ".format(sp, ds, m + 1)] = ratios[i, :, d, m][:, 0]
+                        self.moments_dataframe["{} {} moment ratio axis {}".format(sp, m + 1, ds)] = ratios[i, :, d, m][
+                            :, 0
+                        ]
+                        self.moments_hdf_dataframe["{}_{}_{}-2 ratio ".format(sp, ds, m + 1)] = ratios[i, :, d, m][:, 0]
 
-        self.moments_dataframe.to_csv(self.filename_csv, index=False, encoding='utf-8')
+        self.moments_dataframe.to_csv(self.filename_csv, index=False, encoding="utf-8")
         # Hierarchical DF Save
         # Make the columns
         self.moments_hdf_dataframe.columns = pd.MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in self.moments_hdf_dataframe.columns])
-        # Save the df in the hierarchical df with a new key/group
-        self.moments_hdf_dataframe.to_hdf(
-            self.filename_hdf,
-            mode='a',
-            key='velocity_moments',
-            encoding='utf-8'
+            [tuple(c.split("_")) for c in self.moments_hdf_dataframe.columns]
         )
+        # Save the df in the hierarchical df with a new key/group
+        self.moments_hdf_dataframe.to_hdf(self.filename_hdf, mode="a", key="velocity_moments", encoding="utf-8")
 
-    def compute_hermite_expansion(self,
-                                  compute_moments: bool = False):
+    def compute_hermite_expansion(self, compute_moments: bool = False):
         """
         Calculate and save Hermite coefficients of the Grad expansion.
 
@@ -3344,20 +3404,21 @@ class VelocityDistribution(Observable):
         if compute_moments:
             self.compute_moments(parse_data=True)
 
-        if not hasattr(self, 'hermite_rms_tol'):
+        if not hasattr(self, "hermite_rms_tol"):
             self.hermite_rms_tol = 0.05
 
         self.hermite_dataframe["Time"] = np.copy(self.moments_dataframe["Time"])
         self.hermite_sigmas = np.zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
         self.hermite_epochs = np.zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
         hermite_coeff = np.zeros(
-            (self.num_species, self.dim, self.max_hermite_order + 1, len(self.hermite_dataframe["Time"])))
+            (self.num_species, self.dim, self.max_hermite_order + 1, len(self.hermite_dataframe["Time"]))
+        )
 
         print("\nCalculating Hermite coefficients ...")
         tinit = self.timer.current()
 
-        for sp, sp_name in enumerate(tqdm(self.species_names, desc='Species')):
-            for it, t in enumerate(tqdm(self.hermite_dataframe["Time"], desc='Time')):
+        for sp, sp_name in enumerate(tqdm(self.species_names, desc="Species")):
+            for it, t in enumerate(tqdm(self.hermite_dataframe["Time"], desc="Time")):
                 # Grab the thermal speed from the moments
                 vrms = self.moments_dataframe["{} 2 moment".format(sp_name)].iloc[it]
                 # Loop over dimensions. No tensor availability yet
@@ -3390,7 +3451,8 @@ class VelocityDistribution(Observable):
                             lambda x, rms: grad_expansion(x, rms, h_coeff),
                             v_bins / vrms,
                             dist / norm,
-                            self.curve_fit_kwargs)
+                            self.curve_fit_kwargs,
+                        )
 
                         vrms *= res[0]
 
@@ -3408,55 +3470,53 @@ class VelocityDistribution(Observable):
                 for h in range(self.max_hermite_order):
                     self.hermite_dataframe["{} {} {} Hermite coeff".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
                     if h == 0:
-                        self.hermite_hdf_dataframe[
-                            "{}_{}_Time".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
-                        self.hermite_hdf_dataframe[
-                            "{}_{}_RMS".format(sp_name, ds, h)] = self.hermite_sigmas[sp, d, :]
-                        self.hermite_hdf_dataframe[
-                            "{}_{}_epoch".format(sp_name, ds, h)] = self.hermite_epochs[sp, d, :]
+                        self.hermite_hdf_dataframe["{}_{}_Time".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
+                        self.hermite_hdf_dataframe["{}_{}_RMS".format(sp_name, ds, h)] = self.hermite_sigmas[sp, d, :]
+                        self.hermite_hdf_dataframe["{}_{}_epoch".format(sp_name, ds, h)] = self.hermite_epochs[sp, d, :]
                     else:
                         self.hermite_hdf_dataframe["{}_{}_{} coeff".format(sp_name, ds, h)] = hermite_coeff[sp, d, h, :]
 
         # Save the CSV
-        self.hermite_dataframe.to_csv(self.herm_df_filename_csv, index=False, encoding='utf-8')
+        self.hermite_dataframe.to_csv(self.herm_df_filename_csv, index=False, encoding="utf-8")
         # Make the columns
         self.hermite_hdf_dataframe.columns = pd.MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in self.hermite_hdf_dataframe.columns])
-        # Save the df in the hierarchical df with a new key/group
-        self.hermite_hdf_dataframe.to_hdf(
-            self.filename_hdf,
-            mode='a',
-            key='hermite_coefficients',
-            encoding='utf-8'
+            [tuple(c.split("_")) for c in self.hermite_hdf_dataframe.columns]
         )
+        # Save the df in the hierarchical df with a new key/group
+        self.hermite_hdf_dataframe.to_hdf(self.filename_hdf, mode="a", key="hermite_coefficients", encoding="utf-8")
 
         self.time_stamp("Hermite expansion calculation", self.timer.time_division(tend - tinit))
 
     def pretty_print(self):
         """Print information in a user-friendly way."""
 
-        print('\n\n{:=^70} \n'.format(' ' + self.__long_name__ + ' '))
-        print('CSV dataframe saved in:\n\t ', self.filename_csv)
-        print('HDF5 dataframe saved in:\n\t ', self.filename_hdf)
-        print('Data accessible at: self.dataframe, self.hierarchical_dataframe, self.species_bin_edges')
-        print('\nMulti run average: ', self.multi_run_average)
-        print('No. of runs: ', self.runs)
-        print("Size of the parsed velocity array: {} x {} x {}".format(self.no_dumps,
-                                                                       self.dim,
-                                                                       self.runs * self.inv_dim * self.total_num_ptcls))
-        print('\nHistograms Information:')
+        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
+        print("CSV dataframe saved in:\n\t ", self.filename_csv)
+        print("HDF5 dataframe saved in:\n\t ", self.filename_hdf)
+        print("Data accessible at: self.dataframe, self.hierarchical_dataframe, self.species_bin_edges")
+        print("\nMulti run average: ", self.multi_run_average)
+        print("No. of runs: ", self.runs)
+        print(
+            "Size of the parsed velocity array: {} x {} x {}".format(
+                self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls
+            )
+        )
+        print("\nHistograms Information:")
         for sp, (sp_name, dics) in enumerate(zip(self.species_names, self.list_hist_kwargs)):
             if sp == 0:
                 print("Species: {}".format(sp_name))
             else:
                 print("\nSpecies: {}".format(sp_name))
             print("No. of samples = {}".format(self.species_num[sp] * self.inv_dim * self.runs))
-            print("Thermal speed: v_th = {:.6e} ".format(self.vth[sp]), end='')
+            print("Thermal speed: v_th = {:.6e} ".format(self.vth[sp]), end="")
             print("[cm/s]" if self.units == "cgs" else "[m/s]")
             for key, values in dics.items():
-                if key == 'range':
-                    print("{} : ( {:.2f}, {:.2f} ) v_th,"
-                          "\n\t( {:.4e}, {:.4e} ) ".format(key, *values / self.vth[sp], *values), end='')
+                if key == "range":
+                    print(
+                        "{} : ( {:.2f}, {:.2f} ) v_th,"
+                        "\n\t( {:.4e}, {:.4e} ) ".format(key, *values / self.vth[sp], *values),
+                        end="",
+                    )
                     print("[cm/s]" if self.units == "cgs" else "[m/s]")
                 else:
                     print("{}: {}".format(key, values))
@@ -3464,17 +3524,17 @@ class VelocityDistribution(Observable):
             print("Bin Width = {:.4f}".format(bin_width))
 
         if hasattr(self, "max_no_moment"):
-            print('\nMoments Information:')
-            print('CSV dataframe saved in:\n\t ', self.mom_df_filename_csv)
-            print('Data accessible at: self.moments_dataframe, self.moments_hdf_dataframe')
-            print('Highest moment to calculate: {}'.format(self.max_no_moment))
+            print("\nMoments Information:")
+            print("CSV dataframe saved in:\n\t ", self.mom_df_filename_csv)
+            print("Data accessible at: self.moments_dataframe, self.moments_hdf_dataframe")
+            print("Highest moment to calculate: {}".format(self.max_no_moment))
 
         if hasattr(self, "max_hermite_order"):
-            print('\nGrad Expansion Information:')
-            print('CSV dataframe saved in:\n\t ', self.herm_df_filename_csv)
-            print('Data accessible at: self.hermite_dataframe, self.hermite_hdf_dataframe')
-            print('Highest order to calculate: {}'.format(self.max_hermite_order))
-            print('RMS Tolerance: {:.3f}'.format(self.hermite_rms_tol))
+            print("\nGrad Expansion Information:")
+            print("CSV dataframe saved in:\n\t ", self.herm_df_filename_csv)
+            print("Data accessible at: self.hermite_dataframe, self.hermite_hdf_dataframe")
+            print("Highest order to calculate: {}".format(self.max_hermite_order))
+            print("RMS Tolerance: {:.3f}".format(self.hermite_rms_tol))
 
 
 @njit
@@ -3680,7 +3740,7 @@ def calc_moments(dist, max_moment, species_index_start):
     for mom in range(max_moment):
         pwr = mom + 1
         const = 2.0 ** (pwr / 2) * scp_gamma((pwr + 1) / 2) / np.sqrt(np.pi)
-        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * moments[:, :, :, 1] ** (pwr / 2.))
+        ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * moments[:, :, :, 1] ** (pwr / 2.0))
 
     return moments, ratios
 
@@ -3766,7 +3826,7 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
 
 
 @njit
-def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume):
+def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dimensions):
     """
     Calculate the pressure tensor.
 
@@ -3805,14 +3865,14 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume):
     # Rescale vel of each particle by their individual mass
     for sp, num in enumerate(species_np):
         sp_end += num
-        vel[sp_start: sp_end, :] *= np.sqrt(species_mass[sp])
+        vel[sp_start:sp_end, :] *= np.sqrt(species_mass[sp])
         sp_start += num
 
     pressure_kin = (vel.transpose() @ vel) / box_volume
     pressure_pot = virial.sum(axis=-1) / box_volume
-    pressure_tensor = (pressure_kin + pressure_pot)
+    pressure_tensor = pressure_kin + pressure_pot
 
-    pressure = np.trace(pressure_tensor) / 3.0
+    pressure = np.trace(pressure_tensor) / dimensions
 
     return pressure, pressure_kin, pressure_pot, pressure_tensor
 
@@ -3844,8 +3904,8 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
             t_end = int((j + 1) * tau_blk[i])
             blk_avg = observable[t_start:t_end].mean()
             sigma2_blk[i] += (blk_avg - run_avg) ** 2
-        sigma2_blk[i] /= (i - 1)
-        statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std ** 2
+        sigma2_blk[i] /= i - 1
+        statistical_efficiency[i] = tau_blk[i] * sigma2_blk[i] / run_std**2
 
     return tau_blk, sigma2_blk, statistical_efficiency
 
@@ -3897,7 +3957,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
     # and the center of mass velocity of each species (com_vel)
     for i, ns in enumerate(sp_num):
         sp_end += ns
-        tot_vel[i, :, :] = np.sum(vel[:, :, sp_start: sp_end], axis=-1)
+        tot_vel[i, :, :] = np.sum(vel[:, :, sp_start:sp_end], axis=-1)
         # tot_com_vel += mass_densities[i] * com_vel[i, :, :] / tot_mass_dens
         sp_start += ns
 
@@ -4114,7 +4174,8 @@ def calc_vkt(fldr, slices, dump_step, species_np, k_list, verbose):
         for i, sp in enumerate(species_np):
             sp_end += sp
             vkt_par[i, it, :], vkt_perp_i[i, it, :], vkt_perp_j[i, it, :], vkt_perp_k[i, it, :] = calc_vk(
-                pos[sp_start:sp_end, :], vel[sp_start:sp_end], k_list)
+                pos[sp_start:sp_end, :], vel[sp_start:sp_end], k_list
+            )
             sp_start += sp
 
     return vkt_par, vkt_perp_i, vkt_perp_j, vkt_perp_k
@@ -4141,7 +4202,7 @@ def grad_expansion(x, rms, h_coeff):
         Grad expansion.
 
     """
-    gaussian = np.exp(- 0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms ** 2))
+    gaussian = np.exp(-0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms**2))
 
     herm_coef = h_coeff / [np.math.factorial(i) for i in range(len(h_coeff))]
     hermite_series = np.polynomial.hermite_e.hermeval(x, herm_coef)
@@ -4214,78 +4275,88 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
     k_unique : numpy.ndarray
         Magnitude of the unique allowed triplet :math:`(n_x, n_y, n_z)`.
     """
-    if angle_averaging == 'full':
+    if angle_averaging == "full":
         # The first value of k_arr = [0, 0, 0]
         first_non_zero = 1
         # Obtain all possible permutations of the wave number arrays
-        k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
-                 for i in range(max_k_harmonics[0] + 1)
-                 for j in range(max_k_harmonics[1] + 1)
-                 for k in range(max_k_harmonics[2] + 1)]
-        harmonics = [np.array([i, j, k], dtype=np.int)
-                     for i in range(max_k_harmonics[0] + 1)
-                     for j in range(max_k_harmonics[1] + 1)
-                     for k in range(max_k_harmonics[2] + 1)]
-    elif angle_averaging == 'principal_axis':
+        k_arr = [
+            np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
+            for i in range(max_k_harmonics[0] + 1)
+            for j in range(max_k_harmonics[1] + 1)
+            for k in range(max_k_harmonics[2] + 1)
+        ]
+        harmonics = [
+            np.array([i, j, k], dtype=np.int)
+            for i in range(max_k_harmonics[0] + 1)
+            for j in range(max_k_harmonics[1] + 1)
+            for k in range(max_k_harmonics[2] + 1)
+        ]
+    elif angle_averaging == "principal_axis":
         # The first value of k_arr = [1, 0, 0]
         first_non_zero = 0
         # Calculate the k vectors along the principal axis only
         k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, max_k_harmonics[0] + 1)]
         harmonics = [np.array([i, 0, 0], dtype=np.int) for i in range(1, max_k_harmonics[0] + 1)]
-        k_arr = np.append(k_arr,
-                          [np.array([0, i / box_lengths[1], 0]) for i in range(1, max_k_harmonics[1] + 1)],
-                          axis=0)
-        harmonics = np.append(harmonics,
-                              [np.array([0, i, 0], dtype=np.int) for i in range(1, max_k_harmonics[1] + 1)],
-                              axis=0)
+        k_arr = np.append(k_arr, [np.array([0, i / box_lengths[1], 0]) for i in range(1, max_k_harmonics[1] + 1)], axis=0)
+        harmonics = np.append(
+            harmonics, [np.array([0, i, 0], dtype=np.int) for i in range(1, max_k_harmonics[1] + 1)], axis=0
+        )
 
-        k_arr = np.append(k_arr,
-                          [np.array([0, 0, i / box_lengths[2]]) for i in range(1, max_k_harmonics[2] + 1)],
-                          axis=0)
-        harmonics = np.append(harmonics,
-                              [np.array([0, 0, i], dtype=np.int) for i in range(1, max_k_harmonics[2] + 1)],
-                              axis=0)
+        k_arr = np.append(k_arr, [np.array([0, 0, i / box_lengths[2]]) for i in range(1, max_k_harmonics[2] + 1)], axis=0)
+        harmonics = np.append(
+            harmonics, [np.array([0, 0, i], dtype=np.int) for i in range(1, max_k_harmonics[2] + 1)], axis=0
+        )
 
-    elif angle_averaging == 'custom':
+    elif angle_averaging == "custom":
         # The first value of k_arr = [0, 0, 0]
         first_non_zero = 1
         # Obtain all possible permutations of the wave number arrays up to max_aa_harmonics included
-        k_arr = [np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
-                 for i in range(max_aa_harmonics[0] + 1)
-                 for j in range(max_aa_harmonics[1] + 1)
-                 for k in range(max_aa_harmonics[2] + 1)]
+        k_arr = [
+            np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
+            for i in range(max_aa_harmonics[0] + 1)
+            for j in range(max_aa_harmonics[1] + 1)
+            for k in range(max_aa_harmonics[2] + 1)
+        ]
 
-        harmonics = [np.array([i, j, k], dtype=np.int)
-                     for i in range(max_aa_harmonics[0] + 1)
-                     for j in range(max_aa_harmonics[1] + 1)
-                     for k in range(max_aa_harmonics[2] + 1)]
+        harmonics = [
+            np.array([i, j, k], dtype=np.int)
+            for i in range(max_aa_harmonics[0] + 1)
+            for j in range(max_aa_harmonics[1] + 1)
+            for k in range(max_aa_harmonics[2] + 1)
+        ]
         # Append the rest of k values calculated from principal axis
         k_arr = np.append(
             k_arr,
             [np.array([i / box_lengths[0], 0, 0]) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
-            axis=0)
+            axis=0,
+        )
         harmonics = np.append(
             harmonics,
             [np.array([i, 0, 0], dtype=np.int) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
-            axis=0)
+            axis=0,
+        )
 
         k_arr = np.append(
             k_arr,
             [np.array([0, i / box_lengths[1], 0]) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
-            axis=0)
-        harmonics = np.append(harmonics,
-                              [np.array([0, i, 0], dtype=np.int)
-                               for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
-                              axis=0)
+            axis=0,
+        )
+        harmonics = np.append(
+            harmonics,
+            [np.array([0, i, 0], dtype=np.int) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
+            axis=0,
+        )
 
         k_arr = np.append(
             k_arr,
             [np.array([0, 0, i / box_lengths[2]]) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
-            axis=0)
-        harmonics = np.append(harmonics,
-                              [np.array([0, 0, i], dtype=np.int)
-                               for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
-                              axis=0)
+            axis=0,
+        )
+        harmonics = np.append(
+            harmonics,
+            [np.array([0, 0, i], dtype=np.int) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
+            axis=0,
+        )
     # Compute wave number magnitude - don't use |k| (skipping first entry in k_arr)
     # The round off is needed to avoid ka value different beyond a certain significant digit. It will break other parts
     # of the code otherwise.
@@ -4311,8 +4382,8 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
     k_index = np.repeat(range(len(k_counts)), k_counts)[..., None]
 
     # Add index to k_array
-    k_arr = np.concatenate((k_arr[int(first_non_zero):, :], k_index), 1)
-    harmonics = np.concatenate((harmonics[int(first_non_zero):, :], k_index), 1)
+    k_arr = np.concatenate((k_arr[int(first_non_zero) :, :], k_index), 1)
+    harmonics = np.concatenate((harmonics[int(first_non_zero) :, :], k_index), 1)
 
     return k_arr, k_counts, k_unique, harmonics
 
@@ -4393,12 +4464,12 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         ymax = ydata
 
     # Find the correct Units
-    units_dict = UNITS[1] if units == 'cgs' else UNITS[0]
+    units_dict = UNITS[1] if units == "cgs" else UNITS[0]
 
-    if units == 'cgs' and xlbl == 'Length':
+    if units == "cgs" and xlbl == "Length":
         xmax *= 1e2
 
-    if units == 'cgs' and ylbl == 'Length':
+    if units == "cgs" and ylbl == "Length":
         ymax *= 1e2
 
     # Use scientific notation. This returns a string
@@ -4406,8 +4477,8 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
     y_str = np.format_float_scientific(ymax)
 
     # Grab the exponent
-    x_exp = 10.0 ** (float(x_str[x_str.find('e') + 1:]))
-    y_exp = 10.0 ** (float(y_str[y_str.find('e') + 1:]))
+    x_exp = 10.0 ** (float(x_str[x_str.find("e") + 1 :]))
+    y_exp = 10.0 ** (float(y_str[y_str.find("e") + 1 :]))
 
     # Find the units' prefix by looping over the possible values
     xprefix = "none"
@@ -4423,7 +4494,7 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         i /= 10
     # find the prefix
     yprefix = "none"
-    ymul = - 1.5
+    ymul = -1.5
     i = 1.0
     while ymul < 0:
         for key, value in PREFIXES.items():
@@ -4431,7 +4502,7 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
             if abs(ratio - 1) < 1.0e-6:
                 yprefix = key
                 ymul = 1 / value
-        i /= 10.
+        i /= 10.0
 
     if "Energy" in ylbl:
         yname = "Energy"
@@ -4444,9 +4515,9 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         yname = ylbl
 
     if yname in units_dict:
-        ylabel = ' [' + yprefix + units_dict[yname] + ']'
+        ylabel = " [" + yprefix + units_dict[yname] + "]"
     else:
-        ylabel = ''
+        ylabel = ""
 
     if "Energy" in xlbl:
         xname = "Energy"
@@ -4459,9 +4530,9 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         xname = xlbl
 
     if xname in units_dict:
-        xlabel = ' [' + xprefix + units_dict[xname] + ']'
+        xlabel = " [" + xprefix + units_dict[xname] + "]"
     else:
-        xlabel = ''
+        xlabel = ""
 
     return xmul, ymul, xprefix, yprefix, xlabel, ylabel
 

@@ -12,7 +12,7 @@ Particles:
     - Species:
         name: He
         number_density: 8.1e+27       # /cm^3
-        atomic_weight: 4                
+        atomic_weight: 4
         num: 2500                       # total number of He particles
         Z: 2.0                          # degree of ionization
         temperature_eV: 14.68

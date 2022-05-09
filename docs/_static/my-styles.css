@@ -55,7 +55,7 @@ div.body {
     background-color: var(--clr-nav_text);
   }
   .navbar-default .navbar-nav > li > .dropdown-menu > li > a {
-    color: var(--clr-nav_primary) 
+    color: var(--clr-nav_primary)
   }
   .navbar-default .navbar-nav > li > .dropdown-menu > li > a:hover,
   .navbar-default .navbar-nav > li > .dropdown-menu > li > a:focus {
@@ -103,7 +103,7 @@ div.body {
   .navbar-default .navbar-link:hover {
     color: var(--clr-nav_accent);
   }
-  
+
   @media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {
       color: var(--clr-nav_text);
@@ -120,10 +120,10 @@ div.body {
     }
   }
   /*******************************/
-  
+
 
 /*********
-side navigation slightly modified from 
+side navigation slightly modified from
 https://github.com/netket/netket/blob/master/docs/_static/css/rtd_theme.css
 **********/
 
@@ -208,7 +208,7 @@ https://github.com/netket/netket/blob/master/docs/_static/css/rtd_theme.css
   border-top: 1px solid #c9c9c9;
 }
 .bs-sidenav .toctree-l1.current .toctree-l2 > ul,
-.bs-sidenav .toctree-l2.current .toctree-l3 > ul, 
+.bs-sidenav .toctree-l2.current .toctree-l3 > ul,
 .bs-sidenav .toctree-l3.current .toctree-l4 > ul{
   display: none;
 }
@@ -361,9 +361,9 @@ https://github.com/netket/netket/blob/master/docs/_static/css/rtd_theme.css
     height: 100% ;
 }
 /*******************************/
-  
-  
-  
+
+
+
 /********credits thumbcontainer************/
 
 .cr-thumbcontainer {
@@ -394,9 +394,9 @@ https://github.com/netket/netket/blob/master/docs/_static/css/rtd_theme.css
 }
 
 
-  
+
 /********examples thumbcontainer************/
-  
+
 .ex-thumbcontainer {
     background:#fff;
     border:solid #d6d6d6 1px!important;
@@ -442,10 +442,10 @@ https://github.com/netket/netket/blob/master/docs/_static/css/rtd_theme.css
     height:160px;
     position:relative;
   }
-  
-  
+
+
 /*******************************************/
-  
+
 code {
    color:#e0855e;
   }
@@ -471,10 +471,10 @@ pre {
 
 
 /* From https://github.com/twbs/bootstrap/issues/1768 */
-*[id]:before { 
-    display: block; 
-    content: " "; 
-    margin-top: -60px; 
-    height: 60px; 
-    visibility: hidden; 
+*[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -60px;
+    height: 60px;
+    visibility: hidden;
   }

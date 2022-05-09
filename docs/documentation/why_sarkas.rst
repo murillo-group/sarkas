@@ -88,12 +88,6 @@ packages so that the code can run as fast, if not faster, than low-level languag
 
 New School
 ==========
-Here we find the first advantage of Sarkas: removing the need to know multiple languages.
-Sarkas is not a Python wrapper around an existing MD code. It is entirely written in Python to allow users
-to modify the codes for their specific needs. This choice, however, does not come at the expense
-of speed. In fact, Sarkas, via the use of Numpy and Numba packages, can run as fast,
-if not faster, than low-level languages like C/C++ and Fortran.
-
 Sarkas was created with the idea of incorporating the entire simulation workflow in a single Python
 script. Let's say we want to run a set of ten simulations of a Yukawa OCP for different
 screening parameters and measure their diffusion coefficient. An example script looks like this
@@ -101,6 +95,7 @@ screening parameters and measure their diffusion coefficient. An example script 
 .. code-block:: python
 
     from sarkas.processes import Simulation, PostProcess
+    from sarkas.tools.observables import VelocityAutoCorrelationFunction
     from sarkas.tools.transport import TransportCoefficients
     import numpy as np
     import os
@@ -124,15 +119,21 @@ screening parameters and measure their diffusion coefficient. An example script 
             "Potential":
                 {"kappa": kappa}
         }
-        # Initialize the simulation
+        # Initialize and run the simulation
         sim = Simulation(input_file_name)
         sim.setup(read_yaml=True, other_inputs=args)
-        # Run the simulation
         sim.run()
-
-        diffusion = TransportCoefficients.diffusion(postproc.parameters,
-                                               phase='production',
-                                               show=True)
+        # Make Temperature and Energy plots.
+        postproc = PostProcess(input_file_name)
+        postproc.setup(read_yaml = True, other_inputs = args)
+        postproc.run()
+        # Calculate the VACF
+        vacf = VelocityAutoCorrelationFunction()
+        vacf.setup(postproc.parameters)
+        vacf.compute()
+        # Calculate the diffusion coefficient
+        tc = TransportCoefficients(postproc.parameters)
+        tc.diffusion(vacf, plot=True)
 
 
 Notice how both the simulation and the postprocessing can be done all in one script.

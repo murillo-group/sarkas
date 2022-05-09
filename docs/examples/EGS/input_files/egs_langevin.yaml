@@ -1,14 +1,14 @@
 # keywords: OCP, EGS, PP, mks, random_no_reject
 Particles:
     - Species:
-        name: Li 
+        name: Li
         number_density: 4.450883e+28       # N/cc
         mass: 1.15258e-26                # g, ptcl mass of ion1
         num: 1000                    # total number of particles of ion1
         Z: 1.0                        # degree of ionization
         temperature: 600.0
 
-Potential: 
+Potential:
   type: EGS                     # potential type
   method: PP                    # Linked-cell
   rc: 1.e-09             # cut-off radius, cm

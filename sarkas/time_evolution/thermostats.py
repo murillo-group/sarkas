@@ -1,9 +1,8 @@
 """
 Module containing various thermostat. Berendsen only for now.
 """
-from warnings import warn
 import numpy as np
-from numba import njit
+from numba import float64, int64, jit, void
 
 
 class Thermostat:
@@ -53,10 +52,10 @@ class Thermostat:
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
-        disp = 'Thermostat( \n'
+        disp = "Thermostat( \n"
         for key, value in sortedDict.items():
             disp += "\t{} : {}\n".format(key, value)
-        disp += ')'
+        disp += ")"
         return disp
 
     def from_dict(self, input_dict: dict):
@@ -84,17 +83,17 @@ class Thermostat:
 
     def pretty_print(self):
         """Print Thermostat information in a user-friendly way."""
-        print('Type: {}'.format(self.type))
-        print('First thermostating timestep, i.e. relaxation_timestep = {}'.format(self.relaxation_timestep))
-        print("Berendsen parameter tau: {:.3f} [timesteps]".format(self.berendsen_tau))
-        print("Berendsen relaxation rate: {:.3f} [1/timesteps] ".format(self.relaxation_rate))
+        print(f"Type: {self.type}")
+        print(f"First thermostating timestep, i.e. relaxation_timestep = {self.relaxation_timestep}")
+        print(f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]")
+        print(f"Berendsen relaxation rate: {self.relaxation_rate:.3f} [1/timesteps] ")
         # if not self.eV_temp_flag and not self.K_temp_flag:
         #     # If you forgot to give thermostating temperatures
         #     warn("Equilibration temperatures not defined. "
         #          "I will use the species's temperatures")
         print("Thermostating temperatures: ")
         for i, (t, t_ev) in enumerate(zip(self.temperatures, self.temperatures_eV)):
-            print("Species ID {}: T_eq = {:.6e} [K] = {:.6e} [eV]".format(i, t, t_ev))
+            print(f"Species ID {i}: T_eq = {t:.6e} [K] = {t_ev:.6e} [eV]")
 
     def setup(self, params):
         """
@@ -102,7 +101,7 @@ class Thermostat:
 
         Parameters
         ----------
-        params: sarkas.core.Parameters
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters
 
         Raises
@@ -144,7 +143,7 @@ class Thermostat:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.core.Particles`
             Particles' data.
 
         it : int
@@ -152,41 +151,36 @@ class Thermostat:
 
         """
         _, T = ptcls.kinetic_temperature()
-        berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep,
-                  self.relaxation_rate, it)
+        berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep, self.relaxation_rate, it)
 
 
-@njit
+@jit(void(float64[:, :], float64[:], float64[:], int64[:], int64, float64, int64), nopython=True)
 def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     """
-    Update particle velocity based on Berendsen thermostat [Berendsen1984]_.
+    Numba'd function to update particle velocity based on Berendsen thermostat :cite:`Berendsen1984`.
 
     Parameters
     ----------
-    T : numpy.ndarray
-        Instantaneous temperature of each species.
-
     vel : numpy.ndarray
         Particles' velocities to rescale.
 
     T_desired : numpy.ndarray
         Target temperature of each species.
 
-    tau : float
-        Scale factor.
-
-    therm_timestep : int
-        Timestep at which to turn on the thermostat.
+    T : numpy.ndarray
+        Instantaneous temperature of each species.
 
     species_np : numpy.ndarray
         Number of each species.
 
+    therm_timestep : int
+        Timestep at which to turn on the thermostat.
+
+    tau : float
+        Scale factor.
+
     it : int
         Current timestep.
-
-    References
-    ----------
-    .. [Berendsen1984] `H.J.C. Berendsen et al., J Chem Phys 81 3684 (1984) <https://doi.org/10.1063/1.448118>`_
 
     """
 

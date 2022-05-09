@@ -24,6 +24,7 @@ class SarkasError(Exception):
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""
 
+
 # ^^^^^^^^^^^^ Base Exceptions should be defined above this comment ^^^^^^^^^^^^
 
 
@@ -61,4 +62,3 @@ class PhysicsWarning(Warning):
 
 class AlgorithmWarning(SarkasWarning):
     """The base warning for warnings related to the used algorithm."""
-

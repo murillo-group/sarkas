@@ -13,11 +13,11 @@ Theoretical Background
 
 
 .. warning::
-    Under construction. 
+    Under construction.
 
 .. toctree::
       :maxdepth: 1
-    
+
       coupling_constant
       electron_properties
       integrators

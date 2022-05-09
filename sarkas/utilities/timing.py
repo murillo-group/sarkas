@@ -1,14 +1,20 @@
+"""
+Module for handling the timing in a MD run.
+"""
 import time
+
 from dataclasses import dataclass, field
 from typing import Optional
 
-from sarkas.utilities.exceptions import TimerError
+from .exceptions import TimerError
+
 
 @dataclass
 class SarkasTimer:
     """
     Timer class modified from https://realpython.com/python-timer/
     """
+
     _start_time: Optional[float] = field(default=None, init=False, repr=False)
 
     def start(self):
@@ -43,7 +49,7 @@ class SarkasTimer:
         return time.perf_counter_ns()
 
     @staticmethod
-    def time_division(tme : float) -> list:
+    def time_division(tme: float) -> list:
         """
         Divide time into hours, min, sec, msec, microsec (usec), and nanosec.
 
@@ -59,7 +65,7 @@ class SarkasTimer:
 
         """
         t_hrs, rem = divmod(tme, 3.6e12)
-        t_min, rem_m = divmod(rem, 6e+10)
+        t_min, rem_m = divmod(rem, 6e10)
         t_sec, rem_s = divmod(rem_m, 1e9)
         t_msec, rem_ms = divmod(rem_s, 1e6)
         t_usec, rem_us = divmod(rem_ms, 1e3)

@@ -4,13 +4,14 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.7
+  - python>=3.7
   - pip
   - numpy
   - scipy
   - pandas
   - numba>=0.50
   - pyfftw
+  - pytables
 
   # I/O
   - pyyaml
@@ -24,17 +25,20 @@ dependencies:
   - notebook
   - matplotlib
   - seaborn
- 
+
   # Documentation
   - sphinx>=3.5
   - sphinx_bootstrap_theme
   - sphinx-panels
   - sphinxcontrib-bibtex
-  - sphinxcontrib-apidoc
   - sphinx_rtd_theme
   - sphinx-autodoc-typehints
   - nbsphinx
   - recommonmark
-  
-  - pip:
-      - fdint
+
+  # Style
+  - isort
+  - black
+
+  # Testing
+  - pytest

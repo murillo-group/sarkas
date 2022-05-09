@@ -103,10 +103,10 @@
           },
           init: function (n) {
             // console.log("init");
-  
+
             // console.log("Fix bugin scroll");
             window.scrollTo(0,0);
-  
+
             n(document);
             var e = this;
             (this.navBar = n("div.bs-sidenav:first")),
@@ -247,4 +247,3 @@
     },
     function (n, e, t) {},
   ]);
-  

@@ -19,7 +19,7 @@ In the case of multispecies liquids we use the `Lorentz-Berthelot <https://en.wi
 mixing rules
 
 .. math::
-    \\epsilon_{12} = \\sqrt{\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.
+    \\epsilon_{12} = \\sqrt{\\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.
 
 Force Error
 ***********
@@ -52,9 +52,11 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[4] = short-range cutoff
 
 """
-import numpy as np
-import numba as nb
-from sarkas.utilities.maths import force_error_analytic_pp
+from numba import jit
+from numba.core.types import float64, UniTuple
+from numpy import array, pi, sqrt, zeros
+
+from ..utilities.maths import force_error_analytic_pp
 
 
 def update_params(potential, params):
@@ -63,27 +65,26 @@ def update_params(potential, params):
 
     Parameters
     ----------
-    potential : sarkas.potentials.core.Potential
+    potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params : sarkas.core.Parameters
+    params : :class:`sarkas.core.Parameters`
         Simulation's parameters.
 
     """
-    potential.matrix = np.zeros((5, params.num_species, params.num_species))
+    potential.matrix = zeros((5, params.num_species, params.num_species))
     # See Lima Physica A 391 4281 (2012) for the following definitions
-    if not hasattr(potential, 'powers'):
-        potential.powers = np.array([12, 6])
+    if not hasattr(potential, "powers"):
+        potential.powers = array([12, 6])
 
     exponent = potential.powers[0] / (potential.powers[1] - potential.powers[0])
-    lj_constant = potential.powers[1]/(potential.powers[0] - potential.powers[1])
-    lj_constant *= (potential.powers[1]/potential.powers[0]) ** exponent
+    lj_constant = potential.powers[1] / (potential.powers[0] - potential.powers[1])
+    lj_constant *= (potential.powers[1] / potential.powers[0]) ** exponent
 
     # Use the Lorentz-Berthelot mixing rules.
     # Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)
     # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
-    sigma2 = 0.0
-    epsilon_tot = 0.0
+    potential.epsilon_tot = 0.0
     # Recall that species_charges contains sqrt(epsilon)
     for i, q1 in enumerate(params.species_charges):
         for j, q2 in enumerate(params.species_charges):
@@ -91,25 +92,24 @@ def update_params(potential, params):
             potential.matrix[1, i, j] = 0.5 * (params.species_lj_sigmas[i] + params.species_lj_sigmas[j])
             potential.matrix[2, i, j] = potential.powers[0]
             potential.matrix[3, i, j] = potential.powers[1]
-            sigma2 += params.species_lj_sigmas[i]
-            epsilon_tot += q1 * q2
 
+            potential.epsilon_tot += q1 * q2
+
+    potential.sigma_avg = params.species_lj_sigmas.mean()
     potential.matrix[4, :, :] = potential.a_rs
 
     potential.force = lj_force
 
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     params.force_error = force_error_analytic_pp(
-        potential.type,
-        potential.rc,
-        potential.matrix,
-        np.sqrt(3.0 * params.a_ws / (4.0 * np.pi))
+        potential.type, potential.rc, potential.matrix, sqrt(3.0 * params.a_ws / (4.0 * pi))
     )
 
-@nb.njit
+
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def lj_force(r_in, pot_matrix):
     """
-    Calculates the PP force between particles using Lennard-Jones Potential.
+    Numba'd function to calculate the PP force between particles using Lennard-Jones Potential.
 
     Parameters
     ----------
@@ -127,6 +127,17 @@ def lj_force(r_in, pot_matrix):
 
     force : float
         Force.
+
+    Examples
+    --------
+    >>> pot_const = 4.0 * 1.656e-21 # 4*epsilon in [J] (mks units)
+    >>> sigma = 3.4e-10   # [m] (mks units)
+    >>> high_pow, low_pow = 12., 6.
+    >>> short_cutoff = 0.0001 * sigma
+    >>> pot_mat = array([pot_const, sigma, high_pow, low_pow, short_cutoff])
+    >>> r = 15.0 * sigma  # particles' distance in [m]
+    >>> lj_force(r, pot_mat)
+    (-5.815308131440668e-28, -6.841538377536503e-19)
 
     """
 
