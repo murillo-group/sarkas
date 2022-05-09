@@ -5,15 +5,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
+<meta property="og:title" content="sarkas.potentials.core.Potential" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://murillo-group.github.io/sarkas/api/potentials_subpckg/sarkas.potentials.core.Potential.html" />
+  
+<meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
+  
+<meta property="twitter:card" content="summary">
+<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
+<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
     <title>sarkas.potentials.core.Potential &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
     <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -151,40 +161,40 @@
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>~Potential.a_rs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Short-range cutoff to deal with divergence of the potential for r -&gt; 0.</p></li>
-<li><p><strong>~Potential.box_lengths</strong> (<em>array</em>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_lengths</span></code>.</p></li>
-<li><p><strong>~Potential.box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_volume</span></code>.</p></li>
-<li><p><strong>~Potential.force_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Force error due to the choice of the algorithm.</p></li>
-<li><p><strong>~Potential.fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Coulomb constant <span class="math notranslate nohighlight">\(4 \pi \epsilon_0\)</span>.</p></li>
-<li><p><strong>~Potential.kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Inverse screening length.</p></li>
-<li><p><strong>~Potential.linked_list_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for choosing the Linked cell list algorithem.</p></li>
-<li><p><strong>~Potential.matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Matrix of potential’s parameters.</p></li>
-<li><p><strong>~Potential.measure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for calculating the histogram for the radial distribution function.
+<li><p><strong>a_rs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Short-range cutoff to deal with divergence of the potential for r -&gt; 0.</p></li>
+<li><p><strong>box_lengths</strong> (<em>array</em>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_lengths</span></code>.</p></li>
+<li><p><strong>box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_volume</span></code>.</p></li>
+<li><p><strong>force_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Force error due to the choice of the algorithm.</p></li>
+<li><p><strong>fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Coulomb constant <span class="math notranslate nohighlight">\(4 \pi \epsilon_0\)</span>.</p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Inverse screening length.</p></li>
+<li><p><strong>linked_list_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for choosing the Linked cell list algorithem.</p></li>
+<li><p><strong>matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Matrix of potential’s parameters.</p></li>
+<li><p><strong>measure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for calculating the histogram for the radial distribution function.
 It is set to <cite>False</cite> during equilibration phase and changed to <cite>True</cite> during production phase.</p></li>
-<li><p><strong>~Potential.method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Algorithm method. Choices = <cite>[“PP”, “PPPM”, “FMM”, “Brute”]</cite>.</p>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Algorithm method. Choices = <cite>[“PP”, “PPPM”, “FMM”, “Brute”]</cite>.</p>
 <p><cite>”PP”</cite> = Linked Cell List (default).
 <cite>“PPPM”</cite> = Particle-Particle Particle-Mesh.
 <cite>“FMM”</cite> = Fast Multipole Method.
 <cite>“Brute”</cite> = corresponds to calculating the distance between all pair of particles within a distance <span class="math notranslate nohighlight">\(L/2\)</span>.</p>
 </p></li>
-<li><p><strong>~Potential.pbox_lengths</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
-<li><p><strong>~Potential.pbox_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
-<li><p><strong>~Potential.pppm_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for turning on the PPPM algorithm.</p></li>
-<li><p><strong>~Potential.QFactor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sum of the squared of the charges.</p></li>
-<li><p><strong>~Potential.rc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Cutoff radius for the Linked Cell List algorithme.</p></li>
-<li><p><strong>~Potential.screening_length_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Choice of ways to calculate the screening length.</p>
+<li><p><strong>pbox_lengths</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
+<li><p><strong>pbox_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
+<li><p><strong>pppm_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for turning on the PPPM algorithm.</p></li>
+<li><p><strong>QFactor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sum of the squared of the charges.</p></li>
+<li><p><strong>rc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Cutoff radius for the Linked Cell List algorithme.</p></li>
+<li><p><strong>screening_length_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Choice of ways to calculate the screening length.</p>
 <p>Choices = <cite>[thomas-fermi, tf, debye, debye-huckel, db, moliere, custom]</cite>.</p>
 </p></li>
-<li><p><strong>~Potential.screening_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Value of the screening length.</p></li>
-<li><p><strong>~Potential.total_net_charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sum of all the charges.</p></li>
-<li><p><strong>~Potential.type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Type of potential.</p>
+<li><p><strong>screening_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Value of the screening length.</p></li>
+<li><p><strong>total_net_charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Sum of all the charges.</p></li>
+<li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Type of potential.</p>
 <p>Choices = [<cite>“coulomb”</cite>, <cite>“egs”</cite>, <cite>“lennardjones”</cite>, <cite>“moliere”</cite>, <cite>“qsp”</cite>].</p>
 </p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -236,8 +246,8 @@ It is set to <cite>False</cite> during equilibration phase and changed to <cite>
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 18, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
+      Last updated on May 09, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br/>
     </p>
   </div>
 </footer>
@@ -260,17 +270,16 @@ It is set to <cite>False</cite> during equilibration phase and changed to <cite>
     }
     .wy-menu-vertical p.caption {
 	  color: #fff;
-	}
-	.wy-menu-vertical a {
-	  color: #eee;
-	}
-	.wy-menu-vertical a:hover {
-    background-color: #18453b;
-  }
- /* .wy-nav-content {
-    max-width: 900px !important;
-  } */
-}
+    }
+    .wy-menu-vertical a {
+      color: #eee;
+    }
+    .wy-menu-vertical a:hover {
+      background-color: #18453b;
+    }
+    /* .wy-nav-content {
+      max-width: 900px !important;
+    } */
   </style>
 
   </body>

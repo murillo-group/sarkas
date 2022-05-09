@@ -5,15 +5,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
+<meta property="og:title" content="sarkas.core.Parameters" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://murillo-group.github.io/sarkas/api/core_pckg/sarkas.core.Parameters.html" />
+  
+<meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
+  
+<meta property="twitter:card" content="summary">
+<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
+<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
     <title>sarkas.core.Parameters &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
     <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -154,70 +164,70 @@
 </dd>
 <dt class="field-even">Variables</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>~Parameters.a_ws</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Wigner-Seitz radius. Calculated from the <code class="docutils literal notranslate"><span class="pre">total_num_density</span></code> .</p></li>
-<li><p><strong>~Parameters.boundary_conditions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Type of boundary conditions.</p></li>
-<li><p><strong>~Parameters.box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Volume of simulation box.</p></li>
-<li><p><strong>~Parameters.pbox_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Volume of initial particle box.</p></li>
-<li><p><strong>~Parameters.dimensions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of non-zero dimensions. Default = 3.</p></li>
-<li><p><strong>~Parameters.fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Electrostatic constant <span class="math notranslate nohighlight">\(4\pi \epsilon_0\)</span>.</p></li>
-<li><p><strong>~Parameters.num_species</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of species.</p></li>
-<li><p><strong>~Parameters.kB</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Boltzmann constant obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code>.</p></li>
-<li><p><strong>~Parameters.hbar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Reduced Planck’s constant.</p></li>
-<li><p><strong>~Parameters.hbar2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Square of reduced Planck’s constant.</p></li>
-<li><p><strong>~Parameters.a0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Bohr Radius.</p></li>
-<li><p><strong>~Parameters.c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Speed of light.</p></li>
-<li><p><strong>~Parameters.qe</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Elementary charge.</p></li>
-<li><p><strong>~Parameters.me</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Electron mass.</p></li>
-<li><p><strong>~Parameters.eps0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Vacuum electrical permittivity.</p></li>
-<li><p><strong>~Parameters.eV2K</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Conversion factor from eV to Kelvin obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code>.</p></li>
-<li><p><strong>~Parameters.J2erg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Conversion factor from Joules to erg. Needed for cgs units.</p></li>
-<li><p><strong>~Parameters.QFactor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Charge Factor defined as <span class="math notranslate nohighlight">\(\mathcal Q = \sum_{i}^{N} q_{i}^2\)</span> .</p></li>
-<li><p><strong>~Parameters.Lx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Box length in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
-<li><p><strong>~Parameters.Ly</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Box length in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
-<li><p><strong>~Parameters.Lz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Box length in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
-<li><p><strong>~Parameters.e1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
-<li><p><strong>~Parameters.e2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
-<li><p><strong>~Parameters.e3</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
-<li><p><strong>~Parameters.LPx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial particle box length in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
-<li><p><strong>~Parameters.LPy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial particle box length in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
-<li><p><strong>~Parameters.LPz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial particle box length in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
-<li><p><strong>~Parameters.ep1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector of the initial particle box in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
-<li><p><strong>~Parameters.ep2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector of the initial particle box in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
-<li><p><strong>~Parameters.ep3</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector of the initial particle box in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
-<li><p><strong>~Parameters.input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – YAML Input file with all the simulation’s parameters.</p></li>
-<li><p><strong>~Parameters.T_desired</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Target temperature for the equilibration phase.</p></li>
-<li><p><strong>~Parameters.species_num</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Number of particles of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_concentrations</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Concentration of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_temperatures</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Initial temperature of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_masses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Mass of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_charges</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Charge of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Name of each species. Len = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_plasma_frequencies</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Plasma Frequency of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.species_num_dens</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Number density of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
-<li><p><strong>~Parameters.total_ion_temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total initial ion temperature calculated as `` = species_concentration &#64; species_temperatures``.</p></li>
-<li><p><strong>~Parameters.total_net_charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total charge in the system.</p></li>
-<li><p><strong>~Parameters.total_num_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total number density. Calculated from the sum of <code class="docutils literal notranslate"><span class="pre">Species.num_density</span></code>.</p></li>
-<li><p><strong>~Parameters.total_num_ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Total number of particles. Calculated from the sum of <code class="docutils literal notranslate"><span class="pre">Species.num</span></code>.</p></li>
-<li><p><strong>~Parameters.measure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for production phase.</p></li>
-<li><p><strong>~Parameters.verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for screen output.</p></li>
-<li><p><strong>~Parameters.simulations_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of directory where to store simulations.</p></li>
-<li><p><strong>~Parameters.job_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name of the current job/run</p></li>
-<li><p><strong>~Parameters.production_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store simulation’s files of the production phase. Default = ‘Production’.</p></li>
-<li><p><strong>~Parameters.equilibration_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store simulation’s file of the equilibration phase. Default = ‘Equilibration’.</p></li>
-<li><p><strong>~Parameters.preprocessing_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store preprocessing files. Default = “PreProcessing”.</p></li>
-<li><p><strong>~Parameters.postprocessing_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store postprocessing files. Default = “PostProcessing”.</p></li>
-<li><p><strong>~Parameters.prod_dump_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store production phase’s simulation’s checkpoints. Default = ‘dumps’.</p></li>
-<li><p><strong>~Parameters.eq_dump_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store equilibration phase’s simulation’s checkpoints. Default = ‘dumps’.</p></li>
-<li><p><strong>~Parameters.job_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Appendix of all simulation’s files.</p></li>
-<li><p><strong>~Parameters.log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Filename of the simulation’s log.</p></li>
-<li><p><strong>~Parameters.np_per_side</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Number of particles per simulation’s box side.
+<li><p><strong>a_ws</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Wigner-Seitz radius. Calculated from the <code class="docutils literal notranslate"><span class="pre">total_num_density</span></code> .</p></li>
+<li><p><strong>boundary_conditions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Type of boundary conditions.</p></li>
+<li><p><strong>box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Volume of simulation box.</p></li>
+<li><p><strong>pbox_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Volume of initial particle box.</p></li>
+<li><p><strong>dimensions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of non-zero dimensions. Default = 3.</p></li>
+<li><p><strong>fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Electrostatic constant <span class="math notranslate nohighlight">\(4\pi \epsilon_0\)</span>.</p></li>
+<li><p><strong>num_species</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of species.</p></li>
+<li><p><strong>kB</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Boltzmann constant obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code>.</p></li>
+<li><p><strong>hbar</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Reduced Planck’s constant.</p></li>
+<li><p><strong>hbar2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Square of reduced Planck’s constant.</p></li>
+<li><p><strong>a0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Bohr Radius.</p></li>
+<li><p><strong>c0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Speed of light.</p></li>
+<li><p><strong>qe</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Elementary charge.</p></li>
+<li><p><strong>me</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Electron mass.</p></li>
+<li><p><strong>eps0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Vacuum electrical permittivity.</p></li>
+<li><p><strong>eV2K</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Conversion factor from eV to Kelvin obtained from <code class="docutils literal notranslate"><span class="pre">scipy.constants</span></code>.</p></li>
+<li><p><strong>J2erg</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Conversion factor from Joules to erg. Needed for cgs units.</p></li>
+<li><p><strong>QFactor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Charge Factor defined as <span class="math notranslate nohighlight">\(\mathcal Q = \sum_{i}^{N} q_{i}^2\)</span> .</p></li>
+<li><p><strong>Lx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Box length in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
+<li><p><strong>Ly</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Box length in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
+<li><p><strong>Lz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Box length in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
+<li><p><strong>e1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
+<li><p><strong>e2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
+<li><p><strong>e3</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
+<li><p><strong>LPx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial particle box length in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
+<li><p><strong>LPy</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial particle box length in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
+<li><p><strong>LPz</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial particle box length in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
+<li><p><strong>ep1</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector of the initial particle box in the <span class="math notranslate nohighlight">\(x\)</span> direction.</p></li>
+<li><p><strong>ep2</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector of the initial particle box in the <span class="math notranslate nohighlight">\(y\)</span> direction.</p></li>
+<li><p><strong>ep3</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Unit vector of the initial particle box in the <span class="math notranslate nohighlight">\(z\)</span> direction.</p></li>
+<li><p><strong>input_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – YAML Input file with all the simulation’s parameters.</p></li>
+<li><p><strong>T_desired</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Target temperature for the equilibration phase.</p></li>
+<li><p><strong>species_num</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Number of particles of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_concentrations</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Concentration of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_temperatures</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Initial temperature of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_masses</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Mass of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_charges</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Charge of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Name of each species. Len = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_plasma_frequencies</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Plasma Frequency of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>species_num_dens</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Number density of each species. Shape = (<code class="docutils literal notranslate"><span class="pre">num_species</span></code>)</p></li>
+<li><p><strong>total_ion_temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total initial ion temperature calculated as `` = species_concentration &#64; species_temperatures``.</p></li>
+<li><p><strong>total_net_charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total charge in the system.</p></li>
+<li><p><strong>total_num_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Total number density. Calculated from the sum of <code class="docutils literal notranslate"><span class="pre">Species.num_density</span></code>.</p></li>
+<li><p><strong>total_num_ptcls</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Total number of particles. Calculated from the sum of <code class="docutils literal notranslate"><span class="pre">Species.num</span></code>.</p></li>
+<li><p><strong>measure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for production phase.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for screen output.</p></li>
+<li><p><strong>simulations_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of directory where to store simulations.</p></li>
+<li><p><strong>job_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name of the current job/run</p></li>
+<li><p><strong>production_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store simulation’s files of the production phase. Default = ‘Production’.</p></li>
+<li><p><strong>equilibration_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store simulation’s file of the equilibration phase. Default = ‘Equilibration’.</p></li>
+<li><p><strong>preprocessing_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store preprocessing files. Default = “PreProcessing”.</p></li>
+<li><p><strong>postprocessing_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store postprocessing files. Default = “PostProcessing”.</p></li>
+<li><p><strong>prod_dump_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store production phase’s simulation’s checkpoints. Default = ‘dumps’.</p></li>
+<li><p><strong>eq_dump_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory name where to store equilibration phase’s simulation’s checkpoints. Default = ‘dumps’.</p></li>
+<li><p><strong>job_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Appendix of all simulation’s files.</p></li>
+<li><p><strong>log_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Filename of the simulation’s log.</p></li>
+<li><p><strong>np_per_side</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Number of particles per simulation’s box side.
 The product of its components should be equal to <code class="docutils literal notranslate"><span class="pre">total_num_ptcls</span></code>.</p></li>
-<li><p><strong>~Parameters.pre_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for preprocessing phase.</p></li>
+<li><p><strong>pre_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for preprocessing phase.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -263,8 +273,8 @@ The product of its components should be equal to <code class="docutils literal n
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 18, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
+      Last updated on May 09, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br/>
     </p>
   </div>
 </footer>
@@ -287,17 +297,16 @@ The product of its components should be equal to <code class="docutils literal n
     }
     .wy-menu-vertical p.caption {
 	  color: #fff;
-	}
-	.wy-menu-vertical a {
-	  color: #eee;
-	}
-	.wy-menu-vertical a:hover {
-    background-color: #18453b;
-  }
- /* .wy-nav-content {
-    max-width: 900px !important;
-  } */
-}
+    }
+    .wy-menu-vertical a {
+      color: #eee;
+    }
+    .wy-menu-vertical a:hover {
+      background-color: #18453b;
+    }
+    /* .wy-nav-content {
+      max-width: 900px !important;
+    } */
   </style>
 
   </body>

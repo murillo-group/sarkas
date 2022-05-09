@@ -5,15 +5,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
+<meta property="og:title" content="sarkas.core.Species" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://murillo-group.github.io/sarkas/api/core_pckg/sarkas.core.Species.html" />
+  
+<meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
+  
+<meta property="twitter:card" content="summary">
+<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
+<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
     <title>sarkas.core.Species &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
     <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -149,32 +159,32 @@
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>~Species.name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Species’ name.</p></li>
-<li><p><strong>~Species.number_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species number density in appropriate units.</p></li>
-<li><p><strong>~Species.num</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of particles of Species.</p></li>
-<li><p><strong>~Species.mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ mass.</p></li>
-<li><p><strong>~Species.charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ charge.</p></li>
-<li><p><strong>~Species.Z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species charge number or ionization degree.</p></li>
-<li><p><strong>~Species.ai</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species Wigner - Seitz radius calculate from electron density.
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Species’ name.</p></li>
+<li><p><strong>number_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species number density in appropriate units.</p></li>
+<li><p><strong>num</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of particles of Species.</p></li>
+<li><p><strong>mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ mass.</p></li>
+<li><p><strong>charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ charge.</p></li>
+<li><p><strong>Z</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species charge number or ionization degree.</p></li>
+<li><p><strong>ai</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species Wigner - Seitz radius calculate from electron density.
 Used in the calculation of the effective coupling constant.</p></li>
-<li><p><strong>~Species.ai_dens</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species Wigner - Seitz radius calculate from the species density.</p></li>
-<li><p><strong>~Species.coupling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species coupling constant</p></li>
-<li><p><strong>~Species.plasma_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ plasma frequency.</p></li>
-<li><p><strong>~Species.debye_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ Debye Length.</p></li>
-<li><p><strong>~Species.cyclotron_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ cyclotron frequency.</p></li>
-<li><p><strong>~Species.initial_velocity</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Initial velocity in x,y,z directions.</p></li>
-<li><p><strong>~Species.temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial temperature of the species.</p></li>
-<li><p><strong>~Species.temperature_eV</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial temperature of the species in eV.</p></li>
-<li><p><strong>~Species.initial_velocity_distribution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Type of distribution. Default = ‘boltzmann’.</p></li>
-<li><p><strong>~Species.initial_spatial_distribution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Type of distribution. Default = ‘uniform’.</p></li>
-<li><p><strong>~Species.atomic_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – (Optional) Species mass in atomic units.</p></li>
-<li><p><strong>~Species.concentration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ concentration.</p></li>
-<li><p><strong>~Species.mass_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – (Optional) Species’ mass density.</p></li>
+<li><p><strong>ai_dens</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species Wigner - Seitz radius calculate from the species density.</p></li>
+<li><p><strong>coupling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species coupling constant</p></li>
+<li><p><strong>plasma_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ plasma frequency.</p></li>
+<li><p><strong>debye_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ Debye Length.</p></li>
+<li><p><strong>cyclotron_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ cyclotron frequency.</p></li>
+<li><p><strong>initial_velocity</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.22)"><em>numpy.ndarray</em></a>) – Initial velocity in x,y,z directions.</p></li>
+<li><p><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial temperature of the species.</p></li>
+<li><p><strong>temperature_eV</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Initial temperature of the species in eV.</p></li>
+<li><p><strong>initial_velocity_distribution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Type of distribution. Default = ‘boltzmann’.</p></li>
+<li><p><strong>initial_spatial_distribution</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Type of distribution. Default = ‘uniform’.</p></li>
+<li><p><strong>atomic_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – (Optional) Species mass in atomic units.</p></li>
+<li><p><strong>concentration</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Species’ concentration.</p></li>
+<li><p><strong>mass_density</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – (Optional) Species’ mass density.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -225,8 +235,8 @@ Used in the calculation of the effective coupling constant.</p></li>
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 18, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
+      Last updated on May 09, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br/>
     </p>
   </div>
 </footer>
@@ -249,17 +259,16 @@ Used in the calculation of the effective coupling constant.</p></li>
     }
     .wy-menu-vertical p.caption {
 	  color: #fff;
-	}
-	.wy-menu-vertical a {
-	  color: #eee;
-	}
-	.wy-menu-vertical a:hover {
-    background-color: #18453b;
-  }
- /* .wy-nav-content {
-    max-width: 900px !important;
-  } */
-}
+    }
+    .wy-menu-vertical a {
+      color: #eee;
+    }
+    .wy-menu-vertical a:hover {
+      background-color: #18453b;
+    }
+    /* .wy-nav-content {
+      max-width: 900px !important;
+    } */
   </style>
 
   </body>

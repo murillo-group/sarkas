@@ -5,15 +5,25 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
+<meta property="og:title" content="sarkas.tools.observables.Observable" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://murillo-group.github.io/sarkas/api/tools_subpckg/sarkas.tools.observables.Observable.html" />
+  
+<meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
+  
+<meta property="twitter:card" content="summary">
+<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
+<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
     <title>sarkas.tools.observables.Observable &#8212; Sarkas 1.0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
     <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -151,36 +161,36 @@
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>~Observable.dataframe</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+559.gf469af7b38)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s data averaged over the number of slices.</p></li>
-<li><p><strong>~Observable.dataframe_acf</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+559.gf469af7b38)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s autocorrelation function data averaged over the number of slices.</p></li>
-<li><p><strong>~Observable.dataframe_acf_slices</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+559.gf469af7b38)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s autocorrelation data for each slice.</p></li>
-<li><p><strong>~Observable.dataframe_slices</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+559.gf469af7b38)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s data for each slice.</p></li>
-<li><p><strong>~Observable.max_k_harmonics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Maximum number of <span class="math notranslate nohighlight">\(\mathbf{k}\)</span> harmonics to calculate along each dimension.</p></li>
-<li><p><strong>~Observable.phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Phase to analyze.</p></li>
-<li><p><strong>~Observable.prod_no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of production phase checkpoints. Calculated from the number of files in the Production directory.</p></li>
-<li><p><strong>~Observable.eq_no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of equilibration phase checkpoints. Calculated from the number of files in the Equilibration directory.</p></li>
-<li><p><strong>~Observable.no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of simulation’s checkpoints. Calculated from the number of files in the phase folder.</p></li>
-<li><p><strong>~Observable.dump_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to correct dump directory.</p></li>
-<li><p><strong>~Observable.dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Correct step interval.
+<li><p><strong>dataframe</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+767.g6edb64c9ed)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s data averaged over the number of slices.</p></li>
+<li><p><strong>dataframe_acf</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+767.g6edb64c9ed)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s autocorrelation function data averaged over the number of slices.</p></li>
+<li><p><strong>dataframe_acf_slices</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+767.g6edb64c9ed)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s autocorrelation data for each slice.</p></li>
+<li><p><strong>dataframe_slices</strong> (<a class="reference external" href="https://pandas.pydata.org/pandas-docs/dev/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.5.0.dev0+767.g6edb64c9ed)"><em>pandas.DataFrame</em></a>) – Dataframe containing the observable’s data for each slice.</p></li>
+<li><p><strong>max_k_harmonics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – Maximum number of <span class="math notranslate nohighlight">\(\mathbf{k}\)</span> harmonics to calculate along each dimension.</p></li>
+<li><p><strong>phase</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Phase to analyze.</p></li>
+<li><p><strong>prod_no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of production phase checkpoints. Calculated from the number of files in the Production directory.</p></li>
+<li><p><strong>eq_no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of equilibration phase checkpoints. Calculated from the number of files in the Equilibration directory.</p></li>
+<li><p><strong>no_dumps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of simulation’s checkpoints. Calculated from the number of files in the phase folder.</p></li>
+<li><p><strong>dump_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to correct dump directory.</p></li>
+<li><p><strong>dump_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Correct step interval.
 It is either <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.prod_dump_step</span></code> or <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.eq_dump_step</span></code>.</p></li>
-<li><p><strong>~Observable.no_obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of independent binary observable quantities.
+<li><p><strong>no_obs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of independent binary observable quantities.
 It is calculated as <span class="math notranslate nohighlight">\(N_s (N_s + 1) / 2\)</span> where <span class="math notranslate nohighlight">\(N_s\)</span> is the number of species.</p></li>
-<li><p><strong>~Observable.k_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the npz file storing the <span class="math notranslate nohighlight">\(k\)</span> vector values.</p></li>
-<li><p><strong>~Observable.nkt_hdf_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the npy file containing the Fourier transform of density fluctuations. <span class="math notranslate nohighlight">\(n(\mathbf k, t)\)</span>.</p></li>
-<li><p><strong>~Observable.vkt_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the npz file containing the Fourier transform of velocity fluctuations. <span class="math notranslate nohighlight">\(\mathbf v(\mathbf k, t)\)</span>.</p></li>
-<li><p><strong>~Observable.k_space_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory where <span class="math notranslate nohighlight">\(\mathbf {k}\)</span> data is stored.</p></li>
-<li><p><strong>~Observable.saving_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the directory where computed data is stored.</p></li>
-<li><p><strong>~Observable.slice_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of steps per slice.</p></li>
-<li><p><strong>~Observable.dimensional_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for averaging over all dimensions. Default = False.</p></li>
-<li><p><strong>~Observable.runs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of independent MD runs. Default = 1.</p></li>
-<li><p><strong>~Observable.multi_run_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for averaging over multiple runs. Default = False.
+<li><p><strong>k_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the npz file storing the <span class="math notranslate nohighlight">\(k\)</span> vector values.</p></li>
+<li><p><strong>nkt_hdf_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the npy file containing the Fourier transform of density fluctuations. <span class="math notranslate nohighlight">\(n(\mathbf k, t)\)</span>.</p></li>
+<li><p><strong>vkt_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the npz file containing the Fourier transform of velocity fluctuations. <span class="math notranslate nohighlight">\(\mathbf v(\mathbf k, t)\)</span>.</p></li>
+<li><p><strong>k_space_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Directory where <span class="math notranslate nohighlight">\(\mathbf {k}\)</span> data is stored.</p></li>
+<li><p><strong>saving_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Path to the directory where computed data is stored.</p></li>
+<li><p><strong>slice_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of steps per slice.</p></li>
+<li><p><strong>dimensional_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for averaging over all dimensions. Default = False.</p></li>
+<li><p><strong>runs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – Number of independent MD runs. Default = 1.</p></li>
+<li><p><strong>multi_run_average</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – Flag for averaging over multiple runs. Default = False.
 If True, <cite>runs</cite> needs be specified. It will collect data from all runs and stored them in a large ndarray to
 be averaged over.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
@@ -250,8 +260,8 @@ be averaged over.</p></li>
     </p>
     <p>
         &copy; Copyright 2019-2022, MurilloGroup.<br/>
-      Last updated on Mar 18, 2022.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br/>
+      Last updated on May 09, 2022.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br/>
     </p>
   </div>
 </footer>
@@ -274,17 +284,16 @@ be averaged over.</p></li>
     }
     .wy-menu-vertical p.caption {
 	  color: #fff;
-	}
-	.wy-menu-vertical a {
-	  color: #eee;
-	}
-	.wy-menu-vertical a:hover {
-    background-color: #18453b;
-  }
- /* .wy-nav-content {
-    max-width: 900px !important;
-  } */
-}
+    }
+    .wy-menu-vertical a {
+      color: #eee;
+    }
+    .wy-menu-vertical a:hover {
+      background-color: #18453b;
+    }
+    /* .wy-nav-content {
+      max-width: 900px !important;
+    } */
   </style>
 
   </body>
