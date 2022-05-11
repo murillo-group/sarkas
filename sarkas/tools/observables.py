@@ -225,8 +225,8 @@ class Observable:
         self.k_observable = False
         self.kw_observable = False
         self.acf_observable = False
-        self.dataframe_slices = None
         self.dataframe = None
+        self.dataframe_slices = None
         self.dataframe_acf = None
         self.dataframe_acf_slices = None
 
@@ -1700,14 +1700,7 @@ class PressureTensor(Observable):
         self.__dict__.update(**kwargs)
         self.update_finish()
 
-    @compute_doc
-    def compute(self):
-
-        start_slice = 0
-        end_slice = self.slice_steps * self.dump_step
-        time = np.zeros(self.slice_steps)
-        # Initialize timer
-        t0 = self.timer.current()
+    def df_column_names(self):
 
         # Dataframes' columns names
         pt_str_kin = "Pressure Tensor Kinetic"
@@ -1719,6 +1712,107 @@ class PressureTensor(Observable):
         pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
         pt_acf_str = "Pressure Tensor ACF"
 
+        # Pre compute the number of columns in the dataframe and make the list of names
+        if self.dimensions == 3:
+            dim_lbl = ["x", "y", "z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["x", "y"]
+
+        # Slice Dataframe
+        slice_df_column_names = ["Time"]
+
+        for isl in range(self.no_slices):
+            slice_df_column_names.append(f"Pressure_slice {isl}")
+            slice_df_column_names.append(f"Delta Pressure_slice {isl}")
+            for i, ax1 in enumerate(dim_lbl):
+                for j, ax2 in enumerate(dim_lbl):
+                    slice_df_column_names.append(pt_str_kin + f" {ax1}{ax2}_slice {isl}")
+                    slice_df_column_names.append(pt_str_pot + f" {ax1}{ax2}_slice {isl}")
+                    slice_df_column_names.append(pt_str + f" {ax1}{ax2}_slice {isl}")
+
+        # ACF Slice Dataframe
+        acf_slice_df_column_names = ["Time"]
+
+        for isl in range(self.no_slices):
+            acf_slice_df_column_names.append(f"Pressure ACF_slice {isl}")
+            acf_slice_df_column_names.append(f"Delta Pressure ACF_slice {isl}")
+            for ax1 in dim_lbl:
+                for ax2 in dim_lbl:
+                    for ax3 in dim_lbl:
+                        for ax4 in dim_lbl:
+                            acf_slice_df_column_names.append(pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}")
+                            acf_slice_df_column_names.append(pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}")
+                            acf_slice_df_column_names.append(pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}")
+                            acf_slice_df_column_names.append(pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}")
+                            acf_slice_df_column_names.append(pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}")
+        # Mean and std Dataframe
+        df_column_names = ["Time", "Pressure_Mean", "Pressure_Std", "Delta Pressure_Mean", "Delta Pressure_Std"]
+        for i, ax1 in enumerate(dim_lbl):
+            for j, ax2 in enumerate(dim_lbl):
+                df_column_names.append(pt_str_kin + f" {ax1}{ax2}_Mean")
+                df_column_names.append(pt_str_kin + f" {ax1}{ax2}_Std")
+                df_column_names.append(pt_str_pot + f" {ax1}{ax2}_Mean")
+                df_column_names.append(pt_str_pot + f" {ax1}{ax2}_Std")
+                df_column_names.append(pt_str + f" {ax1}{ax2}_Mean")
+                df_column_names.append(pt_str + f" {ax1}{ax2}_Std")
+
+        # Mean and std Dataframe
+        acf_df_column_names = [
+            "Time",
+            "Pressure ACF_Mean",
+            "Pressure ACF_Std",
+            "Delta Pressure ACF_Mean",
+            "Delta Pressure ACF_Std",
+        ]
+        for ax1 in dim_lbl:
+            for ax2 in dim_lbl:
+                for ax3 in dim_lbl:
+                    for ax4 in dim_lbl:
+                        acf_df_column_names.append(pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Mean")
+                        acf_df_column_names.append(pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Std")
+                        acf_df_column_names.append(pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Mean")
+                        acf_df_column_names.append(pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Std")
+                        acf_df_column_names.append(pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Mean")
+                        acf_df_column_names.append(pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Std")
+                        acf_df_column_names.append(pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Mean")
+                        acf_df_column_names.append(pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Std")
+                        acf_df_column_names.append(pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Mean")
+                        acf_df_column_names.append(pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Std")
+
+        self.dataframe = pd.DataFrame(columns=df_column_names)
+        self.dataframe_slices = pd.DataFrame(columns=slice_df_column_names)
+        self.dataframe_acf = pd.DataFrame(columns=acf_df_column_names)
+        self.dataframe_acf_slices = pd.DataFrame(columns=acf_slice_df_column_names)
+
+    @compute_doc
+    def compute(self):
+
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        time = np.zeros(self.slice_steps)
+
+        # Dataframes' columns names
+        pt_str_kin = "Pressure Tensor Kinetic"
+        pt_str_pot = "Pressure Tensor Potential"
+        pt_str = "Pressure Tensor"
+        pt_acf_str_kin = "Pressure Tensor Kinetic ACF"
+        pt_acf_str_pot = "Pressure Tensor Potential ACF"
+        pt_acf_str_kinpot = "Pressure Tensor Kin-Pot ACF"
+        pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
+        pt_acf_str = "Pressure Tensor ACF"
+
+        if self.dimensions == 3:
+            dim_lbl = ["x", "y", "z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["x", "y"]
+
+        # Pre compute the number of columns in the dataframe and make the list of names
+        self.df_column_names()
+
+        # Initialize timer
+        t0 = self.timer.current()
+
+        # Let's compute
         for isl in range(self.no_slices):
             print("\nCalculating stress tensor and the acfs for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
@@ -1756,15 +1850,10 @@ class PressureTensor(Observable):
                 delta_pressure, delta_pressure
             )
 
-            if self.dimensions == 3:
-                dim_lbl = ["x", "y", "z"]
-            elif self.dimensions == 2:
-                dim_lbl = ["x", "y"]
-
             for i, ax1 in enumerate(dim_lbl):
                 pt_temp[i, i, :] -= pressure.mean()
 
-            # The reason for dividing these two loops is because I want a specific order in the dataframe.
+            # The reason for dividing these two loops is that I want a specific order in the dataframe.
             # Pressure, Stress Tensor, All
             for i, ax1 in enumerate(dim_lbl):
                 for j, ax2 in enumerate(dim_lbl):
@@ -1830,23 +1919,19 @@ class PressureTensor(Observable):
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 # Kinetic Terms
-                ij_col_str = [pt_str_kin + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
-                self.dataframe[pt_str_kin + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(
-                    axis=1
-                )
-                self.dataframe[pt_str_kin + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
+                ij_col_str = [pt_str_kin + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
+                self.dataframe[pt_str_kin + f" {ax1}{ax2}_Mean"] = self.dataframe_slices[ij_col_str].mean(axis=1)
+                self.dataframe[pt_str_kin + f" {ax1}{ax2}_Std"] = self.dataframe_slices[ij_col_str].std(axis=1)
 
                 # Potential Terms
-                ij_col_str = [pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
-                self.dataframe[pt_str_pot + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(
-                    axis=1
-                )
-                self.dataframe[pt_str_pot + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
+                ij_col_str = [pt_str_pot + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
+                self.dataframe[pt_str_pot + f" {ax1}{ax2}_Mean"] = self.dataframe_slices[ij_col_str].mean(axis=1)
+                self.dataframe[pt_str_pot + f" {ax1}{ax2}_Std"] = self.dataframe_slices[ij_col_str].std(axis=1)
 
                 # Full
-                ij_col_str = [pt_str + " {}{}_slice {}".format(ax1, ax2, isl) for isl in range(self.no_slices)]
-                self.dataframe[pt_str + " {}{}_Mean".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].mean(axis=1)
-                self.dataframe[pt_str + " {}{}_Std".format(ax1, ax2)] = self.dataframe_slices[ij_col_str].std(axis=1)
+                ij_col_str = [pt_str + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
+                self.dataframe[pt_str + f" {ax1}{ax2}_Mean"] = self.dataframe_slices[ij_col_str].mean(axis=1)
+                self.dataframe[pt_str + f" {ax1}{ax2}_Std"] = self.dataframe_slices[ij_col_str].std(axis=1)
 
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
@@ -1854,47 +1939,46 @@ class PressureTensor(Observable):
                     for l, ax4 in enumerate(dim_lbl):
                         # Kinetic Terms
                         ij_col_acf_str = [
-                            pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            for isl in range(self.no_slices)
+                            pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_kin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
-                        std_column = pt_acf_str_kin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        mean_column = pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        std_column = pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+
                         # Potential Terms
                         ij_col_acf_str = [
-                            pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            for isl in range(self.no_slices)
+                            pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_pot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
-                        std_column = pt_acf_str_pot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        mean_column = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        std_column = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+
                         # Kinetic-Potential Terms
                         ij_col_acf_str = [
-                            pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            for isl in range(self.no_slices)
+                            pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_kinpot + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
-                        std_column = pt_acf_str_kinpot + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        mean_column = pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        std_column = pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+
                         # Potential-Kinetic Terms
                         ij_col_acf_str = [
-                            pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            for isl in range(self.no_slices)
+                            pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_potkin + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
-                        std_column = pt_acf_str_potkin + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        mean_column = pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        std_column = pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+
                         # Full
                         ij_col_acf_str = [
-                            pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            for isl in range(self.no_slices)
+                            pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str + " {}{}{}{}_Mean".format(ax1, ax2, ax3, ax4)
-                        std_column = pt_acf_str + " {}{}{}{}_Std".format(ax1, ax2, ax3, ax4)
+                        mean_column = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        std_column = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
 
@@ -1925,22 +2009,22 @@ class PressureTensor(Observable):
         self.time_stamp("Stress Tensor and ACF Calculation", self.timer.time_division(tend - t0))
 
     def sum_rule(self, beta, rdf, potential):
-        """
+        r"""
         Calculate the sum rule integrals from the rdf.
 
         .. math::
             :nowrap:
 
-            \\begin{eqnarray}
-                \\sigma_{zzzz} & = &   \\frac{n}{\\beta^2} \\left [ 3 +
-                \\frac{2\\beta}{15} I^{(1)} + \\frac{\\beta}{5} I^{(2)} \\right ] , \\\\
-                \\sigma_{zzxx} & =& \\frac{n}{\\beta^2} \\left [ 1
-                - \\frac{2\\beta}{5} I^{(1)} + \\frac {\\beta}{15} I^{(2)} \\right ] , \\\\
-                \\sigma_{xyxy} & = & \\frac{n}{\\beta^2} \\left [ 1 +
-                \\frac{4\\beta}{15} I^{(2)} + \\frac {\\beta}{15} I^{(2)} \\right ] ,
-            \\end{eqnarray}
+            \begin{eqnarray}
+                \sigma_{zzzz} & = &   \frac{n}{\beta^2} \left [ 3 +
+                \frac{2\beta}{15} I^{(1)} + \frac{\beta}{5} I^{(2)} \right ] , \\
+                \sigma_{zzxx} & =& \frac{n}{\beta^2} \left [ 1
+                - \frac{2\beta}{5} I^{(1)} + \frac {\beta}{15} I^{(2)} \right ] , \\
+                \sigma_{xyxy} & = & \frac{n}{\beta^2} \left [ 1 +
+                \frac{4\beta}{15} I^{(2)} + \frac {\beta}{15} I^{(2)} \right ] ,
+            \end{eqnarray}
 
-        where :math:`I^{(k)} = \\sum_{A} \\sum_{B \geq A}I_{AB}^{(\\rm {Hartree}, k)} + I_{AB}^{(\\rm {Corr}, k)}`
+        where :math:`I^{(k)} = \sum_{A} \sum_{B \geq A}I_{AB}^{(\rm {Hartree}, k)} + I_{AB}^{(\rm {Corr}, k)}`
         calculated from
         :meth:`sarkas.tools.observables.RadialDistributionFunction.compute_sum_rule_integrals`.
 
@@ -2130,11 +2214,11 @@ class RadialDistributionFunction(Observable):
         -------
         hartrees : numpy.ndarray
             Hartree integrals with :math:`k = {0, 1, 2}`. \n
-            Shape = ( :attr:`~.no_obs`, 3).
+            Shape = ( :attr:`sarkas.tools.observables.Observable.no_obs`, 3).
 
         corrs : numpy.ndarray
             Correlational integrals with :math:`k = {0, 1, 2}`. \n
-            Shape = ( :attr:`~.no_obs`, 3).
+            Shape = ( :attr:`sarkas.tools.observables.Observable.no_obs`, 3).
 
         """
         r = np.copy(self.dataframe["Distance"].iloc[:, 0])
@@ -2154,7 +2238,7 @@ class RadialDistributionFunction(Observable):
         obs_indx = 0
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
-                h_r = self.dataframe[("{}-{} RDF".format(sp1_name, sp2_name), "Mean")].to_numpy() - 1.0
+                h_r = self.dataframe[(f"{sp1_name}-{sp2_name} RDF", "Mean")].to_numpy() - 1.0
 
                 if potential.type == "coulomb":
                     u_r = potential.matrix[0, sp1, sp2] / r
@@ -2896,7 +2980,7 @@ class VelocityDistribution(Observable):
         hist_kwargs: dict = None,
         max_no_moment: int = None,
         curve_fit_kwargs: dict = None,
-        **kwargs
+        **kwargs,
     ):
 
         """

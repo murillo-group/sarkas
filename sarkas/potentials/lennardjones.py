@@ -1,4 +1,4 @@
-"""
+r"""
 Module for handling Lennard-Jones interaction.
 
 Potential
@@ -7,19 +7,19 @@ Potential
 The generalized Lennard-Jones potential is defined as
 
 .. math::
-    U_{\\mu\\nu}(r) = k \\epsilon_{\\mu\\nu} \\left [ \\left ( \\frac{\\sigma_{\\mu\\nu}}{r}\\right )^m -
-    \\left ( \\frac{\\sigma_{\\mu\\nu}}{r}\\right )^n \\right ],
+    U_{\mu\nu}(r) = k \epsilon_{\mu\nu} \left [ \left ( \frac{\sigma_{\mu\nu}}{r}\right )^m -
+    \left ( \frac{\sigma_{\mu\nu}}{r}\right )^n \right ],
 
 where
 
 .. math::
-    k = \\frac{n}{m-n} \\left ( \\frac{n}{m} \\right )^{\\frac{m}{n-m}}.
+    k = \frac{n}{m-n} \left ( \frac{n}{m} \right )^{\frac{m}{n-m}}.
 
 In the case of multispecies liquids we use the `Lorentz-Berthelot <https://en.wikipedia.org/wiki/Combining_rules>`_
 mixing rules
 
 .. math::
-    \\epsilon_{12} = \\sqrt{\\epsilon_{11} \\epsilon_{22}}, \\quad \\sigma_{12} = \\frac{\\sigma_{11} + \\sigma_{22}}{2}.
+    \epsilon_{12} = \sqrt{\epsilon_{11} \epsilon_{22}}, \quad \sigma_{12} = \frac{\sigma_{11} + \sigma_{22}}{2}.
 
 Force Error
 ***********
@@ -27,16 +27,16 @@ Force Error
 The force error for the LJ potential is given by
 
 .. math::
-    \\Delta F = \\frac{k\\epsilon}{ \\sqrt{2\\pi n}} \\left [ \\frac{m^2 \\sigma^{2m}}{2m - 1} \\frac{1}{r_c^{2m -1}}
-    + \\frac{n^2 \\sigma^{2n}}{2n - 1} \\frac{1}{r_c^{2n -1}} \\
-    -\\frac{2 m n \\sigma^{m + n}}{m + n - 1} \\frac{1}{r_c^{m + n -1}} \\
-    \\right ]^{1/2}
+    \Delta F = \frac{k\epsilon}{ \sqrt{2\pi n}} \left [ \frac{m^2 \sigma^{2m}}{2m - 1} \frac{1}{r_c^{2m -1}}
+    + \frac{n^2 \sigma^{2n}}{2n - 1} \frac{1}{r_c^{2n -1}} \
+    -\frac{2 m n \sigma^{m + n}}{m + n - 1} \frac{1}{r_c^{m + n -1}} \
+    \right ]^{1/2}
 
 which we approximate with the first term only
 
 .. math::
-    \\Delta F \\approx \\frac{k\\epsilon} {\\sqrt{2\\pi n} }
-    \\left [ \\frac{m^2 \\sigma^{2m}}{2m - 1} \\frac{1}{r_c^{2m -1}} \\right ]^{1/2}
+    \Delta F \approx \frac{k\epsilon} {\sqrt{2\pi n} }
+    \left [ \frac{m^2 \sigma^{2m}}{2m - 1} \frac{1}{r_c^{2m -1}} \right ]^{1/2}
 
 Potential Attributes
 ********************

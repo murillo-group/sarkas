@@ -1,4 +1,4 @@
-"""
+r"""
 Module for handling Quantum Statistical Potentials.
 
 Potential
@@ -7,50 +7,50 @@ Potential
 Quantum Statistical Potentials are defined by three terms
 
 .. math::
-    U(r) = U_{\\rm pauli}(r) + U_{\\rm coul} + U_{\\rm diff} (r)
+    U(r) = U_{\rm pauli}(r) + U_{\rm coul} + U_{\rm diff} (r)
 
 where
 
 .. math::
-    U_{\\rm pauli}(r) = k_BT \\ln (2)  e^{ - 4\\pi r^2/ \\Lambda_{ab}^2 }
+    U_{\rm pauli}(r) = k_BT \ln (2)  e^{ - 4\pi r^2/ \Lambda_{ab}^2 }
 
 is due to the Pauli exclusion principle,
 
 .. math::
-    U_{\\rm coul}(r) = \\frac{q_iq_j}{4\\pi \\epsilon_0} \\frac{1}{r}
+    U_{\rm coul}(r) = \frac{q_iq_j}{4\pi \epsilon_0} \frac{1}{r}
 
-is the usual Coulomb interaction, and :math:`U_{\\rm diff}(r)` is a diffraction term.
+is the usual Coulomb interaction, and :math:`U_{\rm diff}(r)` is a diffraction term.
 
 There are two possibilities for the diffraction term. The most common is the Deutsch Potential
 
 .. math::
-    U_{\\rm deutsch}(r) = \\frac{q_aq_b}{4\\pi \\epsilon_0} \\frac{e^{- 2 \\pi r/\\Lambda_{ab}} }{r}.
+    U_{\rm deutsch}(r) = \frac{q_aq_b}{4\pi \epsilon_0} \frac{e^{- 2 \pi r/\Lambda_{ab}} }{r}.
 
 The second most common form is the Kelbg potential
 
 .. math::
-    U_{\\rm kelbg}(r) = - \\frac{q_aq_b}{4\\pi \\epsilon_0} \\frac{1}{r} \\left [  e^{- 2 \\pi r^2/\\Lambda_{ab}^2 }
-    - \\sqrt{2} \\pi \\dfrac{r}{\\Lambda_{ab}} \\textrm{erfc} \\left ( \\sqrt{ 2\\pi}  r/ \\Lambda_{ab} \\right )
-    \\right ].
+    U_{\rm kelbg}(r) = - \frac{q_aq_b}{4\pi \epsilon_0} \frac{1}{r} \left [  e^{- 2 \pi r^2/\Lambda_{ab}^2 }
+    - \sqrt{2} \pi \dfrac{r}{\Lambda_{ab}} \textrm{erfc} \left ( \sqrt{ 2\pi}  r/ \Lambda_{ab} \right )
+    \right ].
 
-In the above equations the screening length :math:`\\Lambda_{ab}` is the thermal de Broglie wavelength
+In the above equations the screening length :math:`\Lambda_{ab}` is the thermal de Broglie wavelength
 between the two charges defined as
 
 .. math::
-   \\Lambda_{ab} = \\sqrt{\\frac{2\\pi \\hbar^2}{\\mu_{ab} k_BT}}, \\quad  \\mu_{ab} = \\frac{m_a m_b}{m_a + m_b}
+   \Lambda_{ab} = \sqrt{\frac{2\pi \hbar^2}{\mu_{ab} k_BT}}, \quad  \mu_{ab} = \frac{m_a m_b}{m_a + m_b}
 
 
 Note that in Ref. :cite:`Hansen1981` the DeBroglie wavelength is defined as
 
 .. math::
-   \\Lambda_{ee} = \\sqrt{ \\dfrac{\\hbar^2}{2 \\pi \\mu_{ee} k_{B} T}},
+   \Lambda_{ee} = \sqrt{ \dfrac{\hbar^2}{2 \pi \mu_{ee} k_{B} T}},
 
 while in statistical physics textbooks is defined as
 
 .. math::
-   \\Lambda_{ee} = \\sqrt{ \\dfrac{2 \\pi \\hbar^2}{\\mu_{ee} k_{B} T}} .
+   \Lambda_{ee} = \sqrt{ \dfrac{2 \pi \hbar^2}{\mu_{ee} k_{B} T}} .
 
-The latter will be used in Sarkas. The difference is in the factor of :math:`2\\pi`, i.e. the difference between
+The latter will be used in Sarkas. The difference is in the factor of :math:`2\pi`, i.e. the difference between
 a wave number and wave length.
 
 Potential Attributes
