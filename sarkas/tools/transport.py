@@ -789,7 +789,7 @@ class TransportCoefficients:
         Parameters
         ----------
         observable : :class:`sarkas.tools.observables.PressureTensor`
-            Observable object containing the ACF whose time integral leads to the interdiffusion coefficient.
+            Observable object containing the ACF whose time integral leads to the viscsosity coefficients.
 
         plot : bool, optional
             Flag for making the dual plot of the ACF and transport coefficient. Default = True.
@@ -843,7 +843,7 @@ class TransportCoefficients:
 
             const = observable.box_volume * self.beta
             # Calculate Bulk Viscosity
-            # It is is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
+            # It is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
             integrand = observable.dataframe_acf_slices[("Delta Pressure ACF", "slice {}".format(isl))].to_numpy()
             self.viscosity_df_slices["Bulk Viscosity_slice {}".format(isl)] = const * fast_integral_loop(time, integrand)
 

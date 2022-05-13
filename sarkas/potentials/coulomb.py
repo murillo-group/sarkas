@@ -1,4 +1,4 @@
-"""
+r"""
 Module for handling Coulomb interaction.
 
 Potential
@@ -7,7 +7,7 @@ Potential
 The Coulomb potential between two particles :math:`a,b` is
 
 .. math::
-   U_{ab}(r) = \\frac{q_{a}q_b}{4 \\pi \\epsilon_0 r}.
+   U_{ab}(r) = \frac{q_{a}q_b}{4 \pi \epsilon_0 r}.
 
 Potential Attributes
 ********************

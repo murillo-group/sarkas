@@ -1,4 +1,4 @@
-"""
+r"""
 Module for handling Moliere Potential.
 
 Potential
@@ -7,7 +7,7 @@ Potential
 The Moliere Potential is defined as
 
 .. math::
-    U(r) = \\frac{q_i q_j}{4 \\pi \\epsilon_0} \\frac{1}{r} \\sum_{\\alpha} C_{\\alpha} e^{- b_{\\alpha} r}.
+    U(r) = \frac{q_i q_j}{4 \pi \epsilon_0} \frac{1}{r} \sum_{\alpha} C_{\alpha} e^{- b_{\alpha} r}.
 
 For more details see :cite:`Wilson1977`. Note that the parameters :math:`b` are not normalized by the Bohr radius.
 They should be passed with the correct units [m] if mks or [cm] if cgs.
@@ -19,7 +19,7 @@ The force error is calculated from the Yukawa's formula with the smallest screen
 
 .. math::
 
-    \\Delta F = \\frac{q^2}{4 \\pi \\epsilon_0} \\sqrt{2 \\pi n b_{\\textrm min} }e^{-b_{\\textrm min} r_c},
+    \Delta F = \frac{q^2}{4 \pi \epsilon_0} \sqrt{2 \pi n b_{\textrm min} }e^{-b_{\textrm min} r_c},
 
 This overestimates it, but it doesn't matter.
 

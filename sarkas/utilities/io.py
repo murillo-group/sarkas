@@ -39,7 +39,8 @@ DARK_COLORS = ["24;69;49", "0;129;131", "83;80;84", "110;0;95"]
 
 
 class InputOutput:
-    """Class handling the input and output functions of the MD run
+    """
+    Class handling the input and output functions of the MD run.
 
     Parameters
     ----------
@@ -158,7 +159,7 @@ class InputOutput:
         return dics
 
     def create_file_paths(self):
-        """Create all directories', subdirectories', and files' paths ."""
+        """Create all directories', subdirectories', and files' paths."""
 
         if self.job_dir is None:
             self.job_dir = os.path.basename(self.input_file).split(".")[0]
@@ -313,15 +314,15 @@ class InputOutput:
                 print(process_title)
                 print(*["*" for i in range(50)])
 
-                print("\nJob ID: ", self.job_id)
-                print("Job directory: ", self.job_dir)
-                print("PostProcessing directory: \n", self.postprocessing_dir)
+                print(f"\nJob ID: {self.job_id}")
+                print(f"Job directory: {self.job_dir}")
+                print(f"PostProcessing directory: \n{self.postprocessing_dir}")
 
-                print("\nEquilibration dumps directory: ", self.eq_dump_dir)
-                print("Production dumps directory: \n", self.prod_dump_dir)
+                print(f"\nEquilibration dumps directory: {self.eq_dump_dir}")
+                print(f"Production dumps directory: \n{self.prod_dump_dir}")
 
-                print("\nEquilibration Thermodynamics file: \n", self.eq_energy_filename)
-                print("Production Thermodynamics file: \n", self.prod_energy_filename)
+                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
+                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
 
             else:
 
@@ -332,16 +333,16 @@ class InputOutput:
                 print(process_title)
                 print(*["*" for i in range(50)])
 
-                print("\nJob ID: ", self.job_id)
-                print("Job directory: ", self.job_dir)
-                print("\nEquilibration dumps directory: \n", self.eq_dump_dir)
-                print("Production dumps directory: \n", self.prod_dump_dir)
+                print(f"\nJob ID: {self.job_id}")
+                print(f"Job directory: {self.job_dir}")
+                print(f"\nEquilibration dumps directory: \n", {self.eq_dump_dir})
+                print(f"Production dumps directory: \n", {self.prod_dump_dir})
 
-                print("\nEquilibration Thermodynamics file: \n", self.eq_energy_filename)
-                print("Production Thermodynamics file: \n", self.prod_energy_filename)
+                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
+                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
 
                 if hasattr(simulation.parameters, "rand_seed"):
-                    print("Random Seed = ", simulation.parameters.rand_seed)
+                    print(f"Random Seed = {simulation.parameters.rand_seed}")
 
                 print("\nPARTICLES:")
                 print("Total No. of particles = ", simulation.parameters.total_num_ptcls)

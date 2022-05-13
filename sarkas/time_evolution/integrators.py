@@ -1285,10 +1285,10 @@ def remove_drift(vel, nums, masses) -> None:
     species_start = 0
     for ic in range(len(nums)):
         species_end = species_start + nums[ic]
-        P[ic, :] = np.sum(vel[species_start:species_end, :], axis=0) * masses[ic]
+        P[ic, :] = vel[species_start:species_end, :].sum(axis=0) * masses[ic]
         species_start = species_end
 
-    if np.sum(P[:, 0]) > 1e-40 or np.sum(P[:, 1]) > 1e-40 or np.sum(P[:, 2]) > 1e-40:
+    if P[:, 0].sum() > 1e-40 or P[:, 1].sum() > 1e-40 or P[:, 2].sum() > 1e-40:
         # Remove tot momentum
         species_start = 0
         for ic in range(len(nums)):
