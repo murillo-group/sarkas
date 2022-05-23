@@ -2,9 +2,10 @@
 Module of various types of time_evolution
 """
 
-import numpy as np
 from IPython import get_ipython
 from numba import float64, int64, jit, void
+from numpy import arange, array, cos, cross, pi, sin, sqrt, zeros
+from numpy.linalg import norm
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
@@ -74,35 +75,58 @@ class Integrator:
 
     """
 
-    def __init__(self):
-        self.type = None
-        self.dt = None
-        self.kB = None
-        self.magnetized = False
-        self.electrostatic_equilibration = False
-        self.production_steps = None
-        self.equilibration_steps = None
-        self.magnetization_steps = None
-        self.prod_dump_step = None
-        self.eq_dump_step = None
-        self.mag_dump_steps = None
-        self.update = None
-        self.species_num = None
-        self.species_plasma_frequencies = None
-        self.box_lengths = None
-        self.pbox_lengths = None
-        self.boundary_conditions = None
-        self.enforce_bc = None
-        self.verbose = False
-        self.supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
-        self.supported_integrators = [
-            "verlet",
-            "verlet_langevin",
-            "magnetic_verlet",
-            "magnetic_pos_verlet",
-            "magnetic_boris",
-            "cyclotronic",
-        ]
+    type: str = None
+    supported_integrators = [
+        "verlet",
+        "verlet_langevin",
+        "magnetic_verlet",
+        "magnetic_pos_verlet",
+        "magnetic_boris",
+        "cyclotronic",
+    ]
+    electrostatic_equilibration: bool = False
+
+    dt: float = None
+    kB: float = None
+
+    eq_dump_step: int = None
+    equilibration_steps: int = None
+    prod_dump_step: int = None
+    production_steps: int = None
+
+    species_num = None
+    species_plasma_frequencies = None
+
+    # Magnetic attributes
+    magnetized: bool = False
+    mag_dump_steps: int = None
+    magnetization_steps: int = None
+    magnetic_field_uvector = None
+    magnetic_field = None
+    omega_c = None
+    species_cyclotron_frequencies = None
+    ccodt = None
+    cdt = None
+    ssodt = None
+    sdt = None
+    v_B = None
+    v_F = None
+
+    # Langevin attributes
+    c1 = None
+    c2 = None
+    sigma = None
+    box_lengths = None
+    pbox_lengths = None
+
+    boundary_conditions = None
+    enforce_bc = None
+    supported_boundary_conditions = ["periodic", "absorbing", "reflecting"]
+
+    thermostate = None
+    update = None
+    update_accelerations = None
+    verbose: bool = False
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -188,10 +212,10 @@ class Integrator:
 
         if params.magnetized or self.magnetized:
             self.magnetized = True
-            self.species_cyclotron_frequencies = np.copy(params.species_cyclotron_frequencies)
+            self.species_cyclotron_frequencies = params.species_cyclotron_frequencies.copy()
             # Create the unit vector of the magnetic field
-            self.magnetic_field_uvector = params.magnetic_field / np.linalg.norm(params.magnetic_field)
-            self.omega_c = np.zeros((params.total_num_ptcls, params.dimensions))
+            self.magnetic_field_uvector = params.magnetic_field / norm(params.magnetic_field)
+            self.omega_c = zeros((params.total_num_ptcls, params.dimensions))
 
             sp_start = 0
             sp_end = 0
@@ -203,7 +227,7 @@ class Integrator:
             # array to temporary store velocities
             # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
             # each time step
-            self.v_B = np.zeros((params.total_num_ptcls, params.dimensions))
+            self.v_B = zeros((params.total_num_ptcls, params.dimensions))
 
         if self.type not in self.supported_integrators:
             raise ValueError(
@@ -217,9 +241,7 @@ class Integrator:
 
         elif self.type == "verlet_langevin":
 
-            self.sigma = np.sqrt(
-                2.0 * self.langevin_gamma * params.kB * params.species_temperatures / params.species_masses
-            )
+            self.sigma = sqrt(2.0 * self.langevin_gamma * params.kB * params.species_temperatures / params.species_masses)
             self.c1 = 1.0 - 0.5 * self.langevin_gamma * self.dt
             self.c2 = 1.0 / (1.0 + 0.5 * self.langevin_gamma * self.dt)
             self.update = self.verlet_langevin
@@ -234,9 +256,9 @@ class Integrator:
             # array to temporary store velocities
             # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
             # each time step
-            self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
+            self.v_F = zeros((params.total_num_ptcls, params.dimensions))
 
-            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+            if self.magnetic_field_uvector @ array([0.0, 0.0, 1.0]) == 1.0:  # dot product
                 self.update = self.magnetic_verlet_zdir
             else:
                 self.update = self.magnetic_verlet
@@ -250,9 +272,9 @@ class Integrator:
             # array to temporary store velocities
             # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
             # each time step
-            self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
+            self.v_F = zeros((params.total_num_ptcls, params.dimensions))
 
-            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+            if self.magnetic_field_uvector @ array([0.0, 0.0, 1.0]) == 1.0:  # dot product
                 self.update = self.magnetic_pos_verlet_zdir
             else:
                 self.update = self.magnetic_pos_verlet
@@ -263,7 +285,7 @@ class Integrator:
             # see eq.~(79) in :cite:`Chin2008`
             self.magnetic_helpers(1.0)
 
-            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+            if self.magnetic_field_uvector @ array([0.0, 0.0, 1.0]) == 1.0:  # dot product
                 self.update = self.magnetic_boris_zdir
             else:
                 self.update = self.magnetic_boris
@@ -271,7 +293,7 @@ class Integrator:
             # array to temporary store velocities
             # Luciano: I have the vague doubt that allocating memory for these arrays is faster than calculating them
             # each time step
-            self.v_F = np.zeros((params.total_num_ptcls, params.dimensions))
+            self.v_F = zeros((params.total_num_ptcls, params.dimensions))
 
         elif self.type == "cyclotronic":
             # Calculate functions for magnetic integrator
@@ -279,7 +301,7 @@ class Integrator:
             # In a magnetic Velocity-Verlet the coefficient is 1/2, see eq.~(78) in :cite:`Chin2008`
             self.magnetic_helpers(0.5)
 
-            if np.dot(self.magnetic_field_uvector, np.array([0.0, 0.0, 1.0])) == 1.0:
+            if self.magnetic_field_uvector @ array([0.0, 0.0, 1.0]) == 1.0:  # dot product
                 self.update = self.cyclotronic_zdir
             else:
                 self.update = self.cyclotronic
@@ -395,7 +417,7 @@ class Integrator:
         # Enforce boundary condition
         self.enforce_bc(ptcls)
 
-        acc_old = np.copy(ptcls.acc)
+        acc_old = ptcls.acc.copy()
         self.update_accelerations(ptcls)
 
         sp_start = 0
@@ -406,7 +428,7 @@ class Integrator:
             ptcls.vel[sp_start:sp_end, :] = (
                 self.c1 * self.c2 * ptcls.vel[sp_start:sp_end, :]
                 + 0.5 * self.c2 * self.dt * (ptcls.acc[sp_start:sp_end, :] + acc_old[sp_start:sp_end, :])
-                + self.c2 * self.sigma[ic] * np.sqrt(self.dt) * beta
+                + self.c2 * self.sigma[ic] * sqrt(self.dt) * beta
             )
             sp_start += num
 
@@ -450,8 +472,8 @@ class Integrator:
 
         """
         theta = self.omega_c * self.dt * coefficient
-        self.sdt = np.sin(theta)
-        self.cdt = np.cos(theta)
+        self.sdt = sin(theta)
+        self.cdt = cos(theta)
         self.ccodt = 1.0 - self.cdt
         self.ssodt = 1.0 - self.sdt / theta
 
@@ -566,10 +588,10 @@ class Integrator:
 
         """
         # Calculate the cross products
-        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
-        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
-        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
-        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+        b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = cross(self.magnetic_field_uvector, b_cross_a)
 
         # First half step of velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
@@ -590,10 +612,10 @@ class Integrator:
         potential_energy = self.update_accelerations(ptcls)
 
         # Re-calculate the cross products
-        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
-        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
-        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
-        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+        b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = cross(self.magnetic_field_uvector, b_cross_a)
 
         # Second half step velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
@@ -672,9 +694,9 @@ class Integrator:
 
         # Rotate: Apply exp( dt * V)
         # B cross v
-        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
         # B cross B cross v
-        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_b_cross_v = cross(self.magnetic_field_uvector, b_cross_v)
         ptcls.vel += self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
         # Second Acceleration half step: Apply exp(dt * V_F / 2)
@@ -793,10 +815,10 @@ class Integrator:
         potential_energy = self.update_accelerations(ptcls)
 
         # Calculate the cross products
-        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
-        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
-        b_cross_a = np.cross(self.magnetic_field_uvector, ptcls.acc)
-        b_cross_b_cross_a = np.cross(self.magnetic_field_uvector, b_cross_a)
+        b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_a = cross(self.magnetic_field_uvector, ptcls.acc)
+        b_cross_b_cross_a = cross(self.magnetic_field_uvector, b_cross_a)
 
         # First half step of velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
@@ -846,7 +868,7 @@ class Integrator:
         # Create rotated velocities
         self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:, 1] * ptcls.vel[:, 1]
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
-        ptcls.vel[:, :2] = np.copy(self.v_B[:, :2])
+        ptcls.vel[:, :2] = self.v_B[:, :2].copy()
         # Compute total potential energy and accelerations
         potential_energy = self.update_accelerations(ptcls)
 
@@ -870,7 +892,7 @@ class Integrator:
         self.v_B[:, 0] = self.cdt[:, 0] * ptcls.vel[:, 0] + self.sdt[:, 1] * ptcls.vel[:, 1]
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         # Update final velocities
-        ptcls.vel[:, :2] = np.copy(self.v_B[:, :2])
+        ptcls.vel[:, :2] = self.v_B[:, :2].copy()
 
         return potential_energy
 
@@ -894,8 +916,8 @@ class Integrator:
         # Drift half step
 
         # Calculate the cross products
-        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
-        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = cross(self.magnetic_field_uvector, b_cross_v)
         # Rotate Positions
         ptcls.pos += (
             0.5 * ptcls.vel * self.dt
@@ -914,8 +936,8 @@ class Integrator:
 
         # Drift half step
         # Calculate the cross products
-        b_cross_v = np.cross(self.magnetic_field_uvector, ptcls.vel)
-        b_cross_b_cross_v = np.cross(self.magnetic_field_uvector, b_cross_v)
+        b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
+        b_cross_b_cross_v = cross(self.magnetic_field_uvector, b_cross_v)
         # Rotate Positions
         ptcls.pos += (
             0.5 * ptcls.vel * self.dt
@@ -977,7 +999,7 @@ class Integrator:
             print("Type: {}".format(self.type))
 
         if potential_type in ["yukawa", "egs", "coulomb", "moliere"]:
-            wp_tot = np.linalg.norm(self.species_plasma_frequencies)
+            wp_tot = norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
             print("Total plasma frequency = {:.6e} [rad/s]".format(wp_tot))
@@ -987,13 +1009,13 @@ class Integrator:
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
-                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
+                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
+                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / pi))
                 else:
-                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
         elif potential_type == "qsp":
-            wp_tot = np.linalg.norm(self.species_plasma_frequencies)
-            wp_ions = np.linalg.norm(self.species_plasma_frequencies[1:])
+            wp_tot = norm(self.species_plasma_frequencies)
+            wp_ions = norm(self.species_plasma_frequencies[1:])
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
             print("Total plasma frequency = {:.6e} [rad/s]".format(wp_tot))
@@ -1011,18 +1033,16 @@ class Integrator:
 
             if self.magnetized:
                 high_wc_dt = abs(self.species_cyclotron_frequencies[0]).max() * self.dt
-                low_wc_dt = np.linalg.norm(self.species_cyclotron_frequencies[1:]) * self.dt
+                low_wc_dt = norm(self.species_cyclotron_frequencies[1:]) * self.dt
                 print("e cyclotron frequency = {:.6e} [rad/s]".format(self.species_cyclotron_frequencies[0]))
                 print(
-                    "total ion cyclotron frequency = {:.6e} [rad/s]".format(
-                        np.linalg.norm(self.species_cyclotron_frequencies[1:])
-                    )
+                    "total ion cyclotron frequency = {:.6e} [rad/s]".format(norm(self.species_cyclotron_frequencies[1:]))
                 )
 
-                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
-                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
+                print("w_ce dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
+                print("w_ci dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / pi))
         elif potential_type == "lj":
-            wp_tot = np.linalg.norm(self.species_plasma_frequencies)
+            wp_tot = norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
             print("w_p = sqrt( epsilon / (sigma^2 * mass) )")
@@ -1033,12 +1053,12 @@ class Integrator:
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
-                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
+                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
+                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / pi))
                 else:
-                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
         elif potential_type == "hs_yukawa":
-            wp_tot = np.linalg.norm(self.species_plasma_frequencies)
+            wp_tot = norm(self.species_plasma_frequencies)
             wp_dt = wp_tot * self.dt
             print("Time step = {:.6e} [s]".format(self.dt))
             print("Total plasma frequency = {:1.6e} [rad/s]".format(wp_tot))
@@ -1048,10 +1068,10 @@ class Integrator:
                 low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
                 if high_wc_dt > low_wc_dt:
-                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
-                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / np.pi))
+                    print("Highest w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
+                    print("Smallest w_c dt = {:2.4f} = {:.4f} pi".format(low_wc_dt, low_wc_dt / pi))
                 else:
-                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / np.pi))
+                    print("w_c dt = {:2.4f} = {:.4f} pi".format(high_wc_dt, high_wc_dt / pi))
 
         # Print Time steps information
         # Check for restart simulations
@@ -1174,8 +1194,8 @@ def enforce_pbc(pos, cntr, box_vector) -> None:
     """
 
     # Loop over all particles
-    for p in np.arange(pos.shape[0]):
-        for d in np.arange(pos.shape[1]):
+    for p in arange(pos.shape[0]):
+        for d in arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, wrap to negative side
             if pos[p, d] > box_vector[d]:
@@ -1212,20 +1232,20 @@ def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
     """
 
     # Loop over all particles
-    for p in np.arange(pos.shape[0]):
-        for d in np.arange(pos.shape[1]):
+    for p in arange(pos.shape[0]):
+        for d in arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, remove charge, velocity and acceleration
             if pos[p, d] >= box_vector[d]:
                 pos[p, d] = box_vector[d]
-                vel[p, :] = np.zeros(3)
-                acc[p, :] = np.zeros(3)
+                vel[p, :] = zeros(3)
+                acc[p, :] = zeros(3)
                 charges[p] = 0.0
             # If particle is outside of box in negative direction, remove charge, velocity and acceleration
             if pos[p, d] <= 0.0:
                 pos[p, d] = 0.0
-                vel[p, :] = np.zeros(3)
-                acc[p, :] = np.zeros(3)
+                vel[p, :] = zeros(3)
+                acc[p, :] = zeros(3)
                 charges[p] = 0.0
 
 
@@ -1251,8 +1271,8 @@ def enforce_rbc(pos, vel, box_vector, dt) -> None:
     """
 
     # Loop over all particles
-    for p in np.arange(pos.shape[0]):
-        for d in np.arange(pos.shape[1]):
+    for p in arange(pos.shape[0]):
+        for d in arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, wrap to negative side
             if pos[p, d] > box_vector[d] or pos[p, d] < 0.0:
@@ -1281,14 +1301,14 @@ def remove_drift(vel, nums, masses) -> None:
 
     """
 
-    P = np.zeros((len(nums), vel.shape[1]))
+    P = zeros((len(nums), vel.shape[1]))
     species_start = 0
     for ic in range(len(nums)):
         species_end = species_start + nums[ic]
-        P[ic, :] = np.sum(vel[species_start:species_end, :], axis=0) * masses[ic]
+        P[ic, :] = vel[species_start:species_end, :].sum(axis=0) * masses[ic]
         species_start = species_end
 
-    if np.sum(P[:, 0]) > 1e-40 or np.sum(P[:, 1]) > 1e-40 or np.sum(P[:, 2]) > 1e-40:
+    if P.sum(axis=0).any() > 1e-40:
         # Remove tot momentum
         species_start = 0
         for ic in range(len(nums)):
