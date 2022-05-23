@@ -2,27 +2,22 @@
 Module for handling the Particle-Mesh part of the force and potential calculation.
 """
 
-import numpy as np
-import pyfftw
-import warnings
-from numba import jit, njit
+from numba import jit
+from numba.core.types import complex128, float64, int8, int64, Tuple, UniTuple
+from numpy import arange, exp, mod, pi, real, sin, sqrt, square, zeros, zeros_like
+from numpy.fft import fftshift, ifftshift
+from pyfftw.builders import fftn, ifftn
 
-# These "ignore" are needed because numba does not support pyfftw yet
-from numba.core.errors import (
-    NumbaDeprecationWarning,
-    NumbaPendingDeprecationWarning,
-    NumbaWarning,
+
+@jit(
+    Tuple((float64[:, :, :], float64[:, :], float64[:, :], float64[:, :, :], float64))(
+        float64[:], int64[:], int64[:], int8, float64[:]
+    ),
+    nopython=True,
 )
-
-warnings.simplefilter("ignore", category=NumbaDeprecationWarning)
-warnings.simplefilter("ignore", category=NumbaWarning)
-warnings.simplefilter("ignore", category=NumbaPendingDeprecationWarning)
-
-
-@njit
 def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constants):
     """
-    Numba'd function to calculate the Optimized Green Function given by eq.(22) of Ref. [Stern2008].
+    Numba'd function to calculate the Optimized Green Function given by eq.(22) of Ref.:cite:`Stern2008`.
 
     Parameters
     ----------
@@ -72,35 +67,35 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
     kappa_sq = kappa * kappa
     Gew_sq = Gew * Gew
 
-    G_k = np.zeros((mesh_sizes[2], mesh_sizes[1], mesh_sizes[0]))
+    G_k = zeros((mesh_sizes[2], mesh_sizes[1], mesh_sizes[0]))
 
-    nz_mid = mesh_sizes[2] / 2 if np.mod(mesh_sizes[2], 2) == 0 else (mesh_sizes[2] - 1) / 2
-    ny_mid = mesh_sizes[1] / 2 if np.mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1) / 2
-    nx_mid = mesh_sizes[0] / 2 if np.mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1) / 2
+    nz_mid = mesh_sizes[2] / 2 if mod(mesh_sizes[2], 2) == 0 else (mesh_sizes[2] - 1) / 2
+    ny_mid = mesh_sizes[1] / 2 if mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1) / 2
+    nx_mid = mesh_sizes[0] / 2 if mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1) / 2
 
-    # nx_v = np.arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
-    # ny_v = np.arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
-    # nz_v = np.arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))
+    # nx_v = arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
+    # ny_v = arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
+    # nz_v = arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))
     # Dev Note:
     # The above three lines where giving a problem with Numba in Windows only.
     # I replaced them with the ones below. I don't know why it was giving a problem.
-    nx_v = np.zeros((1, mesh_sizes[0]), dtype=np.int64)
-    nx_v[0, :] = np.arange(mesh_sizes[0])
+    nx_v = zeros((1, mesh_sizes[0]), dtype=int64)
+    nx_v[0, :] = arange(mesh_sizes[0])
 
-    ny_v = np.zeros((mesh_sizes[1], 1), dtype=np.int64)
-    ny_v[:, 0] = np.arange(mesh_sizes[1])
+    ny_v = zeros((mesh_sizes[1], 1), dtype=int64)
+    ny_v[:, 0] = arange(mesh_sizes[1])
 
-    nz_v = np.zeros((mesh_sizes[2], 1, 1), dtype=np.int64)
-    nz_v[:, 0, 0] = np.arange(mesh_sizes[2])
+    nz_v = zeros((mesh_sizes[2], 1, 1), dtype=int64)
+    nz_v[:, 0, 0] = arange(mesh_sizes[2])
 
-    kx_v = 2.0 * np.pi * (nx_v - nx_mid) / box_lengths[0]
-    ky_v = 2.0 * np.pi * (ny_v - ny_mid) / box_lengths[1]
-    kz_v = 2.0 * np.pi * (nz_v - nz_mid) / box_lengths[2]
+    kx_v = 2.0 * pi * (nx_v - nx_mid) / box_lengths[0]
+    ky_v = 2.0 * pi * (ny_v - ny_mid) / box_lengths[1]
+    kz_v = 2.0 * pi * (nz_v - nz_mid) / box_lengths[2]
 
     PM_err = 0.0
 
-    four_pi = 4.0 * np.pi if fourpie0 == 1.0 else 4.0 * np.pi / fourpie0
-    two_pi = 2.0 * np.pi
+    four_pi = 4.0 * pi if fourpie0 == 1.0 else 4.0 * pi / fourpie0
+    two_pi = 2.0 * pi
 
     for nz in range(mesh_sizes[2]):
         nz_sh = nz - nz_mid
@@ -124,24 +119,22 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
                     # Sum over the aliases
                     for mz in range(-aliases[2], aliases[2] + 1):
                         kz_M = two_pi * (nz_sh + mz * mesh_sizes[2]) / box_lengths[2]
-                        U_kz_M = np.sin(0.5 * kz_M * h_array[2]) / (0.5 * kz_M * h_array[2]) if kz_M != 0.0 else 1.0
+                        U_kz_M = sin(0.5 * kz_M * h_array[2]) / (0.5 * kz_M * h_array[2]) if kz_M != 0.0 else 1.0
 
                         for my in range(-aliases[1], aliases[1] + 1):
                             ky_M = two_pi * (ny_sh + my * mesh_sizes[1]) / box_lengths[1]
-                            U_ky_M = np.sin(0.5 * ky_M * h_array[1]) / (0.5 * ky_M * h_array[1]) if ky_M != 0.0 else 1.0
+                            U_ky_M = sin(0.5 * ky_M * h_array[1]) / (0.5 * ky_M * h_array[1]) if ky_M != 0.0 else 1.0
 
                             for mx in range(-aliases[0], aliases[0] + 1):
                                 kx_M = two_pi * (nx_sh + mx * mesh_sizes[0]) / box_lengths[0]
-                                U_kx_M = (
-                                    np.sin(0.5 * kx_M * h_array[0]) / (0.5 * kx_M * h_array[0]) if kx_M != 0.0 else 1.0
-                                )
+                                U_kx_M = sin(0.5 * kx_M * h_array[0]) / (0.5 * kx_M * h_array[0]) if kx_M != 0.0 else 1.0
 
                                 k_M_sq = kx_M * kx_M + ky_M * ky_M + kz_M * kz_M
 
                                 U_k_M = (U_kx_M * U_ky_M * U_kz_M) ** p
                                 U_k_M_sq = U_k_M * U_k_M
 
-                                G_k_M = four_pi * np.exp(-0.25 * (kappa_sq + k_M_sq) / Gew_sq) / (kappa_sq + k_M_sq)
+                                G_k_M = four_pi * exp(-0.25 * (kappa_sq + k_M_sq) / Gew_sq) / (kappa_sq + k_M_sq)
 
                                 k_dot_k_M = kx * kx_M + ky * ky_M + kz * kz_M
 
@@ -150,20 +143,20 @@ def force_optimized_green_function(box_lengths, mesh_sizes, aliases, p, constant
 
                     # eq.(22) of Ref.[Dharuman2017]_
                     G_k[nz, ny, nx] = U_G_k / ((U_k_sq**2) * k_sq)
-                    Gk_hat = four_pi * np.exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq)
+                    Gk_hat = four_pi * exp(-0.25 * (kappa_sq + k_sq) / Gew_sq) / (kappa_sq + k_sq)
 
                     # eq.(28) of Ref.[Dharuman2017]_
                     PM_err += Gk_hat * Gk_hat * k_sq - U_G_k**2 / ((U_k_sq**2) * k_sq)
 
-    PM_err = np.sqrt(PM_err) / np.prod(box_lengths) ** (1.0 / 3.0)
+    PM_err = sqrt(PM_err) / box_lengths.prod() ** (1.0 / 3.0)
 
     return G_k, kx_v, ky_v, kz_v, PM_err
 
 
-@njit
+@jit(float64[:](int8, float64), nopython=True)
 def assgnmnt_func(cao, x):
     """
-    Calculate the charge assignment function as given in Ref. [Deserno1998].
+    Calculate the charge assignment function as given in Ref.:cite:`Deserno1998`
 
     Parameters
     ----------
@@ -179,7 +172,7 @@ def assgnmnt_func(cao, x):
         Charge Assignment Function.
 
     """
-    W = np.zeros(cao)
+    W = zeros(cao)
 
     if cao == 1:
 
@@ -250,8 +243,8 @@ def assgnmnt_func(cao, x):
     return W
 
 
-@njit
-def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
+@jit(float64[:, :, :](float64[:, :], float64[:], int8, int64[:], float64[:]), nopython=True)
+def calc_charge_dens(pos, charges, cao, mesh_sz, h_array):
     """
     Assigns Charges to Mesh Points.
 
@@ -269,9 +262,6 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
     charges: numpy.ndarray
         Particles' charges.
 
-    N: int
-        Number of particles.
-
     cao: int
         Charge assignment order.
 
@@ -282,7 +272,7 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
 
     """
 
-    rho_r = np.zeros((mesh_sz[2], mesh_sz[1], mesh_sz[0]))
+    rho_r = zeros((mesh_sz[2], mesh_sz[1], mesh_sz[0]))
 
     # Mid point calculation
     if cao % 2 == 0:
@@ -294,7 +284,7 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
         mid = 0.0
         pshift = int(cao / float(2.0))
 
-    for ipart in range(N):
+    for ipart in range(len(charges)):
 
         # ix = x-coord of the (left) closest mesh point
         # (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle
@@ -362,34 +352,37 @@ def calc_charge_dens(pos, charges, N, cao, mesh_sz, h_array):
     return rho_r
 
 
-@njit
+@jit(
+    UniTuple(complex128[:, :, :], 3)(complex128[:, :, :], float64[:, :], float64[:, :], float64[:, :, :]),
+    nopython=True,
+)
 def calc_field(phi_k, kx_v, ky_v, kz_v):
     """
-    Calculates the Electric field in Fourier space.
+    Numba'd function that calculates the Electric field in Fourier space.
 
     Parameters
     ----------
-    phi_k : numpy.ndarray
+    phi_k : numpy.ndarray, numba.complex128
         3D array of the Potential.
 
-    kx_v : numpy.ndarray
-        3D array containing the values of kx.
+    kx_v : numpy.ndarray, numba.float64
+        2D array containing the values of kx.
 
-    ky_v : numpy.ndarray
-        3D array containing the values of ky.
+    ky_v : numpy.ndarray, numba.float64
+        2D array containing the values of ky.
 
-    kz_v : numpy.ndarray
+    kz_v : numpy.ndarray, numba.float64
         3D array containing the values of kz.
 
     Returns
     -------
-    E_kx : numpy.ndarray
+    E_kx : numpy.ndarray, numba.complex128
        Electric Field along kx-axis.
 
-    E_ky : numpy.ndarray
+    E_ky : numpy.ndarray, numba.complex128
        Electric Field along ky-axis.
 
-    E_kz : numpy.ndarray
+    E_kz : numpy.ndarray, numba.complex128
        Electric Field along kz-axis.
 
     """
@@ -401,8 +394,21 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
     return E_kx, E_ky, E_kz
 
 
-@njit
-def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_array):
+@jit(
+    float64[:, :](
+        float64[:, :, :],
+        float64[:, :, :],
+        float64[:, :, :],
+        float64[:, :],
+        float64[:],
+        int8,
+        float64[:],
+        int64[:],
+        float64[:],
+    ),
+    nopython=True,
+)
+def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, cao, masses, mesh_sz, h_array):
     """
     Calculates the long range part of particles' accelerations.
 
@@ -423,9 +429,6 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
     charges : numpy.ndarray
         Particles' charges.
 
-    N : int
-        Number of particles.
-
     cao : int
         Charge assignment order.
 
@@ -440,11 +443,11 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
           Acceleration from Electric Field.
 
     """
-    E_x_p = np.zeros(N)
-    E_y_p = np.zeros(N)
-    E_z_p = np.zeros(N)
+    E_x_p = zeros_like(charges)
+    E_y_p = zeros_like(charges)
+    E_z_p = zeros_like(charges)
 
-    acc = np.zeros_like(pos)
+    acc = zeros_like(pos)
 
     # Mid point calculation
     if cao % 2 == 0:
@@ -458,7 +461,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
         # Number of points to the left of the chosen one
         pshift = int(cao / float(2.0))
 
-    for ipart in range(N):
+    for ipart in range(len(charges)):
 
         ix = int(pos[ipart, 0] / h_array[0])
         x = pos[ipart, 0] / h_array[0] - (ix + mid)
@@ -530,7 +533,22 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sz, h_ar
 
 
 # FFTW version
-@jit  # Numba does not support pyfftw yet, however, this decorator still speeds up the function.
+@jit(
+    Tuple((float64, float64[:, :]))(
+        float64[:, :],
+        float64[:],
+        float64[:],
+        int64[:],
+        float64[:],
+        float64[:, :, :],
+        float64[:, :],
+        float64[:, :],
+        float64[:, :, :],
+        int8,
+    ),
+    nopython=False,
+    forceobj=True,  # This is needed so that it doesn't throw an error nor warning
+)
 def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v, cao):
     """
     Calculate the long range part of particles' accelerations.
@@ -576,52 +594,51 @@ def update(pos, charges, masses, mesh_sizes, box_lengths, G_k, kx_v, ky_v, kz_v,
         Long range part of particles' accelerations.
 
     """
-    # number of particles
-    N = pos.shape[0]
+
     # Mesh spacings = h_x, h_y, h_z
     mesh_spacings = box_lengths / mesh_sizes
     # Calculate charge density on mesh
-    rho_r = calc_charge_dens(pos, charges, N, cao, mesh_sizes, mesh_spacings)
+    rho_r = calc_charge_dens(pos, charges, cao, mesh_sizes, mesh_spacings)
     # Prepare for fft
-    fftw_n = pyfftw.builders.fftn(rho_r)
+    fftw_n = fftn(rho_r)
     # Calculate fft
     rho_k_fft = fftw_n()
 
     # Shift the DC value at the center of the ndarray
-    rho_k = np.fft.fftshift(rho_k_fft)
+    rho_k = fftshift(rho_k_fft)
 
     # Potential from Poisson eq.
     phi_k = G_k * rho_k
 
     # Charge density
-    rho_k_real = np.real(rho_k)
-    rho_k_imag = np.imag(rho_k)
-    rho_k_sq = rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
+    # rho_k_real = real(rho_k)
+    # rho_k_imag = imag(rho_k)
+    rho_k_sq = square(rho_k)  # rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
 
     # Long range part of the potential
-    U_f = 0.5 * np.sum(rho_k_sq * G_k) / np.prod(box_lengths)
+    U_f = 0.5 * (rho_k_sq * G_k).sum() / box_lengths.prod()
 
     # Calculate the Electric field's component on the mesh
     E_kx, E_ky, E_kz = calc_field(phi_k, kx_v, ky_v, kz_v)
 
     # Prepare for fft. Shift the DC value back to its original position that is [0, 0, 0]
-    E_kx_unsh = np.fft.ifftshift(E_kx)
-    E_ky_unsh = np.fft.ifftshift(E_ky)
-    E_kz_unsh = np.fft.ifftshift(E_kz)
+    E_kx_unsh = ifftshift(E_kx)
+    E_ky_unsh = ifftshift(E_ky)
+    E_kz_unsh = ifftshift(E_kz)
 
     # Prepare and compute IFFT
-    ifftw_n = pyfftw.builders.ifftn(E_kx_unsh)
+    ifftw_n = ifftn(E_kx_unsh)
     E_x = ifftw_n()
-    ifftw_n = pyfftw.builders.ifftn(E_ky_unsh)
+    ifftw_n = ifftn(E_ky_unsh)
     E_y = ifftw_n()
-    ifftw_n = pyfftw.builders.ifftn(E_kz_unsh)
+    ifftw_n = ifftn(E_kz_unsh)
     E_z = ifftw_n()
 
     # I am worried that this normalization is not needed
-    E_x_r = np.real(E_x) / np.prod(mesh_spacings)
-    E_y_r = np.real(E_y) / np.prod(mesh_spacings)
-    E_z_r = np.real(E_z) / np.prod(mesh_spacings)
+    E_x_r = real(E_x) / mesh_spacings.prod()
+    E_y_r = real(E_y) / mesh_spacings.prod()
+    E_z_r = real(E_z) / mesh_spacings.prod()
 
-    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, N, cao, masses, mesh_sizes, mesh_spacings)
+    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, cao, masses, mesh_sizes, mesh_spacings)
 
     return U_f, acc_f

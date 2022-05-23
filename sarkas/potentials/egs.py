@@ -96,7 +96,8 @@ from numba.core.types import float64, UniTuple
 from numpy import cos, cosh, exp, pi, sin, sqrt, tanh, zeros
 
 from ..utilities.exceptions import AlgorithmError
-from ..utilities.maths import fd_integral, force_error_analytic_pp
+from ..utilities.fdints import fdm3h
+from ..utilities.maths import force_error_analytic_pp
 
 
 def update_params(potential, params):
@@ -124,7 +125,7 @@ def update_params(potential, params):
 
     # eq. (14) of Ref. [1]_
     params.nu = 3.0 / pi**1.5 * params.landau_length / params.lambda_deB
-    dIdeta = -3.0 / 2.0 * fd_integral(params.eta_e, -1.5)
+    dIdeta = -3.0 / 2.0 * fdm3h(params.eta_e)
     params.nu *= potential.lmbda * dIdeta
 
     # Degeneracy Parameter

@@ -561,7 +561,7 @@ class Integrator:
         Warnings
         --------
         This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
-        an arbitrary direction, methods in `sarkas.tool.observables` work only for a magnetic field in the
+        an arbitrary direction, methods in :mod:`sarkas.tools.observables` work only for a magnetic field in the
         :math:`z` - direction. Hence, if you choose to use this integrator remember to change your physical observables.
 
         """
@@ -779,7 +779,7 @@ class Integrator:
         Warnings
         --------
         This integrator is valid for a magnetic field in an arbitrary direction. However, while the integrator works for
-        an arbitrary direction, methods in :ref:`sarkas.tool.observables` work only for a magnetic field in the
+        an arbitrary direction, methods in :mod:`sarkas.tools.observables` work only for a magnetic field in the
         :math:`z` - direction. Hence, if you choose to use this integrator remember to change your physical observables.
 
         """

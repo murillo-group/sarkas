@@ -12,9 +12,6 @@ __all__ = [
     "Parameters",
     "Species",
     "InputOutput",
-    "correlationfunction",
-    "fd_integral",
-    "inverse_fd_half",
     "__version__",
 ]
 
@@ -39,7 +36,6 @@ from .processes import PostProcess, PreProcess, Process, Simulation
 from .time_evolution.integrators import Integrator
 from .time_evolution.thermostats import Thermostat
 from .utilities.io import InputOutput
-from .utilities.maths import correlationfunction, fd_integral, inverse_fd_half
 
 # define version
 try:

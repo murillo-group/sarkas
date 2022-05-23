@@ -29,6 +29,7 @@ intersphinx_mapping = {
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/dev/", None),
+    "numba": ("https://numba.readthedocs.io/en/stable/", None),
 }
 
 # -- Project information -----------------------------------------------------

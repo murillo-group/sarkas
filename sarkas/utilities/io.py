@@ -9,6 +9,7 @@ import re
 import sys
 import yaml
 from IPython import get_ipython
+from numpy import pi, sqrt
 from pyfiglet import Figlet, print_figlet
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
@@ -922,7 +923,7 @@ class InputOutput:
                         / simulation.parameters.box_volume
                         * 4.0
                         / 3.0
-                        * np.pi
+                        * pi
                         * (simulation.potential.rc) ** 3.0
                     )
                 )
@@ -960,7 +961,7 @@ class InputOutput:
                         simulation.parameters.total_num_ptcls
                         * 4.0
                         / 3.0
-                        * np.pi
+                        * pi
                         * (simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0
                     )
                 )
@@ -979,6 +980,7 @@ class InputOutput:
             Process class containing the potential info and other parameters.
 
         """
+        a_ws = simulation.parameters.a_ws
         if simulation.potential.type == "yukawa":
             print(f"screening type : {simulation.potential.screening_length_type}")
             print(f"screening length = {simulation.potential.screening_length:.6e} ", end="")
@@ -1030,49 +1032,25 @@ class InputOutput:
             print(f"reduced density = {rho:.6e}")
             print(f"reduced temperature = {tau:.6e}")
         elif simulation.potential.type == "qsp":
-            print("QSP type: {}".format(simulation.potential.qsp_type))
-            print("Pauli term: {}".format(simulation.potential.qsp_pauli))
-            print(
-                "e de Broglie wavelength = {:.4f} a_ws = {:.6e} ".format(
-                    np.sqrt(2.0) * np.pi / (simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws),
-                    np.sqrt(2.0) * np.pi / simulation.potential.matrix[1, 0, 0],
-                ),
-                end="",
-            )
+            ii_scr_len = 1.0 / simulation.potential.matrix[1, 1, 1]
+            ei_scr_len = 1.0 / simulation.potential.matrix[1, 0, 1]
+            ee_scr_len = 1.0 / simulation.potential.matrix[1, 0, 0]
+            e_deBroglie_lambda = sqrt(2.0) * pi / simulation.potential.matrix[1, 0, 0]
+            i_deBroglie_lambda = sqrt(2.0) * pi / simulation.potential.matrix[1, 1, 1]
+
+            print(f"QSP type: {simulation.potential.qsp_type}")
+            print(f"Pauli term: {simulation.potential.qsp_pauli}")
+            print(f"e de Broglie wavelength = {e_deBroglie_lambda/a_ws:.4f} a_ws = {e_deBroglie_lambda:.6e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "ion de Broglie wavelength  = {:.4f} a_ws = {:.6e} ".format(
-                    np.sqrt(2.0) * np.pi / (simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws),
-                    np.sqrt(2.0) * np.pi / simulation.potential.matrix[1, 1, 1],
-                ),
-                end="",
-            )
+            print(f"ion de Broglie wavelength  = {i_deBroglie_lambda/a_ws:.4f} a_ws = {i_deBroglie_lambda:.6e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "e-e screening length = {:.4f} a_ws = {:.6e} ".format(
-                    1.0 / (simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws),
-                    1.0 / simulation.potential.matrix[1, 0, 0],
-                ),
-                end="",
-            )
+            print(f"e-e screening length = {ee_scr_len/a_ws:.4f} a_ws = {ee_scr_len:.6e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "i-i screening length = {:.4f} a_ws = {:.6e} ".format(
-                    1.0 / (simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws),
-                    1.0 / simulation.potential.matrix[1, 1, 1],
-                ),
-                end="",
-            )
+            print(f"i-i screening length = {ii_scr_len /a_ws:.4f} a_ws = {ii_scr_len:.6e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "e-i screening length = {:.4f} a_ws = {:.6e} ".format(
-                    1.0 / (simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws),
-                    1.0 / simulation.potential.matrix[1, 0, 1],
-                ),
-                end="",
-            )
+            print(f"e-i screening length = {ei_scr_len/a_ws:.4f} a_ws = {ei_scr_len:.6e} ", end="")
             print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
+            print(f"e-i coupling constant = {simulation.parameters.coupling_constant:.4f}")
 
         elif simulation.potential.type == "moliere":
             print(f"")

@@ -1,34 +1,17 @@
 from numpy import array, isclose, linspace, pi, sqrt, zeros
 from scipy.constants import elementary_charge, epsilon_0, pi
 
-from ..maths import (
-    fd_integral,
-    force_error_analytic_pp,
-    inverse_fd_half,
-    yukawa_green_function,
-)
+from ..maths import force_error_analytic_pp, yukawa_green_function
 
-
-def test_inverse_fd():
-    """Test the calculation of eta."""
-
-    # Values taken from Tutorial Notebooks
-    ne = 1.62e32  # [N/m^3]
-    lambda_deB = 1.957093e-11  # [m]
-    u = lambda_deB**3 * ne * sqrt(pi) / 4.0
-    eta = inverse_fd_half(u)
-
-    assert isclose(eta, -0.28604631569655325)
-
-
-def test_fd_integral():
-    """Test the calculation of the unnormalized FD integral."""
-    # Values take from Tutorial notebooks
-    p = 0.5
-    eta = -0.2860
-    I = fd_integral(eta, p)
-
-    assert isclose(I, 0.5381222613853245)
+# def test_fd_integral():
+#     """Test the calculation of the unnormalized FD integral."""
+#     # Values take from Tutorial notebooks
+#     p = 0.5
+#     eta = -0.2860
+#     I = fd_integral(eta, p)
+#
+#     assert isclose(I, 0.5381222613853245)
+#
 
 
 def test_yukawa_gk():

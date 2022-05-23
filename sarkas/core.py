@@ -267,6 +267,7 @@ class Parameters:
         self.magnetized = False
         self.plot_style = None
         self.pre_run = False
+        self.electrostatic_equilibration = False
         self.simulations_dir = "Simulations"
         self.production_dir = "Production"
         self.magnetization_dir = "Magnetization"

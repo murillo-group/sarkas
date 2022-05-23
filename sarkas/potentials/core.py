@@ -5,7 +5,7 @@ from numpy import array, ndarray, pi, sqrt, tanh
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
-from ..utilities.maths import fd_integral, inverse_fd_half
+from ..utilities.fdints import fdm1h, invfd1h
 from .force_pm import force_optimized_green_function as gf_opt
 from .force_pm import update as pm_update
 from .force_pp import update as pp_update
@@ -70,7 +70,8 @@ class Potential:
 
     screening_length_type : str
         Choice of ways to calculate the screening length. \n
-        Choices = `[thomas-fermi, tf, debye, debye-huckel, db, moliere, custom]`.
+        Choices = `[thomas-fermi, tf, debye, debye-huckel, db, moliere, custom]`. \n
+        Default = thomas-fermi
 
     screening_length : float
         Value of the screening length.
@@ -99,7 +100,7 @@ class Potential:
     pppm_on: bool = False
     QFactor: float = 0.0
     rc: float = None
-    screening_length_type: str = None
+    screening_length_type: str = "thomas-fermi"
     screening_length: float = None
     total_net_charge: float = 0.0
     type: str = "yukawa"
@@ -307,11 +308,11 @@ class Potential:
         params.landau_length = 4.0 * pi * params.qe**2 * beta_e / params.fourpie0
 
         # chemical potential of electron gas/(kB T), obtained by inverting the density equation.
-        params.eta_e = inverse_fd_half(lambda3 * sqrt(pi) * params.ne / 4.0)
+        params.eta_e = invfd1h(lambda3 * sqrt(pi) * params.ne / 4.0)
 
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
         lambda_TF_sq = lambda3 / params.landau_length
-        lambda_TF_sq /= spin_degeneracy / sqrt(pi) * fd_integral(eta=params.eta_e, p=-0.5)
+        lambda_TF_sq /= spin_degeneracy / sqrt(pi) * fdm1h(eta=params.eta_e)
         params.lambda_TF = sqrt(lambda_TF_sq)
 
         # Electron WS radius
