@@ -1282,8 +1282,8 @@ class InputOutput:
         # Save Energy data
         data = {
             "Time": it * self.dt,
-            "Total Energy": np.sum(kinetic_energies) + ptcls.potential_energy,
-            "Total Kinetic Energy": np.sum(kinetic_energies),
+            "Total Energy": kinetic_energies.sum() + ptcls.potential_energy,
+            "Total Kinetic Energy": kinetic_energies.sum(),
             "Potential Energy": ptcls.potential_energy,
             "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
         }
