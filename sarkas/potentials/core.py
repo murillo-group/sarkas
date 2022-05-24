@@ -312,7 +312,7 @@ class Potential:
 
         # Thomas-Fermi length obtained from compressibility. See eq.(10) in Ref. [3]_
         lambda_TF_sq = lambda3 / params.landau_length
-        lambda_TF_sq /= spin_degeneracy / sqrt(pi) * fdm1h(eta=params.eta_e)
+        lambda_TF_sq /= spin_degeneracy / sqrt(pi) * fdm1h(params.eta_e)
         params.lambda_TF = sqrt(lambda_TF_sq)
 
         # Electron WS radius

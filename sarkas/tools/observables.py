@@ -9,14 +9,46 @@ else:
     from tqdm import tqdm
 
 import matplotlib.pyplot as plt
-import numpy as np
-import os
 import pandas as pd
-import pickle
 import scipy.stats as scp_stats
-import seaborn as sns
 from matplotlib.gridspec import GridSpec
 from numba import njit
+
+# import numpy as np
+from numpy import append as np_append
+from numpy import (
+    argsort,
+    array,
+    complex128,
+    concatenate,
+    exp,
+    format_float_scientific,
+    histogram,
+    isfinite,
+    load,
+    ndarray,
+    ones,
+    pi,
+    real,
+    repeat,
+    savez,
+    sqrt,
+    trapz,
+    unique,
+    zeros,
+)
+from numpy.linalg import norm
+from numpy.polynomial import hermite_e
+from os import listdir, mkdir
+from os import remove as os_remove
+from os.path import exists as os_path_exists
+from os.path import join as os_path_join
+from pandas import concat, DataFrame, HDFStore, MultiIndex, read_csv, read_hdf, Series
+from pickle import dump
+from pickle import load as pickle_load
+from scipy.fft import fft, fftfreq, fftshift
+from scipy.special import factorial
+from seaborn import histplot as sns_histplot
 
 from ..utilities.maths import correlationfunction
 from ..utilities.timing import SarkasTimer
@@ -207,12 +239,8 @@ class Observable:
         self.filename_hdf_acf_slices = None
         self.filename_hdf_slices = None
         self.filename_hdf = None
-        self.max_aa_harmonics = None
-        self.angle_averaging = None
-        self.max_aa_ka_value = None
         self.__long_name__ = None
         self.__name__ = None
-        self.max_k_harmonics = None
         self.saving_dir = None
         self.phase = "production"
         self.multi_run_average = False
@@ -222,8 +250,14 @@ class Observable:
         self.slice_steps = None
         self.screen_output = True
         self.timer = SarkasTimer()
+        # k obsevable attributes
         self.k_observable = False
+        self.max_aa_harmonics = None
+        self.angle_averaging = "principal_axis"
+        self.max_k_harmonics = None
+        self.max_aa_ka_value = None
         self.kw_observable = False
+
         self.acf_observable = False
         self.dataframe_slices = None
         self.dataframe = None
@@ -287,105 +321,94 @@ class Observable:
 
         if self.k_observable:
             # Check for k space information.
-            if not hasattr(self, "angle_averaging"):
-                self.angle_averaging = "principal_axis"
-                self.max_aa_harmonics = np.array([0, 0, 0])
-
-            if self.angle_averaging == "custom":
-                if not hasattr(self, "max_aa_ka_value"):
-                    if self.max_aa_harmonics is None:
-                        raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
-                elif not hasattr(self, "max_aa_harmonics"):
-                    if self.max_aa_ka_value is None:
-                        raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
+            if self.angle_averaging in ["full", "principal_axis"]:
+                if self.max_k_harmonics is None and self.max_ka_value is None:
+                    raise AttributeError("max_ka_value and max_k_harmonics not defined.")
+            elif self.angle_averaging == "custom":
+                # if custom i expect that there is a portion that must be angle averaged.
+                # Therefore check for those values.
+                if self.max_aa_ka_value is None and self.max_aa_harmonics is None:
+                    raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
 
             # More checks on k attributes and initialization of k vectors
+            if self.max_k_harmonics is not None:
+                # Update angle averaged attributes depending on the choice of angle_averaging
 
-            # Dev Notes:
-            #           Make sure that max_k_harmonics and max_aa_harmonics are defined once this if is done.
-            #           The user can either define max_k_harmonics or max_ka_value
-            #           Based on this choice the user can define max_aa_harmonics or max_aa_ka_value
-
-            if hasattr(self, "max_k_harmonics"):
-                # Convert max_k_harmonics to a numpy array
-                if isinstance(self.max_k_harmonics, np.ndarray) == 0:
-                    self.max_k_harmonics = np.ones(3, dtype=int) * self.max_k_harmonics
+                # Convert max_k_harmonics to a numpy array. YAML reads in a list.
+                if not isinstance(self.max_k_harmonics, ndarray):
+                    self.max_k_harmonics = array(self.max_k_harmonics)
 
                 # Calculate max_aa_harmonics based on the choice of angle averaging and inputs
                 if self.angle_averaging == "full":
-                    self.max_aa_harmonics = np.copy(self.max_k_harmonics)
+                    self.max_aa_harmonics = self.max_k_harmonics.copy()
 
                 elif self.angle_averaging == "custom":
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
-                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
-                        self.max_aa_harmonics = np.array([nx, nx, nx])
+                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        self.max_aa_harmonics = array([nx, nx, nx])
                     # else max_aa_harmonics is user defined
                 elif self.angle_averaging == "principal_axis":
-                    self.max_aa_harmonics = np.array([0, 0, 0])
+                    self.max_aa_harmonics = array([0, 0, 0])
+                # max_ka_value is still None
 
-            elif hasattr(self, "max_ka_value"):
+            elif self.max_ka_value is not None:
+                # Update max_k_harmonics and angle average attributes based on the choice of angle_averaging
                 # Calculate max_k_harmonics from max_ka_value
 
                 # Check for angle_averaging choice
                 if self.angle_averaging == "full":
                     # The maximum value is calculated assuming that max nx = max ny = max nz
                     # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
-                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
-                    self.max_k_harmonics = np.array([nx, nx, nx])
-                    self.max_aa_harmonics = np.array([nx, nx, nx])
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                    self.max_k_harmonics = array([nx, nx, nx])
+                    self.max_aa_harmonics = array([nx, nx, nx])
 
                 elif self.angle_averaging == "custom":
                     # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
-                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws))
-                    self.max_k_harmonics = np.array([nx, nx, nx])
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
+                    self.max_k_harmonics = array([nx, nx, nx])
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
-                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws * np.sqrt(3.0)))
-                        self.max_aa_harmonics = np.array([nx, nx, nx])
+                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        self.max_aa_harmonics = array([nx, nx, nx])
                     # else max_aa_harmonics is user defined
                 elif self.angle_averaging == "principal_axis":
                     # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
-                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * np.pi * self.a_ws))
-                    self.max_k_harmonics = np.array([nx, nx, nx])
-                    self.max_aa_harmonics = np.array([0, 0, 0])
-
-            else:
-                # Executive decision
-                self.max_k_harmonics = np.array([5, 5, 5])
-                self.max_aa_harmonics = np.array([0, 0, 0])
-                self.angle_averaging = "principal_axis"
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
+                    self.max_k_harmonics = array([nx, nx, nx])
+                    self.max_aa_harmonics = array([0, 0, 0])
 
             # Calculate the maximum ka value based on user's choice of angle_averaging
             # Dev notes: Make sure max_ka_value, max_aa_ka_value are defined when this if is done
             if self.angle_averaging == "full":
-                self.max_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_k_harmonics / self.box_lengths)
-                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_k_harmonics / self.box_lengths)
+                self.max_ka_value = 2.0 * pi * self.a_ws * norm(self.max_k_harmonics / self.box_lengths)
+                self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_k_harmonics / self.box_lengths)
 
             elif self.angle_averaging == "principal_axis":
-                self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
+                self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
                 self.max_aa_ka_value = 0.0
 
             elif self.angle_averaging == "custom":
-                self.max_aa_ka_value = 2.0 * np.pi * self.a_ws * np.linalg.norm(self.max_aa_harmonics / self.box_lengths)
-                self.max_ka_value = 2.0 * np.pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
+                self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_aa_harmonics / self.box_lengths)
+                self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
 
             # Create paths for files
-            self.k_space_dir = os.path.join(self.postprocessing_dir, "k_space_data")
-            self.k_file = os.path.join(self.k_space_dir, "k_arrays.npz")
-            self.nkt_hdf_file = os.path.join(self.k_space_dir, "nkt.h5")
-            self.vkt_hdf_file = os.path.join(self.k_space_dir, "vkt.h5")
+            self.k_space_dir = os_path_join(self.postprocessing_dir, "k_space_data")
+            self.k_file = os_path_join(self.k_space_dir, "k_arrays.npz")
+            self.nkt_hdf_file = os_path_join(self.k_space_dir, "nkt.h5")
+            self.vkt_hdf_file = os_path_join(self.k_space_dir, "vkt.h5")
 
         # Get the number of independent observables if multi-species
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
 
         # Get the total number of dumps by looking at the files in the directory
-        self.prod_no_dumps = len(os.listdir(self.prod_dump_dir))
-        self.eq_no_dumps = len(os.listdir(self.eq_dump_dir))
+        self.prod_no_dumps = len(listdir(self.prod_dump_dir))
+        self.eq_no_dumps = len(listdir(self.eq_dump_dir))
 
         # Check for magnetized plasma options
         if self.magnetized and self.electrostatic_equilibration:
-            self.mag_no_dumps = len(os.listdir(self.mag_dump_dir))
+            self.mag_no_dumps = len(listdir(self.mag_dump_dir))
 
         # Assign dumps variables based on the choice of phase
         if self.phase == "equilibration":
@@ -414,31 +437,31 @@ class Observable:
         )
 
         # Array containing the start index of each species.
-        self.species_index_start = np.array([0, *np.cumsum(self.species_num)], dtype=int)
+        self.species_index_start = array([0, *self.species_num.cumsum()], dtype=int)
 
     def create_dirs_filenames(self):
         # Saving Directory
-        saving_dir = os.path.join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
-        if not os.path.exists(saving_dir):
-            os.mkdir(saving_dir)
+        saving_dir = os_path_join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
+        if not os_path_exists(saving_dir):
+            mkdir(saving_dir)
 
-        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
-        if not os.path.exists(self.saving_dir):
-            os.mkdir(self.saving_dir)
+        self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
+        if not os_path_exists(self.saving_dir):
+            mkdir(self.saving_dir)
 
         # Filenames and strings
-        self.filename_hdf = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
+        self.filename_hdf = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
 
-        self.filename_hdf_slices = os.path.join(
+        self.filename_hdf_slices = os_path_join(
             self.saving_dir, self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
         )
 
         if self.acf_observable:
-            self.filename_hdf_acf = os.path.join(
+            self.filename_hdf_acf = os_path_join(
                 self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + ".h5"
             )
 
-            self.filename_hdf_acf_slices = os.path.join(
+            self.filename_hdf_acf_slices = os_path_join(
                 self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
             )
 
@@ -448,9 +471,9 @@ class Observable:
         """
         if self.k_observable:
             try:
-                self.dataframe = pd.read_hdf(self.filename_hdf, mode="r", index_col=False)
+                self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
 
-                k_data = np.load(self.k_file)
+                k_data = load(self.k_file)
                 self.k_list = k_data["k_list"]
                 self.k_counts = k_data["k_counts"]
                 self.ka_values = k_data["ka_values"]
@@ -462,9 +485,9 @@ class Observable:
         else:
             try:
                 if hasattr(self, "filename_csv"):
-                    self.dataframe = pd.read_csv(self.filename_csv, index_col=False)
+                    self.dataframe = read_csv(self.filename_csv, index_col=False)
                 else:
-                    self.dataframe = pd.read_hdf(self.filename_hdf, mode="r", index_col=False)
+                    self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
 
             except FileNotFoundError:
                 if hasattr(self, "filename_csv"):
@@ -476,17 +499,17 @@ class Observable:
                 self.compute()
 
             if hasattr(self, "dataframe_slices"):
-                self.dataframe_slices = pd.read_hdf(self.filename_hdf_slices, mode="r", index_col=False)
+                self.dataframe_slices = read_hdf(self.filename_hdf_slices, mode="r", index_col=False)
 
             if self.acf_observable:
-                self.dataframe_acf = pd.read_hdf(self.filename_hdf_acf, mode="r", index_col=False)
-                self.dataframe_acf_slices = pd.read_hdf(self.filename_hdf_acf_slices, mode="r", index_col=False)
+                self.dataframe_acf = read_hdf(self.filename_hdf_acf, mode="r", index_col=False)
+                self.dataframe_acf_slices = read_hdf(self.filename_hdf_acf_slices, mode="r", index_col=False)
 
     def parse_k_data(self):
         """Read in the precomputed Fourier space data. Recalculate if not correct."""
 
         try:
-            k_data = np.load(self.k_file)
+            k_data = load(self.k_file)
             # Check for the correct number of k values
             if self.angle_averaging == k_data["angle_averaging"]:
                 # Check for the correct max harmonics
@@ -523,16 +546,16 @@ class Observable:
             self.box_lengths, self.angle_averaging, self.max_k_harmonics, self.max_aa_harmonics
         )
         # Save the ka values
-        self.ka_values = 2.0 * np.pi * k_unique * self.a_ws
-        self.k_values = 2.0 * np.pi * k_unique
+        self.ka_values = 2.0 * pi * k_unique * self.a_ws
+        self.k_values = 2.0 * pi * k_unique
         self.no_ka_values = len(self.ka_values)
 
         # Check if the writing folder exist
-        if not (os.path.exists(self.k_space_dir)):
-            os.mkdir(self.k_space_dir)
+        if not (os_path_exists(self.k_space_dir)):
+            mkdir(self.k_space_dir)
 
         # Write the npz file
-        np.savez(
+        savez(
             self.k_file,
             k_list=self.k_list,
             k_harmonics=self.k_harmonics,
@@ -562,7 +585,7 @@ class Observable:
         if nkt_flag:
             try:
                 # Check that what was already calculated is correct
-                with pd.HDFStore(self.nkt_hdf_file, mode="r") as nkt_hfile:
+                with HDFStore(self.nkt_hdf_file, mode="r") as nkt_hfile:
                     metadata = nkt_hfile.get_storer("nkt").attrs.metadata
 
                 if metadata["no_slices"] == self.no_slices:
@@ -594,7 +617,7 @@ class Observable:
 
             try:
                 # Check that what was already calculated is correct
-                with pd.HDFStore(self.vkt_hdf_file, mode="r") as vkt_hfile:
+                with HDFStore(self.vkt_hdf_file, mode="r") as vkt_hfile:
                     metadata = vkt_hfile.get_storer("vkt").attrs.metadata
 
                 if metadata["no_slices"] == self.no_slices:
@@ -629,7 +652,7 @@ class Observable:
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         if nkt_flag:
-            nkt_dataframe = pd.DataFrame()
+            nkt_dataframe = DataFrame()
             tinit = self.timer.current()
             for isl in range(self.no_slices):
                 print("\nCalculating n(k,t) for slice {}/{}.".format(isl + 1, self.no_slices))
@@ -652,10 +675,10 @@ class Observable:
                         for ik in range(len(self.k_harmonics))
                     ]
                     # df_columns = [time_column, *k_columns]
-                    nkt_dataframe = pd.concat([nkt_dataframe, pd.DataFrame(nkt[isp, :, :], columns=df_columns)], axis=1)
+                    nkt_dataframe = concat([nkt_dataframe, DataFrame(nkt[isp, :, :], columns=df_columns)], axis=1)
 
             tuples = [tuple(c.split("_")) for c in nkt_dataframe.columns]
-            nkt_dataframe.columns = pd.MultiIndex.from_tuples(tuples, names=["slices", "species", "harmonics"])
+            nkt_dataframe.columns = MultiIndex.from_tuples(tuples, names=["slices", "species", "harmonics"])
 
             # Sample nkt_dataframe
             # slices slice 1
@@ -663,10 +686,10 @@ class Observable:
             # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
 
             # Save the data and append metadata
-            if os.path.exists(self.nkt_hdf_file):
-                os.remove(self.nkt_hdf_file)
+            if os_path_exists(self.nkt_hdf_file):
+                os_remove(self.nkt_hdf_file)
 
-            hfile = pd.HDFStore(self.nkt_hdf_file, mode="w")
+            hfile = HDFStore(self.nkt_hdf_file, mode="w")
             hfile.put("nkt", nkt_dataframe)
             # This metadata is needed to check if I need to recalculate
             metadata = {
@@ -682,7 +705,7 @@ class Observable:
             self.time_stamp("n(k,t) Calculation", self.timer.time_division(tend - tinit))
 
         if vkt_flag:
-            vkt_dataframe = pd.DataFrame()
+            vkt_dataframe = DataFrame()
             tinit = self.timer.current()
             for isl in range(self.no_slices):
                 print(
@@ -708,32 +731,30 @@ class Observable:
                         for ik in range(len(self.k_harmonics))
                     ]
                     # df_columns = [time_column, *k_columns]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt[isp, :, :], columns=df_columns)], axis=1)
+                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt[isp, :, :], columns=df_columns)], axis=1)
                     df_columns = [
                         slc_column
                         + "_Transverse i_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
                         for ik in range(len(self.k_harmonics))
                     ]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_i[isp, :, :], columns=df_columns)], axis=1)
+                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt_i[isp, :, :], columns=df_columns)], axis=1)
                     df_columns = [
                         slc_column
                         + "_Transverse j_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
                         for ik in range(len(self.k_harmonics))
                     ]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_j[isp, :, :], columns=df_columns)], axis=1)
+                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt_j[isp, :, :], columns=df_columns)], axis=1)
 
                     df_columns = [
                         slc_column
                         + "_Transverse k_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
                         for ik in range(len(self.k_harmonics))
                     ]
-                    vkt_dataframe = pd.concat([vkt_dataframe, pd.DataFrame(vkt_k[isp, :, :], columns=df_columns)], axis=1)
+                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt_k[isp, :, :], columns=df_columns)], axis=1)
 
             # Full string: slice 1_Longitudinal_He_k = [1, 0, 0]
             tuples = [tuple(c.split("_")) for c in vkt_dataframe.columns]
-            vkt_dataframe.columns = pd.MultiIndex.from_tuples(
-                tuples, names=["slices", "species", "direction", "harmonics"]
-            )
+            vkt_dataframe.columns = MultiIndex.from_tuples(tuples, names=["slices", "species", "direction", "harmonics"])
 
             # Sample nkt_dataframe
             # slices slice 1
@@ -741,10 +762,10 @@ class Observable:
             # direction Longitudinal/Transverse
             # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
 
-            if os.path.exists(self.vkt_hdf_file):
-                os.remove(self.vkt_hdf_file)
+            if os_path_exists(self.vkt_hdf_file):
+                os_remove(self.vkt_hdf_file)
             # Save the data and append metadata
-            hfile = pd.HDFStore(self.vkt_hdf_file, mode="w")
+            hfile = HDFStore(self.vkt_hdf_file, mode="w")
             hfile.put("vkt", vkt_dataframe)
             # This metadata is needed to check if I need to recalculate
             metadata = {
@@ -759,7 +780,7 @@ class Observable:
             tend = self.timer.current()
             self.time_stamp("v(k,t) Calculation", self.timer.time_division(tend - tinit))
 
-            # np.savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
+            # savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
             #          longitudinal=vkt,
             #          transverse_i=vkt_i,
             #          transverse_j=vkt_j,
@@ -833,9 +854,9 @@ class Observable:
 
         # Saving
         if figname:
-            fig.savefig(os.path.join(self.saving_dir, figname + "_" + self.job_id + ".png"))
+            fig.savefig(os_path_join(self.saving_dir, figname + "_" + self.job_id + ".png"))
         else:
-            fig.savefig(os.path.join(self.saving_dir, "Plot_" + self.__name__ + "_" + self.job_id + ".png"))
+            fig.savefig(os_path_join(self.saving_dir, "Plot_" + self.__name__ + "_" + self.job_id + ".png"))
 
         if show:
             fig.show()
@@ -872,13 +893,13 @@ class Observable:
 
         # Create the columns for the HDF df
         if not self.k_observable:
-            if not isinstance(self.dataframe_slices.columns, pd.MultiIndex):
-                self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
+            if not isinstance(self.dataframe_slices.columns, MultiIndex):
+                self.dataframe_slices.columns = MultiIndex.from_tuples(
                     [tuple(c.split("_")) for c in self.dataframe_slices.columns]
                 )
 
-        if not isinstance(self.dataframe.columns, pd.MultiIndex):
-            self.dataframe.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
+        if not isinstance(self.dataframe.columns, MultiIndex):
+            self.dataframe.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
 
         # Sort the index for speed
         # see https://stackoverflow.com/questions/54307300/what-causes-indexing-past-lexsort-depth-warning-in-pandas
@@ -887,49 +908,49 @@ class Observable:
 
         # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
         # Save the data.
-        if os.path.exists(self.filename_hdf_slices):
-            os.remove(self.filename_hdf_slices)
+        if os_path_exists(self.filename_hdf_slices):
+            os_remove(self.filename_hdf_slices)
         self.dataframe_slices.to_hdf(self.filename_hdf_slices, mode="w", key=self.__name__)
 
-        if os.path.exists(self.filename_hdf):
-            os.remove(self.filename_hdf)
+        if os_path_exists(self.filename_hdf):
+            os_remove(self.filename_hdf)
         self.dataframe.to_hdf(self.filename_hdf, mode="w", key=self.__name__)
 
         if self.acf_observable:
 
             if not isinstance(self.dataframe_acf.columns, pd.MultiIndex):
-                self.dataframe_acf.columns = pd.MultiIndex.from_tuples(
+                self.dataframe_acf.columns = MultiIndex.from_tuples(
                     [tuple(c.split("_")) for c in self.dataframe_acf.columns]
                 )
 
             if not isinstance(self.dataframe_acf_slices.columns, pd.MultiIndex):
-                self.dataframe_acf_slices.columns = pd.MultiIndex.from_tuples(
+                self.dataframe_acf_slices.columns = MultiIndex.from_tuples(
                     [tuple(c.split("_")) for c in self.dataframe_acf_slices.columns]
                 )
 
             self.dataframe_acf = self.dataframe_acf.sort_index()
             self.dataframe_acf_slices = self.dataframe_acf_slices.sort_index()
 
-            if os.path.exists(self.filename_hdf_acf):
-                os.remove(self.filename_hdf_acf)
+            if os_path_exists(self.filename_hdf_acf):
+                os_remove(self.filename_hdf_acf)
             self.dataframe_acf.to_hdf(self.filename_hdf_acf, mode="w", key=self.__name__)
 
-            if os.path.exists(self.filename_hdf_acf_slices):
-                os.remove(self.filename_hdf_acf_slices)
+            if os_path_exists(self.filename_hdf_acf_slices):
+                os_remove(self.filename_hdf_acf_slices)
             self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode="w", key=self.__name__)
 
     def save_pickle(self):
         """Save the observable's info into a pickle file."""
-        self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
+        self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
         pickle_file = open(self.filename_pickle, "wb")
-        pickle.dump(self, pickle_file)
+        dump(self, pickle_file)
         pickle_file.close()
 
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
-        self.filename_pickle = os.path.join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
+        self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
         with open(self.filename_pickle, "rb") as pkl_data:
-            data = pickle.load()
+            data = pickle_load()
         self.from_dict(data.__dict__)
 
     def update_finish(self):
@@ -955,21 +976,21 @@ class Observable:
             # This is a hack and we need to find a faster way to do it
             dt_r = self.dt * self.dump_step
 
-            self.w_min = 2.0 * np.pi / (self.slice_steps * self.dt * self.dump_step)
-            self.w_max = np.pi / dt_r  # Half because np.fft calculates negative and positive frequencies
-            self.frequencies = 2.0 * np.pi * np.fft.fftfreq(self.slice_steps, self.dt * self.dump_step)
-            self.frequencies = np.fft.fftshift(self.frequencies)
+            self.w_min = 2.0 * pi / (self.slice_steps * self.dt * self.dump_step)
+            self.w_max = pi / dt_r  # Half because fft calculates negative and positive frequencies
+            self.frequencies = 2.0 * pi * fftfreq(self.slice_steps, self.dt * self.dump_step)
+            self.frequencies = fftshift(self.frequencies)
 
         self.create_dirs_filenames()
         self.save_pickle()
 
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = pd.DataFrame()
-        self.dataframe_slices = pd.DataFrame()
+        self.dataframe = DataFrame()
+        self.dataframe_slices = DataFrame()
 
         if self.acf_observable:
-            self.dataframe_acf = pd.DataFrame()
-            self.dataframe_acf_slices = pd.DataFrame()
+            self.dataframe_acf = DataFrame()
+            self.dataframe_acf_slices = DataFrame()
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1044,21 +1065,21 @@ class CurrentCorrelationFunction(Observable):
 
         tinit = self.timer.current()
 
-        vkt_df = pd.read_hdf(self.vkt_hdf_file, mode="r", key="vkt")
+        vkt_df = read_hdf(self.vkt_hdf_file, mode="r", key="vkt")
         # Containers
-        vkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
-        vkt_i = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
-        vkt_j = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
-        vkt_k = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+        vkt = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
+        vkt_i = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
+        vkt_j = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
+        vkt_k = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
 
         for isl in range(self.no_slices):
 
             # Put data in the container to pass
             for sp, sp_name in enumerate(self.species_names):
-                vkt[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Longitudinal"][sp_name])
-                vkt_i[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Transverse i"][sp_name])
-                vkt_j[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Transverse j"][sp_name])
-                vkt_k[sp] = np.array(vkt_df["slice {}".format(isl + 1)]["Transverse k"][sp_name])
+                vkt[sp] = array(vkt_df["slice {}".format(isl + 1)]["Longitudinal"][sp_name])
+                vkt_i[sp] = array(vkt_df["slice {}".format(isl + 1)]["Transverse i"][sp_name])
+                vkt_j[sp] = array(vkt_df["slice {}".format(isl + 1)]["Transverse j"][sp_name])
+                vkt_k[sp] = array(vkt_df["slice {}".format(isl + 1)]["Transverse k"][sp_name])
 
             # Calculate Lkw and Tkw
             Lkw = calc_Skw(vkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
@@ -1087,8 +1108,8 @@ class CurrentCorrelationFunction(Observable):
                         # Final string : Longitudinal_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
                         for ik in range(len(self.k_harmonics))
                     ]
-                    self.dataframe_slices = pd.concat(
-                        [self.dataframe_slices, pd.DataFrame(Lkw[sp_indx, :, :].T, columns=columns)], axis=1
+                    self.dataframe_slices = concat(
+                        [self.dataframe_slices, DataFrame(Lkw[sp_indx, :, :].T, columns=columns)], axis=1
                     )
 
                     columns = [
@@ -1100,15 +1121,15 @@ class CurrentCorrelationFunction(Observable):
                         # Final string : Transverse_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
                         for ik in range(len(self.k_harmonics))
                     ]
-                    self.dataframe_slices = pd.concat(
-                        [self.dataframe_slices, pd.DataFrame(Tkw[sp_indx, :, :].T, columns=columns)], axis=1
+                    self.dataframe_slices = concat(
+                        [self.dataframe_slices, DataFrame(Tkw[sp_indx, :, :].T, columns=columns)], axis=1
                     )
 
                     sp_indx += 1
 
         # Create the MultiIndex
         tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
-        self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
+        self.dataframe_slices.columns = MultiIndex.from_tuples(
             tuples, names=["direction", "species", "slices", "ka_value", "k_harmonics"]
         )
         # Now the actual dataframe
@@ -1135,7 +1156,7 @@ class CurrentCorrelationFunction(Observable):
                 df_std = self.dataframe_slices["Longitudinal"][comp_name].std(level=1, axis="columns")
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
 
-                self.dataframe = pd.concat([self.dataframe, df_mean, df_std], axis=1)
+                self.dataframe = concat([self.dataframe, df_mean, df_std], axis=1)
 
                 ### Transverse
                 # Rename the columns with values of ka
@@ -1155,7 +1176,7 @@ class CurrentCorrelationFunction(Observable):
                 tdf_std = self.dataframe_slices["Transverse"][comp_name].std(level=1, axis="columns")
                 tdf_std = tdf_std.rename(col_mapper(tdf_std.columns, ka_columns), axis=1)
 
-                self.dataframe = pd.concat([self.dataframe, tdf_mean, tdf_std], axis=1)
+                self.dataframe = concat([self.dataframe, tdf_mean, tdf_std], axis=1)
 
         # Create the MultiIndex columns:
         # Longitudinal_H-He_Mean_Frequencies | ka = 0.123456
@@ -1267,7 +1288,7 @@ class DiffusionFlux(Observable):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
-        time = np.zeros(self.slice_steps)
+        time = zeros(self.slice_steps)
         # Initialize timer
         t0 = self.timer.current()
 
@@ -1277,7 +1298,7 @@ class DiffusionFlux(Observable):
         for isl in range(self.no_slices):
             print("\nCalculating diffusion flux and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
-            vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
+            vel = zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
             # print("\nParsing particles' velocities.")
             for it, dump in enumerate(
@@ -1413,12 +1434,12 @@ class DynamicStructureFactor(Observable):
         self.parse_kt_data(nkt_flag=True)
 
         tinit = self.timer.current()
-        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
+        nkt_df = read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
         for isl in range(0, self.no_slices):
             # Initialize container
-            nkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+            nkt = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
             for sp, sp_name in enumerate(self.species_names):
-                nkt[sp] = np.array(nkt_df["slice {}".format(isl + 1)][sp_name])
+                nkt[sp] = array(nkt_df["slice {}".format(isl + 1)][sp_name])
 
             # Calculate Skw
             Skw_all = calc_Skw(nkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
@@ -1438,14 +1459,14 @@ class DynamicStructureFactor(Observable):
                         )
                         for ik in range(len(self.k_harmonics))
                     ]
-                    self.dataframe_slices = pd.concat(
-                        [self.dataframe_slices, pd.DataFrame(Skw_all[sp_indx, :, :].T, columns=columns)], axis=1
+                    self.dataframe_slices = concat(
+                        [self.dataframe_slices, DataFrame(Skw_all[sp_indx, :, :].T, columns=columns)], axis=1
                     )
                     sp_indx += 1
 
         # Create the MultiIndex
         tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
-        self.dataframe_slices.columns = pd.MultiIndex.from_tuples(
+        self.dataframe_slices.columns = MultiIndex.from_tuples(
             tuples, names=["species", "slices", "k_index", "k_harmonics"]
         )
 
@@ -1466,7 +1487,7 @@ class DynamicStructureFactor(Observable):
                 df_std = self.dataframe_slices[skw_name].std(level=1, axis="columns")
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
 
-                self.dataframe = pd.concat([self.dataframe, df_mean, df_std], axis=1)
+                self.dataframe = concat([self.dataframe, df_mean, df_std], axis=1)
 
         tend = self.timer.current()
         self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
@@ -1554,7 +1575,7 @@ class ElectricCurrent(Observable):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
-        time = np.zeros(self.slice_steps)
+        time = zeros(self.slice_steps)
         # Initialize timer
         t0 = self.timer.current()
 
@@ -1564,7 +1585,7 @@ class ElectricCurrent(Observable):
         for isl in range(self.no_slices):
             print("\nCalculating electric current and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
-            vel = np.zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
+            vel = zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
             # print("\nParsing particles' velocities.")
             for it, dump in enumerate(
@@ -1577,10 +1598,10 @@ class ElectricCurrent(Observable):
                 vel[2, it, :] = datap["vel"][:, 2]
             #
             if isl == 0:
-                self.dataframe["Time"] = np.copy(time)
-                self.dataframe_acf["Time"] = np.copy(time)
-                self.dataframe_slices["Time"] = np.copy(time)
-                self.dataframe_acf_slices["Time"] = np.copy(time)
+                self.dataframe["Time"] = time.copy()
+                self.dataframe_acf["Time"] = time.copy()
+                self.dataframe_slices["Time"] = time.copy()
+                self.dataframe_acf_slices["Time"] = time.copy()
 
             species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
 
@@ -1705,7 +1726,7 @@ class PressureTensor(Observable):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
-        time = np.zeros(self.slice_steps)
+        time = zeros(self.slice_steps)
         # Initialize timer
         t0 = self.timer.current()
 
@@ -1722,10 +1743,10 @@ class PressureTensor(Observable):
         for isl in range(self.no_slices):
             print("\nCalculating stress tensor and the acfs for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
-            pressure = np.zeros(self.slice_steps)
-            pt_kin_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pt_pot_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pt_temp = np.zeros((self.dimensions, self.dimensions, self.slice_steps))
+            pressure = zeros(self.slice_steps)
+            pt_kin_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
+            pt_pot_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
+            pt_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
 
             for it, dump in enumerate(
                 tqdm(
@@ -1742,10 +1763,10 @@ class PressureTensor(Observable):
                 )
 
             if isl == 0:
-                self.dataframe["Time"] = np.copy(time)
-                self.dataframe_acf["Time"] = np.copy(time)
-                self.dataframe_slices["Time"] = np.copy(time)
-                self.dataframe_acf_slices["Time"] = np.copy(time)
+                self.dataframe["Time"] = time.copy()
+                self.dataframe_acf["Time"] = time.copy()
+                self.dataframe_slices["Time"] = time.copy()
+                self.dataframe_acf_slices["Time"] = time.copy()
 
             self.dataframe_slices["Pressure_slice {}".format(isl)] = pressure
             self.dataframe_acf_slices["Pressure ACF_slice {}".format(isl)] = correlationfunction(pressure, pressure)
@@ -1901,23 +1922,23 @@ class PressureTensor(Observable):
         self.save_hdf()
         # # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
         # # Save the data.
-        # if os.path.exists(self.filename_hdf_slices):
-        #     os.remove(self.filename_hdf_slices)
+        # if os_path_exists(self.filename_hdf_slices):
+        #     os_remove(self.filename_hdf_slices)
         # else:
         #     self.dataframe_slices.to_hdf(self.filename_hdf_slices, mode='w', key=self.__name__)
         #
-        # if os.path.exists(self.filename_hdf):
-        #     os.remove(self.filename_hdf)
+        # if os_path_exists(self.filename_hdf):
+        #     os_remove(self.filename_hdf)
         # else:
         #     self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
         #
-        # if os.path.exists(self.filename_hdf_acf):
-        #     os.remove(self.filename_hdf_acf)
+        # if os_path_exists(self.filename_hdf_acf):
+        #     os_remove(self.filename_hdf_acf)
         # else:
         #     self.dataframe_acf.to_hdf(self.filename_hdf_acf, mode='w', key=self.__name__)
         #
-        # if os.path.exists(self.filename_hdf_acf_slices):
-        #     os.remove(self.filename_hdf_acf_slices)
+        # if os_path_exists(self.filename_hdf_acf_slices):
+        #     os_remove(self.filename_hdf_acf_slices)
         # else:
         #     self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode='w', key=self.__name__)
 
@@ -2037,15 +2058,15 @@ class RadialDistributionFunction(Observable):
     def compute(self):
 
         # initialize temporary arrays
-        r_values = np.zeros(self.no_bins)
-        bin_vol = np.zeros(self.no_bins)
-        pair_density = np.zeros((self.num_species, self.num_species))
-        gr = np.zeros((self.no_bins, self.no_obs))
+        r_values = zeros(self.no_bins)
+        bin_vol = zeros(self.no_bins)
+        pair_density = zeros((self.num_species, self.num_species))
+        gr = zeros((self.no_bins, self.no_obs))
 
         # This is needed to be certain the number of bins is the same.
-        # if not isinstance(rdf_hist, np.ndarray):
+        # if not isinstance(rdf_hist, ndarray):
         #     # Find the last dump by looking for the largest number in the checkpoints filenames
-        #     dumps_list = os.listdir(self.dump_dir)
+        #     dumps_list = listdir(self.dump_dir)
         #     dumps_list.sort(key=num_sort)
         #     name, ext = os.path.splitext(dumps_list[-1])
         #     _, number = name.split('_')
@@ -2064,7 +2085,7 @@ class RadialDistributionFunction(Observable):
                     pair_density[i, j] = sp1 * sp2 / self.box_volume
 
         # Calculate the volume of each bin
-        sphere_shell_const = 4.0 * np.pi / 3.0
+        sphere_shell_const = 4.0 * pi / 3.0
         bin_vol[0] = sphere_shell_const * self.dr_rdf**3
         for ir in range(1, self.no_bins):
             r1 = ir * self.dr_rdf
@@ -2137,10 +2158,10 @@ class RadialDistributionFunction(Observable):
             Shape = ( :attr:`~.no_obs`, 3).
 
         """
-        r = np.copy(self.dataframe["Distance"].iloc[:, 0])
+        r = self.dataframe["Distance"].iloc[:, 0].to_numpy().copy()
 
         dims = self.dimensions
-        dim_const = 2.0 ** (dims - 2) * np.pi
+        dim_const = 2.0 ** (dims - 2) * pi
 
         if r[0] == 0.0:
             r[0] = r[1]
@@ -2148,8 +2169,8 @@ class RadialDistributionFunction(Observable):
         r2 = r * r
         r3 = r2 * r
 
-        corrs = np.zeros((self.no_obs, 3))
-        hartrees = np.zeros((self.no_obs, 3))
+        corrs = zeros((self.no_obs, 3))
+        hartrees = zeros((self.no_obs, 3))
 
         obs_indx = 0
         for sp1, sp1_name in enumerate(self.species_names):
@@ -2161,19 +2182,19 @@ class RadialDistributionFunction(Observable):
                     dv_dr = -potential.matrix[0, sp1, sp2] / r2
                     d2v_dr2 = 2.0 * potential.matrix[0, sp1, sp2] / r3
                     # Check for finiteness of first element when r[0] = 0.0
-                    if not np.isfinite(dv_dr[0]):
+                    if not isfinite(dv_dr[0]):
                         dv_dr[0] = dv_dr[1]
                         d2v_dr2[0] = d2v_dr2[1]
 
                 elif potential.type == "yukawa":
                     kappa = potential.matrix[1, sp1, sp2]
-                    u_r = potential.matrix[0, sp1, sp2] * np.exp(-kappa * r) / r
+                    u_r = potential.matrix[0, sp1, sp2] * exp(-kappa * r) / r
                     dv_dr = -(1.0 + kappa * r) * u_r / r
 
                     d2v_dr2 = -u_r / r - (1.0 + kappa * r) ** 2 * u_r / r2 + (1.0 + kappa * r) * u_r / r2
 
                     # Check for finiteness of first element when r[0] = 0.0
-                    if not np.isfinite(dv_dr[0]):
+                    if not isfinite(dv_dr[0]):
                         dv_dr[0] = dv_dr[1]
                         d2v_dr2[0] = d2v_dr2[1]
 
@@ -2205,14 +2226,14 @@ class RadialDistributionFunction(Observable):
 
                 densities = self.species_num_dens[sp1] * self.species_num_dens[sp2]
 
-                hartrees[obs_indx, 0] = dim_const * densities * np.trapz(u_r * r ** (dims - 1), x=r)
-                corrs[obs_indx, 0] = dim_const * densities * np.trapz(u_r * h_r * r ** (dims - 1), x=r)
+                hartrees[obs_indx, 0] = dim_const * densities * trapz(u_r * r ** (dims - 1), x=r)
+                corrs[obs_indx, 0] = dim_const * densities * trapz(u_r * h_r * r ** (dims - 1), x=r)
 
-                hartrees[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * r**dims, x=r)
-                corrs[obs_indx, 1] = dim_const * densities * np.trapz(dv_dr * h_r * r**dims, x=r)
+                hartrees[obs_indx, 1] = dim_const * densities * trapz(dv_dr * r**dims, x=r)
+                corrs[obs_indx, 1] = dim_const * densities * trapz(dv_dr * h_r * r**dims, x=r)
 
-                hartrees[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * r ** (dims + 1), x=r)
-                corrs[obs_indx, 2] = dim_const * densities * np.trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
+                hartrees[obs_indx, 2] = dim_const * densities * trapz(d2v_dr2 * r ** (dims + 1), x=r)
+                corrs[obs_indx, 2] = dim_const * densities * trapz(d2v_dr2 * h_r * r ** (dims + 1), x=r)
 
                 obs_indx += 1
 
@@ -2289,7 +2310,7 @@ class StaticStructureFactor(Observable):
 
         self.parse_kt_data(nkt_flag=True)
         no_dumps_calculated = self.slice_steps * self.no_slices
-        Sk_avg = np.zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
+        Sk_avg = zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
 
         print("\nCalculating S(k) ...")
         k_column = "Inverse Wavelength"
@@ -2297,12 +2318,12 @@ class StaticStructureFactor(Observable):
         self.dataframe[k_column] = self.k_values
 
         tinit = self.timer.current()
-        nkt_df = pd.read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
+        nkt_df = read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
         for isl in tqdm(range(self.no_slices)):
             # Initialize container
-            nkt = np.zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=np.complex128)
+            nkt = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
             for sp, sp_name in enumerate(self.species_names):
-                nkt[sp] = np.array(nkt_df["slice {}".format(isl + 1)][sp_name])
+                nkt[sp] = array(nkt_df["slice {}".format(isl + 1)][sp_name])
 
             init = isl * self.slice_steps
             fin = (isl + 1) * self.slice_steps
@@ -2490,13 +2511,13 @@ class Thermodynamics(Observable):
             self.phase = phase.lower()
 
         if self.phase == "equilibration":
-            self.dataframe = pd.read_csv(self.eq_energy_filename, index_col=False)
+            self.dataframe = read_csv(self.eq_energy_filename, index_col=False)
             self.fldr = self.equilibration_dir
         elif self.phase == "production":
-            self.dataframe = pd.read_csv(self.prod_energy_filename, index_col=False)
+            self.dataframe = read_csv(self.prod_energy_filename, index_col=False)
             self.fldr = self.production_dir
         elif self.phase == "magnetization":
-            self.dataframe = pd.read_csv(self.mag_energy_filename, index_col=False)
+            self.dataframe = read_csv(self.mag_energy_filename, index_col=False)
             self.fldr = self.magnetization_dir
 
         self.beta = 1.0 / (self.dataframe["Temperature"].mean() * self.kB)
@@ -2641,7 +2662,7 @@ class Thermodynamics(Observable):
         # Gaussian
         T_dist = scp_stats.norm(loc=T_desired, scale=Temperature.std())
         # Histogram plot
-        sns.histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
+        sns_histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
         T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
         T_hist_plot.plot(T_dist.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1])
 
@@ -2676,7 +2697,7 @@ class Thermodynamics(Observable):
         # Since this requires a lot of prior calculation I skip it and just make a Gaussian
         E_dist = scp_stats.norm(loc=Energy.mean(), scale=Energy.std())
         # Histogram plot
-        sns.histplot(y=Energy, bins="auto", stat="density", alpha=0.75, legend="False", ax=E_hist_plot)
+        sns_histplot(y=Energy, bins="auto", stat="density", alpha=0.75, legend="False", ax=E_hist_plot)
         # Grab the second color since the first is used for histplot
         E_hist_plot.plot(E_dist.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
 
@@ -2748,9 +2769,9 @@ class Thermodynamics(Observable):
 
         # Saving
         if figname:
-            fig.savefig(os.path.join(self.saving_dir, figname + "_" + self.job_id + ".png"))
+            fig.savefig(os_path_join(self.saving_dir, figname + "_" + self.job_id + ".png"))
         else:
-            fig.savefig(os.path.join(self.saving_dir, "Plot_EnsembleCheck_" + self.job_id + ".png"))
+            fig.savefig(os_path_join(self.saving_dir, "Plot_EnsembleCheck_" + self.job_id + ".png"))
 
         if show:
             fig.show()
@@ -2785,14 +2806,14 @@ class VelocityAutoCorrelationFunction(Observable):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
-        time = np.zeros(self.slice_steps)
+        time = zeros(self.slice_steps)
 
         vacf_str = "VACF"
         t0 = self.timer.current()
         for isl in range(self.no_slices):
             print("\nCalculating vacf for slice {}/{}.".format(isl + 1, self.no_slices))
             # Parse the particles from the dump files
-            vel = np.zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
+            vel = zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
             #
             for it, dump in enumerate(
                 tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
@@ -2916,7 +2937,7 @@ class VelocityDistribution(Observable):
             Maximum number of moments to calculate. Default = 6.
 
         hist_kwargs : dict, optional
-            Dictionary of keyword arguments to pass to ``np.histogram`` for the calculation of the distributions.
+            Dictionary of keyword arguments to pass to ``histogram`` for the calculation of the distributions.
 
         curve_fit_kwargs: dict, optional
             Dictionary of keyword arguments to pass to ``scipy.curve_fit`` for fitting of Hermite coefficients.
@@ -2961,56 +2982,56 @@ class VelocityDistribution(Observable):
 
         # Create the directory where to store the computed data
         # First the name of the observable
-        saving_dir = os.path.join(self.postprocessing_dir, "VelocityDistribution")
-        if not os.path.exists(saving_dir):
-            os.mkdir(saving_dir)
+        saving_dir = os_path_join(self.postprocessing_dir, "VelocityDistribution")
+        if not os_path_exists(saving_dir):
+            mkdir(saving_dir)
         # then the phase
-        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
+        self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
 
         self.adjusted_dump_dir = []
 
         if self.multi_run_average:
             for r in range(self.runs):
                 # Direct to the correct dumps directory
-                dump_dir = os.path.join(
-                    "run{}".format(r), os.path.join("Simulation", os.path.join(self.phase.capitalize(), "dumps"))
+                dump_dir = os_path_join(
+                    "run{}".format(r), os_path_join("Simulation", os_path_join(self.phase.capitalize(), "dumps"))
                 )
-                dump_dir = os.path.join(self.simulations_dir, dump_dir)
+                dump_dir = os_path_join(self.simulations_dir, dump_dir)
                 self.adjusted_dump_dir.append(dump_dir)
             # Re-path the saving directory
-            saving_dir = os.path.join(self.simulations_dir, "PostProcessing")
-            if not os.path.exists(saving_dir):
-                os.mkdir(saving_dir)
-            saving_dir = os.path.join(saving_dir, self.phase.capitalize())
-            if not os.path.exists(saving_dir):
-                os.mkdir(saving_dir)
-            self.saving_dir = os.path.join(saving_dir, "VelocityDistribution")
+            saving_dir = os_path_join(self.simulations_dir, "PostProcessing")
+            if not os_path_exists(saving_dir):
+                mkdir(saving_dir)
+            saving_dir = os_path_join(saving_dir, self.phase.capitalize())
+            if not os_path_exists(saving_dir):
+                mkdir(saving_dir)
+            self.saving_dir = os_path_join(saving_dir, "VelocityDistribution")
         else:
             self.adjusted_dump_dir = [self.dump_dir]
 
-        if not os.path.exists(self.saving_dir):
-            os.mkdir(self.saving_dir)
+        if not os_path_exists(self.saving_dir):
+            mkdir(self.saving_dir)
 
         # Directories in which to store plots
-        self.plots_dir = os.path.join(self.saving_dir, "Plots")
-        if not os.path.exists(self.plots_dir):
-            os.mkdir(self.plots_dir)
+        self.plots_dir = os_path_join(self.saving_dir, "Plots")
+        if not os_path_exists(self.plots_dir):
+            mkdir(self.plots_dir)
 
         # Paths where to store the dataframes
         if self.multi_run_average:
-            self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution.csv")
-            self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution.h5")
+            self.filename_csv = os_path_join(self.saving_dir, "VelocityDistribution.csv")
+            self.filename_hdf = os_path_join(self.saving_dir, "VelocityDistribution.h5")
         else:
-            self.filename_csv = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + ".csv")
-            self.filename_hdf = os.path.join(self.saving_dir, "VelocityDistribution_" + self.job_id + ".h5")
+            self.filename_csv = os_path_join(self.saving_dir, "VelocityDistribution_" + self.job_id + ".csv")
+            self.filename_hdf = os_path_join(self.saving_dir, "VelocityDistribution_" + self.job_id + ".h5")
 
         if hasattr(self, "max_no_moment"):
             self.moments_dataframe = None
-            self.mom_df_filename_csv = os.path.join(self.saving_dir, "Moments_" + self.job_id + ".csv")
+            self.mom_df_filename_csv = os_path_join(self.saving_dir, "Moments_" + self.job_id + ".csv")
 
         if hasattr(self, "max_hermite_order"):
             self.hermite_dataframe = None
-            self.herm_df_filename_csv = os.path.join(self.saving_dir, "HermiteCoefficients_" + self.job_id + ".csv")
+            self.herm_df_filename_csv = os_path_join(self.saving_dir, "HermiteCoefficients_" + self.job_id + ".csv")
             # some checks
             if not hasattr(self, "hermite_rms_tol"):
                 self.hermite_rms_tol = 0.05
@@ -3031,8 +3052,8 @@ class VelocityDistribution(Observable):
         """Read in velocity data"""
 
         # Velocity array for storing simulation data
-        vel_raw = np.zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
-        time = np.zeros(self.no_dumps)
+        vel_raw = zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
+        time = zeros(self.no_dumps)
 
         print("\nCollecting data from snapshots ...")
         if self.dimensional_average:
@@ -3140,7 +3161,7 @@ class VelocityDistribution(Observable):
             ],
         )
 
-        stats_mat = np.zeros((len(time), len(self.species_num) * no_dim * 2 + 1))
+        stats_mat = zeros((len(time), len(self.species_num) * no_dim * 2 + 1))
         for it, tme in enumerate(time):
             stats_mat[it, 0] = tme
             for d, ds in zip(range(no_dim), ["X", "Y", "Z"]):
@@ -3152,8 +3173,8 @@ class VelocityDistribution(Observable):
                     stats_mat[it, 1 + 6 * sp + 2 * d] = statcs
                     stats_mat[it, 1 + 6 * sp + 2 * d + 1] = p_value
 
-        self.norm_test_df = pd.DataFrame(stats_mat, columns=stats_df_columns)
-        self.norm_test_df.columns = pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in stats_df_columns])
+        self.norm_test_df = DataFrame(stats_mat, columns=stats_df_columns)
+        self.norm_test_df.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in stats_df_columns])
 
     def prepare_histogram_args(self):
 
@@ -3169,19 +3190,19 @@ class VelocityDistribution(Observable):
         # Calculate thermal speed from energy/temperature data.
         try:
             energy_fle = self.prod_energy_filename if self.phase == "production" else self.eq_energy_filename
-            energy_df = pd.read_csv(energy_fle, index_col=False, encoding="utf-8")
+            energy_df = read_csv(energy_fle, index_col=False, encoding="utf-8")
             if self.num_species > 1:
-                vth = np.zeros(self.num_species)
+                vth = zeros(self.num_species)
                 for sp, (sp_mass, sp_name) in enumerate(zip(self.species_masses, self.species_names)):
-                    vth[sp] = np.sqrt(energy_df["{} Temperature".format(sp_name)].mean() * self.kB / sp_mass)
+                    vth[sp] = sqrt(energy_df["{} Temperature".format(sp_name)].mean() * self.kB / sp_mass)
             else:
-                vth = np.sqrt(energy_df["Temperature"].mean() * self.kB / self.species_masses)
+                vth = sqrt(energy_df["Temperature"].mean() * self.kB / self.species_masses)
 
         except FileNotFoundError:
             # In case you are using this in PreProcessing stage
-            vth = np.sqrt(self.kB * self.T_desired / self.species_masses)
+            vth = sqrt(self.kB * self.T_desired / self.species_masses)
 
-        self.vth = np.copy(vth)
+        self.vth = vth.copy()
 
         # Create the default dictionary of histogram args
         default_hist_kwargs = {"density": [], "bins": [], "range": []}
@@ -3218,16 +3239,16 @@ class VelocityDistribution(Observable):
 
             self.list_hist_kwargs.append(another_dict)
 
-    def create_distribution(self, vel_raw: np.ndarray = None, time: np.ndarray = None):
+    def create_distribution(self, vel_raw: ndarray = None, time: ndarray = None):
         """
         Calculate the velocity distribution of each species and save the corresponding dataframes.
 
         Parameters
         ----------
-        vel_raw: np.ndarray, optional
+        vel_raw: ndarray, optional
             Container of particles velocity at each time step.
 
-        time: np.ndarray, optional
+        time: ndarray, optional
             Time array.
 
         """
@@ -3246,7 +3267,7 @@ class VelocityDistribution(Observable):
         # This can be easily obtained from pandas dataframe MultiIndex. But first I will create a dataframe
         # from a huge matrix. The columns of this dataframe will be
         # Ca_X_1.54e-03 Ca_X_-2.54e+22 Ca_X_3.54e+00 Yb_X_1	Yb_X_2 Ca_Y_1.54e-03 Ca_Y_-2.54e+22 Ca_Y_3.54e+00 Yb_Y_1 ...
-        # using pd.MultiIndex.from_tuples([tuple(c.split("_")) for c in df.columns]) I can create a hierarchical df.
+        # using MultiIndex.from_tuples([tuple(c.split("_")) for c in df.columns]) I can create a hierarchical df.
         # This is because I can access the data as
         # df['Ca']['X']
         # >>>       1.54e-03	-2.54e+22	3.54e+00
@@ -3259,7 +3280,7 @@ class VelocityDistribution(Observable):
 
         full_df_columns = []
         # At the first time step I will create the columns list.
-        dist_matrix = np.zeros((len(time), self.dim * (np.sum(self.hist_kwargs["bins"]) + self.num_species)))
+        dist_matrix = zeros((len(time), self.dim * (self.hist_kwargs["bins"].sum() + self.num_species)))
         # The +1 at the end is because I decided to add a column containing the timestep
         # For convenience save the bin edges somewhere else. The columns of the dataframe are string. This will give
         # problems when plotting.
@@ -3276,7 +3297,7 @@ class VelocityDistribution(Observable):
                     # Calculate the correct start and end index for storage
                     sp_end = self.species_index_start[indx + 1]
 
-                    bin_count, bin_edges = np.histogram(vel_raw[it, d, sp_start:sp_end], **self.list_hist_kwargs[indx])
+                    bin_count, bin_edges = histogram(vel_raw[it, d, sp_start:sp_end], **self.list_hist_kwargs[indx])
 
                     # Executive decision: Center the bins
                     bin_loc = 0.5 * (bin_edges[:-1] + bin_edges[1:])
@@ -3296,19 +3317,19 @@ class VelocityDistribution(Observable):
         # First let's flatten the columns array. This is because I have something like this
         # Example: Binary Mixture with 3 H bins per axis and 2 He bins per axis
         # columns =[['H_X', 'H_X', 'H_X'], ['He_X', 'He_X'], ['H_Y', 'H_Y', 'H_Y'], ['He_Y', 'He_Y'] ... Z-axis]
-        # Flatten with list(np.concatenate(columns).flat)
+        # Flatten with list(concatenate(columns).flat)
         # Now has become
         # first_column_row=['H_X', 'H_X', 'H_X', 'He_X', 'He_X', 'H_Y', 'H_Y', 'H_Y', 'He_Y', 'He_Y' ... Z-axis]
         # I think this is easier to understand than using nested list comprehension
         # see https://stackabuse.com/python-how-to-flatten-list-of-lists/
-        full_df_columns = list(np.concatenate(full_df_columns).flat)
-        self.dataframe = pd.DataFrame(dist_matrix, columns=full_df_columns)
+        full_df_columns = list(concatenate(full_df_columns).flat)
+        self.dataframe = DataFrame(dist_matrix, columns=full_df_columns)
         # Save it
         self.dataframe.to_csv(self.filename_csv, encoding="utf-8", index=False)
 
         # Hierarchical DataFrame
         self.hierarchical_dataframe = self.dataframe.copy()
-        self.hierarchical_dataframe.columns = pd.MultiIndex.from_tuples(
+        self.hierarchical_dataframe.columns = MultiIndex.from_tuples(
             [tuple(c.split("_")) for c in self.hierarchical_dataframe.columns]
         )
         self.hierarchical_dataframe.to_hdf(self.filename_hdf, key=self.__name__, encoding="utf-8")
@@ -3316,7 +3337,7 @@ class VelocityDistribution(Observable):
         tend = self.timer.current()
         self.time_stamp("Velocity distribution calculation", self.timer.time_division(tend - tinit))
 
-    def compute_moments(self, parse_data: bool = False, vel_raw: np.ndarray = None, time: np.ndarray = None):
+    def compute_moments(self, parse_data: bool = False, vel_raw: ndarray = None, time: ndarray = None):
         """Calculate and save moments of the distribution.
 
         Parameters
@@ -3325,15 +3346,15 @@ class VelocityDistribution(Observable):
             Flag for reading data. Default = False. If False, must pass ``vel_raw`` and ``time``.
             If True it will parse data from simulations dumps.
 
-        vel_raw: np.ndarray, optional
+        vel_raw: ndarray, optional
             Container of particles velocity at each time step.
 
-        time: np.ndarray, optional
+        time: ndarray, optional
             Time array.
 
         """
-        self.moments_dataframe = pd.DataFrame()
-        self.moments_hdf_dataframe = pd.DataFrame()
+        self.moments_dataframe = DataFrame()
+        self.moments_hdf_dataframe = DataFrame()
 
         if parse_data:
             time, vel_raw = self.grab_sim_data()
@@ -3375,7 +3396,7 @@ class VelocityDistribution(Observable):
         self.moments_dataframe.to_csv(self.filename_csv, index=False, encoding="utf-8")
         # Hierarchical DF Save
         # Make the columns
-        self.moments_hdf_dataframe.columns = pd.MultiIndex.from_tuples(
+        self.moments_hdf_dataframe.columns = MultiIndex.from_tuples(
             [tuple(c.split("_")) for c in self.moments_hdf_dataframe.columns]
         )
         # Save the df in the hierarchical df with a new key/group
@@ -3398,8 +3419,8 @@ class VelocityDistribution(Observable):
         """
         from scipy.optimize import curve_fit
 
-        self.hermite_dataframe = pd.DataFrame()
-        self.hermite_hdf_dataframe = pd.DataFrame()
+        self.hermite_dataframe = DataFrame()
+        self.hermite_hdf_dataframe = DataFrame()
 
         if compute_moments:
             self.compute_moments(parse_data=True)
@@ -3407,10 +3428,10 @@ class VelocityDistribution(Observable):
         if not hasattr(self, "hermite_rms_tol"):
             self.hermite_rms_tol = 0.05
 
-        self.hermite_dataframe["Time"] = np.copy(self.moments_dataframe["Time"])
-        self.hermite_sigmas = np.zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
-        self.hermite_epochs = np.zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
-        hermite_coeff = np.zeros(
+        self.hermite_dataframe["Time"] = self.moments_dataframe["Time"].copy()
+        self.hermite_sigmas = zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
+        self.hermite_epochs = zeros((self.num_species, self.dim, len(self.hermite_dataframe["Time"])))
+        hermite_coeff = zeros(
             (self.num_species, self.dim, self.max_hermite_order + 1, len(self.hermite_dataframe["Time"]))
         )
 
@@ -3440,7 +3461,7 @@ class VelocityDistribution(Observable):
 
                     while cntrl:
                         # Normalize
-                        norm = np.trapz(dist, x=v_bins / vrms)
+                        norm = trapz(dist, x=v_bins / vrms)
 
                         # Calculate the hermite coeff
                         h_coeff = calculate_herm_coeff(v_bins / vrms, dist / norm, self.max_hermite_order)
@@ -3479,7 +3500,7 @@ class VelocityDistribution(Observable):
         # Save the CSV
         self.hermite_dataframe.to_csv(self.herm_df_filename_csv, index=False, encoding="utf-8")
         # Make the columns
-        self.hermite_hdf_dataframe.columns = pd.MultiIndex.from_tuples(
+        self.hermite_hdf_dataframe.columns = MultiIndex.from_tuples(
             [tuple(c.split("_")) for c in self.hermite_hdf_dataframe.columns]
         )
         # Save the df in the hierarchical df with a new key/group
@@ -3569,18 +3590,18 @@ def calc_Sk(nkt, k_list, k_counts, species_np, no_dumps):
     """
 
     no_sk = int(len(species_np) * (len(species_np) + 1) / 2)
-    Sk_raw = np.zeros((no_sk, len(k_counts), no_dumps))
+    Sk_raw = zeros((no_sk, len(k_counts), no_dumps))
     pair_indx = 0
     for ip, si in enumerate(species_np):
         for jp in range(ip, len(species_np)):
             sj = species_np[jp]
-            dens_const = 1.0 / np.sqrt(si * sj)
+            dens_const = 1.0 / sqrt(si * sj)
             for it in range(no_dumps):
                 for ik, ka in enumerate(k_list):
                     indx = int(ka[-1])
                     nk_i = nkt[ip, it, ik]
                     nk_j = nkt[jp, it, ik]
-                    Sk_raw[pair_indx, indx, it] += np.real(np.conj(nk_i) * nk_j) * dens_const / k_counts[indx]
+                    Sk_raw[pair_indx, indx, it] += real(nk_i.conj() * nk_j) * dens_const / k_counts[indx]
             pair_indx += 1
 
     return Sk_raw
@@ -3592,12 +3613,6 @@ def calc_Skw(nkt, ka_list, species_np, no_dumps, dt, dump_step):
 
     Parameters
     ----------
-    dt : float
-        Time interval.
-
-    dump_step : int
-        Snapshot interval.
-
     nkt :  complex, numpy.ndarray
         Particles' density or velocity fluctuations.
         Shape = ( ``no_species``, ``no_dumps``, ``no_k_list``)
@@ -3606,38 +3621,41 @@ def calc_Skw(nkt, ka_list, species_np, no_dumps, dt, dump_step):
         List of :math:`k` indices in each direction with corresponding magnitude and index of ``ka_counts``.
         Shape=(``no_ka_values``, 5)
 
-    ka_counts : numpy.ndarray
-        Number of times each :math:`k` magnitude appears.
-
     species_np : numpy.ndarray
         Array with one element giving number of particles.
 
     no_dumps : int
         Number of dumps.
 
+    dt : float
+        Time interval.
+
+    dump_step : int
+        Snapshot interval.
+
     Returns
     -------
-    Skw : numpy.ndarray
+    Skw_all : numpy.ndarray
         DSF/CCF of each species and pair of species.
         Shape = (``no_skw``, ``no_ka_values``, ``no_dumps``)
     """
     # Fourier transform normalization: norm = dt / Total time
-    norm = dt / np.sqrt(no_dumps * dt * dump_step)
+    norm = dt / sqrt(no_dumps * dt * dump_step)
     # number of independent observables
     no_skw = int(len(species_np) * (len(species_np) + 1) / 2)
     # DSF
-    # Skw = np.zeros((no_skw, len(ka_counts), no_dumps))
-    Skw_all = np.zeros((no_skw, len(ka_list), no_dumps))
+    # Skw = zeros((no_skw, len(ka_counts), no_dumps))
+    Skw_all = zeros((no_skw, len(ka_list), no_dumps))
     pair_indx = 0
     for ip, si in enumerate(species_np):
         for jp in range(ip, len(species_np)):
             sj = species_np[jp]
-            dens_const = 1.0 / np.sqrt(si * sj)
+            dens_const = 1.0 / sqrt(si * sj)
             for ik, ka in enumerate(ka_list):
                 # indx = int(ka[-1])
-                nkw_i = np.fft.fft(nkt[ip, :, ik]) * norm
-                nkw_j = np.fft.fft(nkt[jp, :, ik]) * norm
-                Skw_all[pair_indx, ik, :] = np.fft.fftshift(np.real(np.conj(nkw_i) * nkw_j) * dens_const)
+                nkw_i = fft(nkt[ip, :, ik]) * norm
+                nkw_j = fft(nkt[jp, :, ik]) * norm
+                Skw_all[pair_indx, ik, :] = fftshift(real(nkw_i.conj() * nkw_j) * dens_const)
                 # Skw[pair_indx, indx, :] += Skw_all[pair_indx, ik, :] / ka_counts[indx]
             pair_indx += 1
 
@@ -3672,8 +3690,8 @@ def calc_elec_current(vel, sp_charge, sp_num):
     no_dumps = vel.shape[1]
     no_dim = vel.shape[0]
 
-    Js = np.zeros((sp_num.shape[0], no_dim, no_dumps))
-    Jtot = np.zeros((no_dim, no_dumps))
+    Js = zeros((sp_num.shape[0], no_dim, no_dumps))
+    Jtot = zeros((no_dim, no_dumps))
 
     sp_start = 0
     sp_end = 0
@@ -3681,7 +3699,7 @@ def calc_elec_current(vel, sp_charge, sp_num):
         # Find the index of the last particle of species s
         sp_end += n_sp
         # Calculate the current of each species
-        Js[s, :, :] = q_sp * np.sum(vel[:, :, sp_start:sp_end], axis=-1)
+        Js[s, :, :] = q_sp * vel[:, :, sp_start:sp_end].sum(axis=-1)
         # Add to the total current
         Jtot[:, :] += Js[s, :, :]
 
@@ -3726,8 +3744,8 @@ def calc_moments(dist, max_moment, species_index_start):
     no_species = len(species_index_start)
     no_dumps = dist.shape[0]
     dim = dist.shape[1]
-    moments = np.zeros((no_species, no_dumps, dim, max_moment))
-    ratios = np.zeros((no_species, no_dumps, dim, max_moment))
+    moments = zeros((no_species, no_dumps, dim, max_moment))
+    ratios = zeros((no_species, no_dumps, dim, max_moment))
 
     for indx, sp_start in enumerate(species_index_start[:-1]):
         # Calculate the correct start and end index for storage
@@ -3739,7 +3757,7 @@ def calc_moments(dist, max_moment, species_index_start):
     # sqrt( <v^2> ) = standard deviation = moments[:, :, :, 1] ** (1/2)
     for mom in range(max_moment):
         pwr = mom + 1
-        const = 2.0 ** (pwr / 2) * scp_gamma((pwr + 1) / 2) / np.sqrt(np.pi)
+        const = 2.0 ** (pwr / 2) * scp_gamma((pwr + 1) / 2) / sqrt(pi)
         ratios[:, :, :, mom] = moments[:, :, :, mom] / (const * moments[:, :, :, 1] ** (pwr / 2.0))
 
     return moments, ratios
@@ -3751,7 +3769,7 @@ def calc_nk(pos_data, k_list):
     Calculate the instantaneous microscopic density :math:`n(k)` defined as
 
     .. math::
-        n_{A} ( k ) = \sum_i^{N_A} \exp [ -i \mathbf k \cdot \mathbf r_{i} ]
+        n_{A} ( k ) = \\sum_i^{N_A} \\exp [ -i \\mathbf k \\cdot \\mathbf r_{i} ]
 
     Parameters
     ----------
@@ -3769,11 +3787,11 @@ def calc_nk(pos_data, k_list):
         Array containing :math:`n(k)`.
     """
 
-    nk = np.zeros(len(k_list), dtype=np.complex128)
+    nk = zeros(len(k_list), dtype=complex128)
 
     for ik, k_vec in enumerate(k_list):
-        kr_i = 2.0 * np.pi * (k_vec[0] * pos_data[:, 0] + k_vec[1] * pos_data[:, 1] + k_vec[2] * pos_data[:, 2])
-        nk[ik] = np.sum(np.exp(-1j * kr_i))
+        kr_i = 2.0 * pi * (k_vec[0] * pos_data[:, 0] + k_vec[1] * pos_data[:, 1] + k_vec[2] * pos_data[:, 2])
+        nk[ik] = (exp(-1j * kr_i)).sum()
 
     return nk
 
@@ -3783,7 +3801,7 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     Calculate density fluctuations :math:`n(k,t)` of all species.
 
     .. math::
-        n_{A} ( k, t ) = \sum_i^{N_A} \exp [ -i \mathbf k \cdot \mathbf r_{i}(t) ]
+        n_{A} ( k, t ) = \\sum_i^{N_A} \\exp [ -i \\mathbf k \\cdot \\mathbf r_{i}(t) ]
 
     where :math:`N_A` is the number of particles of species :math:`A`.
 
@@ -3811,7 +3829,7 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     """
 
     # Read particles' position for times in the slice
-    nkt = np.zeros((len(species_np), slices[2], len(k_list)), dtype=np.complex128)
+    nkt = zeros((len(species_np), slices[2], len(k_list)), dtype=complex128)
     for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
@@ -3865,14 +3883,14 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dime
     # Rescale vel of each particle by their individual mass
     for sp, num in enumerate(species_np):
         sp_end += num
-        vel[sp_start:sp_end, :] *= np.sqrt(species_mass[sp])
+        vel[sp_start:sp_end, :] *= sqrt(species_mass[sp])
         sp_start += num
 
     pressure_kin = (vel.transpose() @ vel) / box_volume
     pressure_pot = virial.sum(axis=-1) / box_volume
     pressure_tensor = pressure_kin + pressure_pot
 
-    pressure = np.trace(pressure_tensor) / dimensions
+    pressure = pressure_tensor.trace() / dimensions
 
     return pressure, pressure_kin, pressure_pot, pressure_tensor
 
@@ -3894,9 +3912,9 @@ def calc_statistical_efficiency(observable, run_avg, run_std, max_no_divisions, 
     -------
 
     """
-    tau_blk = np.zeros(max_no_divisions)
-    sigma2_blk = np.zeros(max_no_divisions)
-    statistical_efficiency = np.zeros(max_no_divisions)
+    tau_blk = zeros(max_no_divisions)
+    sigma2_blk = zeros(max_no_divisions)
+    statistical_efficiency = zeros(max_no_divisions)
     for i in range(2, max_no_divisions):
         tau_blk[i] = int(no_dumps / i)
         for j in range(i):
@@ -3949,7 +3967,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
     no_jc_acf = int((no_species - 1) * (no_species - 1))
 
     # Current of each species in each direction and at each timestep
-    tot_vel = np.zeros((no_species, no_dim, no_dumps))
+    tot_vel = zeros((no_species, no_dim, no_dumps))
 
     sp_start = 0
     sp_end = 0
@@ -3957,18 +3975,18 @@ def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
     # and the center of mass velocity of each species (com_vel)
     for i, ns in enumerate(sp_num):
         sp_end += ns
-        tot_vel[i, :, :] = np.sum(vel[:, :, sp_start:sp_end], axis=-1)
+        tot_vel[i, :, :] = vel[:, :, sp_start:sp_end].sum(axis=-1)
         # tot_com_vel += mass_densities[i] * com_vel[i, :, :] / tot_mass_dens
         sp_start += ns
 
     # Diffusion Fluxes
-    J_flux = np.zeros((no_species - 1, no_dim, no_dumps))
+    J_flux = zeros((no_species - 1, no_dim, no_dumps))
 
     # Relative Diffusion fluxes for ACF and Transport calc
-    jr_flux = np.zeros((no_species - 1, no_dim, no_dumps))
+    jr_flux = zeros((no_species - 1, no_dim, no_dumps))
 
     # Relative diff flux acf
-    jr_acf = np.zeros((no_jc_acf, no_dim + 1, no_dumps))
+    jr_acf = zeros((no_jc_acf, no_dim + 1, no_dumps))
 
     m_bar = sp_mass @ sp_conc
     # the diffusion fluxes from eq.(3.5) in Zhou J Phs Chem
@@ -4019,7 +4037,7 @@ def calc_vacf(vel, sp_num):
     no_dim = vel.shape[0]
     no_dumps = vel.shape[2]
 
-    vacf = np.zeros((len(sp_num), no_dim + 1, no_dumps))
+    vacf = zeros((len(sp_num), no_dim + 1, no_dumps))
 
     # Calculate the vacf of each species in each dimension
     for i in range(no_dim):
@@ -4028,7 +4046,7 @@ def calc_vacf(vel, sp_num):
         for sp, n_sp in enumerate(sp_num):
             sp_end += n_sp
             # Temporary species vacf
-            sp_vacf = np.zeros(no_dumps)
+            sp_vacf = zeros(no_dumps)
             # Calculate the vacf for each particle of species sp
             for ptcl in range(sp_start, sp_end):
                 # Calculate the correlation function and add it to the array
@@ -4081,34 +4099,34 @@ def calc_vk(pos_data, vel_data, k_list):
     """
 
     # Longitudinal
-    vk = np.zeros(len(k_list), dtype=np.complex128)
+    vk = zeros(len(k_list), dtype=complex128)
 
     # Transverse
-    vk_i = np.zeros(len(k_list), dtype=np.complex128)
-    vk_j = np.zeros(len(k_list), dtype=np.complex128)
-    vk_k = np.zeros(len(k_list), dtype=np.complex128)
+    vk_i = zeros(len(k_list), dtype=complex128)
+    vk_j = zeros(len(k_list), dtype=complex128)
+    vk_k = zeros(len(k_list), dtype=complex128)
 
     for ik, k_vec in enumerate(k_list):
         # Calculate the dot product and cross product between k, r, and v
-        kr_i = 2.0 * np.pi * (k_vec[0] * pos_data[:, 0] + k_vec[1] * pos_data[:, 1] + k_vec[2] * pos_data[:, 2])
-        k_dot_v = 2.0 * np.pi * (k_vec[0] * vel_data[:, 0] + k_vec[1] * vel_data[:, 1] + k_vec[2] * vel_data[:, 2])
+        kr_i = 2.0 * pi * (k_vec[0] * pos_data[:, 0] + k_vec[1] * pos_data[:, 1] + k_vec[2] * pos_data[:, 2])
+        k_dot_v = 2.0 * pi * (k_vec[0] * vel_data[:, 0] + k_vec[1] * vel_data[:, 1] + k_vec[2] * vel_data[:, 2])
 
-        k_cross_v_i = 2.0 * np.pi * (k_vec[1] * vel_data[:, 2] - k_vec[2] * vel_data[:, 1])
-        k_cross_v_j = -2.0 * np.pi * (k_vec[0] * vel_data[:, 2] - k_vec[2] * vel_data[:, 0])
-        k_cross_v_k = 2.0 * np.pi * (k_vec[0] * vel_data[:, 1] - k_vec[1] * vel_data[:, 0])
+        k_cross_v_i = 2.0 * pi * (k_vec[1] * vel_data[:, 2] - k_vec[2] * vel_data[:, 1])
+        k_cross_v_j = -2.0 * pi * (k_vec[0] * vel_data[:, 2] - k_vec[2] * vel_data[:, 0])
+        k_cross_v_k = 2.0 * pi * (k_vec[0] * vel_data[:, 1] - k_vec[1] * vel_data[:, 0])
 
         # Microscopic longitudinal current
-        vk[ik] = np.sum(k_dot_v * np.exp(-1j * kr_i))
+        vk[ik] = (k_dot_v * exp(-1j * kr_i)).sum()
         # Microscopic transverse current
-        vk_i[ik] = np.sum(k_cross_v_i * np.exp(-1j * kr_i))
-        vk_j[ik] = np.sum(k_cross_v_j * np.exp(-1j * kr_i))
-        vk_k[ik] = np.sum(k_cross_v_k * np.exp(-1j * kr_i))
+        vk_i[ik] = (k_cross_v_i * exp(-1j * kr_i)).sum()
+        vk_j[ik] = (k_cross_v_j * exp(-1j * kr_i)).sum()
+        vk_k[ik] = (k_cross_v_k * exp(-1j * kr_i)).sum()
 
     return vk, vk_i, vk_j, vk_k
 
 
 def calc_vkt(fldr, slices, dump_step, species_np, k_list, verbose):
-    """
+    r"""
     Calculate the longitudinal and transverse velocities fluctuations of all species.
     Longitudinal
 
@@ -4161,10 +4179,10 @@ def calc_vkt(fldr, slices, dump_step, species_np, k_list, verbose):
 
     # Read particles' position for all times
     no_dumps = slices[2]
-    vkt_par = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    vkt_perp_i = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    vkt_perp_j = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
-    vkt_perp_k = np.zeros((len(species_np), no_dumps, len(k_list)), dtype=np.complex128)
+    vkt_par = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
+    vkt_perp_i = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
+    vkt_perp_j = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
+    vkt_perp_k = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
     for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
@@ -4194,7 +4212,7 @@ def grad_expansion(x, rms, h_coeff):
         RMS width of the Gaussian.
 
     h_coeff: numpy.ndarray
-        Hermite coefficients withouth the division by factorial.
+        Hermite coefficients without the division by factorial.
 
     Returns
     -------
@@ -4202,16 +4220,16 @@ def grad_expansion(x, rms, h_coeff):
         Grad expansion.
 
     """
-    gaussian = np.exp(-0.5 * (x / rms) ** 2) / (np.sqrt(2.0 * np.pi * rms**2))
+    gaussian = exp(-0.5 * (x / rms) ** 2) / (sqrt(2.0 * pi * rms**2))
 
-    herm_coef = h_coeff / [np.math.factorial(i) for i in range(len(h_coeff))]
-    hermite_series = np.polynomial.hermite_e.hermeval(x, herm_coef)
+    herm_coef = h_coeff / [factorial(i) for i in range(len(h_coeff))]
+    hermite_series = hermite_e.hermeval(x, herm_coef)
 
     return gaussian * hermite_series
 
 
 def calculate_herm_coeff(v, distribution, maxpower):
-    """
+    r"""
     Calculate Hermite coefficients by integrating the velocity distribution function. That is
 
     .. math::
@@ -4235,13 +4253,13 @@ def calculate_herm_coeff(v, distribution, maxpower):
 
     """
 
-    coeff = np.zeros(maxpower + 1)
+    coeff = zeros(maxpower + 1)
 
     for i in range(maxpower + 1):
-        hc = np.zeros(1 + i)
+        hc = zeros(1 + i)
         hc[-1] = 1.0
-        Hp = np.polynomial.hermite_e.hermeval(v, hc)
-        coeff[i] = np.trapz(distribution * Hp, x=v)
+        Hp = hermite_e.hermeval(v, hc)
+        coeff[i] = trapz(distribution * Hp, x=v)
 
     return coeff
 
@@ -4280,13 +4298,13 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
         first_non_zero = 1
         # Obtain all possible permutations of the wave number arrays
         k_arr = [
-            np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
+            array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
             for i in range(max_k_harmonics[0] + 1)
             for j in range(max_k_harmonics[1] + 1)
             for k in range(max_k_harmonics[2] + 1)
         ]
         harmonics = [
-            np.array([i, j, k], dtype=np.int)
+            array([i, j, k], dtype=int)
             for i in range(max_k_harmonics[0] + 1)
             for j in range(max_k_harmonics[1] + 1)
             for k in range(max_k_harmonics[2] + 1)
@@ -4295,95 +4313,91 @@ def kspace_setup(box_lengths, angle_averaging, max_k_harmonics, max_aa_harmonics
         # The first value of k_arr = [1, 0, 0]
         first_non_zero = 0
         # Calculate the k vectors along the principal axis only
-        k_arr = [np.array([i / box_lengths[0], 0, 0]) for i in range(1, max_k_harmonics[0] + 1)]
-        harmonics = [np.array([i, 0, 0], dtype=np.int) for i in range(1, max_k_harmonics[0] + 1)]
-        k_arr = np.append(k_arr, [np.array([0, i / box_lengths[1], 0]) for i in range(1, max_k_harmonics[1] + 1)], axis=0)
-        harmonics = np.append(
-            harmonics, [np.array([0, i, 0], dtype=np.int) for i in range(1, max_k_harmonics[1] + 1)], axis=0
-        )
+        k_arr = [array([i / box_lengths[0], 0, 0]) for i in range(1, max_k_harmonics[0] + 1)]
+        harmonics = [array([i, 0, 0], dtype=int) for i in range(1, max_k_harmonics[0] + 1)]
+        k_arr = np_append(k_arr, [array([0, i / box_lengths[1], 0]) for i in range(1, max_k_harmonics[1] + 1)], axis=0)
+        harmonics = np_append(harmonics, [array([0, i, 0], dtype=int) for i in range(1, max_k_harmonics[1] + 1)], axis=0)
 
-        k_arr = np.append(k_arr, [np.array([0, 0, i / box_lengths[2]]) for i in range(1, max_k_harmonics[2] + 1)], axis=0)
-        harmonics = np.append(
-            harmonics, [np.array([0, 0, i], dtype=np.int) for i in range(1, max_k_harmonics[2] + 1)], axis=0
-        )
+        k_arr = np_append(k_arr, [array([0, 0, i / box_lengths[2]]) for i in range(1, max_k_harmonics[2] + 1)], axis=0)
+        harmonics = np_append(harmonics, [array([0, 0, i], dtype=int) for i in range(1, max_k_harmonics[2] + 1)], axis=0)
 
     elif angle_averaging == "custom":
         # The first value of k_arr = [0, 0, 0]
         first_non_zero = 1
         # Obtain all possible permutations of the wave number arrays up to max_aa_harmonics included
         k_arr = [
-            np.array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
+            array([i / box_lengths[0], j / box_lengths[1], k / box_lengths[2]])
             for i in range(max_aa_harmonics[0] + 1)
             for j in range(max_aa_harmonics[1] + 1)
             for k in range(max_aa_harmonics[2] + 1)
         ]
 
         harmonics = [
-            np.array([i, j, k], dtype=np.int)
+            array([i, j, k], dtype=int)
             for i in range(max_aa_harmonics[0] + 1)
             for j in range(max_aa_harmonics[1] + 1)
             for k in range(max_aa_harmonics[2] + 1)
         ]
         # Append the rest of k values calculated from principal axis
-        k_arr = np.append(
+        k_arr = np_append(
             k_arr,
-            [np.array([i / box_lengths[0], 0, 0]) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
+            [array([i / box_lengths[0], 0, 0]) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
             axis=0,
         )
-        harmonics = np.append(
+        harmonics = np_append(
             harmonics,
-            [np.array([i, 0, 0], dtype=np.int) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
+            [array([i, 0, 0], dtype=int) for i in range(max_aa_harmonics[0] + 1, max_k_harmonics[0] + 1)],
             axis=0,
         )
 
-        k_arr = np.append(
+        k_arr = np_append(
             k_arr,
-            [np.array([0, i / box_lengths[1], 0]) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
+            [array([0, i / box_lengths[1], 0]) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
             axis=0,
         )
-        harmonics = np.append(
+        harmonics = np_append(
             harmonics,
-            [np.array([0, i, 0], dtype=np.int) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
+            [array([0, i, 0], dtype=int) for i in range(max_aa_harmonics[1] + 1, max_k_harmonics[1] + 1)],
             axis=0,
         )
 
-        k_arr = np.append(
+        k_arr = np_append(
             k_arr,
-            [np.array([0, 0, i / box_lengths[2]]) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
+            [array([0, 0, i / box_lengths[2]]) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
             axis=0,
         )
-        harmonics = np.append(
+        harmonics = np_append(
             harmonics,
-            [np.array([0, 0, i], dtype=np.int) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
+            [array([0, 0, i], dtype=int) for i in range(max_aa_harmonics[2] + 1, max_k_harmonics[2] + 1)],
             axis=0,
         )
     # Compute wave number magnitude - don't use |k| (skipping first entry in k_arr)
     # The round off is needed to avoid ka value different beyond a certain significant digit. It will break other parts
     # of the code otherwise.
-    k_mag = np.sqrt(np.sum(np.array(k_arr) ** 2, axis=1)[..., None])
-    harm_mag = np.sqrt(np.sum(np.array(harmonics) ** 2, axis=1)[..., None])
+    k_mag = sqrt((array(k_arr) ** 2).sum(axis=1)[..., None])
+    harm_mag = sqrt((array(harmonics) ** 2).sum(axis=1)[..., None])
     for i, k in enumerate(k_mag[:-1]):
         if abs(k - k_mag[i + 1]) < 2.0e-5:
             k_mag[i + 1] = k
     # Add magnitude to wave number array
-    k_arr = np.concatenate((k_arr, k_mag), 1)
+    k_arr = concatenate((k_arr, k_mag), 1)
     # Add magnitude to wave number array
-    harmonics = np.concatenate((harmonics, harm_mag), 1)
+    harmonics = concatenate((harmonics, harm_mag), 1)
 
     # Sort from lowest to highest magnitude
-    ind = np.argsort(k_arr[:, -1])
+    ind = argsort(k_arr[:, -1])
     k_arr = k_arr[ind]
     harmonics = harmonics[ind]
 
     # Count how many times a |k| value appears
-    k_unique, k_counts = np.unique(k_arr[first_non_zero:, -1], return_counts=True)
+    k_unique, k_counts = unique(k_arr[first_non_zero:, -1], return_counts=True)
 
     # Generate a 1D array containing index to be used in S array
-    k_index = np.repeat(range(len(k_counts)), k_counts)[..., None]
+    k_index = repeat(range(len(k_counts)), k_counts)[..., None]
 
     # Add index to k_array
-    k_arr = np.concatenate((k_arr[int(first_non_zero) :, :], k_index), 1)
-    harmonics = np.concatenate((harmonics[int(first_non_zero) :, :], k_index), 1)
+    k_arr = concatenate((k_arr[int(first_non_zero) :, :], k_index), 1)
+    harmonics = concatenate((harmonics[int(first_non_zero) :, :], k_index), 1)
 
     return k_arr, k_counts, k_unique, harmonics
 
@@ -4406,8 +4420,8 @@ def load_from_restart(fldr, it):
         Particles' data.
     """
 
-    file_name = os.path.join(fldr, "checkpoint_" + str(it) + ".npz")
-    data = np.load(file_name, allow_pickle=True)
+    file_name = os_path_join(fldr, "checkpoint_" + str(it) + ".npz")
+    data = load(file_name, allow_pickle=True)
     return data
 
 
@@ -4453,12 +4467,12 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         Y label units.
 
     """
-    if isinstance(xdata, (np.ndarray, pd.core.series.Series)):
+    if isinstance(xdata, (ndarray, Series)):
         xmax = xdata.max()
     else:
         xmax = xdata
 
-    if isinstance(ydata, (np.ndarray, pd.core.series.Series)):
+    if isinstance(ydata, (ndarray, Series)):
         ymax = ydata.max()
     else:
         ymax = ydata
@@ -4473,8 +4487,8 @@ def plot_labels(xdata, ydata, xlbl, ylbl, units):
         ymax *= 1e2
 
     # Use scientific notation. This returns a string
-    x_str = np.format_float_scientific(xmax)
-    y_str = np.format_float_scientific(ymax)
+    x_str = format_float_scientific(xmax)
+    y_str = format_float_scientific(ymax)
 
     # Grab the exponent
     x_exp = 10.0 ** (float(x_str[x_str.find("e") + 1 :]))
