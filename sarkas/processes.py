@@ -1356,3 +1356,7 @@ class Simulation(Process):
         self.evolve()
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
+
+        # Wait for all the threads to finish
+        for x in self.integrator.threads_ls:
+            x.join()
