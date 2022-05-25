@@ -2,8 +2,8 @@
 Module containing the three basic classes: Parameters, Particles, Species.
 """
 
-from copy import copy as py_copy
-from numpy import arange, array, ceil, count_nonzero, cross, empty, floor
+from copy import copy, deepcopy
+from numpy import arange, array, ceil, cross, empty, floor
 from numpy import load as np_load
 from numpy import loadtxt, meshgrid, ndarray, pi, sqrt, triu_indices, zeros
 from numpy.random import Generator, PCG64
@@ -329,6 +329,12 @@ class Parameters:
         disp += ")"
         return disp
 
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)(dic=self.__dict__)
+        return _copy
+
     def from_dict(self, input_dict: dict) -> None:
         """
         Update attributes from input dictionary.
@@ -562,7 +568,7 @@ class Parameters:
         self.box_volume = abs(cross(self.e1, self.e2).dot(self.e3))
         self.pbox_volume = abs(cross(self.ep1, self.ep2).dot(self.ep3))
 
-        self.dimensions = count_nonzero(self.box_lengths)  # no. of dimensions
+        self.dimensions = len(self.box_lengths.nonzero()[0])  # no. of dimensions
         # Transform the list of species names into a array
         self.species_names = array(self.species_names)
         # Redundancy!!!
@@ -799,8 +805,25 @@ class Particles:
         return disp
 
     def __copy__(self):
-        """Make a shallow copy of the object using copy."""
-        return py_copy(self)
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.__dict__.update(self.__dict__)
+        return _copy
+
+    def _data_deepcopy(self):
+        """Makes a deep copy of the mutable arrays for dumping with threading."""
+        # Make a shallow copy of all attributes
+        _copy = self.__copy__()
+        # Make a deepcopy of the mutable arrays
+        _copy.pos = self.pos.copy()
+        _copy.vel = self.vel.copy()
+        _copy.acc = self.acc.copy()
+        _copy.virial = self.virial.copy()
+        _copy.pbc_cntr = self.pbc_cntr.copy()
+        _copy.rdf_hist = self.rdf_hist.copy()
+        return _copy
 
     def setup(self, params, species):
         """
@@ -829,8 +852,8 @@ class Particles:
 
         if hasattr(params, "rand_seed"):
             self.rnd_gen = Generator(PCG64(params.rand_seed))
-        # else:
-        #     self.rnd_gen = Generator(PCG64(123456789))
+        else:
+            self.rnd_gen = Generator(PCG64())
 
         self.pos = zeros((self.total_num_ptcls, params.dimensions))
         self.vel = zeros((self.total_num_ptcls, params.dimensions))
@@ -848,6 +871,7 @@ class Particles:
         self.masses = zeros(self.total_num_ptcls)  # mass of each particle
         self.charges = zeros(self.total_num_ptcls)  # charge of each particle
         self.cyclotron_frequencies = zeros(self.total_num_ptcls)
+
         # No. of independent rdf
         self.no_grs = int(self.num_species * (self.num_species + 1) / 2)
         if hasattr(params, "rdf_nbins"):
@@ -1389,7 +1413,7 @@ class Particles:
         species_end = 0
         for i, num in enumerate(self.species_num):
             species_end += num
-            K[i] = kinetic[:, species_start:species_end].sum(axis=-1)
+            K[i] = kinetic[:, species_start:species_end].sum()
             T[i] = const[i] * K[i]
             species_start = species_end
 
@@ -1547,6 +1571,14 @@ class Species:
             disp += "\t{} : {}\n".format(key, value)
         disp += ")"
         return disp
+
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.from_dict(input_dict=self.__dict__)
+        return _copy
 
     def from_dict(self, input_dict: dict):
         """

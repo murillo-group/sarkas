@@ -105,6 +105,14 @@ class Potential:
     total_net_charge: float = 0.0
     type: str = "yukawa"
 
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.from_dict(input_dict=self.__dict__)
+        return _copy
+
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
         disp = "Potential( \n"

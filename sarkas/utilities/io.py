@@ -2,14 +2,17 @@
 Module handling the I/O for an MD run.
 """
 import csv
-import numpy as np
-import os
 import pickle
 import re
 import sys
 import yaml
 from IPython import get_ipython
-from numpy import pi, sqrt
+from numpy import float64
+from numpy import load as np_load
+from numpy import pi, savetxt, savez, sqrt, zeros
+from numpy.random import randint
+from os import listdir, mkdir
+from os.path import basename, exists, join
 from pyfiglet import Figlet, print_figlet
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
@@ -83,6 +86,14 @@ class InputOutput:
             disp += "\t{} : {}\n".format(key, value)
         disp += ")"
         return disp
+
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.__dict__.update(self.__dict__)
+        return _copy
 
     def from_dict(self, input_dict: dict):
         """
@@ -162,18 +173,18 @@ class InputOutput:
         """Create all directories', subdirectories', and files' paths ."""
 
         if self.job_dir is None:
-            self.job_dir = os.path.basename(self.input_file).split(".")[0]
+            self.job_dir = basename(self.input_file).split(".")[0]
 
         if self.job_id is None:
             self.job_id = self.job_dir
 
-        self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
+        self.job_dir = join(self.simulations_dir, self.job_dir)
 
         # Create Processes directories
         self.processes_dir = [
-            os.path.join(self.job_dir, self.preprocessing_dir),
-            os.path.join(self.job_dir, self.simulation_dir),
-            os.path.join(self.job_dir, self.postprocessing_dir),
+            join(self.job_dir, self.preprocessing_dir),
+            join(self.job_dir, self.simulation_dir),
+            join(self.job_dir, self.postprocessing_dir),
         ]
 
         # Redundancy
@@ -190,77 +201,77 @@ class InputOutput:
             indx = 1
 
         # Equilibration directory and sub_dir
-        self.equilibration_dir = os.path.join(self.processes_dir[indx], self.equilibration_dir)
-        self.eq_dump_dir = os.path.join(self.equilibration_dir, "dumps")
+        self.equilibration_dir = join(self.processes_dir[indx], self.equilibration_dir)
+        self.eq_dump_dir = join(self.equilibration_dir, "dumps")
         # Production dir and sub_dir
-        self.production_dir = os.path.join(self.processes_dir[indx], self.production_dir)
-        self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+        self.production_dir = join(self.processes_dir[indx], self.production_dir)
+        self.prod_dump_dir = join(self.production_dir, "dumps")
 
         # Production phase filenames
-        self.prod_energy_filename = os.path.join(self.production_dir, "ProductionEnergy_" + self.job_id + ".csv")
-        self.prod_ptcls_filename = os.path.join(self.prod_dump_dir, "checkpoint_")
+        self.prod_energy_filename = join(self.production_dir, "ProductionEnergy_" + self.job_id + ".csv")
+        self.prod_ptcls_filename = join(self.prod_dump_dir, "checkpoint_")
 
         # Equilibration phase filenames
-        self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + ".csv")
-        self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
+        self.eq_energy_filename = join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + ".csv")
+        self.eq_ptcls_filename = join(self.eq_dump_dir, "checkpoint_")
 
         # Magnetic dir
         if self.electrostatic_equilibration:
-            self.magnetization_dir = os.path.join(self.processes_dir[indx], self.magnetization_dir)
-            self.mag_dump_dir = os.path.join(self.magnetization_dir, "dumps")
+            self.magnetization_dir = join(self.processes_dir[indx], self.magnetization_dir)
+            self.mag_dump_dir = join(self.magnetization_dir, "dumps")
             # Magnetization phase filenames
-            self.mag_energy_filename = os.path.join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + ".csv")
-            self.mag_ptcls_filename = os.path.join(self.mag_dump_dir, "checkpoint_")
+            self.mag_energy_filename = join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + ".csv")
+            self.mag_ptcls_filename = join(self.mag_dump_dir, "checkpoint_")
 
         if self.process == "postprocessing":
             indx = 2  # Redirect to the correct folder
 
         # Log File
         if self.log_file is None:
-            self.log_file = os.path.join(self.processes_dir[indx], "log_" + self.job_id + ".out")
+            self.log_file = join(self.processes_dir[indx], "log_" + self.job_id + ".out")
         else:
-            self.log_file = os.path.join(self.processes_dir[indx], self.log_file)
+            self.log_file = join(self.processes_dir[indx], self.log_file)
 
     def make_directories(self):
         """Create directories where to store MD results."""
 
         # Check if the directories exist
-        if not os.path.exists(self.simulations_dir):
-            os.mkdir(self.simulations_dir)
+        if not exists(self.simulations_dir):
+            mkdir(self.simulations_dir)
 
-        if not os.path.exists(self.job_dir):
-            os.mkdir(self.job_dir)
+        if not exists(self.job_dir):
+            mkdir(self.job_dir)
 
         # Create Process' directories and their subdir
         for i in self.processes_dir:
-            if not os.path.exists(i):
-                os.mkdir(i)
+            if not exists(i):
+                mkdir(i)
         # The following automatically create directories in the correct Process
-        if not os.path.exists(self.equilibration_dir):
-            os.mkdir(self.equilibration_dir)
+        if not exists(self.equilibration_dir):
+            mkdir(self.equilibration_dir)
 
-        if not os.path.exists(self.eq_dump_dir):
-            os.mkdir(self.eq_dump_dir)
+        if not exists(self.eq_dump_dir):
+            mkdir(self.eq_dump_dir)
 
-        if not os.path.exists(self.production_dir):
-            os.mkdir(self.production_dir)
+        if not exists(self.production_dir):
+            mkdir(self.production_dir)
 
-        if not os.path.exists(self.prod_dump_dir):
-            os.mkdir(self.prod_dump_dir)
+        if not exists(self.prod_dump_dir):
+            mkdir(self.prod_dump_dir)
 
         if self.electrostatic_equilibration:
-            if not os.path.exists(self.magnetization_dir):
-                os.mkdir(self.magnetization_dir)
+            if not exists(self.magnetization_dir):
+                mkdir(self.magnetization_dir)
 
-            if not os.path.exists(self.mag_dump_dir):
-                os.mkdir(self.mag_dump_dir)
+            if not exists(self.mag_dump_dir):
+                mkdir(self.mag_dump_dir)
 
         if self.preprocessing:
-            if not os.path.exists(self.preprocessing_dir):
-                os.mkdir(self.preprocessing_dir)
+            if not exists(self.preprocessing_dir):
+                mkdir(self.preprocessing_dir)
 
-        if not os.path.exists(self.postprocessing_dir):
-            os.mkdir(self.postprocessing_dir)
+        if not exists(self.postprocessing_dir):
+            mkdir(self.postprocessing_dir)
 
     def file_header(self):
         """Create the log file and print the figlet if not a restart run."""
@@ -397,13 +408,9 @@ class InputOutput:
             if "Potential Initialization" in time_stamp:
                 print("\n\n{:-^70} \n".format(" Initialization Times "))
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-                print(
-                    "\n{} Time: {} sec {} msec {} usec {} nsec".format(
-                        time_stamp, int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
+                print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
             else:
-                print("\n{} Time: {} hrs {} min {} sec".format(time_stamp, int(t_hrs), int(t_min), int(t_sec)))
+                print(f"\n{time_stamp} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
 
             repeat -= 1
             sys.stdout = screen
@@ -665,11 +672,11 @@ class InputOutput:
         """
         if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
             # Assume white background in Jupyter Notebook
-            clr = DARK_COLORS[np.random.randint(0, len(DARK_COLORS))]
+            clr = DARK_COLORS[randint(0, len(DARK_COLORS))]
         else:
             # Assume dark background in IPython/Python Kernel
-            clr = LIGHT_COLORS[np.random.randint(0, len(LIGHT_COLORS))]
-        fnt = FONTS[np.random.randint(0, len(FONTS))]
+            clr = LIGHT_COLORS[randint(0, len(LIGHT_COLORS))]
+        fnt = FONTS[randint(0, len(FONTS))]
         print_figlet("\nSarkas\n", font=fnt, colors=clr)
 
         print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.\n\n")
@@ -1084,11 +1091,11 @@ class InputOutput:
         self.a_ws = params.a_ws
         self.total_num_ptcls = params.total_num_ptcls
         self.total_plasma_frequency = params.total_plasma_frequency
-        self.species_names = np.copy(params.species_names)
+        self.species_names = params.species_names.copy()
         self.coupling = params.coupling_constant * params.T_desired
 
         # Check whether energy files exist already
-        if not os.path.exists(self.prod_energy_filename):
+        if not exists(self.prod_energy_filename):
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
             if len(species) > 1:
@@ -1102,7 +1109,7 @@ class InputOutput:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
-        if not os.path.exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
+        if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
             if len(species) > 1:
@@ -1117,7 +1124,7 @@ class InputOutput:
                 w.writerow(data.keys())
 
         if self.electrostatic_equilibration:
-            if not os.path.exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
+            if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
                 # Create the Energy file
                 dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
                 if len(species) > 1:
@@ -1151,7 +1158,7 @@ class InputOutput:
             indx = 1
 
         for fl in file_list:
-            filename = os.path.join(self.processes_dir[indx], fl + ".pickle")
+            filename = join(self.processes_dir[indx], fl + ".pickle")
             pickle_file = open(filename, "wb")
             pickle.dump(simulation.__dict__[fl], pickle_file)
             pickle_file.close()
@@ -1179,8 +1186,8 @@ class InputOutput:
             indx = 1
 
         for fl in file_list:
-            filename = os.path.join(self.processes_dir[indx], fl + ".pickle")
-            data = np.load(filename, allow_pickle=True)
+            filename = join(self.processes_dir[indx], fl + ".pickle")
+            data = np_load(filename, allow_pickle=True)
             process.__dict__[fl] = py_copy.copy(data)
 
     def read_pickle_single(self, class_to_read: str):
@@ -1208,8 +1215,8 @@ class InputOutput:
             # because that is where I look for energy files and pickle files
             indx = 1
 
-        filename = os.path.join(self.processes_dir[indx], class_to_read + ".pickle")
-        data = np.load(filename, allow_pickle=True)
+        filename = join(self.processes_dir[indx], class_to_read + ".pickle")
+        data = np_load(filename, allow_pickle=True)
         return py_copy(data)
 
     def dump(self, phase, ptcls, it):
@@ -1230,7 +1237,7 @@ class InputOutput:
         if phase == "production":
             ptcls_file = self.prod_ptcls_filename + str(it)
             tme = it * self.dt
-            np.savez(
+            savez(
                 ptcls_file,
                 id=ptcls.id,
                 names=ptcls.names,
@@ -1248,7 +1255,7 @@ class InputOutput:
         elif phase == "equilibration":
             ptcls_file = self.eq_ptcls_filename + str(it)
             tme = it * self.dt
-            np.savez(
+            savez(
                 ptcls_file,
                 id=ptcls.id,
                 names=ptcls.names,
@@ -1264,7 +1271,7 @@ class InputOutput:
         elif phase == "magnetization":
             ptcls_file = self.mag_ptcls_filename + str(it)
             tme = it * self.dt
-            np.savez(
+            savez(
                 ptcls_file,
                 id=ptcls.id,
                 names=ptcls.names,
@@ -1289,9 +1296,9 @@ class InputOutput:
         }
         if len(temperatures) > 1:
             for sp, kin in enumerate(kinetic_energies):
-                data["{} Kinetic Energy".format(self.species_names[sp])] = kin
-                data["{} Potential Energy".format(self.species_names[sp])] = potential_energies[sp]
-                data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
+                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
+                data[f"{self.species_names[sp]} Potential Energy"] = potential_energies[sp]
+                data[f"{self.species_names[sp]} Temperature"] = temperatures[sp]
 
         with open(energy_file, "a") as f:
             w = csv.writer(f)
@@ -1312,11 +1319,11 @@ class InputOutput:
         """
 
         if phase == "equilibration":
-            self.xyz_filename = os.path.join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
+            self.xyz_filename = join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
             dump_dir = self.eq_dump_dir
 
         else:
-            self.xyz_filename = os.path.join(self.production_dir, "pva_" + self.job_id + ".xyz")
+            self.xyz_filename = join(self.production_dir, "pva_" + self.job_id + ".xyz")
             dump_dir = self.prod_dump_dir
 
         f_xyz = open(self.xyz_filename, "w+")
@@ -1333,7 +1340,7 @@ class InputOutput:
         ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
 
         # Read the list of dumps and sort them in the correct (natural) order
-        dumps = os.listdir(dump_dir)
+        dumps = listdir(dump_dir)
         dumps.sort(key=num_sort)
         for dump in tqdm(dumps, disable=not self.verbose):
             data = self.read_npz(dump_dir, dump)
@@ -1351,7 +1358,7 @@ class InputOutput:
 
             f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            np.savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+            savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
 
         f_xyz.close()
 
@@ -1375,27 +1382,27 @@ class InputOutput:
 
         """
 
-        file_name = os.path.join(fldr, it)
-        data = np.load(file_name, allow_pickle=True)
+        file_name = join(fldr, it)
+        data = np_load(file_name, allow_pickle=True)
         # Dev Notes: the old way of saving the xyz file by
-        # np.savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
+        # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
         # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
         # was not working, because the columns of np.c_[] all have the same data type <U32
         # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
         # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
-        struct_array = np.zeros(
+        struct_array = zeros(
             data["names"].size,
             dtype=[
                 ("names", "U6"),
-                ("pos_x", np.float64),
-                ("pos_y", np.float64),
-                ("pos_z", np.float64),
-                ("vel_x", np.float64),
-                ("vel_y", np.float64),
-                ("vel_z", np.float64),
-                ("acc_x", np.float64),
-                ("acc_y", np.float64),
-                ("acc_z", np.float64),
+                ("pos_x", float64),
+                ("pos_y", float64),
+                ("pos_z", float64),
+                ("vel_x", float64),
+                ("vel_y", float64),
+                ("vel_z", float64),
+                ("acc_x", float64),
+                ("acc_y", float64),
+                ("acc_z", float64),
             ],
         )
         struct_array["names"] = data["names"]

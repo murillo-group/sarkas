@@ -37,7 +37,6 @@ from numpy import (
     unique,
     zeros,
 )
-from numpy.linalg import norm
 from numpy.polynomial import hermite_e
 from os import listdir, mkdir
 from os import remove as os_remove
@@ -47,6 +46,7 @@ from pandas import concat, DataFrame, HDFStore, MultiIndex, read_csv, read_hdf, 
 from pickle import dump
 from pickle import load as pickle_load
 from scipy.fft import fft, fftfreq, fftshift
+from scipy.linalg import norm
 from scipy.special import factorial
 from seaborn import histplot as sns_histplot
 
@@ -3601,7 +3601,7 @@ def calc_Sk(nkt, k_list, k_counts, species_np, no_dumps):
                     indx = int(ka[-1])
                     nk_i = nkt[ip, it, ik]
                     nk_j = nkt[jp, it, ik]
-                    Sk_raw[pair_indx, indx, it] += real(nk_i.conj() * nk_j) * dens_const / k_counts[indx]
+                    Sk_raw[pair_indx, indx, it] += real(nk_i.conjugate() * nk_j) * dens_const / k_counts[indx]
             pair_indx += 1
 
     return Sk_raw
@@ -3655,7 +3655,7 @@ def calc_Skw(nkt, ka_list, species_np, no_dumps, dt, dump_step):
                 # indx = int(ka[-1])
                 nkw_i = fft(nkt[ip, :, ik]) * norm
                 nkw_j = fft(nkt[jp, :, ik]) * norm
-                Skw_all[pair_indx, ik, :] = fftshift(real(nkw_i.conj() * nkw_j) * dens_const)
+                Skw_all[pair_indx, ik, :] = fftshift(real(nkw_i.conjugate() * nkw_j) * dens_const)
                 # Skw[pair_indx, indx, :] += Skw_all[pair_indx, ik, :] / ka_counts[indx]
             pair_indx += 1
 

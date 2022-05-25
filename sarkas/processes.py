@@ -2,11 +2,26 @@
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
 import copy as py_copy
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
-import os
+from matplotlib.cm import get_cmap, ScalarMappable
 from matplotlib.colors import LogNorm
+from numpy import (
+    arange,
+    array,
+    exp,
+    linspace,
+    log2,
+    log10,
+    logspace,
+    meshgrid,
+    pi,
+    sqrt,
+    zeros,
+)
+from os import listdir, mkdir
+from os import remove as os_remove
+from os import stat as os_stat
+from os.path import exists, join
 
 from .core import Parameters, Particles, Species
 from .potentials.core import Potential
@@ -323,7 +338,7 @@ class Process:
             self.io.read_pickle(self)
 
             # Print parameters to log file
-            if not os.path.exists(self.io.log_file):
+            if not exists(self.io.log_file):
                 self.io.simulation_summary(self)
 
             # Initialize the observable classes
@@ -363,12 +378,13 @@ class PostProcess(Process):
             Simulation object
 
         """
-        self.parameters = py_copy.copy(simulation.parameters)
-        self.integrator = py_copy.copy(simulation.integrator)
-        self.potential = py_copy.copy(simulation.potential)
-        self.species = py_copy.copy(simulation.species)
-        self.thermostat = py_copy.copy(simulation.thermostat)
-        self.io = py_copy.copy(simulation.io)
+        self.parameters = simulation.parameters.__copy__()
+        self.integrator = simulation.integrator.__copy__()
+        self.potential = simulation.potential.__copy__()
+        self.species = simulation.species.copy()
+        self.thermostat = simulation.thermostat.__copy__()
+        self.io = simulation.io.__copy__()
+        self.io.process = "postprocess"
 
     def run(self):
         """Calculate all the observables from the YAML input file."""
@@ -471,9 +487,9 @@ class PreProcess(Process):
         self.__name__ = "preprocessing"
         self.loops = 10
         self.estimate = False
-        self.pm_meshes = np.logspace(3, 7, 12, base=2, dtype=int)
-        # np.array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
-        self.pp_cells = np.arange(3, 16, dtype=int)
+        self.pm_meshes = logspace(3, 7, 12, base=2, dtype=int)
+        # array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
+        self.pp_cells = arange(3, 16, dtype=int)
         self.kappa = None
         super().__init__(input_file)
 
@@ -524,9 +540,9 @@ class PreProcess(Process):
         # Clean everything
         plt.close("all")
         if pppm_estimate:
-            self.pppm_plots_dir = os.path.join(self.io.preprocessing_dir, "PPPM_Plots")
-            if not os.path.exists(self.pppm_plots_dir):
-                os.mkdir(self.pppm_plots_dir)
+            self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+            if not exists(self.pppm_plots_dir):
+                mkdir(self.pppm_plots_dir)
 
         # Set the screening parameter
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "yukawa" else 0.0
@@ -543,21 +559,25 @@ class PreProcess(Process):
             self.time_acceleration()
             self.time_integrator_loop()
 
+            # Wait for all the threads to finish saving files
+            for x in self.integrator.threads_ls:
+                x.join()
+
             # Estimate size of dump folder
             # Grab one file from the dump directory and get the size of it.
-            eq_dump_size = os.stat(os.path.join(self.io.eq_dump_dir, os.listdir(self.io.eq_dump_dir)[0])).st_size
+            eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
             eq_dump_fldr_size = eq_dump_size * (self.integrator.equilibration_steps / self.integrator.eq_dump_step)
             # Grab one file from the dump directory and get the size of it.
-            prod_dump_size = os.stat(os.path.join(self.io.eq_dump_dir, os.listdir(self.io.eq_dump_dir)[0])).st_size
+            prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
             prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
             # Prepare arguments to pass for print out
-            sizes = np.array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
+            sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
             # Check for electrostatic equilibration
             if self.integrator.electrostatic_equilibration:
                 dump = self.integrator.mag_dump_step
-                mag_dump_size = os.stat(os.path.join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
+                mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
                 mag_dump_fldr_size = mag_dump_size * (self.integrator.magnetization_steps / self.integrator.mag_dump_step)
-                sizes = np.array(
+                sizes = array(
                     [
                         [eq_dump_size, eq_dump_fldr_size],
                         [prod_dump_size, prod_dump_fldr_size],
@@ -569,26 +589,26 @@ class PreProcess(Process):
 
             if remove:
                 # Delete the energy files created during the estimation runs
-                os.remove(self.io.eq_energy_filename)
-                os.remove(self.io.prod_energy_filename)
+                os_remove(self.io.eq_energy_filename)
+                os_remove(self.io.prod_energy_filename)
 
                 # Delete dumps created during the estimation runs
-                for npz in os.listdir(self.io.eq_dump_dir):
-                    os.remove(os.path.join(self.io.eq_dump_dir, npz))
+                for npz in listdir(self.io.eq_dump_dir):
+                    os_remove(join(self.io.eq_dump_dir, npz))
 
-                for npz in os.listdir(self.io.prod_dump_dir):
-                    os.remove(os.path.join(self.io.prod_dump_dir, npz))
+                for npz in listdir(self.io.prod_dump_dir):
+                    os_remove(join(self.io.prod_dump_dir, npz))
 
                 if self.integrator.electrostatic_equilibration:
-                    os.remove(self.io.mag_energy_filename)
+                    os_remove(self.io.mag_energy_filename)
                     # Remove dumps
-                    for npz in os.listdir(self.io.mag_dump_dir):
-                        os.remove(os.path.join(self.io.mag_dump_dir, npz))
+                    for npz in listdir(self.io.mag_dump_dir):
+                        os_remove(join(self.io.mag_dump_dir, npz))
 
         if pppm_estimate:
             if timing_study:
                 self.input_rc = self.potential.rc
-                self.input_mesh = np.copy(self.potential.pppm_mesh)
+                self.input_mesh = self.potential.pppm_mesh.copy()
                 self.input_alpha = self.potential.pppm_alpha_ewald
 
                 self.timing_study = timing_study
@@ -596,7 +616,7 @@ class PreProcess(Process):
 
                 # Reset the original values.
                 self.potential.rc = self.input_rc
-                self.potential.pppm_mesh = np.copy(self.input_mesh)
+                self.potential.pppm_mesh = self.input_mesh.copy()
                 self.potential.pppm_alpha_ewald = self.input_alpha
                 self.potential.setup(self.parameters)
 
@@ -636,23 +656,23 @@ class PreProcess(Process):
 
         max_cells = int(0.5 * self.parameters.box_lengths.min() / self.parameters.a_ws)
         if max_cells != self.pp_cells[-1]:
-            self.pp_cells = np.arange(3, max_cells, dtype=int)
+            self.pp_cells = arange(3, max_cells, dtype=int)
 
-        pm_times = np.zeros(len(self.pm_meshes))
-        pm_errs = np.zeros(len(self.pm_meshes))
+        pm_times = zeros(len(self.pm_meshes))
+        pm_errs = zeros(len(self.pm_meshes))
 
-        pp_times = np.zeros((len(self.pm_meshes), len(self.pp_cells)))
-        pp_errs = np.zeros((len(self.pm_meshes), len(self.pp_cells)))
+        pp_times = zeros((len(self.pm_meshes), len(self.pp_cells)))
+        pp_errs = zeros((len(self.pm_meshes), len(self.pp_cells)))
 
         pm_xlabels = []
         pp_xlabels = []
 
-        self.force_error_map = np.zeros((len(self.pm_meshes), len(self.pp_cells)))
+        self.force_error_map = zeros((len(self.pm_meshes), len(self.pp_cells)))
 
         # Average the PM time
         for i, m in enumerate(self.pm_meshes):
 
-            self.potential.pppm_mesh = m * np.ones(3, dtype=int)
+            self.potential.pppm_mesh = m * array([1, 1, 1], dtype=int)
             self.potential.pppm_alpha_ewald = 0.3 * m / self.parameters.box_lengths.min()
             green_time = self.green_function_timer()
             pm_errs[i] = self.parameters.pppm_pm_err
@@ -679,17 +699,13 @@ class PreProcess(Process):
                 kappa_over_alpha = -0.25 * (self.kappa / self.potential.pppm_alpha_ewald) ** 2
                 alpha_times_rcut = -((self.potential.pppm_alpha_ewald * self.potential.rc) ** 2)
                 # Update the Force error
-                self.potential.pppm_pp_err = (
-                    2.0 * np.exp(kappa_over_alpha + alpha_times_rcut) / np.sqrt(self.potential.rc)
-                )
+                self.potential.pppm_pp_err = 2.0 * exp(kappa_over_alpha + alpha_times_rcut) / sqrt(self.potential.rc)
                 self.potential.pppm_pp_err *= (
-                    np.sqrt(self.parameters.total_num_ptcls)
-                    * self.parameters.a_ws**2
-                    / np.sqrt(self.parameters.box_volume)
+                    sqrt(self.parameters.total_num_ptcls) * self.parameters.a_ws**2 / sqrt(self.parameters.box_volume)
                 )
 
                 pp_errs[i, j] = self.potential.pppm_pp_err
-                self.force_error_map[i, j] = np.sqrt(self.potential.pppm_pp_err**2 + self.parameters.pppm_pm_err**2)
+                self.force_error_map[i, j] = sqrt(self.potential.pppm_pp_err**2 + self.parameters.pppm_pm_err**2)
 
                 if j == 0:
                     pp_xlabels.append("{:.2f}".format(self.potential.rc / self.parameters.a_ws))
@@ -703,7 +719,7 @@ class PreProcess(Process):
         pp_times *= 1e-9
         pm_times *= 1e-9
         # Fit the PM times
-        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x**3 * np.log2(x**3), self.pm_meshes, pm_times)
+        pm_popt, _ = curve_fit(lambda x, a, b: a + 5 * b * x**3 * log2(x**3), self.pm_meshes, pm_times)
         fit_str = r"Fit = $a_2 + 5 a_3 M^3 \log_2(M^3)$  [s]" + "\n" + r"$a_2 = ${:.4e}, $a_3 = ${:.4e} ".format(*pm_popt)
         print("\nPM Time " + fit_str)
 
@@ -711,9 +727,9 @@ class PreProcess(Process):
         pp_popt, _ = curve_fit(
             lambda x, a, b: a + b / x**3,
             self.pp_cells,
-            np.mean(pp_times, axis=0),
-            p0=[np.mean(pp_times, axis=0)[0], self.parameters.total_num_ptcls],
-            bounds=(0, [np.mean(pp_times, axis=0)[0], 1e9]),
+            pp_times.mean(axis=0),
+            p0=[pp_times.mean(axis=0)[0], self.parameters.total_num_ptcls],
+            bounds=(0, [pp_times.mean(axis=0)[0], 1e9]),
         )
         fit_pp_str = r"Fit = $a_0 + a_1 / N_c^3$  [s]" + "\n" + "$a_0 = ${:.4e},  $a_1 = ${:.4e}".format(*pp_popt)
         print("\nPP Time " + fit_pp_str)
@@ -723,7 +739,7 @@ class PreProcess(Process):
         ax_pm.plot(self.pm_meshes, pm_times, "o", label="Measured")
         ax_pm.plot(
             self.pm_meshes,
-            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes**3 * np.log2(self.pm_meshes**3),
+            pm_popt[0] + 5 * pm_popt[1] * self.pm_meshes**3 * log2(self.pm_meshes**3),
             ls="--",
             label="Fit",
         )
@@ -738,7 +754,7 @@ class PreProcess(Process):
         )
 
         # Scatter Plot the PP Times
-        self.tot_time_map = np.zeros(pp_times.shape)
+        self.tot_time_map = zeros(pp_times.shape)
         for j, mesh_points in enumerate(self.pm_meshes):
             self.tot_time_map[j, :] = pm_times[j] + pp_times[j, :]
             ax_pp.plot(self.pp_cells, pp_times[j], "o", label=r"@ Mesh {}$^3$".format(mesh_points))
@@ -756,13 +772,13 @@ class PreProcess(Process):
             title="PP calculation time and estimate", yscale="log", ylabel="CPU Times [s]", xlabel=r"$N_c $ = Cells"
         )
         fig.tight_layout()
-        fig.savefig(os.path.join(self.pppm_plots_dir, "Times_" + self.io.job_id + ".png"))
+        fig.savefig(join(self.pppm_plots_dir, "Times_" + self.io.job_id + ".png"))
 
         self.make_force_v_timing_plot()
         # self.lagrangian = np.empty((len(self.pm_meshes), len(self.pp_cells)))
         # self.tot_times = np.empty((len(self.pm_meshes), len(self.pp_cells)))
-        # self.pp_times = np.copy(pp_times)
-        # self.pm_times = np.copy(pm_times)
+        # self.pp_times = pp_times.copy()
+        # self.pm_times = pm_times.copy()
         # for i in range(len(self.pm_meshes)):
         #     self.tot_times[i, :] = pp_times[i] + pm_times[i]
         #     self.lagrangian[i, :] = self.force_error_map[i, :]
@@ -794,7 +810,7 @@ class PreProcess(Process):
 
     def make_lagrangian_plot(self):
 
-        c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
+        c_mesh, m_mesh = meshgrid(self.pp_cells, self.pm_meshes)
         fig = plt.figure()
         ax = fig.add_subplot(111)  # projection='3d')
         # CS = ax.plot_surface(m_mesh, c_mesh, self.lagrangian, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
@@ -808,13 +824,13 @@ class PreProcess(Process):
         ax.set_xlabel("Mesh size")
         ax.set_ylabel(r"Cells = $L/r_c$")
         ax.set_title("2D Lagrangian")
-        fig.savefig(os.path.join(self.io.preprocessing_dir, "2D_Lagrangian.png"))
+        fig.savefig(join(self.io.preprocessing_dir, "2D_Lagrangian.png"))
 
     def make_force_v_timing_plot(self):
 
         # Plot the results
         fig_path = self.pppm_plots_dir
-        c_mesh, m_mesh = np.meshgrid(self.pp_cells, self.pm_meshes)
+        c_mesh, m_mesh = meshgrid(self.pp_cells, self.pm_meshes)
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 9))
         if self.force_error_map.min() == 0.0:
@@ -824,12 +840,12 @@ class PreProcess(Process):
 
         maxt = self.force_error_map.max()
         nlvl = 12
-        lvls = np.logspace(np.log10(minv), np.log10(maxt), nlvl)
+        lvls = logspace(log10(minv), log10(maxt), nlvl)
 
-        luxmap = mpl.cm.get_cmap("viridis", nlvl)
-        luxnorm = mpl.colors.LogNorm(vmin=minv, vmax=maxt)
+        luxmap = get_cmap("viridis", nlvl)
+        luxnorm = LogNorm(vmin=minv, vmax=maxt)
         CS = ax1.contourf(m_mesh, c_mesh, self.force_error_map, levels=lvls, cmap=luxmap, norm=luxnorm)
-        clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax1)
+        clb = fig.colorbar(ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax1)
         clb.set_label(r"Force Error  [$Q^2/ a_{\rm ws}^2$]", rotation=270, va="bottom")
         CS2 = ax1.contour(CS, colors="w")
         ax1.clabel(CS2, fmt="%1.0e", colors="w")
@@ -845,49 +861,49 @@ class PreProcess(Process):
         maxt = self.tot_time_map.max()
         mint = self.tot_time_map.min()
         # nlvl = 13
-        lvls = np.logspace(np.log10(mint), np.log10(maxt), nlvl)
-        luxmap = mpl.cm.get_cmap("viridis", nlvl)
-        luxnorm = mpl.colors.LogNorm(vmin=minv, vmax=maxt)
+        lvls = logspace(log10(mint), log10(maxt), nlvl)
+        luxmap = get_cmap("viridis", nlvl)
+        luxnorm = LogNorm(vmin=minv, vmax=maxt)
 
         CS = ax2.contourf(m_mesh, c_mesh, self.tot_time_map, levels=lvls, cmap=luxmap)
         CS2 = ax2.contour(CS, colors="w", levels=lvls)
         ax2.clabel(CS2, fmt="%.2e", colors="w")
         # fig.colorbar(, ax = ax2)
-        clb = fig.colorbar(mpl.cm.ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax2)
+        clb = fig.colorbar(ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax2)
         clb.set_label("CPU Time [s]", rotation=270, va="bottom")
         ax2.scatter(self.input_mesh[0], input_Nc, s=200, c="k")
         ax2.set_xlabel("Mesh size")
         ax2.set_title("Timing Map")
-        fig.savefig(os.path.join(fig_path, "ForceErrorMap_v_Timing_" + self.io.job_id + ".png"))
+        fig.savefig(join(fig_path, "ForceErrorMap_v_Timing_" + self.io.job_id + ".png"))
 
     def time_acceleration(self):
 
-        self.pp_acc_time = np.zeros(self.loops)
+        self.pp_acc_time = zeros(self.loops)
         for i in range(self.loops):
             self.timer.start()
             self.potential.update_linked_list(self.particles)
             self.pp_acc_time[i] = self.timer.stop()
 
         # Calculate the mean excluding the first value because that time include numba compilation time
-        pp_mean_time = self.timer.time_division(np.mean(self.pp_acc_time[1:]))
+        pp_mean_time = self.timer.time_division(self.pp_acc_time[1:].mean())
 
         self.io.preprocess_timing("PP", pp_mean_time, self.loops)
 
         # PM acceleration
         if self.potential.pppm_on:
-            self.pm_acc_time = np.zeros(self.loops)
+            self.pm_acc_time = zeros(self.loops)
             for i in range(self.loops):
                 self.timer.start()
                 self.potential.update_pm(self.particles)
                 self.pm_acc_time[i] = self.timer.stop()
-            pm_mean_time = self.timer.time_division(np.mean(self.pm_acc_time[1:]))
+            pm_mean_time = self.timer.time_division(self.pm_acc_time[1:].mean())
             self.io.preprocess_timing("PM", pm_mean_time, self.loops)
 
     def time_integrator_loop(self):
         """Run several loops of the equilibration and production phase to estimate the total time of the simulation."""
         if self.parameters.electrostatic_equilibration:
             # Save the original number of timesteps
-            steps = np.array(
+            steps = array(
                 [
                     self.integrator.equilibration_steps,
                     self.integrator.production_steps,
@@ -897,7 +913,7 @@ class PreProcess(Process):
             self.integrator.magnetization_steps = self.loops
         else:
             # Save the original number of timesteps
-            steps = np.array([self.integrator.equilibration_steps, self.integrator.production_steps])
+            steps = array([self.integrator.equilibration_steps, self.integrator.production_steps])
 
         # Update the equilibration and production timesteps for estimation
         self.integrator.production_steps = self.loops
@@ -959,14 +975,14 @@ class PreProcess(Process):
         chosen_alpha = self.potential.pppm_alpha_ewald * self.parameters.a_ws
         chosen_rcut = self.potential.rc / self.parameters.a_ws
 
-        # mesh_dir = os.path.join(self.pppm_plots_dir, 'Mesh_{}'.format(self.potential.pppm_mesh[0]))
-        # if not os.path.exists(mesh_dir):
-        #     os.mkdir(mesh_dir)
+        # mesh_dir = join(self.pppm_plots_dir, 'Mesh_{}'.format(self.potential.pppm_mesh[0]))
+        # if not exists(mesh_dir):
+        #     mkdir(mesh_dir)
         #
         # cell_num = int(self.parameters.box_lengths.min() / self.potential.rc)
-        # cell_dir = os.path.join(mesh_dir, 'Cells_{}'.format(cell_num))
-        # if not os.path.exists(cell_dir):
-        #     os.mkdir(cell_dir)
+        # cell_dir = join(mesh_dir, 'Cells_{}'.format(cell_num))
+        # if not exists(cell_dir):
+        #     mkdir(cell_dir)
         #
         # self.pppm_plots_dir = cell_dir
 
@@ -1056,7 +1072,7 @@ class PreProcess(Process):
                 self.kappa * self.parameters.a_ws,
             )
         )
-        fig.savefig(os.path.join(fig_path, "LinePlot_ForceError_" + self.io.job_id + ".png"))
+        fig.savefig(join(fig_path, "LinePlot_ForceError_" + self.io.job_id + ".png"))
 
     def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
         """
@@ -1082,7 +1098,7 @@ class PreProcess(Process):
         # Plot the results
         fig_path = self.pppm_plots_dir
 
-        r_mesh, a_mesh = np.meshgrid(rcuts, alphas)
+        r_mesh, a_mesh = meshgrid(rcuts, alphas)
         fig, ax = plt.subplots(1, 1, figsize=(10, 7))
         if total_force_error.min() == 0.0:
             minv = 1e-120
@@ -1109,7 +1125,7 @@ class PreProcess(Process):
         clb = fig.colorbar(CS)
         clb.set_label(r"$\Delta F^{approx}_{tot}(r_c,\alpha)$", va="bottom", rotation=270)
         fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, "ClrMap_ForceError_" + self.io.job_id + ".png"))
+        fig.savefig(join(fig_path, "ClrMap_ForceError_" + self.io.job_id + ".png"))
 
     def analytical_approx_pp(self):
         """Calculate PP force error."""
@@ -1117,13 +1133,11 @@ class PreProcess(Process):
         r_min = self.potential.rc * 0.5
         r_max = self.potential.rc * 1.5
 
-        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.a_ws
+        rcuts = linspace(r_min, r_max, 101) / self.parameters.a_ws
 
         # Calculate the analytic PP error and the total force error
-        pp_force_error = np.sqrt(2.0 * np.pi * self.kappa) * np.exp(-rcuts * self.kappa)
-        pp_force_error *= np.sqrt(
-            self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
-        )
+        pp_force_error = sqrt(2.0 * pi * self.kappa) * exp(-rcuts * self.kappa)
+        pp_force_error *= sqrt(self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume)
 
         return pp_force_error, rcuts
 
@@ -1140,26 +1154,26 @@ class PreProcess(Process):
         r_min = self.potential.rc * 0.5
         r_max = self.potential.rc * 1.5
 
-        alphas = self.parameters.a_ws * np.linspace(a_min, a_max, 101)
-        rcuts = np.linspace(r_min, r_max, 101) / self.parameters.a_ws
+        alphas = self.parameters.a_ws * linspace(a_min, a_max, 101)
+        rcuts = linspace(r_min, r_max, 101) / self.parameters.a_ws
 
-        pm_force_error = np.zeros(len(alphas))
-        pp_force_error = np.zeros((len(alphas), len(rcuts)))
-        total_force_error = np.zeros((len(alphas), len(rcuts)))
+        pm_force_error = zeros(len(alphas))
+        pp_force_error = zeros((len(alphas), len(rcuts)))
+        total_force_error = zeros((len(alphas), len(rcuts)))
 
         # Coefficient from Deserno and Holm J Chem Phys 109 7694 (1998)
         if p == 1:
-            Cmp = np.array([2 / 3])
+            Cmp = array([2 / 3])
         elif p == 2:
-            Cmp = np.array([2 / 45, 8 / 189])
+            Cmp = array([2 / 45, 8 / 189])
         elif p == 3:
-            Cmp = np.array([4 / 495, 2 / 225, 8 / 1485])
+            Cmp = array([4 / 495, 2 / 225, 8 / 1485])
         elif p == 4:
-            Cmp = np.array([2 / 4725, 16 / 10395, 5528 / 3869775, 32 / 42525])
+            Cmp = array([2 / 4725, 16 / 10395, 5528 / 3869775, 32 / 42525])
         elif p == 5:
-            Cmp = np.array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
+            Cmp = array([4 / 93555, 2764 / 11609325, 8 / 25515, 7234 / 32531625, 350936 / 3206852775])
         elif p == 6:
-            Cmp = np.array(
+            Cmp = array(
                 [
                     2764 / 638512875,
                     16 / 467775,
@@ -1170,7 +1184,7 @@ class PreProcess(Process):
                 ]
             )
         elif p == 7:
-            Cmp = np.array(
+            Cmp = array(
                 [
                     8 / 18243225,
                     7234 / 1550674125,
@@ -1186,37 +1200,33 @@ class PreProcess(Process):
 
         for ia, alpha in enumerate(alphas):
             somma = 0.0
-            for m in np.arange(p):
+            for m in arange(p):
                 expp = 2 * (m + p)
                 somma += Cmp[m] * (2.0 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.0) ** expp
             # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
-            pm_force_error[ia] = np.sqrt(3.0 * somma) / (2.0 * np.pi)
+            pm_force_error[ia] = sqrt(3.0 * somma) / (2.0 * pi)
         # eq.(35)
-        pm_force_error *= np.sqrt(
-            self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
-        )
+        pm_force_error *= sqrt(self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume)
         # Calculate the analytic PP error and the total force error
         if self.potential.type == "qsp":
             for (ir, rc) in enumerate(rcuts):
-                pp_force_error[:, ir] = np.sqrt(2.0 * np.pi * kappa) * np.exp(-rc * kappa)
-                pp_force_error[:, ir] *= np.sqrt(
+                pp_force_error[:, ir] = sqrt(2.0 * pi * kappa) * exp(-rc * kappa)
+                pp_force_error[:, ir] *= sqrt(
                     self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
                 )
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-                    total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
+                    total_force_error[ia, ir] = sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
         else:
             for (ir, rc) in enumerate(rcuts):
                 for (ia, alfa) in enumerate(alphas):
                     # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
-                    pp_force_error[ia, ir] = (
-                        2.0 * np.exp(-((0.5 * kappa / alfa) ** 2) - alfa**2 * rc**2) / np.sqrt(rc)
-                    )
-                    pp_force_error[ia, ir] *= np.sqrt(
+                    pp_force_error[ia, ir] = 2.0 * exp(-((0.5 * kappa / alfa) ** 2) - alfa**2 * rc**2) / sqrt(rc)
+                    pp_force_error[ia, ir] *= sqrt(
                         self.parameters.total_num_ptcls * self.parameters.a_ws**3 / self.parameters.box_volume
                     )
                     # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-                    total_force_error[ia, ir] = np.sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
+                    total_force_error[ia, ir] = sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
 
         return total_force_error, pp_force_error, pm_force_error, rcuts, alphas
 
@@ -1256,7 +1266,7 @@ class PreProcess(Process):
         ax[0].set_xlabel("Mesh sizes")
         ax[1].set_xlabel(r"$r_c / a_{ws}$")
         fig.tight_layout()
-        fig.savefig(os.path.join(fig_path, "Timing_Fit.png"))
+        fig.savefig(join(fig_path, "Timing_Fit.png"))
 
 
 class Simulation(Process):

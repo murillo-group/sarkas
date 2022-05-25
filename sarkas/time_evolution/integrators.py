@@ -5,13 +5,14 @@ Module of various types of time_evolution
 from IPython import get_ipython
 from numba import float64, int64, jit, void
 from numpy import arange, array, cos, cross, pi, sin, sqrt, zeros
-from numpy.linalg import norm
+from scipy.linalg import norm
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
 else:
     from tqdm import tqdm
 
+from threading import Thread
 
 # import fmm3dpy as fmm
 
@@ -128,6 +129,8 @@ class Integrator:
     update_accelerations = None
     verbose: bool = False
 
+    threads_ls = []
+
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
     #     disp = 'Integrator( \n'
@@ -135,6 +138,14 @@ class Integrator:
     #         disp += "\t{} : {}\n".format(key, value)
     #     disp += ')'
     #     return disp
+
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.from_dict(input_dict=self.__dict__)
+        return _copy
 
     def from_dict(self, input_dict: dict):
         """
@@ -345,7 +356,7 @@ class Integrator:
         ptcls: :class:`sarkas.core.Particles`
             Particles' class.
 
-        checkpoint: sarkas.utilities.InputOutput
+        checkpoint: :class:`sarkas.utilities.InputOutput`
             IO class for saving dumps.
 
         """
@@ -354,17 +365,52 @@ class Integrator:
             # Calculate the Potential energy and update particles' data
             self.update(ptcls)
             if (it + 1) % self.eq_dump_step == 0:
-                checkpoint.dump("equilibration", ptcls, it + 1)
+                th = Thread(
+                    target=checkpoint.dump,
+                    name=f"Sarkas_Equilibration_Thread - {it+1}",
+                    args=(
+                        "equilibration",
+                        ptcls._data_deepcopy(),
+                        it + 1,
+                    ),
+                )
+                self.threads_ls.append(th)
+                th.start()
             self.thermostate(ptcls, it)
         ptcls.remove_drift()
 
     def magnetize(self, it_start, ptcls, checkpoint):
+        """
+        Loop over the magnetization steps.
+
+        Parameters
+        ----------
+        it_start: int
+            Initial step of magnetization.
+
+        ptcls: :class:`sarkas.core.Particles`
+            Particles' class.
+
+        checkpoint: :class:`sarkas.utilities.InputOutput`
+            IO class for saving dumps.
+
+        """
         self.update = self.magnetic_integrator
         for it in tqdm(range(it_start, self.magnetization_steps), disable=not self.verbose):
             # Calculate the Potential energy and update particles' data
             self.update(ptcls)
             if (it + 1) % self.mag_dump_step == 0:
-                checkpoint.dump("magnetization", ptcls, it + 1)
+                th = Thread(
+                    target=checkpoint.dump,
+                    name=f"Sarkas_Magnetization_Thread - {it+1}",
+                    args=(
+                        "magnetization",
+                        ptcls._data_deepcopy(),
+                        it + 1,
+                    ),
+                )
+                self.threads_ls.append(th)
+                th.start()
             self.thermostate(ptcls, it)
 
     def produce(self, it_start, ptcls, checkpoint):
@@ -379,7 +425,7 @@ class Integrator:
         ptcls: :class:`sarkas.core.Particles`
             Particles' class.
 
-        checkpoint: sarkas.utilities.InputOutput
+        checkpoint: :class:`sarkas.utilities.InputOutput`
             IO class for saving dumps.
 
         """
@@ -389,7 +435,17 @@ class Integrator:
             self.update(ptcls)
             if (it + 1) % self.prod_dump_step == 0:
                 # Save particles' data for restart
-                checkpoint.dump("production", ptcls, it + 1)
+                th = Thread(
+                    target=checkpoint.dump,
+                    name=f"Sarkas_Production_Thread - {it+1}",
+                    args=(
+                        "production",
+                        ptcls._data_deepcopy(),
+                        it + 1,
+                    ),
+                )
+                self.threads_ls.append(th)
+                th.start()
 
     def verlet_langevin(self, ptcls):
         """
