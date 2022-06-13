@@ -1,10 +1,10 @@
 sphinx>=3.5
-sphinx_bootstrap_theme
-sphinx-panels
 sphinxcontrib-bibtex
 sphinxcontrib-apidoc
-sphinx_rtd_theme
+sphinx-book-theme
+sphinx-design
 sphinx-autodoc-typehints
+sphinxext-opengraph
 nbsphinx
 recommonmark
-sphinxext-opengraph
+sphinx-copybutton
