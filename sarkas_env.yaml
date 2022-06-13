@@ -28,13 +28,14 @@ dependencies:
 
   # Documentation
   - sphinx>=3.5
-  - sphinx_bootstrap_theme
-  - sphinx-panels
+  - sphinx-book-theme
+  - sphinx-design
   - sphinxcontrib-bibtex
-  - sphinx_rtd_theme
   - sphinx-autodoc-typehints
+  - sphinxext-opengraph
   - nbsphinx
   - recommonmark
+  - sphinx-copybutton
 
   # Style
   - isort
