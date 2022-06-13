@@ -76,10 +76,10 @@ from numpy import exp, log, pi, sqrt, zeros
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
-from ..utilities.maths import force_error_analytic_pp, TWOPI
+from ..utilities.maths import force_error_analytic_lcl, TWOPI
 
 
-def update_params(potential, params):
+def update_params(potential, species):
     """
     Create potential dependent simulation's parameters.
 
@@ -88,8 +88,8 @@ def update_params(potential, params):
     potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params : :class:`sarkas.core.Parameters`
-        Simulation's parameters
+    species : list, [:class:`sarkas.plasma.Species`,]
+        Species' data.
 
 
     """
@@ -99,7 +99,7 @@ def update_params(potential, params):
         raise ValueError("QSP interaction can only be calculated using pppm algorithm.")
 
     # Check for neutrality
-    if params.total_net_charge != 0:
+    if potential.total_net_charge != 0:
         warn("Total net charge is not zero.", category=AlgorithmWarning)
 
     # Default attributes
@@ -112,41 +112,43 @@ def update_params(potential, params):
     potential.qsp_type = potential.qsp_type.lower()
 
     four_pi = 2.0 * TWOPI
-    log2 = log(2.0)
+    log_2 = log(2.0)
 
     # Redefine ion temperatures and ion total number density
-    mask = params.species_names != "e"
-    params.total_ion_temperature = params.species_concentrations[mask].transpose() * params.species_temperatures[mask]
-    params.ni = params.species_num_dens[mask].sum()
+    total_ion_temperature = 0.0
+    total_ion_number_density = 0.0
+    for is1, sp1 in enumerate(species[1:]):
+        total_ion_temperature += sp1.concentration * sp1.temperature
+        total_ion_number_density += sp1.number_density
 
     # Calculate the total and ion Wigner-Seitz Radius from the total density
-    params.ai = (3.0 / (four_pi * params.ni)) ** (1.0 / 3.0)  # Ion WS
+    ai = (3.0 / (four_pi * total_ion_number_density)) ** (1.0 / 3.0)  # Ion WS
 
-    deBroglie_const = TWOPI * params.hbar2 / params.kB
+    deBroglie_const = TWOPI * potential.hbar**2 / potential.kB
 
-    potential.matrix = zeros((6, params.num_species, params.num_species))
-    for i, name1 in enumerate(params.species_names):
-        m1 = params.species_masses[i]
-        q1 = params.species_charges[i]
+    potential.matrix = zeros((6, potential.num_species, potential.num_species))
+    for i, sp1 in enumerate(species):
+        m1 = sp1.mass
+        q1 = sp1.charge
 
-        for j, name2 in enumerate(params.species_names):
-            m2 = params.species_masses[j]
-            q2 = params.species_charges[j]
+        for j, sp2 in enumerate(species):
+            m2 = sp2.mass
+            q2 = sp2.charge
 
             reduced = (m1 * m2) / (m1 + m2)
 
-            if name1 == "e" or name2 == "e":
+            if sp1.name == "e" or sp2.name == "e":
                 # Use electron temperature in e-e and e-i interactions
-                lambda_deB = sqrt(deBroglie_const / (reduced * params.electron_temperature))
+                lambda_deB = sqrt(deBroglie_const / (reduced * species[0].temperature))
             else:
                 # Use ion temperature in i-i interactions only
-                lambda_deB = sqrt(deBroglie_const / (reduced * params.total_ion_temperature))
+                lambda_deB = sqrt(deBroglie_const / (reduced * total_ion_temperature))
 
-            if name2 == name1:  # e-e
-                potential.matrix[2, i, j] = log2 * params.kB * params.electron_temperature
-                potential.matrix[3, i, j] = four_pi / (log2 * lambda_deB**2)
+            if sp1.name == sp2.name:  # e-e
+                potential.matrix[2, i, j] = log_2 * potential.kB * sp1.temperature
+                potential.matrix[3, i, j] = four_pi / (log_2 * lambda_deB**2)
 
-            potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
+            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
             potential.matrix[1, i, j] = TWOPI / lambda_deB
 
     if not potential.qsp_pauli:
@@ -157,16 +159,17 @@ def update_params(potential, params):
 
     if potential.qsp_type == "deutsch":
         potential.force = deutsch_force
-        # Calculate the PP Force error from the e-e diffraction term only.
-        params.pppm_pp_err = force_error_analytic_pp(
-            potential.type, potential.rc, potential.matrix, sqrt(3.0 * params.a_ws / (4.0 * pi))
+
+        # Calculate the LCL Force error from the e-e diffraction term only since it is the largest.
+        potential.pppm_pp_err = force_error_analytic_lcl(
+            potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
         )
     elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
         # the following is a placeholder
-        params.pppm_pp_err = force_error_analytic_pp(
-            potential.type, potential.rc, potential.matix, sqrt(3.0 * params.a_ws / (4.0 * pi))
+        potential.pppm_pp_err = force_error_analytic_lcl(
+            potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
         )
 
 
@@ -286,3 +289,36 @@ def kelbg_force(r_in, pot_matrix):
     force = f_ewald + f_diff + f_pauli
 
     return U, force
+
+
+def pretty_print_info(potential):
+    """
+    Print potential specific parameters in a user-friendly way.
+
+    Parameters
+    ----------
+    potential : :class:`sarkas.potentials.core.Potential`
+        Class handling potential form.
+
+    """
+
+    ii_scr_len = 1.0 / potential.matrix[1, 1, 1]
+    ei_scr_len = 1.0 / potential.matrix[1, 0, 1]
+    ee_scr_len = 1.0 / potential.matrix[1, 0, 0]
+    e_deBroglie_lambda = sqrt(2.0) * pi / potential.matrix[1, 0, 0]
+    i_deBroglie_lambda = sqrt(2.0) * pi / potential.matrix[1, 1, 1]
+    a_ws = potential.a_ws
+
+    print(f"QSP type: {potential.qsp_type}")
+    print(f"Pauli term: {potential.qsp_pauli}")
+    print(f"e de Broglie wavelength = {e_deBroglie_lambda / a_ws:.4f} a_ws = {e_deBroglie_lambda:.6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"ion de Broglie wavelength  = {i_deBroglie_lambda / a_ws:.4f} a_ws = {i_deBroglie_lambda:.6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"e-e screening length = {ee_scr_len / a_ws:.4f} a_ws = {ee_scr_len:.6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"i-i screening length = {ii_scr_len / a_ws:.4f} a_ws = {ii_scr_len:.6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"e-i screening length = {ei_scr_len / a_ws:.4f} a_ws = {ei_scr_len:.6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"e-i coupling constant = {potential.coupling_constant:.4f}")

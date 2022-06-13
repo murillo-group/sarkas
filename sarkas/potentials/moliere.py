@@ -42,10 +42,10 @@ from numba import jit
 from numba.core.types import float64, UniTuple
 from numpy import array, exp, pi, sqrt, zeros
 
-from ..utilities.maths import force_error_analytic_pp
+from ..utilities.maths import force_error_analytic_lcl
 
 
-def update_params(potential, params):
+def update_params(potential):
     """
     Assign potential dependent simulation's parameters.
 
@@ -54,19 +54,16 @@ def update_params(potential, params):
     potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    params : :class:`sarkas.core.Parameters`
-        Simulation's parameters.
-
     """
     potential.screening_lengths = array(potential.screening_lengths)
     potential.screening_charges = array(potential.screening_charges)
     params_len = len(potential.screening_lengths)
 
-    potential.matrix = zeros((2 * params_len + 1, params.num_species, params.num_species))
+    potential.matrix = zeros((2 * params_len + 1, potential.num_species, potential.num_species))
 
-    for i, q1 in enumerate(params.species_charges):
-        for j, q2 in enumerate(params.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
+    for i, q1 in enumerate(potential.species_charges):
+        for j, q2 in enumerate(potential.species_charges):
+            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
             potential.matrix[1 : params_len + 1, i, j] = potential.screening_charges
             potential.matrix[params_len + 1 :, i, j] = 1.0 / potential.screening_lengths
 
@@ -74,8 +71,8 @@ def update_params(potential, params):
     # Use Yukawa force error formula with the smallest screening length.
     # This overestimates the Force error, but it doesn't matter.
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
-    params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], sqrt(3.0 * params.a_ws / (4.0 * pi))
+    potential.force_error = force_error_analytic_lcl(
+        potential.type, potential.rc, potential.matrix[params_len + 1 :, :, :], sqrt(3.0 * potential.a_ws / (4.0 * pi))
     )
 
 

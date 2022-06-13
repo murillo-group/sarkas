@@ -6,14 +6,16 @@ import pickle
 import re
 import sys
 import yaml
+from copy import copy, deepcopy
 from IPython import get_ipython
 from numpy import float64
 from numpy import load as np_load
-from numpy import pi, savetxt, savez, sqrt, zeros
+from numpy import savetxt, savez, zeros
 from numpy.random import randint
 from os import listdir, mkdir
 from os.path import basename, exists, join
 from pyfiglet import Figlet, print_figlet
+from warnings import warn
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
@@ -352,28 +354,21 @@ class InputOutput:
                 print("\nEquilibration Thermodynamics file: \n", self.eq_energy_filename)
                 print("Production Thermodynamics file: \n", self.prod_energy_filename)
 
-                if hasattr(simulation.parameters, "rand_seed"):
-                    print("Random Seed = ", simulation.parameters.rand_seed)
-
                 print("\nPARTICLES:")
                 print("Total No. of particles = ", simulation.parameters.total_num_ptcls)
                 print("No. of species = ", len(simulation.species))
                 for isp, sp in enumerate(simulation.species):
-                    print("Species ID: {}".format(isp))
+                    if sp.name != "electron_background":
+                        print("Species ID: {}".format(isp))
                     sp.pretty_print(simulation.potential.type, simulation.parameters.units)
 
+                # Parameters Info
                 simulation.parameters.pretty_print()
-
-                print("\nPOTENTIAL: ", simulation.potential.type)
-                self.potential_info(simulation)
-
-                print("\nALGORITHM: ", simulation.potential.method)
-                self.algorithm_info(simulation)
-
-                print("\nTHERMOSTAT: ")
+                # Potential Info
+                simulation.potential.pretty_print()
+                # Thermostat
                 simulation.thermostat.pretty_print()
-
-                print("\nINTEGRATOR: ")
+                # Integrator
                 simulation.integrator.pretty_print(
                     simulation.potential.type,
                     simulation.parameters.load_method,
@@ -692,160 +687,172 @@ class InputOutput:
             Process class containing the timing info and other parameters.
 
         """
-        wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
-        print("Time step = {:.6e} [s]".format(simulation.integrator.dt))
-        if simulation.potential.type in ["Yukawa", "EGS", "Coulomb", "Moliere"]:
-            print("Total plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency))
-            print("w_p dt = {:2.4f}".format(wp_dt))
-            if simulation.parameters.magnetized:
-                if simulation.parameters.num_species > 1:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-                    print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
-                    print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
-                else:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    print("w_c dt = {:2.4f}".format(high_wc_dt))
-        elif simulation.potential.type == "QSP":
-            print("e plasma frequency = {:.6e} [rad/s]".format(simulation.species[0].plasma_frequency))
-            print("ion plasma frequency = {:.6e} [rad/s]".format(simulation.species[1].plasma_frequency))
-            print("w_pe dt = {:2.4f}".format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
-            if simulation.parameters.magnetized:
-                if simulation.parameters.num_species > 1:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-                    print("Electron w_ce dt = {:2.4f}".format(high_wc_dt))
-                    print("Ions w_ci dt = {:2.4f}".format(low_wc_dt))
-                else:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    print("w_c dt = {:2.4f}".format(high_wc_dt))
-        elif simulation.potential.type == "LJ":
-            print(
-                "Total equivalent plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency)
-            )
-            print("w_p dt = {:2.4f}".format(wp_dt))
-            if simulation.parameters.magnetized:
-                if simulation.parameters.num_species > 1:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-                    print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
-                    print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
-                else:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    print("w_c dt = {:2.4f}".format(high_wc_dt))
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release.\n"
+            "Use integrator.pretty_print(potential.type, parameters.load_method, parameters.restart_step)",
+            category=DeprecationWarning,
+        )
 
-        # Print Time steps information
-        # Check for restart simulations
-        if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
-            print("Restart step: {}".format(simulation.parameters.restart_step))
-            print(
-                "Total production steps = {} \n"
-                "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
-                    simulation.integrator.production_steps,
-                    simulation.integrator.production_steps * simulation.integrator.dt,
-                    int(simulation.integrator.production_steps * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.prod_dump_step,
-                    simulation.integrator.prod_dump_step * simulation.integrator.dt,
-                    simulation.integrator.prod_dump_step * wp_dt,
-                )
-            )
-
-        elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
-            print("Restart step: {}".format(simulation.parameters.restart_step))
-            print(
-                "Total equilibration steps = {} \n"
-                "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq".format(
-                    simulation.integrator.equilibration_steps,
-                    simulation.integrator.equilibration_steps * simulation.integrator.dt,
-                    int(simulation.integrator.eq_dump_step * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.eq_dump_step,
-                    simulation.integrator.eq_dump_step * simulation.integrator.dt,
-                    simulation.integrator.eq_dump_step * wp_dt,
-                )
-            )
-
-        elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
-            print("Restart step: {}".format(simulation.parameters.restart_step))
-            print(
-                "Total magnetization steps = {} \n"
-                "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag".format(
-                    simulation.integrator.magnetization_steps,
-                    simulation.integrator.magnetization_steps * simulation.integrator.dt,
-                    int(simulation.integrator.mag_dump_step * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] ~ {:1.4f} w_p T_snap".format(
-                    simulation.integrator.mag_dump_step,
-                    simulation.integrator.mag_dump_step * simulation.integrator.dt,
-                    simulation.integrator.mag_dump_step * wp_dt,
-                )
-            )
-        else:
-            # Equilibration
-            print(
-                "\nEquilibration: \nNo. of equilibration steps = {} \n"
-                "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq ".format(
-                    simulation.integrator.equilibration_steps,
-                    simulation.integrator.equilibration_steps * simulation.integrator.dt,
-                    int(simulation.integrator.equilibration_steps * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.eq_dump_step,
-                    simulation.integrator.eq_dump_step * simulation.integrator.dt,
-                    simulation.integrator.eq_dump_step * wp_dt,
-                )
-            )
-            # Magnetization
-            if simulation.integrator.electrostatic_equilibration:
-                print(
-                    "\nMagnetization: \nNo. of magnetization steps = {} \n"
-                    "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag ".format(
-                        simulation.integrator.magnetization_steps,
-                        simulation.integrator.magnetization_stepss * simulation.integrator.dt,
-                        int(simulation.integrator.magnetization_steps * wp_dt),
-                    )
-                )
-
-                print(
-                    "snapshot interval step = {} \n"
-                    "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                        simulation.integrator.mag_dump_step,
-                        simulation.integrator.mag_dump_step * simulation.integrator.dt,
-                        simulation.integrator.mag_dump_step * wp_dt,
-                    )
-                )
-            # Production
-            print(
-                "\nProduction: \nNo. of production steps = {} \n"
-                "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
-                    simulation.integrator.production_steps,
-                    simulation.integrator.production_steps * simulation.integrator.dt,
-                    int(simulation.integrator.production_steps * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.prod_dump_step,
-                    simulation.integrator.prod_dump_step * simulation.integrator.dt,
-                    simulation.integrator.prod_dump_step * wp_dt,
-                )
-            )
+        simulation.integrator.pretty_print(
+            simulation.potential.type,
+            simulation.parameters.load_method,
+            simulation.parameters.restart_step,
+        )
+        # simulation.potential.method_pretty_print()
+        # wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
+        # print("Time step = {:.6e} [s]".format(simulation.integrator.dt))
+        # if simulation.potential.type in ["Yukawa", "EGS", "Coulomb", "Moliere"]:
+        #     print("Total plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency))
+        #     print("w_p dt = {:2.4f}".format(wp_dt))
+        #     if simulation.parameters.magnetized:
+        #         if simulation.parameters.num_species > 1:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+        #             print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
+        #             print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
+        #         else:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             print("w_c dt = {:2.4f}".format(high_wc_dt))
+        # elif simulation.potential.type == "QSP":
+        #     print("e plasma frequency = {:.6e} [rad/s]".format(simulation.species[0].plasma_frequency))
+        #     print("ion plasma frequency = {:.6e} [rad/s]".format(simulation.species[1].plasma_frequency))
+        #     print("w_pe dt = {:2.4f}".format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
+        #     if simulation.parameters.magnetized:
+        #         if simulation.parameters.num_species > 1:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+        #             print("Electron w_ce dt = {:2.4f}".format(high_wc_dt))
+        #             print("Ions w_ci dt = {:2.4f}".format(low_wc_dt))
+        #         else:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             print("w_c dt = {:2.4f}".format(high_wc_dt))
+        # elif simulation.potential.type == "LJ":
+        #     print(
+        #         "Total equivalent plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency)
+        #     )
+        #     print("w_p dt = {:2.4f}".format(wp_dt))
+        #     if simulation.parameters.magnetized:
+        #         if simulation.parameters.num_species > 1:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
+        #             print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
+        #             print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
+        #         else:
+        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
+        #             print("w_c dt = {:2.4f}".format(high_wc_dt))
+        #
+        # # Print Time steps information
+        # # Check for restart simulations
+        # if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
+        #     print("Restart step: {}".format(simulation.parameters.restart_step))
+        #     print(
+        #         "Total production steps = {} \n"
+        #         "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
+        #             simulation.integrator.production_steps,
+        #             simulation.integrator.production_steps * simulation.integrator.dt,
+        #             int(simulation.integrator.production_steps * wp_dt),
+        #         )
+        #     )
+        #     print(
+        #         "snapshot interval step = {} \n"
+        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+        #             simulation.integrator.prod_dump_step,
+        #             simulation.integrator.prod_dump_step * simulation.integrator.dt,
+        #             simulation.integrator.prod_dump_step * wp_dt,
+        #         )
+        #     )
+        #
+        # elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
+        #     print("Restart step: {}".format(simulation.parameters.restart_step))
+        #     print(
+        #         "Total equilibration steps = {} \n"
+        #         "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq".format(
+        #             simulation.integrator.equilibration_steps,
+        #             simulation.integrator.equilibration_steps * simulation.integrator.dt,
+        #             int(simulation.integrator.eq_dump_step * wp_dt),
+        #         )
+        #     )
+        #     print(
+        #         "snapshot interval step = {} \n"
+        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+        #             simulation.integrator.eq_dump_step,
+        #             simulation.integrator.eq_dump_step * simulation.integrator.dt,
+        #             simulation.integrator.eq_dump_step * wp_dt,
+        #         )
+        #     )
+        #
+        # elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
+        #     print("Restart step: {}".format(simulation.parameters.restart_step))
+        #     print(
+        #         "Total magnetization steps = {} \n"
+        #         "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag".format(
+        #             simulation.integrator.magnetization_steps,
+        #             simulation.integrator.magnetization_steps * simulation.integrator.dt,
+        #             int(simulation.integrator.mag_dump_step * wp_dt),
+        #         )
+        #     )
+        #     print(
+        #         "snapshot interval step = {} \n"
+        #         "snapshot interval time = {:.4e} [s] ~ {:1.4f} w_p T_snap".format(
+        #             simulation.integrator.mag_dump_step,
+        #             simulation.integrator.mag_dump_step * simulation.integrator.dt,
+        #             simulation.integrator.mag_dump_step * wp_dt,
+        #         )
+        #     )
+        # else:
+        #     # Equilibration
+        #     print(
+        #         "\nEquilibration: \nNo. of equilibration steps = {} \n"
+        #         "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq ".format(
+        #             simulation.integrator.equilibration_steps,
+        #             simulation.integrator.equilibration_steps * simulation.integrator.dt,
+        #             int(simulation.integrator.equilibration_steps * wp_dt),
+        #         )
+        #     )
+        #     print(
+        #         "snapshot interval step = {} \n"
+        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+        #             simulation.integrator.eq_dump_step,
+        #             simulation.integrator.eq_dump_step * simulation.integrator.dt,
+        #             simulation.integrator.eq_dump_step * wp_dt,
+        #         )
+        #     )
+        #     # Magnetization
+        #     if simulation.integrator.electrostatic_equilibration:
+        #         print(
+        #             "\nMagnetization: \nNo. of magnetization steps = {} \n"
+        #             "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag ".format(
+        #                 simulation.integrator.magnetization_steps,
+        #                 simulation.integrator.magnetization_stepss * simulation.integrator.dt,
+        #                 int(simulation.integrator.magnetization_steps * wp_dt),
+        #             )
+        #         )
+        #
+        #         print(
+        #             "snapshot interval step = {} \n"
+        #             "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+        #                 simulation.integrator.mag_dump_step,
+        #                 simulation.integrator.mag_dump_step * simulation.integrator.dt,
+        #                 simulation.integrator.mag_dump_step * wp_dt,
+        #             )
+        #         )
+        #     # Production
+        #     print(
+        #         "\nProduction: \nNo. of production steps = {} \n"
+        #         "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
+        #             simulation.integrator.production_steps,
+        #             simulation.integrator.production_steps * simulation.integrator.dt,
+        #             int(simulation.integrator.production_steps * wp_dt),
+        #         )
+        #     )
+        #     print(
+        #         "snapshot interval step = {} \n"
+        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
+        #             simulation.integrator.prod_dump_step,
+        #             simulation.integrator.prod_dump_step * simulation.integrator.dt,
+        #             simulation.integrator.prod_dump_step * wp_dt,
+        #         )
+        #     )
 
     @staticmethod
     def algorithm_info(simulation):
@@ -858,123 +865,11 @@ class InputOutput:
             Process class containing the algorithm info and other parameters.
 
         """
-        if simulation.potential.method == "pppm":
-            print("Charge assignment order: {}".format(simulation.potential.pppm_cao))
-            print("FFT aliases: [{}, {}, {}]".format(*simulation.potential.pppm_aliases))
-            print("Mesh: {} x {} x {}".format(*simulation.potential.pppm_mesh))
-            print(
-                "Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} ".format(
-                    simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
-                    simulation.potential.pppm_alpha_ewald,
-                ),
-                end="",
-            )
-            print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-            print(
-                "Mesh width = {:.4f}, {:.4f}, {:.4f} a_ws".format(
-                    simulation.potential.pppm_h_array[0] / simulation.parameters.a_ws,
-                    simulation.potential.pppm_h_array[1] / simulation.parameters.a_ws,
-                    simulation.potential.pppm_h_array[2] / simulation.parameters.a_ws,
-                )
-            )
-            print(
-                "           = {:.4e}, {:.4e}, {:.4e} ".format(
-                    simulation.potential.pppm_h_array[0],
-                    simulation.potential.pppm_h_array[1],
-                    simulation.potential.pppm_h_array[2],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "Mesh size * Ewald_parameter (h * alpha) = {:2.4f}, {:2.4f}, {:2.4f} ".format(
-                    simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald,
-                    simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald,
-                    simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald,
-                )
-            )
-            print(
-                "                                        ~ 1/{}, 1/{}, 1/{}".format(
-                    int(1.0 / (simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald)),
-                    int(1.0 / (simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald)),
-                    int(1.0 / (simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald)),
-                )
-            )
-            print(
-                "rcut = {:2.4f} a_ws = {:.6e} ".format(
-                    simulation.potential.rc / simulation.parameters.a_ws, simulation.potential.rc
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "No. of PP cells per dimension = {:2}, {:2}, {:2}".format(
-                    int(simulation.parameters.box_lengths[0] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[1] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[2] / simulation.potential.rc),
-                )
-            )
-            print(
-                "No. of particles in PP loop = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        / simulation.parameters.box_volume
-                        * (3 * simulation.potential.rc) ** 3
-                    )
-                )
-            )
-            print(
-                "No. of PP neighbors per particle = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        / simulation.parameters.box_volume
-                        * 4.0
-                        / 3.0
-                        * pi
-                        * (simulation.potential.rc) ** 3.0
-                    )
-                )
-            )
-            print("PM Force Error = {:.6e}".format(simulation.parameters.pppm_pm_err))
-            print("PP Force Error = {:.6e}".format(simulation.parameters.pppm_pp_err))
-
-        elif simulation.potential.method == "pp":
-            print(
-                "rcut = {:2.4f} a_ws = {:.6e} ".format(
-                    simulation.potential.rc / simulation.parameters.a_ws, simulation.potential.rc
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "No. of PP cells per dimension = {:2}, {:2}, {:2}".format(
-                    int(simulation.parameters.box_lengths[0] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[1] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[2] / simulation.potential.rc),
-                )
-            )
-            print(
-                "No. of particles in PP loop = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        / simulation.parameters.box_volume
-                        * (3 * simulation.potential.rc) ** 3
-                    )
-                )
-            )
-            print(
-                "No. of PP neighbors per particle = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        * 4.0
-                        / 3.0
-                        * pi
-                        * (simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0
-                    )
-                )
-            )
-
-        print("Tot Force Error = {:.6e}".format(simulation.parameters.force_error))
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.method_pretty_print()",
+            category=DeprecationWarning,
+        )
+        simulation.potential.method_pretty_print()
 
     @staticmethod
     def potential_info(simulation):
@@ -987,104 +882,20 @@ class InputOutput:
             Process class containing the potential info and other parameters.
 
         """
-        a_ws = simulation.parameters.a_ws
-        if simulation.potential.type == "yukawa":
-            print(f"screening type : {simulation.potential.screening_length_type}")
-            print(f"screening length = {simulation.potential.screening_length:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.pot_pretty_print()",
+            category=DeprecationWarning,
+        )
+        simulation.potential.pot_pretty_print(simulation.potential)
 
-        elif simulation.potential.type == "egs":
-            # print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
-            #     simulation.parameters.electron_temperature,
-            #     simulation.parameters.electron_temperature / simulation.parameters.eV2K))
-            print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print("SGA Correction factor: lmbda = {:.4f}".format(simulation.potential.lmbda))
-            # print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
-            # print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("nu = {:.4f}".format(simulation.parameters.nu))
-            if simulation.parameters.nu < 1:
-                print("Exponential decay:")
-                print("lambda_p = {:.6e} ".format(simulation.parameters.lambda_p), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("lambda_m = {:.6e} ".format(simulation.parameters.lambda_m), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("alpha = {:.4f}".format(simulation.parameters.alpha))
-                # print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
-                print("b = {:.4f}".format(simulation.parameters.b))
-
-            else:
-                print("Oscillatory potential:")
-                print("gamma_p = {:.6e} ".format(simulation.parameters.gamma_p), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("gamma_m = {:.6e} ".format(simulation.parameters.gamma_m), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("alpha = {:.4f}".format(simulation.parameters.alphap))
-                print("b = {:.4f}".format(simulation.parameters.b))
-
-            print("Gamma_eff = {:4.2f}".format(simulation.parameters.coupling_constant))
-
-        elif simulation.potential.type == "coulomb":
-            print("Effective Coupling constant: Gamma_eff = {:4.2f}".format(simulation.parameters.coupling_constant))
-            print("Short-range Cutoff radius: a_rs = {:.6e} ".format(simulation.potential.a_rs), end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            # simulation.parameters.pretty_print()
-
-        elif simulation.potential.type == "lj":
-            print(f"epsilon_tot = {simulation.potential.epsilon_tot:.6e}")
-            print(f"sigma_avg = {simulation.potential.sigma_avg:.6e}")
-            rho = simulation.potential.sigma_avg**3 * simulation.parameters.total_num_density
-            tau = simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
-            print(f"reduced density = {rho:.6e}")
-            print(f"reduced temperature = {tau:.6e}")
-        elif simulation.potential.type == "qsp":
-            ii_scr_len = 1.0 / simulation.potential.matrix[1, 1, 1]
-            ei_scr_len = 1.0 / simulation.potential.matrix[1, 0, 1]
-            ee_scr_len = 1.0 / simulation.potential.matrix[1, 0, 0]
-            e_deBroglie_lambda = sqrt(2.0) * pi / simulation.potential.matrix[1, 0, 0]
-            i_deBroglie_lambda = sqrt(2.0) * pi / simulation.potential.matrix[1, 1, 1]
-
-            print(f"QSP type: {simulation.potential.qsp_type}")
-            print(f"Pauli term: {simulation.potential.qsp_pauli}")
-            print(f"e de Broglie wavelength = {e_deBroglie_lambda/a_ws:.4f} a_ws = {e_deBroglie_lambda:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"ion de Broglie wavelength  = {i_deBroglie_lambda/a_ws:.4f} a_ws = {i_deBroglie_lambda:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"e-e screening length = {ee_scr_len/a_ws:.4f} a_ws = {ee_scr_len:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"i-i screening length = {ii_scr_len /a_ws:.4f} a_ws = {ii_scr_len:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"e-i screening length = {ei_scr_len/a_ws:.4f} a_ws = {ei_scr_len:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"e-i coupling constant = {simulation.parameters.coupling_constant:.4f}")
-
-        elif simulation.potential.type == "moliere":
-            print(f"")
-        elif simulation.potential.type == "hs_yukawa":
-            b = simulation.potential.hs_diameter / simulation.parameters.a_ws
-            print(f"hard sphere diameter = {b:.4f} a_ws = {simulation.potential.hs_diameter:.4e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"screening length = {simulation.potential.screening_length} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"kappa = sigma/lambda = {simulation.potential.kappa:.4f}")
-            print(
-                f"reduced density = n sigma^3 = {simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density:.4f}"
-            )
-            print(f"packing fraction = {simulation.potential.packing_fraction:.4f}")
-            print(f"Gamma_eff = {simulation.parameters.coupling_constant / b:.4f}")
-
-    def setup_checkpoint(self, params, species):
+    def copy_params(self, params):
         """
-        Assign attributes needed for saving dumps.
+        Copy necessary parameters.
 
         Parameters
         ----------
-        params : :class:`sarkas.core.Parameters`
-            General simulation parameters.
-
-        species : :class:`sarkas.core.Species`
-            List of Species classes.
+        params: :class:`sarkas.core.Parameters`
+            Simulation's parameters.
 
         """
         self.dt = params.dt
@@ -1094,15 +905,30 @@ class InputOutput:
         self.species_names = params.species_names.copy()
         self.coupling = params.coupling_constant * params.T_desired
 
+    def setup_checkpoint(self, params):
+        """
+        Assign attributes needed for saving dumps.
+
+        Parameters
+        ----------
+        params : :class:`sarkas.core.Parameters`
+            General simulation parameters.
+
+        species : :class:`sarkas.plasma.Species`
+            List of Species classes.
+
+        """
+
+        self.copy_params(params)
         # Check whether energy files exist already
         if not exists(self.prod_energy_filename):
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(species) > 1:
-                for i, sp in enumerate(species):
-                    dkeys.append("{} Kinetic Energy".format(sp.name))
-                    dkeys.append("{} Potential Energy".format(sp.name))
-                    dkeys.append("{} Temperature".format(sp.name))
+            if len(self.species_names) > 1:
+                for i, sp_name in enumerate(self.species_names):
+                    dkeys.append("{} Kinetic Energy".format(sp_name))
+                    dkeys.append("{} Potential Energy".format(sp_name))
+                    dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
 
             with open(self.prod_energy_filename, "w+") as f:
@@ -1112,8 +938,8 @@ class InputOutput:
         if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(species) > 1:
-                for i, sp_name in enumerate(params.species_names):
+            if len(self.species_names) > 1:
+                for i, sp_name in enumerate(self.species_names):
                     dkeys.append("{} Kinetic Energy".format(sp_name))
                     dkeys.append("{} Potential Energy".format(sp_name))
                     dkeys.append("{} Temperature".format(sp_name))
@@ -1127,8 +953,8 @@ class InputOutput:
             if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
                 # Create the Energy file
                 dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-                if len(species) > 1:
-                    for i, sp_name in enumerate(params.species_names):
+                if len(self.species_names) > 1:
+                    for i, sp_name in enumerate(self.species_names):
                         dkeys.append("{} Kinetic Energy".format(sp_name))
                         dkeys.append("{} Potential Energy".format(sp_name))
                         dkeys.append("{} Temperature".format(sp_name))
@@ -1159,9 +985,9 @@ class InputOutput:
 
         for fl in file_list:
             filename = join(self.processes_dir[indx], fl + ".pickle")
-            pickle_file = open(filename, "wb")
-            pickle.dump(simulation.__dict__[fl], pickle_file)
-            pickle_file.close()
+            with open(filename, "wb") as pickle_file:
+                pickle.dump(simulation.__dict__[fl], pickle_file)
+                pickle_file.close()
 
     def read_pickle(self, process):
         """
@@ -1173,9 +999,7 @@ class InputOutput:
             Process class containing MD run info to save.
 
         """
-        import copy as py_copy
-
-        file_list = ["parameters", "integrator", "thermostat", "potential", "species"]
+        file_list = ["parameters", "integrator", "thermostat", "potential"]
 
         # Redirect to the correct process folder
         if self.process == "preprocessing":
@@ -1187,8 +1011,17 @@ class InputOutput:
 
         for fl in file_list:
             filename = join(self.processes_dir[indx], fl + ".pickle")
-            data = np_load(filename, allow_pickle=True)
-            process.__dict__[fl] = py_copy.copy(data)
+            with open(filename, "rb") as handle:
+
+                data = pickle.load(handle)
+                process.__dict__[fl] = copy(data)
+
+        # Read species
+        filename = join(self.processes_dir[indx], "species.pickle")
+        process.species = []
+        with open(filename, "rb") as handle:
+            data = pickle.load(handle)
+            process.species = copy(data)
 
     def read_pickle_single(self, class_to_read: str):
         """
@@ -1201,12 +1034,10 @@ class InputOutput:
 
         Returns
         -------
-        : cls
+        _copy : cls
             Copy of desired class.
 
         """
-        from copy import copy as py_copy
-
         # Redirect to the correct process folder
         if self.process == "preprocessing":
             indx = 0
@@ -1216,8 +1047,10 @@ class InputOutput:
             indx = 1
 
         filename = join(self.processes_dir[indx], class_to_read + ".pickle")
-        data = np_load(filename, allow_pickle=True)
-        return py_copy(data)
+        with open(filename, "wb") as pickle_file:
+            data = pickle.load(pickle_file)
+            _copy = deepcopy(data)
+        return _copy
 
     def dump(self, phase, ptcls, it):
         """
@@ -1228,7 +1061,7 @@ class InputOutput:
         phase : str
             Simulation phase.
 
-        ptcls : :class:`sarkas.core.Particles`
+        ptcls : :class:`sarkas.particles.Particles`
             Particles data.
 
         it : int

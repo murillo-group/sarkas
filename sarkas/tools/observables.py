@@ -13,8 +13,6 @@ import pandas as pd
 import scipy.stats as scp_stats
 from matplotlib.gridspec import GridSpec
 from numba import njit
-
-# import numpy as np
 from numpy import append as np_append
 from numpy import (
     argsort,
@@ -27,7 +25,6 @@ from numpy import (
     isfinite,
     load,
     ndarray,
-    ones,
     pi,
     real,
     repeat,
@@ -234,6 +231,11 @@ class Observable:
     """
 
     def __init__(self):
+        self.postprocessing_dir = None
+        self.mag_no_dumps = None
+        self.eq_no_dumps = None
+        self.prod_no_dumps = None
+        self.no_obs = None
         self.filename_hdf_acf = None
         self.species_index_start = None
         self.filename_hdf_acf_slices = None
@@ -250,14 +252,14 @@ class Observable:
         self.slice_steps = None
         self.screen_output = True
         self.timer = SarkasTimer()
-        # k obsevable attributes
+        # k observable attributes
         self.k_observable = False
         self.max_aa_harmonics = None
         self.angle_averaging = "principal_axis"
         self.max_k_harmonics = None
         self.max_aa_ka_value = None
         self.kw_observable = False
-
+        self.dim_labels = ["X", "Y", "Z"]
         self.acf_observable = False
         self.dataframe_slices = None
         self.dataframe = None
@@ -274,6 +276,27 @@ class Observable:
         disp += ")"
         return disp
 
+    def __getstate__(self):
+        """Copy the object's state from self.__dict__ which contains all our instance attributes.
+        Always use the dict.copy() method to avoid modifying the original state.
+        Reference: https://docs.python.org/3/library/pickle.html#handling-stateful-objects
+        """
+
+        state = self.__dict__.copy()
+        # Remove the data that is stored already
+        del state["dataframe"]
+        del state["dataframe_slices"]
+        del state["dataframe_acf"]
+        del state["dataframe_acf_slices"]
+
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes.
+        self.__dict__.update(state)
+        # Restore the previously deleted dataframes.
+        self.parse()
+
     def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
@@ -286,7 +309,30 @@ class Observable:
         """
         self.__dict__.update(input_dict)
 
-    def setup_init(self, params, phase: str = None, no_slices: int = None):
+    def setup_multirun_dirs(self):
+
+        self.dump_dirs_list = []
+
+        if self.multi_run_average:
+            for r in range(self.runs):
+                # Direct to the correct dumps directory
+                dump_dir = os_path_join(
+                    f"run{r}", os_path_join("Simulation", os_path_join(self.phase.capitalize(), "dumps"))
+                )
+                dump_dir = os_path_join(self.simulations_dir, dump_dir)
+                self.dump_dirs_list.append(dump_dir)
+
+            # Re-path the saving directory.
+            # Data is saved in Simulations/PostProcessing/Observable/Phase/
+            self.postprocessing_dir = os_path_join(self.simulations_dir, "PostProcessing")
+            if not os_path_exists(self.postprocessing_dir):
+                mkdir(self.postprocessing_dir)
+        else:
+            self.dump_dirs_list = [self.dump_dir]
+
+    def setup_init(
+        self, params, phase: str = None, no_slices: int = None, multi_run_average: bool = None, runs: int = None
+    ):
         """
         Assign Observables attributes and copy the simulation's parameters.
 
@@ -308,6 +354,12 @@ class Observable:
 
         if no_slices:
             self.no_slices = no_slices
+
+        if multi_run_average:
+            self.multi_run_average = multi_run_average
+
+        if runs:
+            self.runs = 1
 
         # The dict update could overwrite the names
         name = self.__name__
@@ -441,6 +493,9 @@ class Observable:
 
     def create_dirs_filenames(self):
         # Saving Directory
+        self.setup_multirun_dirs()
+
+        # If multi_run_average self.postprocessing_dir is Simulations/Postprocessing else Job_dir/Postprocessing
         saving_dir = os_path_join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
         if not os_path_exists(saving_dir):
             mkdir(saving_dir)
@@ -464,6 +519,61 @@ class Observable:
             self.filename_hdf_acf_slices = os_path_join(
                 self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
             )
+
+    def grab_sim_data(self, pva: str = None):
+        """Read in particles data"""
+
+        # Velocity array for storing simulation data
+        data_all = zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
+        time = zeros(self.no_dumps)
+
+        print("\nCollecting data from snapshots ...")
+        if self.dimensional_average:
+            # Loop over the runs
+            for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
+                # Loop over the timesteps
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
+                    # Read data from file
+                    dump = int(it * self.dump_step)
+                    datap = load_from_restart(dump_dir_r, dump)
+                    # Loop over the particles' species
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
+                        # Calculate the correct start and end index for storage
+                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
+                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
+                        # Use a mask to grab only the selected species and flatten along the first axis
+                        # data = ( v1_x, v1_y, v1_z,
+                        #          v2_x, v2_y, v2_z,
+                        #          v3_x, v3_y, v3_z,
+                        #          ...)
+                        # The flatten array would like this
+                        # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
+                        mask = datap["names"] == sp_name
+                        data_all[it, 0, start_indx:end_indx] = datap[pva][mask].flatten("F")
+
+                    time[it] = datap["time"]
+
+        else:  # Dimensional Average = False
+            # Loop over the runs
+            for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
+                # Loop over the timesteps
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
+                    # Read data from file
+                    dump = int(it * self.dump_step)
+                    datap = load_from_restart(dump_dir_r, dump)
+                    # Loop over the particles' species
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
+                        # Calculate the correct start and end index for storage
+                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
+                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
+                        # Use a mask to grab only the selected species and transpose the array to put dimensions first
+                        for d in range(self.dimensions):
+                            mask = datap["names"] == sp_name
+                            data_all[it, d, start_indx:end_indx] = datap[pva][mask][:, d]
+
+                    time[it] = datap["time"]
+
+        return time, data_all
 
     def parse(self):
         """
@@ -942,9 +1052,9 @@ class Observable:
     def save_pickle(self):
         """Save the observable's info into a pickle file."""
         self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
-        pickle_file = open(self.filename_pickle, "wb")
-        dump(self, pickle_file)
-        pickle_file.close()
+        with open(self.filename_pickle, "wb") as pickle_file:
+            dump(self, pickle_file)
+            pickle_file.close()
 
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
@@ -1573,17 +1683,21 @@ class ElectricCurrent(Observable):
     @compute_doc
     def compute(self):
 
+        # Initialize timer
+        t0 = self.timer.current()
+        self.calculate_run_slices_data()
+        tend = self.timer.current()
+        self.time_stamp("Electric Current Calculation", self.timer.time_division(tend - t0))
+
+    def calculate_run_slices_data(self):
+
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = zeros(self.slice_steps)
-        # Initialize timer
-        t0 = self.timer.current()
 
-        ec_str = "Electric Current"
-        ec_acf_str = "Electric Current ACF"
-
+        # Loop over the slices of each run
         for isl in range(self.no_slices):
-            print("\nCalculating electric current and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
+            print(f"\nCalculating electric current and its acf for slice {isl + 1}/{self.no_slices}.")
             # Parse the particles from the dump files
             vel = zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
@@ -1593,9 +1707,8 @@ class ElectricCurrent(Observable):
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
-                vel[0, it, :] = datap["vel"][:, 0]
-                vel[1, it, :] = datap["vel"][:, 1]
-                vel[2, it, :] = datap["vel"][:, 2]
+                for d in range(self.dimensions):
+                    vel[d, it, :] = datap["vel"][:, d]
             #
             if isl == 0:
                 self.dataframe["Time"] = time.copy()
@@ -1605,98 +1718,86 @@ class ElectricCurrent(Observable):
 
             species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
 
-            # # Store the data
+            # Store species data
             for i, sp_name in enumerate(self.species_names):
-                col_str = "{} ".format(sp_name) + ec_str
-                self.dataframe_slices[col_str + "_X_slice {}".format(isl)] = species_current[i, 0, :]
-                self.dataframe_slices[col_str + "_Y_slice {}".format(isl)] = species_current[i, 1, :]
-                self.dataframe_slices[col_str + "_Z_slice {}".format(isl)] = species_current[i, 2, :]
-                # Calculate ACF
-                sp_acf_xx = correlationfunction(species_current[i, 0, :], species_current[i, 0, :])
-                sp_acf_yy = correlationfunction(species_current[i, 1, :], species_current[i, 1, :])
-                sp_acf_zz = correlationfunction(species_current[i, 2, :], species_current[i, 2, :])
-                tot_acf = sp_acf_xx + sp_acf_yy + sp_acf_zz
-                col_str = "{} ".format(sp_name) + ec_acf_str
+                sp_col_str = f"{sp_name} " + self.__long_name__
+                sp_col_str_acf = f"{sp_name} " + self.__long_name__ + " ACF"
+                sp_tot_acf = zeros(len(species_current))
+                for d in range(self.dimensions):
+                    dl = self.dim_labels[d]
+
+                    self.dataframe_slices[sp_col_str + f"_{dl}_slice {isl}"] = species_current[i, d, :]
+                    # Calculate ACF
+                    sp_acf_dim = correlationfunction(species_current[i, d, :], species_current[i, d, :])
+                    self.dataframe_acf_slices[sp_col_str_acf + f"_{dl}_slice {isl}"] = sp_acf_dim
+
+                    sp_tot_acf += sp_acf_dim
+
                 # Store ACF
-                self.dataframe_acf_slices[col_str + "_X_slice {}".format(isl)] = sp_acf_xx
-                self.dataframe_acf_slices[col_str + "_Y_slice {}".format(isl)] = sp_acf_yy
-                self.dataframe_acf_slices[col_str + "_Z_slice {}".format(isl)] = sp_acf_zz
-                self.dataframe_acf_slices[col_str + "_Total_slice {}".format(isl)] = tot_acf
+                self.dataframe_acf_slices[sp_col_str_acf + f"_Total_slice {isl}"] = sp_tot_acf
 
             # Total current and its ACF
-            self.dataframe_slices[ec_str + "_X_slice {}".format(isl)] = total_current[0, :]
-            self.dataframe_slices[ec_str + "_Y_slice {}".format(isl)] = total_current[1, :]
-            self.dataframe_slices[ec_str + "_Z_slice {}".format(isl)] = total_current[2, :]
+            tot_acf = zeros(len(total_current))
+            for d in range(self.dimensions):
+                dl = self.dim_labels[d]
+                col_str = self.__long_name__ + f"_{dl}_slice {isl}"
+                col_str_acf = self.__long_name__ + f" ACF_{dl}_slice {isl}"
+                self.dataframe_slices[col_str] = total_current[d, :]
+                # Calculate ACF
+                tot_acf_dim = correlationfunction(total_current[d, :], total_current[d, :])
+                tot_acf += tot_acf_dim
+                self.dataframe_acf_slices[col_str_acf] = tot_acf_dim
 
-            sp_acf_xx = correlationfunction(total_current[0, :], total_current[0, :])
-            sp_acf_yy = correlationfunction(total_current[1, :], total_current[1, :])
-            sp_acf_zz = correlationfunction(total_current[2, :], total_current[2, :])
-            tot_acf = sp_acf_xx + sp_acf_yy + sp_acf_zz
-
-            self.dataframe_acf_slices[ec_acf_str + "_X_slice {}".format(isl)] = sp_acf_xx
-            self.dataframe_acf_slices[ec_acf_str + "_Y_slice {}".format(isl)] = sp_acf_yy
-            self.dataframe_acf_slices[ec_acf_str + "_Z_slice {}".format(isl)] = sp_acf_zz
-            self.dataframe_acf_slices[ec_acf_str + "_Total_slice {}".format(isl)] = tot_acf
+            self.dataframe_acf_slices[self.__long_name__ + f"_Total_slice {isl}"] = tot_acf
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
-        # Average and std over the slices
+        self.average_slice_data()
+
+        self.save_hdf()
+
+    def average_slices_data(self):
+        """Average and std over the slices."""
+
+        # Species data
         for i, sp_name in enumerate(self.species_names):
-            col_str = "{} ".format(sp_name) + ec_str
-            xcol_str = [col_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
-            ycol_str = [col_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
-            zcol_str = [col_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+            col_str = f"{sp_name} " + self.__long_name__
+            col_str_acf = f"{sp_name} " + self.__long_name__ + " ACF"
 
-            self.dataframe[col_str + "_X_Mean"] = self.dataframe_slices[xcol_str].mean(axis=1)
-            self.dataframe[col_str + "_X_Std"] = self.dataframe_slices[xcol_str].std(axis=1)
-            self.dataframe[col_str + "_Y_Mean"] = self.dataframe_slices[ycol_str].mean(axis=1)
-            self.dataframe[col_str + "_Y_Std"] = self.dataframe_slices[ycol_str].std(axis=1)
-            self.dataframe[col_str + "_Z_Mean"] = self.dataframe_slices[zcol_str].mean(axis=1)
-            self.dataframe[col_str + "_Z_Std"] = self.dataframe_slices[zcol_str].std(axis=1)
-            # ACF averages
-            col_str = "{} ".format(sp_name) + ec_acf_str
-            xcol_str = [col_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
-            ycol_str = [col_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
-            zcol_str = [col_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
-            tot_col_str = [col_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
+            for d in range(self.dimensions):
+                dl = self.dim_labels[d]
+                dim_col_str = [col_str + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
+                self.dataframe[col_str + f"_{dl}_Mean"] = self.dataframe_slices[dim_col_str].mean(axis=1)
+                self.dataframe[col_str + f"_{dl}_Std"] = self.dataframe_slices[dim_col_str].std(axis=1)
 
-            self.dataframe_acf[col_str + "_X_Mean"] = self.dataframe_acf_slices[xcol_str].mean(axis=1)
-            self.dataframe_acf[col_str + "_X_Std"] = self.dataframe_acf_slices[xcol_str].std(axis=1)
-            self.dataframe_acf[col_str + "_Y_Mean"] = self.dataframe_acf_slices[ycol_str].mean(axis=1)
-            self.dataframe_acf[col_str + "_Y_Std"] = self.dataframe_acf_slices[ycol_str].std(axis=1)
-            self.dataframe_acf[col_str + "_Z_Mean"] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
-            self.dataframe_acf[col_str + "_Z_Std"] = self.dataframe_acf_slices[zcol_str].std(axis=1)
+                # ACF averages
+                dim_col_str_acf = [col_str_acf + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
+
+                self.dataframe_acf[col_str_acf + f"_{dl}_Mean"] = self.dataframe_acf_slices[dim_col_str_acf].mean(axis=1)
+                self.dataframe_acf[col_str_acf + f"_{dl}_Std"] = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1)
+
+            tot_col_str = [col_str + f"_Total_slice {isl}" for isl in range(self.no_slices)]
             self.dataframe_acf[col_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
             self.dataframe_acf[col_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
 
-        # Total
-        xcol_str = [ec_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
-        ycol_str = [ec_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
-        zcol_str = [ec_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
+        # Average and std over the slices
+        # Total Current data
+        for d in range(self.dimensions):
+            dl = self.dim_labels[d]
+            dim_col_str = [self.__long_name__ + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
+            dim_col_str_acf = [self.__long_name__ + f" ACF_{dl}_slice {isl}" for isl in range(self.no_slices)]
 
-        self.dataframe[ec_str + "_X_Mean"] = self.dataframe_slices[xcol_str].mean(axis=1)
-        self.dataframe[ec_str + "_X_Std"] = self.dataframe_slices[xcol_str].std(axis=1)
-        self.dataframe[ec_str + "_Y_Mean"] = self.dataframe_slices[ycol_str].mean(axis=1)
-        self.dataframe[ec_str + "_Y_Std"] = self.dataframe_slices[ycol_str].std(axis=1)
-        self.dataframe[ec_str + "_Z_Mean"] = self.dataframe_slices[zcol_str].mean(axis=1)
-        self.dataframe[ec_str + "_Z_Std"] = self.dataframe_slices[zcol_str].std(axis=1)
+            self.dataframe[dim_col_str + f"_{dl}_Mean"] = self.dataframe_slices[dim_col_str].mean(axis=1)
+            self.dataframe[dim_col_str + f"_{dl}_Std"] = self.dataframe_slices[dim_col_str].std(axis=1)
+            # ACF
+            self.dataframe_acf[dim_col_str_acf + f"_{dl}_Mean"] = self.dataframe_acf_slices[dim_col_str_acf].mean(axis=1)
+            self.dataframe_acf[dim_col_str_acf + f"_{dl}_Std"] = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1)
+
         # Total ACF
-        xcol_str = [ec_acf_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
-        ycol_str = [ec_acf_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
-        zcol_str = [ec_acf_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
-        tot_col_str = [ec_acf_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
-
-        self.dataframe_acf[ec_acf_str + "_X_Mean"] = self.dataframe_acf_slices[xcol_str].mean(axis=1)
-        self.dataframe_acf[ec_acf_str + "_X_Std"] = self.dataframe_acf_slices[xcol_str].std(axis=1)
-        self.dataframe_acf[ec_acf_str + "_Y_Mean"] = self.dataframe_acf_slices[ycol_str].mean(axis=1)
-        self.dataframe_acf[ec_acf_str + "_Y_Std"] = self.dataframe_acf_slices[ycol_str].std(axis=1)
-        self.dataframe_acf[ec_acf_str + "_Z_Mean"] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
-        self.dataframe_acf[ec_acf_str + "_Z_Std"] = self.dataframe_acf_slices[zcol_str].std(axis=1)
-        self.dataframe_acf[ec_acf_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
-        self.dataframe_acf[ec_acf_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
-
-        self.save_hdf()
+        tot_col_str = [self.__long_name__ + f" ACF_Total_slice {isl}" for isl in range(self.no_slices)]
+        self.dataframe_acf[self.__long_name__ + f" ACF_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
+        self.dataframe_acf[self.__long_name__ + f" ACF_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
 
 
 class PressureTensor(Observable):
@@ -1920,27 +2021,6 @@ class PressureTensor(Observable):
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
 
         self.save_hdf()
-        # # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
-        # # Save the data.
-        # if os_path_exists(self.filename_hdf_slices):
-        #     os_remove(self.filename_hdf_slices)
-        # else:
-        #     self.dataframe_slices.to_hdf(self.filename_hdf_slices, mode='w', key=self.__name__)
-        #
-        # if os_path_exists(self.filename_hdf):
-        #     os_remove(self.filename_hdf)
-        # else:
-        #     self.dataframe.to_hdf(self.filename_hdf, mode='w', key=self.__name__)
-        #
-        # if os_path_exists(self.filename_hdf_acf):
-        #     os_remove(self.filename_hdf_acf)
-        # else:
-        #     self.dataframe_acf.to_hdf(self.filename_hdf_acf, mode='w', key=self.__name__)
-        #
-        # if os_path_exists(self.filename_hdf_acf_slices):
-        #     os_remove(self.filename_hdf_acf_slices)
-        # else:
-        #     self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode='w', key=self.__name__)
 
         tend = self.timer.current()
         self.time_stamp("Stress Tensor and ACF Calculation", self.timer.time_division(tend - t0))
@@ -2061,7 +2141,6 @@ class RadialDistributionFunction(Observable):
         r_values = zeros(self.no_bins)
         bin_vol = zeros(self.no_bins)
         pair_density = zeros((self.num_species, self.num_species))
-        gr = zeros((self.no_bins, self.no_obs))
 
         # This is needed to be certain the number of bins is the same.
         # if not isinstance(rdf_hist, ndarray):
@@ -2085,12 +2164,15 @@ class RadialDistributionFunction(Observable):
                     pair_density[i, j] = sp1 * sp2 / self.box_volume
 
         # Calculate the volume of each bin
-        sphere_shell_const = 4.0 * pi / 3.0
-        bin_vol[0] = sphere_shell_const * self.dr_rdf**3
+        # The formula for the N-dimensional sphere is
+        # pi^{N/2}/( factorial( N/2) )
+        # from https://en.wikipedia.org/wiki/N-sphere#:~:text=In%20general%2C%20the-,volume,-%2C%20in%20n%2Ddimensional
+        sphere_shell_const = (pi ** (self.dimensions / 2.0)) / factorial(self.dimensions / 2.0)
+        bin_vol[0] = sphere_shell_const * self.dr_rdf**self.dimensions
         for ir in range(1, self.no_bins):
             r1 = ir * self.dr_rdf
             r2 = (ir + 1) * self.dr_rdf
-            bin_vol[ir] = sphere_shell_const * (r2**3 - r1**3)
+            bin_vol[ir] = sphere_shell_const * (r2**self.dimensions - r1**self.dimensions)
             r_values[ir] = (ir + 0.5) * self.dr_rdf
 
         # Save the ra values for simplicity
@@ -2717,12 +2799,14 @@ class Thermodynamics(Observable):
             Info_plot.text(0.0, 9.0, "No. of species = {}".format(len(self.species_num)))
             y_coord = 8.5
             for isp, sp in enumerate(process.species):
-                Info_plot.text(0.0, y_coord, "Species {} : {}".format(isp + 1, sp.name))
-                Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num))
-                Info_plot.text(
-                    0.0, y_coord - 1.0, "  Temperature = {:.2f} {}".format(temp_mul * sp.temperature, temp_lbl)
-                )
-                y_coord -= 1.5
+
+                if sp.name != "electron_background":
+                    Info_plot.text(0.0, y_coord, "Species {} : {}".format(isp + 1, sp.name))
+                    Info_plot.text(0.0, y_coord - 0.5, "  No. of particles = {} ".format(sp.num))
+                    Info_plot.text(
+                        0.0, y_coord - 1.0, "  Temperature = {:.2f} {}".format(temp_mul * sp.temperature, temp_lbl)
+                    )
+                    y_coord -= 1.5
 
             y_coord -= 0.25
             delta_t = dt_mul * process.integrator.dt
@@ -2740,7 +2824,7 @@ class Thermodynamics(Observable):
                     ),
                     "Potential: {}".format(process.potential.type),
                     "  Coupling Const = {:.2e}".format(process.parameters.coupling_constant),
-                    "  Tot Force Error = {:.2e}".format(process.parameters.force_error),
+                    "  Tot Force Error = {:.2e}".format(process.potential.force_error),
                     "Integrator: {}".format(process.integrator.type),
                     "  $\Delta t$ = {:.2f} {}".format(delta_t, dt_lbl),
                     # "Step interval = {}".format(self.dump_step),
@@ -2804,14 +2888,22 @@ class VelocityAutoCorrelationFunction(Observable):
     @compute_doc
     def compute(self):
 
+        t0 = self.timer.current()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
+
+    def calc_slices_data(self):
+        """Calculate the vacf for each slice and add the data to the acf_slices dataframe."""
+
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = zeros(self.slice_steps)
 
-        vacf_str = "VACF"
-        t0 = self.timer.current()
         for isl in range(self.no_slices):
-            print("\nCalculating vacf for slice {}/{}.".format(isl + 1, self.no_slices))
+            print(f"\nCalculating vacf for slice {isl + 1}/{self.no_slices}.")
             # Parse the particles from the dump files
             vel = zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
             #
@@ -2820,9 +2912,8 @@ class VelocityAutoCorrelationFunction(Observable):
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
-                vel[0, :, it] = datap["vel"][:, 0]
-                vel[1, :, it] = datap["vel"][:, 1]
-                vel[2, :, it] = datap["vel"][:, 2]
+                for d in range(self.dimensions):
+                    vel[d, :, it] = datap["vel"][:, d]
             #
             if isl == 0:
                 self.dataframe["Time"] = time
@@ -2834,35 +2925,31 @@ class VelocityAutoCorrelationFunction(Observable):
             vacf = calc_vacf(vel, self.species_num)
 
             for i, sp1 in enumerate(self.species_names):
-                sp_vacf_str = "{} ".format(sp1) + vacf_str
-                self.dataframe_acf_slices[sp_vacf_str + "_X_slice {}".format(isl)] = vacf[i, 0, :]
-                self.dataframe_acf_slices[sp_vacf_str + "_Y_slice {}".format(isl)] = vacf[i, 1, :]
-                self.dataframe_acf_slices[sp_vacf_str + "_Z_slice {}".format(isl)] = vacf[i, 2, :]
-                self.dataframe_acf_slices[sp_vacf_str + "_Total_slice {}".format(isl)] = vacf[i, 3, :]
+                sp_vacf_str = f"{sp1} " + self.__name__.swapcase()
+                for d in range(self.dimensions):
+                    self.dataframe_acf_slices[sp_vacf_str + f"_{self.dim_labels[d]}_slice {isl}"] = vacf[i, d, :]
+
+                self.dataframe_acf_slices[sp_vacf_str + f"_Total_slice {isl}"] = vacf[i, -1, :]
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
+    def average_slices_data(self):
+        """Average the data from all the slices and add it to the dataframe."""
+
         # Average the stuff
         for i, sp1 in enumerate(self.species_names):
-            sp_vacf_str = "{} ".format(sp1) + vacf_str
-            xcol_str = [sp_vacf_str + "_X_slice {}".format(isl) for isl in range(self.no_slices)]
-            ycol_str = [sp_vacf_str + "_Y_slice {}".format(isl) for isl in range(self.no_slices)]
-            zcol_str = [sp_vacf_str + "_Z_slice {}".format(isl) for isl in range(self.no_slices)]
-            tot_col_str = [sp_vacf_str + "_Total_slice {}".format(isl) for isl in range(self.no_slices)]
+            sp_vacf_str = f"{sp1} " + self.__name__.swapcase()
+            for d in range(self.dimensions):
+                dl = self.dim_labels[d]
+                dcol_str = [sp_vacf_str + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
+                self.dataframe_acf[sp_vacf_str + f"_{dl}_Mean"] = self.dataframe_acf_slices[dcol_str].mean(axis=1)
+                self.dataframe_acf[sp_vacf_str + f"_{dl}_Std"] = self.dataframe_acf_slices[dcol_str].std(axis=1)
 
-            self.dataframe_acf[sp_vacf_str + "_X_Mean"] = self.dataframe_acf_slices[xcol_str].mean(axis=1)
-            self.dataframe_acf[sp_vacf_str + "_X_Std"] = self.dataframe_acf_slices[xcol_str].std(axis=1)
-            self.dataframe_acf[sp_vacf_str + "_Y_Mean"] = self.dataframe_acf_slices[ycol_str].mean(axis=1)
-            self.dataframe_acf[sp_vacf_str + "_Y_Std"] = self.dataframe_acf_slices[ycol_str].std(axis=1)
-            self.dataframe_acf[sp_vacf_str + "_Z_Mean"] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
-            self.dataframe_acf[sp_vacf_str + "_Z_Std"] = self.dataframe_acf_slices[zcol_str].std(axis=1)
+            tot_col_str = [sp_vacf_str + f"_Total_slice {isl}" for isl in range(self.no_slices)]
+
             self.dataframe_acf[sp_vacf_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
             self.dataframe_acf[sp_vacf_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
-
-        self.save_hdf()
-        tend = self.timer.current()
-        self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
 
     def pretty_print(self):
         """Print observable parameters for help in choice of simulation parameters."""
@@ -2906,6 +2993,7 @@ class VelocityDistribution(Observable):
 
     def __init__(self):
         super(VelocityDistribution, self).__init__()
+        self.max_no_moment = None
         self.__name__ = "vd"
         self.__long_name__ = "Velocity Distribution"
 
@@ -2916,8 +3004,11 @@ class VelocityDistribution(Observable):
         no_slices: int = None,
         hist_kwargs: dict = None,
         max_no_moment: int = None,
+        multi_run_average: bool = None,
+        dimensional_average: bool = None,
+        runs: int = 1,
         curve_fit_kwargs: dict = None,
-        **kwargs
+        **kwargs,
     ):
 
         """
@@ -2949,7 +3040,7 @@ class VelocityDistribution(Observable):
 
         """
 
-        super().setup_init(params, phase=phase, no_slices=no_slices)
+        super().setup_init(params, phase=phase, multi_run_average=multi_run_average, runs=runs, no_slices=no_slices)
         self.update_args(hist_kwargs, max_no_moment, curve_fit_kwargs, **kwargs)
 
     @arg_update_doc
@@ -2987,27 +3078,6 @@ class VelocityDistribution(Observable):
             mkdir(saving_dir)
         # then the phase
         self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
-
-        self.adjusted_dump_dir = []
-
-        if self.multi_run_average:
-            for r in range(self.runs):
-                # Direct to the correct dumps directory
-                dump_dir = os_path_join(
-                    "run{}".format(r), os_path_join("Simulation", os_path_join(self.phase.capitalize(), "dumps"))
-                )
-                dump_dir = os_path_join(self.simulations_dir, dump_dir)
-                self.adjusted_dump_dir.append(dump_dir)
-            # Re-path the saving directory
-            saving_dir = os_path_join(self.simulations_dir, "PostProcessing")
-            if not os_path_exists(saving_dir):
-                mkdir(saving_dir)
-            saving_dir = os_path_join(saving_dir, self.phase.capitalize())
-            if not os_path_exists(saving_dir):
-                mkdir(saving_dir)
-            self.saving_dir = os_path_join(saving_dir, "VelocityDistribution")
-        else:
-            self.adjusted_dump_dir = [self.dump_dir]
 
         if not os_path_exists(self.saving_dir):
             mkdir(self.saving_dir)
@@ -3047,58 +3117,6 @@ class VelocityDistribution(Observable):
 
         self.prepare_histogram_args()
         self.save_pickle()
-
-    def grab_sim_data(self):
-        """Read in velocity data"""
-
-        # Velocity array for storing simulation data
-        vel_raw = zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
-        time = zeros(self.no_dumps)
-
-        print("\nCollecting data from snapshots ...")
-        if self.dimensional_average:
-            # Loop over the runs
-            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc="Runs Loop")):
-                # Loop over the timesteps
-                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
-                    # Read data from file
-                    dump = int(it * self.dump_step)
-                    datap = load_from_restart(dump_dir_r, dump)
-                    # Loop over the particles' species
-                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
-                        # Calculate the correct start and end index for storage
-                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
-                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
-                        # Use a mask to grab only the selected species and flatten along the first axis
-                        # data = ( v1_x, v1_y, v1_z,
-                        #          v2_x, v2_y, v2_z,
-                        #          v3_x, v3_y, v3_z,
-                        #          ...)
-                        # The flatten array would like this
-                        # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
-                        vel_raw[it, 0, start_indx:end_indx] = datap["vel"][datap["names"] == sp_name].flatten("F")
-
-                    time[it] = datap["time"]
-
-        else:  # Dimensional Average = False
-            # Loop over the runs
-            for r, dump_dir_r in enumerate(tqdm(self.adjusted_dump_dir, disable=(not self.verbose), desc="Runs Loop")):
-                # Loop over the timesteps
-                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
-                    # Read data from file
-                    dump = int(it * self.dump_step)
-                    datap = load_from_restart(dump_dir_r, dump)
-                    # Loop over the particles' species
-                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
-                        # Calculate the correct start and end index for storage
-                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
-                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
-                        # Use a mask to grab only the selected species and transpose the array to put dimensions first
-                        vel_raw[it, :, start_indx:end_indx] = datap["vel"][datap["names"] == sp_name].transpose()
-
-                    time[it] = datap["time"]
-
-        return time, vel_raw
 
     def compute(self, compute_moments: bool = False, compute_Grad_expansion: bool = False):
         """
@@ -4040,7 +4058,7 @@ def calc_vacf(vel, sp_num):
     vacf = zeros((len(sp_num), no_dim + 1, no_dumps))
 
     # Calculate the vacf of each species in each dimension
-    for i in range(no_dim):
+    for d in range(no_dim):
         sp_start = 0
         sp_end = 0
         for sp, n_sp in enumerate(sp_num):
@@ -4050,13 +4068,13 @@ def calc_vacf(vel, sp_num):
             # Calculate the vacf for each particle of species sp
             for ptcl in range(sp_start, sp_end):
                 # Calculate the correlation function and add it to the array
-                ptcl_vacf = correlationfunction(vel[i, ptcl, :], vel[i, ptcl, :])
+                ptcl_vacf = correlationfunction(vel[d, ptcl, :], vel[d, ptcl, :])
 
                 # Add this particle vacf to the species vacf and normalize by the time origins
                 sp_vacf += ptcl_vacf
 
             # Save the species vacf for dimension i
-            vacf[sp, i, :] = sp_vacf / n_sp
+            vacf[sp, d, :] = sp_vacf / n_sp
             # Save the total vacf
             vacf[sp, -1, :] += sp_vacf / n_sp
             # Move to the next species first particle position

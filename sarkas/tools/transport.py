@@ -48,6 +48,7 @@ class TransportCoefficients:
         self.verbose = params.verbose
         self.dt = params.dt
         self.total_plasma_frequency = params.total_plasma_frequency
+        self.dimensions = params.dimensions
         self.box_volume = params.box_volume
         self.pbox_volume = params.pbox_volume
         #
@@ -517,7 +518,7 @@ class TransportCoefficients:
         self.diffusion_df_slices["Time"] = time.copy()
 
         vacf_str = "VACF"
-        const = 1.0 / 3.0
+        const = 1.0 / self.dimensions
 
         if not observable.magnetized:
             # Loop over time slices
@@ -525,18 +526,18 @@ class TransportCoefficients:
 
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_vacf_str = f"{sp} " + vacf_str
                     # Grab vacf data of each slice
-                    integrand = array(observable.dataframe_acf_slices[(sp_vacf_str, "Total", "slice {}".format(isl))])
-                    df_str = "{} Diffusion_slice {}".format(sp, isl)
+                    integrand = array(observable.dataframe_acf_slices[(sp_vacf_str, "Total", f"slice {isl}")])
+                    df_str = f"{sp} Diffusion_slice {isl}"
                     self.diffusion_df_slices[df_str] = const * fast_integral_loop(time=time, integrand=integrand)
 
             # Average and std of each diffusion coefficient.
             for isp, sp in enumerate(observable.species_names):
-                col_str = ["{} Diffusion_slice {}".format(sp, isl) for isl in range(observable.no_slices)]
+                col_str = [f"{sp} Diffusion_slice {isl}" for isl in range(observable.no_slices)]
 
-                self.diffusion_df["{} Diffusion_Mean".format(sp)] = self.diffusion_df_slices[col_str].mean(axis=1)
-                self.diffusion_df["{} Diffusion_Std".format(sp)] = self.diffusion_df_slices[col_str].std(axis=1)
+                self.diffusion_df[f"{sp} Diffusion_Mean"] = self.diffusion_df_slices[col_str].mean(axis=1)
+                self.diffusion_df[f"{sp} Diffusion_Std"] = self.diffusion_df_slices[col_str].std(axis=1)
 
         else:
             # Loop over time slices
@@ -544,7 +545,7 @@ class TransportCoefficients:
 
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_vacf_str = f"{sp} " + vacf_str
 
                     # Parallel
                     par_vacf_str = (sp_vacf_str, "Z", "slice {}".format(isl))
@@ -609,8 +610,8 @@ class TransportCoefficients:
 
             if observable.magnetized:
                 for isp, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
-                    sp_diff_str = "{} ".format(sp) + "Diffusion"
+                    sp_vacf_str = f"{sp} " + vacf_str
+                    sp_diff_str = f"{sp} Diffusion"
 
                     # Parallel
                     acf_avg = observable.dataframe_acf[(sp_vacf_str, "Parallel", "Mean")].to_numpy()
@@ -647,11 +648,11 @@ class TransportCoefficients:
                     )
             else:
                 for isp, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_vacf_str = f"{sp} " + vacf_str
                     acf_avg = observable.dataframe_acf[(sp_vacf_str, "Total", "Mean")].to_numpy()
                     acf_std = observable.dataframe_acf[(sp_vacf_str, "Total", "Std")].to_numpy()
 
-                    d_str = "{} Diffusion".format(sp)
+                    d_str = f"{sp} Diffusion"
                     tc_avg = self.diffusion_df[(d_str, "Mean")].to_numpy()
                     tc_std = self.diffusion_df[(d_str, "Std")].to_numpy()
 

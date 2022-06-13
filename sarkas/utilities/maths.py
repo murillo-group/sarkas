@@ -156,17 +156,38 @@ def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
     return intgrl
 
 
-def force_error_approx_pppm(kappa, rc, p, h, alpha):
-    """
-    Calculates the total force error for a given value of the PPPM parameters.
+def force_error_approx_pppm(potential):
+
+    if potential.type in ["yukawa"]:
+        kappa = potential.a_ws / potential.screening_length
+        alpha = potential.pppm_alpha_ewald * potential.a_ws
+        ha = potential.pppm_h_array[0] / potential.a_ws
+        pppm_pm_err = force_error_approx_pm(kappa, potential.pppm_cao[0], ha, alpha)
+
+    elif potential.type == "coulomb":
+        alpha = potential.pppm_alpha_ewald * potential.a_ws
+        ha = potential.pppm_h_array[0] / potential.a_ws
+        pppm_pm_err = force_error_approx_pm(0.0, potential.pppm_cao[0], ha, alpha)
+
+    rescaling_constant = sqrt(potential.total_num_density) * potential.a_ws**2
+    pppm_pp_err = force_error_analytic_pp(
+        potential.type, potential.rc, potential.screening_length, potential.pppm_alpha_ewald, rescaling_constant
+    )
+    pppm_pm_err *= sqrt(potential.total_num_density * potential.a_ws**3)
+    force_error_tot = sqrt(pppm_pm_err**2 + pppm_pp_err**2)
+
+    return force_error_tot, pppm_pm_err, pppm_pp_err
+
+
+def force_error_approx_pm(kappa: float, p: int, h: float, alpha: float):
+    r"""
+    Calculates the PM part of the force error, :math:`\Delta F_{\rm {pm}},  for a given value of the PPPM parameters.
+    The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
     kappa : float
         Inverse screening length.
-
-    rc : float
-        Cutoff length.
 
     p : int
         Charge assignment order.
@@ -179,15 +200,6 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
 
     Returns
     -------
-    Tot_Delta_F : float
-        Total force error given by
-
-        .. math::
-            \\Delta F = \\sqrt{\\Delta F_{\\textrm {pp}}^2 + \\Delta F_{\\textrm {pm}}^2 }
-
-    pp_force_error : float
-        PP force error.
-
     pm_force_error: float
         PM force error.
 
@@ -234,15 +246,34 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
     # eq.(36) in :cite:`Dharuman2017`
     pm_force_error = sqrt(3.0 * somma) / (2.0 * pi)
 
-    # eq.(30) from :cite:`Dharuman2017`
-    pp_force_error = 2.0 * exp(-((0.5 * kappa / alpha) ** 2) - alpha**2 * rc**2) / sqrt(rc)
-    # eq.(42) from :cite:`Dharuman2017`
-    Tot_DeltaF = sqrt(pm_force_error**2 + pp_force_error**2)
-
-    return Tot_DeltaF, pp_force_error, pm_force_error
+    return pm_force_error
 
 
-def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, rescaling_const):
+def force_error_analytic_pp(potential_type, cutoff_length, screening_length, alpha_ewald, rescaling_const):
+
+    if potential_type in ["yukawa"]:
+        kappa = 1 / screening_length
+
+        # PP force error calculation. Note that the equation was derived for a single component plasma.
+        kappa_over_alpha = -0.25 * (kappa / alpha_ewald) ** 2
+        alpha_times_rcut = -((alpha_ewald * cutoff_length) ** 2)
+        # eq.(30) from :cite:`Dharuman2017`
+        pppm_pp_err = 2.0 * exp(kappa_over_alpha + alpha_times_rcut) / sqrt(cutoff_length)
+        # Renormalize
+        pppm_pp_err *= rescaling_const
+
+    elif potential_type == "coulomb":
+
+        # PP force error calculation. Note that the equation was derived for a single component plasma.
+        alpha_times_rcut = -((alpha_ewald * cutoff_length) ** 2)
+        pppm_pp_err = 2.0 * exp(alpha_times_rcut) / sqrt(cutoff_length)
+        # Renormalize
+        pppm_pp_err *= rescaling_const
+
+    return pppm_pp_err
+
+
+def force_error_analytic_lcl(potential_type, cutoff_length, potential_matrix, rescaling_const):
     """
     Calculate the force error from its analytic formula.
 
@@ -278,7 +309,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     >>> potential_matrix[1,:,:] = kappa
     >>> rc = 6.0 # in units of a_ws
     >>> const = 1.0 # Rescaling const
-    >>> force_error_analytic_pp("yukawa", rc, potential_matrix, const)
+    >>> force_error_analytic_lcl("yukawa", rc, potential_matrix, const)
     2.1780665692875655e-05
 
     Lennard jones potential
@@ -293,7 +324,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     >>> potential_matrix[2] = high_pow
     >>> potential_matrix[3] = low_pow
     >>> rc = 10 * sigma
-    >>> force_error_analytic_pp("lj", rc, potential_matrix, 1.0)
+    >>> force_error_analytic_lcl("lj", rc, potential_matrix, 1.0)
     1.4590050212983888e-16
 
     Moliere potential
@@ -310,7 +341,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     >>> pot_mat[1: params_len + 1] = screening_charges.reshape((3, 1, 1))
     >>> pot_mat[params_len + 1:] = 1. / screening_lengths.reshape((3, 1, 1))
     >>> rc = 6.629e-10
-    >>> force_error_analytic_pp("moliere", rc, pot_mat, 1.0)
+    >>> force_error_analytic_lcl("moliere", rc, pot_mat, 1.0)
     2.1223648580087958e-14
 
     """

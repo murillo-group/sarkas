@@ -1,7 +1,7 @@
 from numpy import array, isclose, linspace, pi, sqrt, zeros
 from scipy.constants import elementary_charge, epsilon_0, pi
 
-from ..maths import force_error_analytic_pp, yukawa_green_function
+from ..maths import force_error_analytic_lcl, yukawa_green_function
 
 # def test_fd_integral():
 #     """Test the calculation of the unnormalized FD integral."""
@@ -25,7 +25,7 @@ def test_yukawa_gk():
     assert isclose(G_k[0], 10.53621750372248)
 
 
-def test_yukawa_force_analytic_pp():
+def test_yukawa_force_analytic_lcl():
 
     # Look more about potential matrix
     potential_matrix = zeros((2, 2, 2))
@@ -33,12 +33,12 @@ def test_yukawa_force_analytic_pp():
     potential_matrix[1, :, :] = kappa
     rc = 6.0  # in units of a_ws
     const = 1.0  # Rescaling const
-    f = force_error_analytic_pp("yukawa", rc, potential_matrix, const)
+    f = force_error_analytic_lcl("yukawa", rc, potential_matrix, const)
 
     assert isclose(f, 2.1780665692875655e-05)
 
 
-def test_lj_force_analytic_pp():
+def test_lj_force_analytic_lcl():
     """Test lennard jones force error."""
 
     potential_matrix = zeros((5, 2, 2))
@@ -50,12 +50,12 @@ def test_lj_force_analytic_pp():
     potential_matrix[2] = high_pow
     potential_matrix[3] = low_pow
     rc = 10 * sigma
-    f = force_error_analytic_pp("lj", rc, potential_matrix, 1.0)
+    f = force_error_analytic_lcl("lj", rc, potential_matrix, 1.0)
 
     assert isclose(f, 1.4590050212983888e-16)
 
 
-def test_moliere_force_analytic_pp():
+def test_moliere_force_analytic_lcl():
     """Test moliere force error."""
 
     charge = 4.0 * elementary_charge  # = 4e [C] mks units
@@ -69,6 +69,6 @@ def test_moliere_force_analytic_pp():
     pot_mat[params_len + 1 :] = 1.0 / screening_lengths.reshape((3, 1, 1))
     rc = 6.629e-10
 
-    f = force_error_analytic_pp("moliere", rc, pot_mat, 1.0)
+    f = force_error_analytic_lcl("moliere", rc, pot_mat, 1.0)
 
     assert isclose(f, 2.1223648580087958e-14)

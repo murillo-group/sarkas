@@ -31,7 +31,9 @@ if sys.version_info < (3, 7):
 import pkg_resources
 
 ### This imports make the first import of Sarkas slow. That is why they are commented
-# from .core import Parameters, Particles, Species
+# from .core import Parameters
+# from .particles import Particles
+# from .plasma import Species
 # from .potentials.core import Potential
 # from .processes import PostProcess, PreProcess, Process, Simulation
 # from .time_evolution.integrators import Integrator

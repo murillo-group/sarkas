@@ -56,10 +56,10 @@ from numba import jit
 from numba.core.types import float64, UniTuple
 from numpy import array, pi, sqrt, zeros
 
-from ..utilities.maths import force_error_analytic_pp
+from ..utilities.maths import force_error_analytic_lcl
 
 
-def update_params(potential, params):
+def update_params(potential):
     """
     Assign potential dependent simulation's parameters.
 
@@ -67,12 +67,8 @@ def update_params(potential, params):
     ----------
     potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
-
-    params : :class:`sarkas.core.Parameters`
-        Simulation's parameters.
-
     """
-    potential.matrix = zeros((5, params.num_species, params.num_species))
+    potential.matrix = zeros((5, potential.num_species, potential.num_species))
     # See Lima Physica A 391 4281 (2012) for the following definitions
     if not hasattr(potential, "powers"):
         potential.powers = array([12, 6])
@@ -86,23 +82,23 @@ def update_params(potential, params):
     # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
     potential.epsilon_tot = 0.0
     # Recall that species_charges contains sqrt(epsilon)
-    for i, q1 in enumerate(params.species_charges):
-        for j, q2 in enumerate(params.species_charges):
+    for i, q1 in enumerate(potential.species_charges):
+        for j, q2 in enumerate(potential.species_charges):
             potential.matrix[0, i, j] = lj_constant * q1 * q2
-            potential.matrix[1, i, j] = 0.5 * (params.species_lj_sigmas[i] + params.species_lj_sigmas[j])
+            potential.matrix[1, i, j] = 0.5 * (potential.species_lj_sigmas[i] + potential.species_lj_sigmas[j])
             potential.matrix[2, i, j] = potential.powers[0]
             potential.matrix[3, i, j] = potential.powers[1]
 
             potential.epsilon_tot += q1 * q2
 
-    potential.sigma_avg = params.species_lj_sigmas.mean()
+    potential.sigma_avg = potential.species_lj_sigmas.mean()
     potential.matrix[4, :, :] = potential.a_rs
 
     potential.force = lj_force
 
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
-    params.force_error = force_error_analytic_pp(
-        potential.type, potential.rc, potential.matrix, sqrt(3.0 * params.a_ws / (4.0 * pi))
+    potential.force_error = force_error_analytic_lcl(
+        potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
     )
 
 
@@ -155,3 +151,22 @@ def lj_force(r_in, pot_matrix):
     force = epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
 
     return U, force
+
+
+def pretty_print_info(potential):
+    """
+    Print potential specific parameters in a user-friendly way.
+
+    Parameters
+    ----------
+    potential : :class:`sarkas.potentials.core.Potential`
+        Class handling potential form.
+
+    """
+
+    print(f"epsilon_tot = {potential.epsilon_tot:.6e}")
+    print(f"sigma_avg = {potential.sigma_avg:.6e}")
+    rho = potential.sigma_avg**3 * potential.total_num_density
+    tau = potential.kB * potential.T_desired / potential.epsilon_tot
+    print(f"reduced density = {rho:.6e}")
+    print(f"reduced temperature = {tau:.6e}")

@@ -2,6 +2,7 @@
 Module of various types of time_evolution
 """
 
+from copy import deepcopy
 from IPython import get_ipython
 from numba import float64, int64, jit, void
 from numpy import arange, array, cos, cross, pi, sin, sqrt, zeros
@@ -145,6 +146,30 @@ class Integrator:
         _copy = type(self)()
         # copy the dictionary
         _copy.from_dict(input_dict=self.__dict__)
+        return _copy
+
+    def __deepcopy__(self, memodict={}):
+        """Make a deepcopy of the object.
+
+        Parameters
+        ----------
+        memodict: dict
+            Dictionary of id's to copies
+
+        Returns
+        -------
+        _copy: :class:`sarkas.time_evolution.integrators.Integrator`
+            A new Integrator class.
+        """
+        id_self = id(self)  # memorization avoids unnecessary recursion
+        _copy = memodict.get(id_self)
+        if _copy is None:
+            _copy = type(self)()
+            # Make a deepcopy of the mutable arrays using numpy copy function
+            for k, v in self.__dict__.items():
+                if k != "thread_ls":
+                    _copy.__dict__[k] = deepcopy(v, memodict)
+
         return _copy
 
     def from_dict(self, input_dict: dict):
@@ -353,29 +378,34 @@ class Integrator:
         it_start: int
             Initial step of equilibration.
 
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles' class.
 
         checkpoint: :class:`sarkas.utilities.InputOutput`
             IO class for saving dumps.
 
         """
-
         for it in tqdm(range(it_start, self.equilibration_steps), disable=not self.verbose):
             # Calculate the Potential energy and update particles' data
+
             self.update(ptcls)
+
             if (it + 1) % self.eq_dump_step == 0:
+
                 th = Thread(
                     target=checkpoint.dump,
                     name=f"Sarkas_Equilibration_Thread - {it+1}",
                     args=(
                         "equilibration",
-                        ptcls._data_deepcopy(),
+                        ptcls.__deepcopy__(),
                         it + 1,
                     ),
                 )
+
                 self.threads_ls.append(th)
+
                 th.start()
+
             self.thermostate(ptcls, it)
         ptcls.remove_drift()
 
@@ -388,7 +418,7 @@ class Integrator:
         it_start: int
             Initial step of magnetization.
 
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles' class.
 
         checkpoint: :class:`sarkas.utilities.InputOutput`
@@ -405,7 +435,7 @@ class Integrator:
                     name=f"Sarkas_Magnetization_Thread - {it+1}",
                     args=(
                         "magnetization",
-                        ptcls._data_deepcopy(),
+                        ptcls.__deepcopy__(),
                         it + 1,
                     ),
                 )
@@ -422,7 +452,7 @@ class Integrator:
         it_start: int
             Initial step of production phase.
 
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles' class.
 
         checkpoint: :class:`sarkas.utilities.InputOutput`
@@ -440,7 +470,7 @@ class Integrator:
                     name=f"Sarkas_Production_Thread - {it+1}",
                     args=(
                         "production",
-                        ptcls._data_deepcopy(),
+                        ptcls.__deepcopy__(),
                         it + 1,
                     ),
                 )
@@ -453,7 +483,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
 
@@ -496,7 +526,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         """
@@ -504,13 +534,10 @@ class Integrator:
         ptcls.vel += 0.5 * ptcls.acc * self.dt
         # Full step position update
         ptcls.pos += ptcls.vel * self.dt
-
         # Enforce boundary condition
         self.enforce_bc(ptcls)
-
         # Compute total potential energy and acceleration for second half step velocity update
         self.update_accelerations(ptcls)
-
         # Second half step velocity update
         ptcls.vel += 0.5 * ptcls.acc * self.dt
 
@@ -540,7 +567,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -621,7 +648,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -691,7 +718,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -735,7 +762,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -776,7 +803,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -839,7 +866,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -899,7 +926,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -960,7 +987,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         Returns
@@ -1013,7 +1040,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         """
@@ -1026,7 +1053,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         """
@@ -1039,7 +1066,7 @@ class Integrator:
 
         Parameters
         ----------
-        ptcls: :class:`sarkas.core.Particles`
+        ptcls: :class:`sarkas.particles.Particles`
             Particles data.
 
         """
@@ -1048,7 +1075,7 @@ class Integrator:
 
     def pretty_print(self, potential_type: str, restart: str, restart_step: int):
         """Print integrator attributes in a user friendly way."""
-
+        print("\nINTEGRATOR: ")
         if self.magnetized and self.electrostatic_equilibration:
             print("Type: {}".format(self.magnetic_integrator.__name__))
         else:
@@ -1342,7 +1369,7 @@ def enforce_rbc(pos, vel, box_vector, dt) -> None:
 def remove_drift(vel, nums, masses) -> None:
     """
     Numba'd function to enforce conservation of total linear momentum.
-    It updates :attr:`sarkas.core.Particles.vel`.
+    It updates :attr:`sarkas.particles.Particles.vel`.
 
     Parameters
     ----------

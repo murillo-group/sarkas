@@ -28,7 +28,7 @@ from numpy import exp, pi, sqrt
 from numpy import zeros as np_zeros
 from warnings import warn
 
-from ..utilities.maths import force_error_analytic_pp
+from ..utilities.maths import force_error_analytic_lcl
 
 
 @njit
@@ -88,7 +88,7 @@ def force_deriv(r, pot_matrix):
     return f_dev
 
 
-def update_params(potential, params):
+def update_params(potential, species):
     """
     Assign potential dependent simulation's parameters.
 
@@ -96,13 +96,9 @@ def update_params(potential, params):
     ----------
     potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
-
-    params : :class:`sarkas.core.Parameters`
-        Simulation's parameters.
-
     """
     # Potential specific parameters
-    potential.packing_fraction = pi / 6.0 * params.total_num_density * potential.hs_diameter**3
+    potential.packing_fraction = pi / 6.0 * potential.total_num_density * potential.hs_diameter**3
 
     if hasattr(potential, "kappa") and potential.screening_length is not None:
         warn(
@@ -117,23 +113,45 @@ def update_params(potential, params):
         potential.kappa = potential.hs_diameter / potential.screening_length
 
     # Interaction Matrix
-    potential.matrix = np_zeros((3, params.num_species, params.num_species))
+    potential.matrix = np_zeros((3, potential.num_species, potential.num_species))
     potential.matrix[1, :, :] = 1.0 / potential.screening_length
-    for i, q1 in enumerate(params.species_charges):
-        for j, q2 in enumerate(params.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
+    for i, sp1 in enumerate(species):
+        for j, sp2 in enumerate(species):
+            potential.matrix[0, i, j] = sp1.charge * sp2.charge / potential.fourpie0
 
     potential.matrix[2, :, :] = potential.hs_diameter
 
     if potential.method == "pp":
         # The rescaling constant is sqrt ( n sigma^4 ) = sqrt(  6 eta *sigma/pi )
         potential.force = hs_yukawa_force
-        params.force_error = force_error_analytic_pp(
+        potential.force_error = force_error_analytic_lcl(
             "yukawa", potential.rc, potential.matrix, sqrt(6.0 * potential.packing_fraction * potential.hs_diameter / pi)
         )
         # # Force error calculated from eq.(43) in Ref.[1]_
-        # params.force_error = sqrt( TWOPI / params.lambda_TF) * exp(- potential.rc / params.lambda_TF)
+        # potential.force_error = sqrt( TWOPI / potential.electron_TF_wavelength) * exp(- potential.rc / potential.electron_TF_wavelength)
         # # Renormalize
-        # params.force_error *= params.a_ws ** 2 * sqrt(params.total_num_ptcls / params.pbox_volume)
+        # potential.force_error *= potential.a_ws ** 2 * sqrt(potential.total_num_ptcls / potential.pbox_volume)
     elif potential.method == "pppm":
         raise ValueError("PPPM algorithm not supported.")
+
+
+def pretty_print_info(potential):
+    """
+    Print potential specific parameters in a user-friendly way.
+
+    Parameters
+    ----------
+    potential : :class:`sarkas.potentials.core.Potential`
+        Class handling potential form.
+
+    """
+
+    b = potential.hs_diameter / potential.a_ws
+    print(f"hard sphere diameter = {b:.4f} a_ws = {potential.hs_diameter:.4e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"screening length = {potential.screening_length} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"kappa = sigma/lambda = {potential.kappa:.4f}")
+    print(f"reduced density = n sigma^3 = {potential.hs_diameter ** 3 * potential.total_num_density:.4f}")
+    print(f"packing fraction = {potential.packing_fraction:.4f}")
+    print(f"Gamma_eff = {potential.coupling_constant / b:.4f}")
