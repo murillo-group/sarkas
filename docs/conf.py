@@ -9,9 +9,8 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
+
 import os
-import sphinx_bootstrap_theme
 import sys
 
 import sarkas
@@ -47,19 +46,21 @@ release = sarkas.__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.napoleon",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosectionlabel",
-    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",  # Parse docstrings written per the NumPy or Google conventions
+    "sphinx.ext.autodoc",  # Automatically generate the API reference documentation
+    "sphinx.ext.autosummary",  # To recursively extract docstrings of all submodules and their functions
+    "sphinx_autodoc_typehints",  # Type hints support for the Sphinx autodoc extension
+    "sphinx.ext.autosectionlabel",  # Allows to refer sections its title.
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
-    "sphinxcontrib.bibtex",
-    "sphinx.ext.intersphinx",
-    "sphinx_autodoc_typehints",
-    "nbsphinx",
-    "recommonmark",
-    "sphinx_panels",
-    "sphinxext.opengraph",
+    "sphinx.ext.viewcode",  # Add links to highlighted source code
+    "sphinxcontrib.bibtex",  # Allows BibTeX citations to be inserted into documentation
+    "sphinx.ext.intersphinx",  # To reference parts of other Sphinx documentations
+    "nbsphinx",  # Provides a source parser for *.ipynb files
+    "recommonmark",  # A markdown parser for docutils --- should be substitued with MySt Markdown
+    "sphinx_design",  # For creating cards, grid layout, drop-downs, tabs
+    "sphinxext.opengraph",  # to add Open Graph metadata
+    "sphinx_copybutton",  # Add a "copy" button to code blocks
+    # "sphinx_codeautolink" #Automatic links from code examples to reference documentation --- it does not work properly at the moment
 ]
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -113,35 +114,24 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "notebooks", "scripts", "h
 
 # -- Options for HTML output -------------------------------------------------
 
+html_last_updated_fmt = "%b %d, %Y"
+html_logo = os.path.join("graphics", os.path.join("logo", "Sarkas_v1_for_dark_bg.svg"))
+
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "bootstrap"
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-# html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_book_theme"
 html_theme_options = {
-    # Navigation bar title. (Default: ``project`` value)
-    "navbar_title": "ARKAS",
-    # Bootswatch (http://bootswatch.com/) theme.
-    #
-    # Options are nothing with "" (default) or the name of a valid theme such
-    # as "amelia" or "cosmo".
-    #
-    # Note that this is served off CDN, so won't be available offline.
-    "bootswatch_theme": "flatly",
-    # Choose Bootstrap version.
-    # Values: "3" (default) or "2" (in quotes)
-    "bootstrap_version": "3",
-    "body_max_width": "100%",
-    # Render the next and previous page links in navbar. (Default: true)
-    "navbar_sidebarrel": False,
-    "navbar_links": [
-        ("Get Started", "documentation/get_started"),
-        ("Examples", "examples/examples"),
-        ("Code Development", "code_development/code_dev"),
-        ("API", "api/api"),
-        ("Credits", "credits/credits"),
-    ],
+    "use_repository_button": True,
+    "repository_url": "https://github.com/murillo-group/sarkas/",
+    "home_page_in_toc": True,
+    "logo_only": True,
+    "show_navbar_depth": 1,
+    "use_download_button": True,
+    # "extra_navbar": "<p>Your HTML</p>",
+    # sidebar properties below
+    "toc_title": "Content",
+    "show_toc_level": 3,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -151,26 +141,19 @@ html_static_path = ["_static"]
 html_css_files = [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
     "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
+    "my-style.css",
 ]
 
 # panels_add_fontawesome_latex = True
 
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 
-html_js_files = [
-    "js/myscript.js",
-]
+# html_js_files = [
+#     "js/myscript.js",
+# ]
 
-# Custom sidebar templates, maps document names to template names.
-html_sidebars = {
-    "documentation/*": ["custom_localtoc.html"],
-    "code_development/*": ["custom_localtoc.html"],
-    "theory/*": ["custom_localtoc.html"],
-}
 
 # Open Graph metadata (social media link previews which improve SEO)
 ogp_site_url = "https://murillo-group.github.io/sarkas/"
