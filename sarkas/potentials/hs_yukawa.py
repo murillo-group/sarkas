@@ -1,4 +1,4 @@
-"""
+r"""
 Module for handling Hard-Sphere Yukawa potential.
 
 Potential
@@ -7,9 +7,9 @@ Potential
 The Hard-Sphere Yukawa potential between two charges :math:`q_i` and :math:`q_j` at distant :math:`r` is defined as
 
 .. math::
-    U_{ab}(r) = \\left ( \\frac{\\sigma}{r} \\right )^{n}  + \\frac{q_a q_b}{4 \\pi \\epsilon_0} \\frac{e^{- \\kappa r} }{r}.
+    U_{ab}(r) = \left ( \frac{\sigma}{r} \right )^{n}  + \frac{q_a q_b}{4 \pi \epsilon_0} \frac{e^{- \kappa r} }{r}.
 
-where :math:`\\kappa = 1/\\lambda` is the screening parameter.
+where :math:`\kappa = 1/\lambda` is the screening parameter.
 
 Potential Attributes
 ********************

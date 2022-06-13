@@ -14,7 +14,7 @@ from .force_pp import update_0D as pp_update_0D
 
 
 class Potential:
-    """
+    r"""
     Parameters specific to potential choice.
 
     Attributes
@@ -32,13 +32,13 @@ class Potential:
         Force error due to the choice of the algorithm.
 
     fourpie0 : float
-        Coulomb constant :math:`4 \\pi \\epsilon_0`.
+        Coulomb constant :math:`4 \pi \epsilon_0`.
 
     kappa : float
         Inverse screening length.
 
     linked_list_on : bool
-        Flag for choosing the Linked cell list algorithem.
+        Flag for choosing the Linked cell list algorithm.
 
     matrix : numpy.ndarray
         Matrix of potential's parameters.
@@ -67,7 +67,7 @@ class Potential:
         Sum of the squared of the charges.
 
     rc : float
-        Cutoff radius for the Linked Cell List algorithme.
+        Cutoff radius for the Linked Cell List algorithm.
 
     screening_length_type : str
         Choice of ways to calculate the screening length. \n

@@ -1,56 +1,56 @@
-"""
+r"""
 Module for handling Exact Gradient corrected Screened (EGS) Potential.
 
 Potential
 *********
 
 The exact-gradient screened (EGS) potential introduces new parameters that can be easily calculated from initial inputs.
-Density gradient corrections to the free energy functional lead to the first parameter, :math:`\\nu`,
+Density gradient corrections to the free energy functional lead to the first parameter, :math:`\nu`,
 
 .. math::
-   \\nu = - \\frac{3\\lambda}{\\pi^{3/2}}  \\frac{4\\pi \\bar{e}^2 \\beta }{\\Lambda_{e}} \\frac{d}{d\\eta} \\mathcal I_{-1/2}(\\eta),
+   \nu = - \frac{3\lambda}{\pi^{3/2}}  \frac{4\pi \bar{e}^2 \beta }{\Lambda_{e}} \frac{d}{d\eta} \mathcal I_{-1/2}(\eta),
 
-where :math:`\\lambda` is a correction factor; :math:`\\lambda = 1/9` for the true gradient corrected Thomas-Fermi model
-and :math:`\\lambda = 1` for the traditional von Weissaecker model, :math:`\\mathcal I_{-1/2}[\\eta_0]` is the
-Fermi Integral of order :math:`-1/2`, and :math:`\\Lambda_e` is the de Broglie wavelength of the electrons.
+where :math:`\lambda` is a correction factor; :math:`\lambda = 1/9` for the true gradient corrected Thomas-Fermi model
+and :math:`\lambda = 1` for the traditional von Weissaecker model, :math:`\mathcal I_{-1/2}[\eta_0]` is the
+Fermi Integral of order :math:`-1/2`, and :math:`\Lambda_e` is the de Broglie wavelength of the electrons.
 
-In the case :math:`\\nu < 1` the EGS potential takes the form
+In the case :math:`\nu < 1` the EGS potential takes the form
 
 .. math::
-   U_{ab}(r) = \\frac{Z_a Z_b \\bar{e}^2 }{2r}\\left [ ( 1+ \\alpha ) e^{-r/\\lambda_-} + ( 1 - \\alpha) e^{-r/\\lambda_+} \\right ],
+   U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2 }{2r}\left [ ( 1+ \alpha ) e^{-r/\lambda_-} + ( 1 - \alpha) e^{-r/\lambda_+} \right ],
 
 with
 
 .. math::
-   \\lambda_\\pm^2 = \\frac{\\nu \\lambda_{\\textrm{TF}}^2}{2b \\pm 2b\\sqrt{1 - \\nu}}, \\quad \\alpha = \\frac{b}{\\sqrt{b - \\nu}},
+   \lambda_\pm^2 = \frac{\nu \lambda_{\textrm{TF}}^2}{2b \pm 2b\sqrt{1 - \nu}}, \quad \alpha = \frac{b}{\sqrt{b - \nu}},
 
 where the parameter :math:`b` arises from exchange-correlation contributions, see below.\n
-On the other hand :math:`\\nu > 1`, the pair potential has the form
+On the other hand :math:`\nu > 1`, the pair potential has the form
 
 .. math::
-   U_{ab}(r) = \\frac{Z_a Z_b \\bar{e}^2}{r}\\left [ \\cos(r/\\gamma_-) + \\alpha' \\sin(r/\\gamma_-) \\right ] e^{-r/\\gamma_+}
+   U_{ab}(r) = \frac{Z_a Z_b \bar{e}^2}{r}\left [ \cos(r/\gamma_-) + \alpha' \sin(r/\gamma_-) \right ] e^{-r/\gamma_+}
 
 with
 
 .. math::
-   \\gamma_\\pm^2 = \\frac{\\nu\\lambda_{\\textrm{TF}}^2}{\\sqrt{\\nu} \\pm b}, \\quad \\alpha' = \\frac{b}{\\sqrt{\\nu - b}}.
+   \gamma_\pm^2 = \frac{\nu\lambda_{\textrm{TF}}^2}{\sqrt{\nu} \pm b}, \quad \alpha' = \frac{b}{\sqrt{\nu - b}}.
 
 Neglect of exchange-correlational effects leads to :math:`b = 1` otherwise
 
 .. math::
-   b = 1 - \\frac{2}{8} \\frac{1}{k_{\\textrm{F}}^2 \\lambda_{\\textrm{TF}}^2 }  \\left [ h\\left ( \\Theta \\right ) - 2 \\Theta h'(\\Theta) \\right ]
+   b = 1 - \frac{2}{8} \frac{1}{k_{\textrm{F}}^2 \lambda_{\textrm{TF}}^2 }  \left [ h\left ( \Theta \right ) - 2 \Theta h'(\Theta) \right ]
 
-where :math:`k_{\\textrm{F}}` is the Fermi wavenumber and :math:`\\Theta = (\\beta E_{\\textrm{F}})^{-1}` is the electron
+where :math:`k_{\textrm{F}}` is the Fermi wavenumber and :math:`\Theta = (\beta E_{\textrm{F}})^{-1}` is the electron
 degeneracy parameter` calculated from the Fermi energy.
 
 .. math::
-   h \\left ( \\Theta \\right) = \\frac{N(\\Theta)}{D(\\Theta)}\\tanh \\left( \\Theta^{-1} \\right ),
+   h \left ( \Theta \right) = \frac{N(\Theta)}{D(\Theta)}\tanh \left( \Theta^{-1} \right ),
 
 .. math::
-   N(\\Theta) = 1 + 2.8343\\Theta^2 - 0.2151\\Theta^3 + 5.2759\\Theta^4,
+   N(\Theta) = 1 + 2.8343\Theta^2 - 0.2151\Theta^3 + 5.2759\Theta^4,
 
 .. math::
-   D \\left ( \\Theta \\right ) = 1 + 3.9431\\Theta^2 + 7.9138\\Theta^4.
+   D \left ( \Theta \right ) = 1 + 3.9431\Theta^2 + 7.9138\Theta^4.
 
 Force Error
 ***********
@@ -59,7 +59,7 @@ The EGS potential is always smaller than pure Yukawa. Therefore the force error 
 
 .. math::
 
-    \\Delta F = \\frac{q^2}{4 \\pi \\epsilon_0} \\sqrt{\\frac{2 \\pi n}{\\lambda_{-}}}e^{-r_c/\\lambda_-}
+    \Delta F = \frac{q^2}{4 \pi \epsilon_0} \sqrt{\frac{2 \pi n}{\lambda_{-}}}e^{-r_c/\lambda_-}
 
 This overestimates it, but it doesn't matter.
 

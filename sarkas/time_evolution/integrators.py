@@ -5,7 +5,7 @@ Module of various types of time_evolution
 from copy import deepcopy
 from IPython import get_ipython
 from numba import float64, int64, jit, void
-from numpy import arange, array, cos, cross, pi, sin, sqrt, zeros
+from numpy import arange, array, cos, cross, isclose, pi, sin, sqrt, zeros
 from scipy.linalg import norm
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
@@ -1391,7 +1391,7 @@ def remove_drift(vel, nums, masses) -> None:
         P[ic, :] = vel[species_start:species_end, :].sum(axis=0) * masses[ic]
         species_start = species_end
 
-    if P.sum(axis=0).any() > 1e-40:
+    if not isclose(P.sum(axis=0)).any():
         # Remove tot momentum
         species_start = 0
         for ic in range(len(nums)):
