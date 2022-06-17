@@ -25,8 +25,23 @@ class Parameters:
     a_ws : float
         Wigner-Seitz radius. Calculated from the ``total_num_density`` .
 
-    boundary_conditions : str
-        Type of boundary conditions.
+    equilibration_steps : int
+        Total number of equilibration timesteps.
+
+    eq_dump_step : int
+        Equilibration dump interval.
+
+    magnetization_steps : int
+        Total number of magnetization timesteps.
+
+    mag_dump_step : int
+        Magnetization dump interval.
+
+    production_steps : int
+        Total number of production timesteps.
+
+    prod_dump_step : int
+        Production dump interval.
 
     box_volume : float
         Volume of simulation box.
@@ -202,7 +217,8 @@ class Parameters:
     def __init__(self, dic: dict = None) -> None:
 
         self.particles_input_file = None
-        self.load_perturb = None
+        self.load_perturb = 0.0
+        self.initial_lattice_config = "simple_cubic"
         self.load_rejection_radius = None
         self.load_halton_bases = None
         self.load_method = None
@@ -247,8 +263,21 @@ class Parameters:
         self.kB_eV = physical_constants["Boltzmann constant in eV/K"][0]
         self.a_ws = 0.0
 
-        # Control and Timing
-        self.boundary_conditions = "periodic"
+        # Phases
+        self.equilibration_phase = True
+        self.electrostatic_equilibration = True
+        self.magnetization_phase = False
+        self.production_phase = True
+
+        # Timing
+        self.equilibration_steps = 0
+        self.production_steps = 0
+        self.magnetization_steps = 0
+        self.eq_dump_step = 1
+        self.prod_dump_step = 1
+        self.mag_dump_step = 1
+
+        # Control
         self.job_id = None
         self.job_dir = None
         self.log_file = None
@@ -256,7 +285,6 @@ class Parameters:
         self.magnetized = False
         self.plot_style = None
         self.pre_run = False
-        self.electrostatic_equilibration = False
         self.simulations_dir = "Simulations"
         self.production_dir = "Production"
         self.magnetization_dir = "Magnetization"
@@ -317,7 +345,8 @@ class Parameters:
         return _copy
 
     def __deepcopy__(self, memodict={}):
-        """Make a deepcopy of the object.
+        """
+        Make a deepcopy of the object.
 
         Parameters
         ----------
@@ -589,12 +618,6 @@ class Parameters:
     def pretty_print(self):
         """
         Print simulation parameters in a user-friendly way.
-
-        Parameters
-        ----------
-        electron_properties: bool
-            Flag for printing electron properties. Default = True
-
         """
         print("\nSIMULATION AND INITIAL PARTICLE BOX:")
         if hasattr(self, "rand_seed"):
@@ -640,6 +663,43 @@ class Parameters:
             print("[Tesla]" if self.units == "mks" else "[Gauss]")
             print(f"Magnetic Field Unit Vector = {self.magnetic_field / norm(self.magnetic_field)}")
 
+        restart = self.load_method
+        restart_step = self.restart_step if self.restart_step else 0
+        wp_dt = self.total_plasma_frequency * self.dt
+        # Print Time steps information
+        phase_dict = {
+            "eq": ["equilibration", "equilibration_steps", "eq_dump_step"],
+            "ma": ["magnetization", "magnetization_steps", "mag_dump_step"],
+            "pr": ["production", "production_steps", "prod_dump_step"],
+        }
+        # Check for restart simulations
+        if restart[-7:] == "restart":
+            phase_ls = phase_dict[restart[:2]]
+            phase = phase_ls[0]
+            steps = self.__dict__[phase_ls[1]]
+            dump_step = self.__dict__[phase_ls[2]]
+
+            print(f"Restart step: {restart_step}")
+            print(f"Total {phase} steps = {steps}")
+            print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_prod ")
+            print(f"snapshot interval step = {dump_step}")
+            print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
+            print(f"Total number of snapshots = {int(steps/dump_step)}")
+
+        else:
+            for (key, phase_ls) in phase_dict.items():
+                phase = phase_ls[0]
+                steps = self.__dict__[phase_ls[1]]
+                dump_step = self.__dict__[phase_ls[2]]
+                if key == "mg" and not self.magnetized:
+                    continue
+                else:
+                    print(f"\n{phase.capitalize()}: \nNo. of {phase} steps = {steps}")
+                    print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_eq")
+                    print(f"snapshot interval step = {dump_step}")
+                    print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
+                    print(f"Total number of snapshots = {int(steps / dump_step)}")
+
     def set_species_attributes(self, species: list):
         """
         Set species attributes that have not been defined in the input file.
@@ -655,7 +715,7 @@ class Parameters:
 
         tot_num_ptcls = 0
         for i, sp in enumerate(species):
-            sp.copy_params(self)
+
             tot_num_ptcls += sp.num
             # Calculate the mass of the species from the atomic weight if given
             if sp.atomic_weight:
@@ -693,13 +753,14 @@ class Parameters:
                 sp.charge = 0.0
                 sp.Z = 0.0
 
-            sp.calc_ws_radius()
-
-            sp.mass_density = sp.mass * sp.number_density
+            if sp.mass_density is None:
+                sp.mass_density = sp.mass * sp.number_density
 
             # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008).
             sp.QFactor = sp.num * sp.charge**2  # In case of LJ this is zero
 
+            sp.copy_params(self)
+            sp.calc_ws_radius()
             sp.calc_plasma_frequency()
             sp.calc_debye_length()
             sp.calc_landau_length()

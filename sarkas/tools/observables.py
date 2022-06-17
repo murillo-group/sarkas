@@ -2897,37 +2897,53 @@ class Thermodynamics(Observable):
             y_coord -= 0.25
             delta_t = dt_mul * process.integrator.dt
             if info_list is None:
-                info_list = [
-                    "Total $N$ = {}".format(process.parameters.total_num_ptcls),
-                    "Thermostat: {}".format(process.thermostat.type),
-                    "  Berendsen rate = {:.2f}".format(process.thermostat.relaxation_rate),
-                    "  Equilibration cycles = {}".format(
-                        int(
-                            process.parameters.equilibration_steps
-                            * process.integrator.dt
-                            * process.parameters.total_plasma_frequency
-                        )
-                    ),
-                    "Potential: {}".format(process.potential.type),
-                    "  Coupling Const = {:.2e}".format(process.parameters.coupling_constant),
-                    "  Tot Force Error = {:.2e}".format(process.potential.force_error),
-                    "Integrator: {}".format(process.integrator.type),
-                    "  $\Delta t$ = {:.2f} {}".format(delta_t, dt_lbl),
+                integrator_type = {
+                    "equilibration": process.integrator.equilibration_type,
+                    "magnetization": process.integrator.magnetization_type,
+                    "production": process.integrator.production_type,
+                }
+
+                info_list = [f"Total $N$ = {process.parameters.total_num_ptcls}"]
+
+                if process.integrator.thermalization:
+                    info_list.append(f"Thermostat: {process.integrator.thermostat_type}")
+                    info_list.append(f"  Berendsen rate = {process.integrator.thermalization_rate:.2f}")
+
+                eq_cycles = int(
+                    process.parameters.equilibration_steps
+                    * process.integrator.dt
+                    * process.parameters.total_plasma_frequency
+                )
+                to_append = [
+                    f"Equilibration cycles = {eq_cycles}",
+                    f"Potential: {process.potential.type}",
+                    f"  Coupling Const = {process.parameters.coupling_constant:.2e}",
+                    f"  Tot Force Error = {process.potential.force_error:.2e}",
+                    f"Integrator: {integrator_type[self.phase]}",
+                ]
+                [info_list.append(info) for info in to_append]
+                if integrator_type[self.phase] == "langevin":
+                    info_list.append(f"langevin gamma = {process.integrator.langevin_gamma:.4e}")
+
+                prod_cycles = int(
+                    process.parameters.production_steps
+                    * process.integrator.dt
+                    * process.parameters.total_plasma_frequency
+                )
+
+                to_append = [
+                    f"  $\Delta t$ = {delta_t:.2f} {dt_lbl}",
                     # "Step interval = {}".format(self.dump_step),
                     # "Step interval time = {:.2f} {}".format(self.dump_step * delta_t, dt_lbl),
-                    "Completed steps = {}".format(completed_steps),
-                    "Total steps = {}".format(self.no_steps),
-                    "{:1.2f} % Completed".format(100 * completed_steps / self.no_steps),
+                    f"Completed steps = {completed_steps}",
+                    f"Total steps = {self.no_steps}",
+                    f"{100 * completed_steps / self.no_steps:.2f} % Completed",
                     # "Completed time = {:.2f} {}".format(completed_steps * delta_t / dt_mul * time_mul, time_lbl),
-                    "Production time = {:.2f} {}".format(self.no_steps * delta_t / dt_mul * time_mul, time_lbl),
-                    "Production cycles = {}".format(
-                        int(
-                            process.parameters.production_steps
-                            * process.integrator.dt
-                            * process.parameters.total_plasma_frequency
-                        )
-                    ),
+                    f"Production time = {self.no_steps * delta_t / dt_mul * time_mul:.2f} {time_lbl}",
+                    f"Production cycles = {prod_cycles}",
                 ]
+                [info_list.append(info) for info in to_append]
+
             for itext, text_str in enumerate(info_list):
                 Info_plot.text(0.0, y_coord, text_str)
                 y_coord -= 0.5
@@ -3947,7 +3963,6 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     return nkt
 
 
-@njit
 def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dimensions):
     """
     Calculate the pressure tensor.
@@ -3994,6 +4009,7 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dime
     pressure_pot = virial.sum(axis=-1) / box_volume
     pressure_tensor = pressure_kin + pressure_pot
 
+    # .trace is not supported by numba. hence no njit
     pressure = pressure_tensor.trace() / dimensions
 
     return pressure, pressure_kin, pressure_pot, pressure_tensor

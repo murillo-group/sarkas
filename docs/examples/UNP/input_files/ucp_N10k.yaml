@@ -9,7 +9,8 @@ Particles:
 
 Potential:
     type: Yukawa                 # potential type
-    method: P3M                  # Linked-cell
+    method: pppm                  # Linked-cell
+    screening_length_type: 'thomas-fermi'
     electron_temperature: 430
     rc: 2.346716e-05    # cut-off radius, meter
     pppm_mesh: [64, 64, 64]
@@ -20,21 +21,18 @@ Potential:
 Integrator:
     type: Verlet                  # velocity integrator type
     dt: 3.019042e-10         # sec
-    equilibration_steps: 0
-    eq_dump_step: 5
-    production_steps: 10000
-    prod_dump_step: 5
-
-Thermostat:
-    type: Berendsen               # thermostat type
-    relaxation_timestep: 0
-    berendsen_tau: 5.0
+    equilibration_phase: no
+    thermalization: no
 
 Parameters:
     units: mks                    # units
     rand_seed: 651951
-    load_method: random_no_reject
+    load_method: production_restart #random_no_reject
     boundary_conditions: periodic
+    equilibration_steps: 0
+    eq_dump_step: 5
+    production_steps: 20000
+    prod_dump_step: 5
 
 IO:
   verbose: yes

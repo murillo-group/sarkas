@@ -2,7 +2,7 @@
 
 import scipy.signal as scp_signal
 from numba import njit
-from numpy import arange, array, exp, inf, pi, sqrt, trapz, zeros_like
+from numpy import arange, array, exp, inf, ndarray, pi, sqrt, trapz, zeros_like
 from scipy.integrate import quad
 
 TWOPI = 2.0 * pi
@@ -157,6 +157,26 @@ def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
 
 
 def force_error_approx_pppm(potential):
+    r"""
+     Calculates the force error, :math:`\Delta F_{\rm {pm}}, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
+     The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
+
+     Parameters
+     ----------
+     potential: :class:`sarkas.potentials.core.Potential`
+        Potential class with all the required information.
+
+     Returns
+     -------
+    tot_force_error: float
+        Total force error given by the L2 norm of the PP and PM force errors.
+
+    pppm_pm_err: float
+        PM force error.
+
+    pppm_pp_err: float
+        PM force error.
+    """
 
     if potential.type in ["yukawa"]:
         kappa = potential.a_ws / potential.screening_length
@@ -249,8 +269,36 @@ def force_error_approx_pm(kappa: float, p: int, h: float, alpha: float):
     return pm_force_error
 
 
-def force_error_analytic_pp(potential_type, cutoff_length, screening_length, alpha_ewald, rescaling_const):
+def force_error_analytic_pp(
+    potential_type: str, cutoff_length: float, screening_length: float, alpha_ewald: float, rescaling_const: float
+):
+    """
+    Calculate the short-range part of the force error from the approximation formula given in :cite:`Dharuman2017`.
 
+    Parameters
+    ----------
+    potential_type: str
+        Choice of potential.
+
+    cutoff_length: float
+        Short range cutoff.
+
+    screening_length: float
+        Screening length in case of screened potentials like yukawa. Pass 0 if coulomb
+
+    alpha_ewald: float
+        Ewald screening parameter.
+
+    rescaling_const: float
+        Constant by which to rescale the force error. \n
+        In case of electric forces = :math:`Q^2/(4 \\pi \\epsilon_0) 1/a^2`.
+
+    Returns
+    -------
+    pppm_pp_err: float
+        Short range force error in units of `rescaling_const`.
+
+    """
     if potential_type in ["yukawa"]:
         kappa = 1 / screening_length
 
@@ -262,7 +310,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, screening_length, alp
         # Renormalize
         pppm_pp_err *= rescaling_const
 
-    elif potential_type == "coulomb":
+    elif potential_type in ["coulomb", "qsp"]:
 
         # PP force error calculation. Note that the equation was derived for a single component plasma.
         alpha_times_rcut = -((alpha_ewald * cutoff_length) ** 2)
@@ -273,7 +321,9 @@ def force_error_analytic_pp(potential_type, cutoff_length, screening_length, alp
     return pppm_pp_err
 
 
-def force_error_analytic_lcl(potential_type, cutoff_length, potential_matrix, rescaling_const):
+def force_error_analytic_lcl(
+    potential_type: str, cutoff_length: float, potential_matrix: ndarray, rescaling_const: float
+):
     """
     Calculate the force error from its analytic formula.
 
@@ -285,7 +335,7 @@ def force_error_analytic_lcl(potential_type, cutoff_length, potential_matrix, re
     potential_matrix : numpy.ndarray
         Potential parameters.
 
-    cutoff_length : numpy.ndarray
+    cutoff_length : float
         Cutoff radius of the potential.
 
     rescaling_const: float

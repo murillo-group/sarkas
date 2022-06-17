@@ -6,18 +6,21 @@ Integrators
 Sarkas aims to support a variety of time integrators both built-in and user defined.
 Currently the available ones are:
 
-- Velocity Verlet
-- Velocity Verlet with Langeving Thermostat
-- Magnetic Velocity Verlet
+- :ref:`Velocity Verlet <vel_verlet>`
+- Langevin dynamics
+- Magnetic Position Verlet
+- :ref:`Magnetic Velocity Verlet <mag_vel_verlet>`
 - Magnetic Boris
+- Cyclotronic
 
-The choice of integrator is provided in the input file and the method ``sarkas.time_evolution.integrators.Integrator.setup``
-links the chosen integrator to the ``sarkas.time_evolution.integrators.Integrator.update`` method which evolves
+The choice of integrator is provided in the input file and the method
+:doc:`type_setup() <../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.type_setup>`
+links the chosen integrator to the :doc:`update() <../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.update>` method which evolves
 particles' positions, velocities, and accelerations in time.
 
 The Velocity Verlet algorithm is the most common integrator used in MD plasma codes.
 It is preferred to other more accurate integrator, such as RK45, inasmuch as it conserves the symmetries of the
-Hamiltonian, it is fast, and easy to implement.
+Hamiltonian, it is fast and easy to implement.
 
 Phase Space Distribution
 ------------------------
@@ -47,7 +50,7 @@ The solution of the Liouville equation is
 .. math::
     \mathcal f_N(\mathbf r, \mathbf p;t) =  e^{- i \mathcal L t } f_N(\mathbf r, \mathbf p;0)
 
-
+.. _vel_verlet:
 Velocity Verlet
 ---------------
 It can be shown that the Velocity Verlet corresponds to a second order splitting of the Liouville operator :math:`\mathcal L =  K +  V`
@@ -58,8 +61,8 @@ It can be shown that the Velocity Verlet corresponds to a second order splitting
 where :math:`\epsilon = -i \Delta t` and the operators
 
 .. math::
-    K = \mathbf v \cdot \pdv{\mathbf r}, \quad
-    V = \mathbf a \cdot \pdv{\mathbf v}.
+    K = \mathbf v \cdot \frac{\partial}{\partial \mathbf r}, \quad
+    V = \mathbf a \cdot \frac{\partial}{\partial \mathbf v}.
 
 Any dynamical quantities :math:`W` evolves in time according to the Liouville operator :math:`\mathcal L =  K +  V`
 
@@ -71,13 +74,18 @@ Applying each one of these to the initial set :math:`\mathbf W = ( \mathbf r_0, 
 :math:`e^{i\epsilon V} \mathbf r_0 = e^{i\epsilon K} \mathbf v_0 = 0` and
 
 .. math::
-    e^{i \epsilon K} \mathbf r_0 & = &  \left ( 1 + \Delta t K - \frac{\Delta t^2 K^2}{2!} + \frac{\Delta t^3 K^3}{3!} + ... \right ) \mathbf r_0 \nonumber \\  & = & \left [ 1 + \Delta t \mathbf v \cdot \frac{\partial}{\partial \mathbf r} - \frac{\Delta t^2}{2} \left ( \mathbf v \cdot \frac{\partial}{\partial \mathbf r} \right )^2 + ... \right ] \mathbf r_0 \nonumber \\
-        & = & \mathbf r_0 + \Delta t \mathbf v
+    e^{i \epsilon K} \mathbf r_0 & = &  \left ( 1 + \Delta t K - \frac{\Delta t^2 K^2}{2!} + \frac{\Delta t^3 K^3}{3!} + ... \right ) \mathbf r_0 \nonumber \\  & = & \left [ 1 + \Delta t \mathbf v \cdot \frac{\partial}{\partial \mathbf r} - \frac{\Delta t^2}{2} \left ( \mathbf v \cdot \frac{\partial}{\partial \mathbf r} \right )^2 + ... \right ] \mathbf r_0 ,
 
 .. math::
-    e^{i \epsilon V} \mathbf v_0 & = &  \left ( 1 + \Delta t V - \frac{\Delta t^2 V^2}{2!} + \frac{\Delta t^3 V^3}{3!} + ... \right ) \mathbf r_0 \nonumber \\  & = & \left [ 1 + \Delta t \mathbf a \cdot \frac{\partial}{\partial \mathbf v} - \frac{\Delta t^2}{2} \left ( \mathbf a \cdot \frac{\partial}{\partial \mathbf v} \right )^2 + ... \right ] \mathbf v_0 \nonumber \\
-        & = & \mathbf v_0 + \Delta t \mathbf a
+    e^{i \epsilon V} \mathbf v_0 & = &  \left ( 1 + \Delta t V - \frac{\Delta t^2 V^2}{2!} + \frac{\Delta t^3 V^3}{3!} + ... \right ) \mathbf r_0 \nonumber \\  & = & \left [ 1 + \Delta t \mathbf a \cdot \frac{\partial}{\partial \mathbf v} - \frac{\Delta t^2}{2} \left ( \mathbf a \cdot \frac{\partial}{\partial \mathbf v} \right )^2 + ... \right ] \mathbf v_0.
 
+Only the first two terms in the square brackets survive as higher order derivative vanish, thus leading to the update
+equations
+
+.. math::
+    \mathbf r(t + \Delta t) = \mathbf r_0 + \Delta t \mathbf v(t), \quad \mathbf v(t + \Delta t) = \mathbf v_0 + \Delta t \mathbf a(t).
+
+.. _mag_vel_verlet:
 Magnetic Velocity Verlet
 ------------------------
 A generalization to include constant external magnetic fields leads to the Liouville operator
@@ -86,7 +94,7 @@ A generalization to include constant external magnetic fields leads to the Liouv
 .. math::
     L_B = \omega_c \left ( \hat{\mathbf B} \times \mathbf v \right ) \cdot \frac{\partial}{\partial \mathbf v}  = \omega_c \hat{\mathbf B} \cdot \left( \mathbf v \times \frac{\partial}{\partial \mathbf v} \right ) = \omega_c \hat{\mathbf B} \cdot \mathbf J_{\mathbf v}.
 
-Application of this operator leads to :math:`e^{i \epsilon L_B}\vb{r}_0 = 0` and
+Application of this operator leads to :math:`e^{i \epsilon L_B}\mathbf{r}_0 = 0` and
 
 .. math::
     e^{ i \epsilon L_B } \mathbf v_0 & = &  \left ( 1 + \Delta t V - \frac{\Delta t^2 V^2}{2!} + \frac{\Delta t^3 V^3}{3!} + ... \right ) \mathbf v_0 \nonumber \\  & = & \left [ 1 + \omega_c \Delta t  \hat{\mathbf B} \cdot \mathbf J_{\mathbf v} - \frac{\omega_c^2 \Delta t^2}{2}  \left ( \hat{\mathbf B} \cdot \mathbf J_{\mathbf v} \right )^2 + ... \right ] \mathbf v_0 \nonumber \\
@@ -101,8 +109,8 @@ where in the last passage we have divided the velocity in its parallel and perpe
 :math:`\\mathbf B` field. In addition, we have
 
 .. math::
-    e^{i \epsilon (L_B + V) } \mathbf v_0 & = & e^{i \epsilon L_B} \mathbf v_0 + \Delta t \mathbf a + \frac{1 - \cos(\omega_c \Delta t)}{\omega_c} \left ( \hat{\mathbf B} \cross \mathbf a \right ) \nonumber \\
-    && + \Delta t \left ( 1 - \frac{\sin(\omega_c \Delta t)}{\omega_c \Delta t} \right ) \left [ \hat {\mathbf B} \cross \left ( \hat{\mathbf B} \cross \mathbf a \right ) \right ].
+    e^{i \epsilon (L_B + V) } \mathbf v_0 & = & e^{i \epsilon L_B} \mathbf v_0 + \Delta t \mathbf a + \frac{1 - \cos(\omega_c \Delta t)}{\omega_c} \left ( \hat{\mathbf B} \times \mathbf a \right ) \nonumber \\
+    && + \Delta t \left ( 1 - \frac{\sin(\omega_c \Delta t)}{\omega_c \Delta t} \right ) \left [ \hat {\mathbf B} \times \left ( \hat{\mathbf B} \times \mathbf a \right ) \right ].
 
 Time integrators of various order can be found by exponential splitting, that is
 

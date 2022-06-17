@@ -237,6 +237,9 @@ class Particles:
         if hasattr(params, "initial_lattice_config"):
             self.lattice_type = params.initial_lattice_config
 
+        if hasattr(params, "load_gauss_sigma"):
+            self.load_gauss_sigma = params.load_gauss_sigma.copy()
+
         self.species_names = params.species_names
 
         if hasattr(params, "rdf_nbins"):
@@ -246,15 +249,15 @@ class Particles:
             self.rdf_nbins = int(0.05 * params.total_num_ptcls)
             params.rdf_nbins = self.rdf_nbins
 
-    def gaussian(self, mean, sigma, num_ptcls):
+    def gaussian(self, mean, sigma, size):
         """
         Initialize particles' velocities according to a normalized Maxwell-Boltzmann (Normal) distribution.
         It calls ``numpy.random.Generator.normal``
 
         Parameters
         ----------
-        num_ptcls : int
-            Number of particles to initialize.
+        size : tuple
+            Size of the array to initialize. (no. of particles, dimensions).
 
         mean : float
             Center of the normal distribution.
@@ -268,7 +271,7 @@ class Particles:
             Particles property distributed according to a Normal probability density function.
 
         """
-        return self.rnd_gen.normal(mean, sigma, size=(num_ptcls, 3))
+        return self.rnd_gen.normal(mean, sigma, size)
 
     def halton_reject(self, bases, r_reject):
         """
@@ -467,6 +470,15 @@ class Particles:
                 0.5 * self.box_lengths - 0.5 * self.pbox_lengths, 0.5 * self.box_lengths + 0.5 * self.pbox_lengths
             )
 
+        elif self.load_method == "gaussian":
+            sp_start = 0
+            sp_end = 0
+            for sp, sp_num in enumerate(self.species_num):
+                sp_end += sp_num
+                self.pos[sp_start:sp_end, :] = self.gaussian(
+                    self.box_lengths[0] / 2.0, self.load_gauss_sigma[sp], (sp_num, 3)
+                )
+                sp_start += sp_num
         else:
             raise AttributeError("Incorrect particle placement scheme specified.")
 
@@ -497,7 +509,7 @@ class Particles:
                     self.species_thermal_velocity[ic] = sqrt(self.dimensions * self.kB * sp_temperature / (2.0 * sp.mass))
                     # Note gaussian(0.0, 0.0, N) = array of zeros
                     self.vel[species_start:species_end, :] = self.gaussian(
-                        sp.initial_velocity, self.species_thermal_velocity[ic], sp.num
+                        sp.initial_velocity, self.species_thermal_velocity[ic], (sp.num, 3)
                     )
 
                 elif sp.initial_velocity_distribution == "monochromatic":
@@ -550,7 +562,6 @@ class Particles:
         if perturb > 1:
             warn("Random perturbation must not exceed 1. Setting perturb = 1.", category=ParticlesWarning)
 
-        print(f"Initializing particles with maximum random perturbation of {perturb * 0.5} times the lattice spacing.")
         if self.lattice_type == "simple_cubic":
             # Determining number of particles per side of simple cubic lattice
             part_per_side = self.total_num_ptcls ** (1.0 / 3.0)  # Number of particles per side of cubic lattice
@@ -558,10 +569,9 @@ class Particles:
             # Check if total number of particles is a perfect cube, if not, place more than the requested amount
             if round(part_per_side) ** 3 != self.total_num_ptcls:
                 part_per_side = ceil(self.total_num_ptcls ** (1.0 / 3.0))
-                warn(
-                    f"\nWARNING: Total number of particles requested is not a perfect cube. "
-                    f"Initializing with {int(part_per_side ** 3)} particles.",
-                    category=ParticlesWarning,
+                raise ParticlesError(
+                    f"N = {self.total_num_ptcls} cannot be placed in a simple cubic lattice. "
+                    f"Use {int(part_per_side ** 3)} particles instead."
                 )
 
             dx_lattice = self.pbox_lengths[0] / (self.total_num_ptcls ** (1.0 / 3.0))  # Lattice spacing
@@ -586,23 +596,71 @@ class Particles:
             self.pos[:, 1] = Y.ravel() + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
             self.pos[:, 2] = Z.ravel() + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
 
+        elif self.lattice_type in ["square", "tetragonal_2D"]:
+            # Determining number of particles per side of simple cubic lattice
+            part_per_side = round(sqrt(self.total_num_ptcls))  # Number of particles per side of a square lattice
+
+            # Check if total number of particles is a perfect cube, if not, place more than the requested amount
+            if part_per_side**2 != self.total_num_ptcls:
+                raise ParticlesError(
+                    f"N = {self.total_num_ptcls} cannot be placed in a square lattice. "
+                    f"Use {int(part_per_side ** 2)} particles instead."
+                )
+
+            dx_lattice = self.pbox_lengths[0] / sqrt(self.total_num_ptcls)  # Lattice spacing
+            dy_lattice = self.pbox_lengths[1] / sqrt(self.total_num_ptcls)  # Lattice spacing
+
+            # Create x, y, and z position arrays
+            x = arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
+            y = arange(0, self.pbox_lengths[1], dy_lattice) + 0.5 * dy_lattice
+
+            # Create a lattice with appropriate x, y, and z values based on arange
+            X, Y = meshgrid(x, y)
+
+            # Perturb lattice
+            X += self.rnd_gen.uniform(-0.5, 0.5, X.shape) * perturb * dx_lattice
+            Y += self.rnd_gen.uniform(-0.5, 0.5, Y.shape) * perturb * dy_lattice
+
+            # Flatten the meshgrid values for plotting and computation
+            self.pos[:, 0] = X.ravel() + self.box_lengths[0] / 2 - self.pbox_lengths[0] / 2
+            self.pos[:, 1] = Y.ravel() + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
+            self.pos[:, 2] = 0.0
+
         elif self.lattice_type in ["hexagonal", "triangular"]:
 
-            ratio = sqrt(2 * pi / sqrt(3))
-            a_ws = 1.0 / sqrt(pi * self.total_num_density)
-            b = ratio * a_ws
+            # Determining number of particles per side of simple cubic lattice
+            part_per_side = round(sqrt(self.total_num_ptcls))  # Number of particles per side of cubic lattice
+
+            # Check if total number of particles is a perfect cube, if not, place more than the requested amount
+            if self.np_per_side[:2].prod() != part_per_side * (part_per_side + 1):
+                raise ParticlesError(
+                    f"N = {self.total_num_ptcls} cannot be placed in an hexagonal lattice. "
+                    f"Use Nx = {part_per_side} and Ny = {part_per_side + 1} particles instead."
+                )
 
             dx_lattice = self.pbox_lengths[0] / (self.np_per_side[0])  # Lattice spacing
             dy_lattice = self.pbox_lengths[1] / (self.np_per_side[1])  # Lattice spacing
 
-            # Create x, y, and z position arrays
-            x = arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
-            y = arange(0, self.pbox_lengths[1], dy_lattice)
+            if self.np_per_side[0] > self.np_per_side[1]:
+                # Create x, y, and z position arrays
+                x = arange(0, self.pbox_lengths[0], dx_lattice)
+                y = arange(0, self.pbox_lengths[1], dy_lattice) + 0.5 * dy_lattice
 
-            # Create a lattice with appropriate x, y, and z values based on arange
-            X, Y = meshgrid(x, y)
-            # Shift the Y axis of every other row of particles
-            Y[:, ::2] += dy_lattice / 2
+                # Create a lattice with appropriate x, y, and z values based on arange
+                X, Y = meshgrid(x, y)
+                # Shift the Y axis of every other row of particles
+                X[:, ::2] += 0.5 * dx_lattice
+
+            else:
+                # Create x, y, and z position arrays
+                x = arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
+                y = arange(0, self.pbox_lengths[1], dy_lattice)
+
+                # Create a lattice with appropriate x, y, and z values based on arange
+                X, Y = meshgrid(x, y)
+                # Shift the Y axis of every other row of particles
+                Y[:, ::2] += 0.5 * dy_lattice
+
             # Perturb lattice
             X += self.rnd_gen.uniform(-0.5, 0.5, X.shape) * perturb * dx_lattice
             Y += self.rnd_gen.uniform(-0.5, 0.5, Y.shape) * perturb * dy_lattice
@@ -617,11 +675,6 @@ class Particles:
         Initialize particles' positions and velocities.
         Positions are initialized based on the load method while velocities are chosen
         from a Maxwell-Boltzmann distribution.
-
-        Parameters
-        ----------
-        params : :class:`sarkas.core.Parameters`
-            Simulation's parameters.
 
         """
 
@@ -937,3 +990,4 @@ class Particles:
                     self.cyclotron_frequencies[species_start:species_end] = sp.cyclotron_frequency
 
                 self.id[species_start:species_end] = ic
+                species_start += sp.num

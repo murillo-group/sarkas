@@ -170,19 +170,6 @@ def update_params(potential):
         Class handling potential form.
 
     """
-
-    if potential.kappa and potential.screening_length:
-        warn(
-            "You have defined both kappa and the screening_length. \n"
-            "I will use kappa to calculate the screening_length from lambda = a_ws/kappa"
-        )
-        potential.screening_length = potential.a_ws / potential.kappa
-
-    elif potential.kappa:
-        potential.screening_length = potential.a_ws / potential.kappa
-
-    # potential.kappa = potential.a_ws / potential.screening_length
-
     if potential.method == "pppm":
         potential.matrix = zeros((4, potential.num_species, potential.num_species))
     else:

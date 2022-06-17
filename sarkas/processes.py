@@ -3,6 +3,7 @@ Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
 import pandas as pd
 from IPython import get_ipython
+from threading import Thread
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
@@ -26,7 +27,8 @@ from .particles import Particles
 from .plasma import Species
 from .potentials.core import Potential
 from .time_evolution.integrators import Integrator
-from .time_evolution.thermostats import Thermostat
+
+# from .time_evolution.thermostats import Thermostat
 from .tools.observables import (
     CurrentCorrelationFunction,
     DiffusionFlux,
@@ -89,10 +91,11 @@ class Process:
     def __init__(self, input_file: str = None):
         self.potential = Potential()
         self.integrator = Integrator()
-        self.thermostat = Thermostat()
+        # self.thermostat = Thermostat()
         self.parameters = Parameters()
         self.particles = Particles()
         self.species = []
+        self.threads_ls = []
         self.observables_list = []
         self.input_file = input_file
         self.timer = SarkasTimer()
@@ -121,9 +124,6 @@ class Process:
 
             if lkey == "Potential":
                 self.potential.from_dict(dics[lkey])
-
-            if lkey == "Thermostat":
-                self.thermostat.from_dict(dics[lkey])
 
             if lkey == "Integrator":
                 self.integrator.from_dict(dics[lkey])
@@ -195,6 +195,38 @@ class Process:
             if "TransportCoefficients" in dics.keys():
                 self.transport_dict = dics["TransportCoefficients"].copy()
 
+    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step):
+
+        for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
+            # Calculate the Potential energy and update particles' data
+
+            self.integrator.update(self.particles)
+
+            if (it + 1) % dump_step == 0:
+
+                th = Thread(
+                    target=self.io.dump,
+                    name=f"Sarkas_{phase.capitalize()}_Thread - {it+1}",
+                    args=(
+                        phase,
+                        self.particles.__deepcopy__(),
+                        it + 1,
+                    ),
+                )
+
+                self.threads_ls.append(th)
+
+                th.start()
+
+            if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
+                self.integrator.thermostate(self.particles)
+
+        # Wait for all the threads to finish
+        for x in self.threads_ls:
+            x.join()
+
+        self.threads_ls.clear()
+
     def initialization(self) -> None:
         """Initialize all classes."""
 
@@ -210,39 +242,21 @@ class Process:
 
         self.parameters.setup(self.species)
 
-        # save some general info
-        self.parameters.integrator_type = self.integrator.type.lower()
-        self.parameters.thermostat_type = self.thermostat.type.lower()
-
-        # Copy some integrator parameters if not already defined
-        if not hasattr(self.parameters, "dt"):
-            self.parameters.dt = self.integrator.dt
-        if not hasattr(self.parameters, "equilibration_steps"):
-            self.parameters.equilibration_steps = self.integrator.equilibration_steps
-        if not hasattr(self.parameters, "eq_dump_step"):
-            self.parameters.eq_dump_step = self.integrator.eq_dump_step
-        if not hasattr(self.parameters, "production_steps"):
-            self.parameters.production_steps = self.integrator.production_steps
-        if not hasattr(self.parameters, "prod_dump_step"):
-            self.parameters.prod_dump_step = self.integrator.prod_dump_step
-
-        # Check for magnetization phase
-        if self.integrator.electrostatic_equilibration:
-            self.parameters.electrostatic_equilibration = True
-            if not hasattr(self.parameters, "mag_dump_step"):
-                self.parameters.mag_dump_step = self.integrator.mag_dump_step
-            if not hasattr(self.parameters, "magnetization_steps"):
-                self.parameters.magnetization_steps = self.integrator.magnetization_steps
-
         t0 = self.timer.current()
         self.potential.setup(self.parameters, self.species)
         time_pot = self.timer.current()
         self.parameters.cutoff_radius = self.potential.rc
 
-        self.thermostat.setup(self.parameters)
-        self.integrator.setup(self.parameters, self.thermostat, self.potential)
+        self.integrator.setup(self.parameters, self.potential)
         self.particles.setup(self.parameters, self.species)
         time_ptcls = self.timer.current()
+
+        # Copy needed parameters for pretty print
+        self.parameters.dt = self.integrator.dt
+        self.parameters.equilibration_integrator = self.integrator.equilibration_type
+        self.parameters.production_integrator = self.integrator.production_type
+        if self.parameters.magnetized:
+            self.parameters.magnetization_integrator = self.integrator.magnetization_type
 
         # For restart and backups.
         self.io.setup_checkpoint(self.parameters)
@@ -388,7 +402,6 @@ class PostProcess(Process):
         self.integrator = simulation.integrator.__copy__()
         self.potential = simulation.potential.__copy__()
         self.species = simulation.species.copy()
-        self.thermostat = simulation.thermostat.__copy__()
         self.io = simulation.io.__copy__()
         self.io.process = "postprocess"
 
@@ -491,7 +504,6 @@ class PreProcess(Process):
 
     def __init__(self, input_file: str = None):
         self.__name__ = "preprocessing"
-        self.loops = 10
         self.estimate = False
         self.pm_meshes = logspace(3, 7, 12, base=2, dtype=int)
         # array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
@@ -1016,7 +1028,7 @@ class PreProcess(Process):
         for npz in listdir(self.io.prod_dump_dir):
             os_remove(join(self.io.prod_dump_dir, npz))
 
-        if self.integrator.electrostatic_equilibration:
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             os_remove(self.io.mag_energy_filename)
             # Remove dumps
             for npz in listdir(self.io.mag_dump_dir):
@@ -1024,7 +1036,7 @@ class PreProcess(Process):
 
     def run(
         self,
-        loops: int = None,
+        loops: int = 10,
         timing: bool = True,
         timing_study: bool = False,
         pppm_estimate: bool = False,
@@ -1037,9 +1049,7 @@ class PreProcess(Process):
         Parameters
         ----------
         loops : int
-            Number of loops over which to average the acceleration calculation.
-            Note that the number of timestep over which to averages is three times this value.
-            Example: loops = 5, acceleration is averaged over 5 loops, while full time step over 15 loops.
+            Number of loops over which to average the acceleration calculation. Default = 10.
 
         timing : bool
             Flag for estimating simulation times. Default =True.
@@ -1064,11 +1074,8 @@ class PreProcess(Process):
         # Set the screening parameter
         self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "yukawa" else 0.0
 
-        if loops:
-            self.loops = loops + 1
-
         if timing:
-            self.time_n_space_estimates()
+            self.time_n_space_estimates(loops=loops)
 
         if remove:
             self.remove_preproc_dumps()
@@ -1086,122 +1093,157 @@ class PreProcess(Process):
         if postprocessing:
             self.postproc_estimates()
 
-    def time_acceleration(self):
+    def time_acceleration(self, loops: int = 11):
+        """
+        Run loops number of acceleration calculations for timing estimate.
 
-        self.pp_acc_time = zeros(self.loops)
-        for i in range(self.loops):
-            self.timer.start()
-            self.potential.update_linked_list(self.particles)
-            self.pp_acc_time[i] = self.timer.stop()
 
-        # Calculate the mean excluding the first value because that time include numba compilation time
-        pp_mean_time = self.timer.time_division(self.pp_acc_time[1:].mean())
+        Parameters
+        ----------
+        loops: int
+            Number of simulation steps to run. Default = 11.
 
-        self.io.preprocess_timing("PP", pp_mean_time, self.loops)
+        """
+
+        if self.potential.linked_list_on:
+            self.pp_acc_time = zeros(loops)
+            for i in range(loops):
+                self.timer.start()
+                self.potential.update_linked_list(self.particles)
+                self.pp_acc_time[i] = self.timer.stop()
+
+            # Calculate the mean excluding the first value because that time include numba compilation time
+            pp_mean_time = self.timer.time_division(self.pp_acc_time[1:].mean())
+
+            self.io.preprocess_timing("PP", pp_mean_time, loops)
 
         # PM acceleration
         if self.potential.pppm_on:
-            self.pm_acc_time = zeros(self.loops)
-            for i in range(self.loops):
+            self.pm_acc_time = zeros(loops)
+            for i in range(loops):
                 self.timer.start()
                 self.potential.update_pm(self.particles)
                 self.pm_acc_time[i] = self.timer.stop()
             pm_mean_time = self.timer.time_division(self.pm_acc_time[1:].mean())
-            self.io.preprocess_timing("PM", pm_mean_time, self.loops)
+            self.io.preprocess_timing("PM", pm_mean_time, loops)
 
-    def time_integrator_loop(self):
-        """Run several loops of the equilibration and production phase to estimate the total time of the simulation."""
-        if self.parameters.electrostatic_equilibration:
-            # Save the original number of timesteps
-            steps = array(
-                [
-                    self.integrator.equilibration_steps,
-                    self.integrator.production_steps,
-                    self.integrator.magnetization_steps,
-                ]
-            )
-            self.integrator.magnetization_steps = self.loops
-        else:
-            # Save the original number of timesteps
-            steps = array([self.integrator.equilibration_steps, self.integrator.production_steps])
+        if self.potential.method == "fmm":
+            self.fmm_acc_time = zeros(loops)
 
-        # Update the equilibration and production timesteps for estimation
-        self.integrator.production_steps = self.loops
-        self.integrator.equilibration_steps = self.loops
+            for i in range(loops):
+                self.timer.start()
+                self.integrator.update_accelerations(self.particles)
+                self.fmm_acc_time[i] = self.timer.stop()
+            fmm_mean_time = self.timer.time_division(self.fmm_acc_time[:].mean())
+            self.io.preprocess_timing("FMM", fmm_mean_time, loops)
+
+    def time_evolution_loop(self, loops: int = 11):
+        """Run several loops of the equilibration and production phase to estimate the total time of the simulation.
+
+        Parameters
+        ----------
+        loops: int
+            Number of simulation steps to run. Default = 11.
+
+        """
 
         if self.io.verbose:
-            print(f"\nRunning {self.loops} equilibration and production steps to estimate simulation times\n")
+            print(f"\nRunning {loops} equilibration and production steps to estimate simulation times\n")
 
         # Run few equilibration steps to estimate the equilibration time
+        self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
         self.timer.start()
-        self.integrator.equilibrate(0, self.particles, self.io)
-        self.eq_mean_time = self.timer.stop() / self.loops
+        self.evolve_loop("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
+        self.eq_mean_time = self.timer.stop() / loops
         # Print the average equilibration & production times
-        self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), self.loops)
+        self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), loops)
 
-        if self.integrator.electrostatic_equilibration:
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
+            self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
             self.timer.start()
-            self.integrator.magnetize(0, self.particles, self.io)
-            self.mag_mean_time = self.timer.stop() / self.loops
+            self.evolve_loop("magnetization", self.integrator.thermalization, 0, loops, self.parameters.mag_dump_step)
+            self.mag_mean_time = self.timer.stop() / loops
             # Print the average equilibration & production times
-            self.io.preprocess_timing("Magnetization", self.timer.time_division(self.mag_mean_time), self.loops)
+            self.io.preprocess_timing("Magnetization", self.timer.time_division(self.mag_mean_time), loops)
 
         # Run few production steps to estimate the equilibration time
+        self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
         self.timer.start()
-        self.integrator.produce(0, self.particles, self.io)
-        self.prod_mean_time = self.timer.stop() / self.loops
-        self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), self.loops)
-
-        # Restore the original number of timesteps and print an estimate of run times
-        self.integrator.equilibration_steps = steps[0]
-        self.integrator.production_steps = steps[1]
+        self.evolve_loop("production", False, 0, loops, self.parameters.prod_dump_step)
+        self.prod_mean_time = self.timer.stop() / loops
+        self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), loops)
 
         # Print the estimate for the full run
-        eq_prediction = self.eq_mean_time * steps[0]
+        eq_prediction = self.eq_mean_time * self.parameters.equilibration_steps
         self.io.time_stamp("Equilibration", self.timer.time_division(eq_prediction))
 
-        if self.integrator.electrostatic_equilibration:
-            self.integrator.magnetization_steps = steps[2]
-            mag_prediction = self.mag_mean_time * steps[2]
+        if self.parameters.magnetized:
+            mag_prediction = self.mag_mean_time * self.parameters.magnetization_steps
             self.io.time_stamp("Magnetization", self.timer.time_division(mag_prediction))
             eq_prediction += mag_prediction
 
-        prod_prediction = self.prod_mean_time * steps[1]
+        prod_prediction = self.prod_mean_time * self.parameters.production_steps
         self.io.time_stamp("Production", self.timer.time_division(prod_prediction))
 
         tot_time = eq_prediction + prod_prediction
         self.io.time_stamp("Total Run", self.timer.time_division(tot_time))
 
-    def time_n_space_estimates(self):
-        """Estimate simulation times and space"""
+    def time_n_space_estimates(self, loops: int = 10):
+        """Estimate simulation times and space
+
+        Parameters
+        ----------
+        loops: int
+            Number of simulation steps to run. Default = 10.
+
+        """
+
+        if loops:
+            loops += 1
 
         self.io.preprocess_timing("header", [0, 0, 0, 0, 0, 0], 0)
         if self.potential.pppm_on:
             green_time = self.timer.time_division(self.green_function_timer())
             self.io.preprocess_timing("GF", green_time, 0)
 
-        self.time_acceleration()
+        self.time_acceleration(loops)
 
-        self.time_integrator_loop()
-
-        # Wait for all the threads to finish saving files
-        for x in self.integrator.threads_ls:
-            x.join()
+        self.time_evolution_loop(loops)
 
         # Estimate size of dump folder
         # Grab one file from the dump directory and get the size of it.
+        if not listdir(self.io.eq_dump_dir):
+            raise FileNotFoundError(
+                "Could not estimate the size of the equilibration phase dumps"
+                " because there are no dumps in the equilibration directory."
+                "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
+            )
+
+        if not listdir(self.io.prod_dump_dir):
+            raise FileNotFoundError(
+                "Could not estimate the size of the production phase dumps because"
+                " there are no dumps in the production directory."
+                "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
+            )
+
         eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        eq_dump_fldr_size = eq_dump_size * (self.integrator.equilibration_steps / self.integrator.eq_dump_step)
+        eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
         # Grab one file from the dump directory and get the size of it.
         prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        prod_dump_fldr_size = prod_dump_size * (self.integrator.production_steps / self.integrator.prod_dump_step)
+        prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
         # Prepare arguments to pass for print out
         sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
         # Check for electrostatic equilibration
-        if self.integrator.electrostatic_equilibration:
-            dump = self.integrator.mag_dump_step
+        if self.parameters.magnetized:
+            if not listdir(self.io.mag_dump_dir):
+                raise FileNotFoundError(
+                    "Could not estimate the size of the magnetization phase dumps because"
+                    " there are no dumps in the production directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
+                )
+            dump = self.parameters.mag_dump_step
             mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
-            mag_dump_fldr_size = mag_dump_size * (self.integrator.magnetization_steps / self.integrator.mag_dump_step)
+            mag_dump_fldr_size = mag_dump_size * (self.parameters.magnetization_steps / self.parameters.mag_dump_step)
             sizes = array(
                 [
                     [eq_dump_size, eq_dump_fldr_size],
@@ -1439,12 +1481,12 @@ class PreProcess(Process):
         # self.predicted_times = pp_times[best] + pm_times[best[0]]
         # # Print estimate of run times
         # self.io.time_stamp('Equilibration',
-        #                    self.timer.time_division(self.predicted_times * self.integrator.equilibration_steps))
+        #                    self.timer.time_division(self.predicted_times * self.parameters.equilibration_steps))
         # self.io.time_stamp('Production',
-        #                    self.timer.time_division(self.predicted_times * self.integrator.production_steps))
+        #                    self.timer.time_division(self.predicted_times * self.parameters.production_steps))
         # self.io.time_stamp('Total Run',
-        #                    self.timer.time_division(self.predicted_times * (self.integrator.equilibration_steps
-        #                                                                     + self.integrator.production_steps)))
+        #                    self.timer.time_division(self.predicted_times * (self.parameters.equilibration_steps
+        #                                                                     + self.parameters.production_steps)))
 
 
 class Simulation(Process):
@@ -1462,79 +1504,117 @@ class Simulation(Process):
         self.__name__ = "simulation"
         super().__init__(input_file)
 
+    def check_restart(self, phase):
+        """
+        Check if the simulation is a restart.
+
+        Parameters
+        ----------
+        phase: str
+            Simulation phase, e.g. equilibration, Magnetization, production.
+
+        Returns
+        -------
+        it_start: int
+            Restart step.
+
+        """
+
+        if self.parameters.verbose:
+            print(f"\n\n{phase.capitalize():-^70} \n")
+
+        # Check if this is restart
+        if self.parameters.load_method[:2] == phase[:2] and self.parameters.load_method[-7:] == "restart":
+            it_start = self.parameters.restart_step
+        else:
+            it_start = 0
+            self.io.dump(phase, self.particles, 0)
+        return it_start
+
     def equilibrate(self) -> None:
         """
         Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
         """
-        if self.parameters.verbose:
-            print("\n\n{:-^70} \n".format(" Equilibration "))
-        # Check if this is restart
-        if self.parameters.load_method in ["equilibration_restart", "eq_restart"]:
-            it_start = self.parameters.restart_step
-        else:
-            it_start = 0
-            self.io.dump("equilibration", self.particles, 0)
 
+        it_start = self.check_restart(phase="equilibration")
+        self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
         # Start timer, equilibrate, and print run time.
         self.timer.start()
-        self.integrator.equilibrate(it_start, self.particles, self.io)
+        self.evolve_loop(
+            "equilibration",
+            self.integrator.thermalization,
+            it_start,
+            self.parameters.equilibration_steps,
+            self.parameters.eq_dump_step,
+        )
         time_eq = self.timer.stop()
         self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
 
+    # def evolve_loop(self, phase, it_start, it_end, dump_step):
+    #
+    #     for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
+    #         # Calculate the Potential energy and update particles' data
+    #
+    #         self.integrator.update(self.particles)
+    #
+    #         if (it + 1) % dump_step == 0:
+    #             th = Thread(
+    #                 target=self.io.dump,
+    #                 name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
+    #                 args=(phase, self.particles.__deepcopy__(), it + 1,),
+    #             )
+    #
+    #             self.threads_ls.append(th)
+    #
+    #             th.start()
+    #
+    #     # Wait for all the threads to finish
+    #     for x in self.threads_ls:
+    #         x.join()
+    #
+    #     self.threads_ls.clear()
+
+    def magnetize(self) -> None:
         # Check for magnetization phase
-        if self.integrator.electrostatic_equilibration:
-            if self.parameters.verbose:
-                print("\n\n{:-^70} \n".format(" Magnetization "))
+        it_start = self.check_restart(phase="magnetization")
+        # Update integrator
+        self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
+        # Start timer, magnetize, and print run time.
+        self.timer.start()
+        self.evolve_loop(
+            "magnetization",
+            self.integrator.thermalization,
+            it_start,
+            self.parameters.magnetization_steps,
+            self.parameters.mag_dump_step,
+        )
+        time_eq = self.timer.stop()
+        self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
 
-            if self.parameters.load_method in ["magnetization_restart", "mag_restart"]:
-                it_start = self.parameters.restart_step
-            else:
-                it_start = 0
-                self.io.dump("magnetization", self.particles, it_start)
+    def produce(self) -> None:
 
-            # Start timer, magnetize, and print run time.
-            self.timer.start()
-            self.integrator.magnetize(it_start, self.particles, self.io)
-            time_eq = self.timer.stop()
-            self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
+        it_start = self.check_restart(phase="production")
 
-    def evolve(self) -> None:
-        """
-        Run the time integrator to evolve the system for the duration of the production phase.
-        """
-
-        # Check for simulation restart.
-        if self.parameters.load_method in ["prod_restart", "production_restart"]:
-            it_start = self.parameters.restart_step
-        else:
-            it_start = 0
-            # Restart the pbc counter.
-            self.particles.pbc_cntr.fill(0)
-            self.io.dump("production", self.particles, 0)
-
-        if self.parameters.verbose:
-            print("\n\n{:-^70} \n".format(" Production "))
-
+        self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
         # Update measurement flag for rdf.
         self.potential.measure = True
-
-        # Start timer, produce data, and print run time.
         self.timer.start()
-        self.integrator.produce(it_start, self.particles, self.io)
-        time_end = self.timer.stop()
-        self.io.time_stamp("Production", self.timer.time_division(time_end))
+        self.evolve_loop("production", False, it_start, self.parameters.production_steps, self.parameters.prod_dump_step)
+        time_eq = self.timer.stop()
+        self.io.time_stamp("Production", self.timer.time_division(time_eq))
 
     def run(self) -> None:
         """Run the simulation."""
         time0 = self.timer.current()
 
-        if not self.parameters.load_method in ["prod_restart", "production_restart"]:
+        if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
             self.equilibrate()
 
-        self.evolve()
+        if self.parameters.magnetization_phase:
+            self.magnetize()
+
+        if self.parameters.production_phase:
+            self.produce()
+
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
-
-        # Wait for all the threads to finish
-        for x in self.integrator.threads_ls:
-            x.join()

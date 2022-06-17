@@ -1,0 +1,50 @@
+# keywords: single species, LJ, PP, mks, random_reject
+
+Particles:
+    - Species:
+        name: Argon                 # species name
+        num: 1331                    # total number of Argon
+        mass_density: 1.02e+6       # kg/m3
+        atomic_weight: 39.95        # A
+        temperature: 191.91         # kelvin
+        epsilon: 6.624e-21          #
+        sigma: 3.4e-10              # m
+
+Potential:
+    type: LJ
+    powers: [12, 6]
+    rc: 1.46e-9                   # m
+
+Integrator:
+    equilibration_type: langevin
+    production_type: verlet
+    dt: 5.0e-15                    # timestep, sec
+    langevin_type: BBK
+    langevin_gamma: 9.260277e+12
+    thermalization: no
+    # temperatures: 191.91
+
+Parameters:
+    units: mks                      # units
+    verbose: yes
+    boundary_conditions: periodic
+    load_method: lattice
+    load_perturb: 0.1
+    initial_lattice_config: simple_cubic
+    equilibration_steps: 10000
+    eq_dump_step: 100
+    production_steps: 100000
+    prod_dump_step: 50
+
+IO:
+    verbose: yes
+    simulations_dir: Simulations
+    job_dir: LJ_viscosity               # dir name to save data.
+    job_id: lj
+
+Observables:
+  - RadialDistributionFunction:
+      no_bins: 100
+
+  - Thermodynamics:
+      phase: production

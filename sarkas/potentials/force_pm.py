@@ -4,7 +4,20 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 
 from numba import jit
 from numba.core.types import complex128, float64, int64, Tuple, UniTuple
-from numpy import arange, array, exp, imag, mod, pi, real, sin, sqrt, zeros, zeros_like
+from numpy import (
+    arange,
+    array,
+    exp,
+    imag,
+    mod,
+    pi,
+    real,
+    rint,
+    sin,
+    sqrt,
+    zeros,
+    zeros_like,
+)
 from numpy.fft import fftshift, ifftshift
 from pyfftw.builders import fftn, ifftn
 
@@ -127,7 +140,6 @@ def create_k_aliases(aliases, mesh_sizes, non_zero_box_lengths):
     nopython=True,
 )
 def sum_over_aliases(kx, ky, kz, kx_M, ky_M, kz_M, h_array, p, four_pi, alpha_sq, kappa_sq):
-
     U_k_sq = 0.0
     U_G_k = 0.0
 
@@ -366,8 +378,67 @@ def assgnmnt_func(cao, x):
     return W
 
 
-@jit(float64[:, :, :](float64[:, :], float64[:], int64[:], int64[:], float64[:]), nopython=True)
-def calc_charge_dens(pos, charges, cao, mesh_sz, h_array):
+@jit(Tuple((float64[:], int64[:]))(int64[:]), nopython=True)
+def mesh_point_shift(cao):
+    """
+    Calculate the required shift based on the parity of the charge assignment orders.
+
+    Parameters
+    ----------
+    cao: numpy.ndarray
+        Charge assignment order per direction.
+
+    Returns
+    -------
+    mid: numpy.ndarray
+        Midpoint shift if cao is even, otherwise no shift.
+
+    pshift: numpy.ndarray
+        Shift to the closest mesh point.
+
+    """
+    pshift = zeros(len(cao), dtype=int64)
+    mid = zeros(len(cao), dtype=float64)
+
+    # Mid point calculation
+    for ic, p in enumerate(cao):
+        # Choose the midpoint between the two closest mesh point to the particle's position if cao is even otherwise
+        # take the closest mesh-point
+        mid[ic] = 0.5 * (p % 2 == 0)
+        pshift[ic] = int(0.5 * p - 1 * (p % 2 == 0))
+
+    return mid, pshift
+
+
+@jit(Tuple((float64[:, :], int64[:, :]))(float64[:, :], float64[:], int64[:]), nopython=True)
+def calc_mesh_coord(pos, h_array, cao):
+    """
+
+    Parameters
+    ----------
+    pos
+    h_array
+    mesh_sz
+    cao
+
+    Returns
+    -------
+
+    """
+    # Avoid division by zero. if mesh_sz[i] == 0 then there is no mesh in that direction, h_array = 0
+    non_zero_hs = h_array.copy()
+    non_zero_hs += 1.0 * (h_array == 0)
+
+    # Calculate the particles' coordinates relative to the mesh
+    mesh_pos = pos / non_zero_hs
+    # Calculate the particles' closest grid points (if cao is odd) or closest mid points if cao is even
+    mesh_points = rint(mesh_pos - 0.5 * (cao % 2 == 0))
+
+    return mesh_pos, mesh_points.astype(int64)
+
+
+@jit(float64[:, :, :](float64[:, :], int64[:, :], float64[:], int64[:], int64[:], float64[:], int64[:]), nopython=True)
+def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
     """
     Assigns Charges to Mesh Points.
 
@@ -396,36 +467,21 @@ def calc_charge_dens(pos, charges, cao, mesh_sz, h_array):
     """
 
     rho_r = zeros((mesh_sz[2], mesh_sz[1], mesh_sz[0]), dtype=float64)
-    pshift = zeros(len(cao), dtype=int64)
-    mid = zeros(len(cao), dtype=float64)
 
-    for ic, p in enumerate(cao):
-        # Mid point calculation
-        if p % 2 == 0:
-            # Choose the midpoint between the two closest mesh point to the particle's position
-            mid[ic] = 0.5
-            pshift[ic] = int(float(p) / 2.0 - 1)
-        else:
-            # Choose the mesh point closes to the particle
-            mid[ic] = 0.0
-            pshift[ic] = int(float(p) / 2.0)
+    # ix = x-coord of the (left) closest mesh point
+    # (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle
 
     for ipart in range(len(charges)):
 
-        # ix = x-coord of the (left) closest mesh point
-        # (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle
-        # x = the difference between the particle's position and the midpoint
-        # Rescale
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        ix = round(pos[ipart, 0] / h_array[0]) * (cao[0] % 2 != 0) + int(pos[ipart, 0] / h_array[0]) * (cao[0] % 2 == 0)
-        x = pos[ipart, 0] / h_array[0] - (ix + mid[0])
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iy = round(pos[ipart, 1] / h_array[1]) * (cao[1] % 2 != 0) + int(pos[ipart, 1] / h_array[1]) * (cao[1] % 2 == 0)
-        y = pos[ipart, 1] / h_array[1] - (iy + mid[1])
-
-        iz = round(pos[ipart, 2] / h_array[2]) * (cao[2] % 2 != 0) + int(pos[ipart, 2] / h_array[2]) * (cao[2] % 2 == 0)
-        z = pos[ipart, 2] / h_array[2] - (iz + mid[2])
-        # The above branchless programming is because int gives the integer value and NOT the closest integer
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
+        # x, y, z = particle's distances to the closest (mid)-point of the mesh
 
         wx = assgnmnt_func(cao[0], x)
         wy = assgnmnt_func(cao[1], y)
@@ -474,7 +530,9 @@ def calc_charge_dens(pos, charges, cao, mesh_sz, h_array):
 
                 iyn += 1 * (mesh_sz[1] > 1)  # Do not increase the index if there is only 1 point mesh
 
-            izn += 1 * (mesh_sz[2] > 1)  # Do not increase the index if there is only 1 point mesh
+            izn += 1 * (mesh_sz[2] > 1)
+            # Do not increase the index if there is only 1 point mesh. This is kinda redundant because if there is only
+            # one point than also cao == 1. add a test for this!
 
     return rho_r
 
@@ -523,19 +581,21 @@ def calc_field(phi_k, kx_v, ky_v, kz_v):
 
 @jit(
     float64[:, :](
-        float64[:, :, :],
-        float64[:, :, :],
-        float64[:, :, :],
-        float64[:, :],
-        float64[:],
-        int64[:],
-        float64[:],
-        int64[:],
-        float64[:],
+        float64[:, :, :],  # E_x_r
+        float64[:, :, :],  # E_y_r
+        float64[:, :, :],  # E_z_r
+        float64[:, :],  # mesh_pos
+        int64[:, :],  # mesh_points
+        float64[:],  # charges
+        float64[:],  # masses
+        int64[:],  # cao
+        int64[:],  # mesh_sz
+        float64[:],  # mid
+        int64[:],  # pshift
     ),
     nopython=True,
 )
-def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, cao, masses, mesh_sz, h_array):
+def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, charges, masses, cao, mesh_sz, mid, pshift):
     """
     Calculates the long range part of particles' accelerations.
 
@@ -574,35 +634,18 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, cao, masses, mesh_sz, h_array
     E_y_p = zeros_like(charges)
     E_z_p = zeros_like(charges)
 
-    acc = zeros_like(pos)
-
-    pshift = zeros(len(cao), dtype=int64)
-    mid = zeros(len(cao), dtype=float64)
-
-    for ic, p in enumerate(cao):
-        # Mid point calculation
-        if p % 2 == 0:
-            # Choose the midpoint between the two closest mesh point to the particle's position
-            mid[ic] = 0.5
-            # Number of points to the left of the chosen one
-            pshift[ic] = int(float(p) / 2.0 - 1)
-        else:
-            # Choose the mesh point closes to the particle
-            mid[ic] = 0.0
-            # Number of points to the left of the chosen one
-            pshift[ic] = int(float(p) / 2.0)
+    acc = zeros_like(mesh_pos)
 
     for ipart in range(len(charges)):
 
-        ix = round(pos[ipart, 0] / h_array[0]) * (cao[0] % 2 != 0) + int(pos[ipart, 0] / h_array[0]) * (cao[0] % 2 == 0)
-        x = pos[ipart, 0] / h_array[0] - (ix + mid[0])
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        iy = round(pos[ipart, 1] / h_array[1]) * (cao[1] % 2 != 0) + int(pos[ipart, 1] / h_array[1]) * (cao[1] % 2 == 0)
-        y = pos[ipart, 1] / h_array[1] - (iy + mid[1])
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iz = round(pos[ipart, 2] / h_array[2]) * (cao[2] % 2 != 0) + int(pos[ipart, 2] / h_array[2]) * (cao[2] % 2 == 0)
-        z = pos[ipart, 2] / h_array[2] - (iz + mid[2])
-        # The above branchless programming is because int gives the integer value and NOT the closest integer
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
 
         wx = assgnmnt_func(cao[0], x)
         wy = assgnmnt_func(cao[1], y)
@@ -666,17 +709,17 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, cao, masses, mesh_sz, h_array
 # FFTW version
 @jit(
     Tuple((float64, float64[:, :]))(
-        float64[:, :],
-        float64[:],
-        float64[:],
-        int64[:],
-        float64[:],
-        float64,
-        float64,
-        float64[:, :, :],
-        float64[:, :],
-        float64[:, :],
-        float64[:, :, :],
+        float64[:, :],  # pos
+        float64[:],  # charges
+        float64[:],  # masses
+        int64[:],  # mesh_sizes
+        float64[:],  # mesh_spacings
+        float64,  # mesh_volume
+        float64,  # box_volume
+        float64[:, :, :],  # G_k
+        float64[:, :],  # kx_v
+        float64[:, :],  # ky_v
+        float64[:, :, :],  # kz_v
         int64[:],
     ),
     nopython=False,
@@ -688,12 +731,6 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
 
     Parameters
     ----------
-    box_lengths: numpy.ndarray
-        Box length in each direction.
-
-    mesh_sizes: numpy.ndarray
-        Mesh points per direction.
-
     pos: numpy.ndarray
         Particles' positions.
 
@@ -702,6 +739,18 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
 
     masses: numpy.ndarray
         Particles' masses.
+
+    mesh_sizes: numpy.ndarray
+        Mesh points per direction.
+
+    mesh_spacings: numpy.ndarray
+        Width of the mesh cells.
+
+    mesh_volume: float
+        Non-zero volume of the mesh.
+
+    box_volume: float
+        Non-zero box volume (area in 2D).
 
     G_k : numpy.ndarray
         Optimized Green's function.
@@ -715,7 +764,7 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     kz_v : numpy.ndarray
         Array of kz values.
 
-    cao : int
+    cao : numpy.ndarray
         Charge order parameter.
 
     Returns
@@ -730,8 +779,12 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
 
     # Mesh spacings = h_x, h_y, h_z
     # mesh_spacings = box_lengths / mesh_sizes
+    # Calculate the necessary shifts
+    mid, pshift = mesh_point_shift(cao)
+    # Calculate particles' position relative to the mesh points
+    mesh_pos, mesh_points = calc_mesh_coord(pos, mesh_spacings, cao)
     # Calculate charge density on mesh
-    rho_r = calc_charge_dens(pos, charges, cao, mesh_sizes, mesh_spacings)
+    rho_r = calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sizes, mid, pshift)
     # Prepare for fft
     fftw_n = fftn(rho_r)
     # Calculate fft
@@ -744,8 +797,8 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     phi_k = G_k * rho_k
 
     # Charge density
-    rho_k_real = real(rho_k)
-    rho_k_imag = imag(rho_k)
+    rho_k_real = rho_k.real
+    rho_k_imag = rho_k.imag
     rho_k_sq = rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
 
     # Long range part of the potential
@@ -768,10 +821,10 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     E_z = ifftw_n()
 
     # I am worried that this normalization is not needed
-    E_x_r = real(E_x) / mesh_volume
-    E_y_r = real(E_y) / mesh_volume
-    E_z_r = real(E_z) / mesh_volume
+    E_x_r = E_x.real / mesh_volume
+    E_y_r = E_y.real / mesh_volume
+    E_z_r = E_z.real / mesh_volume
 
-    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, pos, charges, cao, masses, mesh_sizes, mesh_spacings)
+    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, charges, masses, cao, mesh_sizes, mid, pshift)
 
     return U_f, acc_f

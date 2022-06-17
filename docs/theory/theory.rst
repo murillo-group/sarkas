@@ -3,7 +3,7 @@
    :format-detection: telephone=no
    :robots: index, follow
    :description: Theoretical background in Molecular Dynamics and Plasma Physics.
-   :keywords: sarkas, plasma physics, plasma, physics, python, md, molecular dynamics, coupling, electron, integrators, potentials, thermostats, pppm, particle mesh algorithm, 
+   :keywords: sarkas, plasma physics, plasma, physics, python, md, molecular dynamics, coupling, electron, integrators, potentials, thermostats, pppm, particle mesh algorithm,
    :author: Stefano Silvestri, Ph.D.
    :designer: Stefano Silvestri, Ph.D.
 
@@ -18,11 +18,8 @@ Theoretical Background
 .. toctree::
       :maxdepth: 1
 
-      coupling_constant
-      electron_properties
-      integrators
-      potentials
-      Berendsen_NB/Berendsen_Thermostat
       PPPM
       force_error
+      coupling_constant
+      electron_properties
       references

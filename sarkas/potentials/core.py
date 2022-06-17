@@ -2,6 +2,7 @@
 Module handling the potential class.
 """
 from copy import deepcopy
+from fmm3dpy import hfmm3d, lfmm3d
 from numpy import array, ndarray, pi, sqrt, tanh
 from warnings import warn
 
@@ -274,6 +275,8 @@ class Potential:
             self.screening_length = species[-1].ThomasFermi_wavelength
         elif self.screening_length_type in ["debye", "debye-huckel", "dh"]:
             self.screening_length = species[-1].debye_length
+        elif self.screening_length_type in ["kappa", "from_kappa"]:
+            self.screening_length = self.a_ws / self.kappa
         elif self.screening_length_type in ["custom"]:
             if self.screening_length is None:
                 raise AttributeError("potential.screening_length not defined!")
@@ -343,15 +346,16 @@ class Potential:
 
         print("\nALGORITHM: ", self.method)
         # PP section
-        print(f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        pp_cells = (self.box_lengths / self.rc).astype(int)
-        print(f"No. of PP cells per dimension = {pp_cells}")
-        ptcls_in_loop = int(self.total_num_density * (self.dimensions * self.rc) ** self.dimensions)
-        print(f"No. of particles in PP loop = {ptcls_in_loop}")
-        dim_const = (self.dimensions + 1) / 3.0 * pi
-        pp_neighbors = int(self.total_num_density * dim_const * self.rc**self.dimensions)
-        print(f"No. of PP neighbors per particle = {pp_neighbors}")
+        if self.method != "fmm":
+            print(f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} ", end="")
+            print("[cm]" if self.units == "cgs" else "[m]")
+            pp_cells = (self.box_lengths / self.rc).astype(int)
+            print(f"No. of PP cells per dimension = {pp_cells}")
+            ptcls_in_loop = int(self.total_num_density * (self.dimensions * self.rc) ** self.dimensions)
+            print(f"No. of particles in PP loop = {ptcls_in_loop}")
+            dim_const = (self.dimensions + 1) / 3.0 * pi
+            pp_neighbors = int(self.total_num_density * dim_const * self.rc**self.dimensions)
+            print(f"No. of PP neighbors per particle = {pp_neighbors}")
 
         if self.method == "pppm":
             # PM Section
@@ -419,6 +423,13 @@ class Potential:
             if self.method == "pppm":
                 self.pppm_on = True
                 self.pppm_setup()
+        else:
+            self.linked_list_on = False
+            self.pppm_on = False
+            if self.type == "coulomb":
+                self.force_error = self.fmm_precision
+            else:
+                self.force_error = self.fmm_precision
 
     def pppm_setup(self):
         """Calculate the pppm parameters."""
@@ -665,26 +676,43 @@ class Potential:
         self.update_linked_list(ptcls)
         self.update_pm(ptcls)
 
-    # def update_fmm(ptcls, params):
-    #     """
-    #
-    #     Parameters
-    #     ----------
-    #     ptcls
-    #     params
-    #
-    #     Returns
-    #     -------
-    #
-    #     """
-    #
-    #     if params.potential.type == 'coulomb':
-    #         out_fmm = fmm.lfmm3d(eps=1.0e-07, sources=ptcls.pos.transpose(), charges=ptcls.charges, pg=2)
-    #     elif params.potential.type == 'yukawa':
-    #         out_fmm = fmm.hfmm3d(eps=1.0e-05, zk=1j / params.electron_TF_wavelength, sources=ptcls.pos.transpose(),
-    #                          charges=ptcls.charges, pg=2)
-    #
-    #     potential_energy = ptcls.charges @ out_fmm.pot.real * 4.0 * pi / params.fourpie0
-    #     ptcls.acc = - (ptcls.charges * out_fmm.grad.real / ptcls.mass).transpose() / params.fourpie0
-    #
-    #     return potential_energy
+    def update_fmm_coulomb(self, ptcls):
+        """Calculate particles' potential and accelerations using FMM method.
+
+        Parameters
+        ----------
+        ptcls : sarkas.core.Particles
+            Particles' data
+
+        """
+
+        out_fmm = lfmm3d(eps=self.fmm_precision, sources=ptcls.pos.transpose(), charges=ptcls.charges, pg=2)
+
+        potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
+        acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
+        ptcls.acc = acc.transpose()
+
+        return potential_energy
+
+    def update_fmm_yukawa(self, ptcls):
+        """Calculate particles' potential and accelerations using FMM method.
+
+        Parameters
+        ----------
+        ptcls : sarkas.core.Particles
+            Particles' data
+
+        """
+        out_fmm = hfmm3d(
+            eps=self.fmm_precision,
+            zk=1j / self.screening_length,
+            sources=ptcls.pos.transpose(),
+            charges=ptcls.charges,
+            pg=2,
+        )
+
+        potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
+        acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
+        ptcls.acc = acc.transpose()
+
+        return potential_energy

@@ -357,7 +357,10 @@ class InputOutput:
 
                 print("\nPARTICLES:")
                 print("Total No. of particles = ", simulation.parameters.total_num_ptcls)
-                print("No. of species = ", len(simulation.species))
+                for isp, sp in enumerate(simulation.species):
+                    if sp.name == "electron_background":
+                        sp_index = isp
+                print("No. of species = ", len(simulation.species[:isp]))
                 for isp, sp in enumerate(simulation.species):
                     if sp.name != "electron_background":
                         print("Species ID: {}".format(isp))
@@ -367,14 +370,8 @@ class InputOutput:
                 simulation.parameters.pretty_print()
                 # Potential Info
                 simulation.potential.pretty_print()
-                # Thermostat
-                simulation.thermostat.pretty_print()
                 # Integrator
-                simulation.integrator.pretty_print(
-                    simulation.potential.type,
-                    simulation.parameters.load_method,
-                    simulation.parameters.restart_step,
-                )
+                simulation.integrator.pretty_print()
 
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
@@ -402,7 +399,7 @@ class InputOutput:
 
         while repeat > 0:
             if "Potential Initialization" in time_stamp:
-                print("\n\n{:-^70} \n".format(" Initialization Times "))
+                print("\n\n{:-^70} \n".format("Initialization Times"))
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
             else:
@@ -542,45 +539,15 @@ class InputOutput:
                     )
                 )
 
-            elif str_id == "PP":
-                print(
-                    "Time of PP acceleration calculation averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
+            elif str_id in ["PP", "PM", "FMM"]:
+                print(f"Time of {str_id} acceleration calculation averaged over {loops - 1} steps:")
+                print(f"{int(t_min)} min {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec \n")
 
-            elif str_id == "PM":
-                print(
-                    "Time of PM acceleration calculation averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-
-            elif str_id == "Equilibration":
-                print(
-                    "Time of a single equilibration step averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-            elif str_id == "Magnetization":
-                print(
-                    "Time of a single magnetization step averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-            elif str_id == "Production":
-                print(
-                    "Time of a single production step averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-
-                print("\n\n{:-^70} \n".format(" Total Estimated Times "))
+            elif str_id in ["Equilibration", "Magnetization", "Production"]:
+                print(f"Time of a single {str_id} step averaged over {loops - 1} steps:")
+                print(f"{int(t_min)} min {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec \n")
+                if str_id == "Production":
+                    print("\n\n{:-^70} \n".format(" Total Estimated Times "))
             repeat -= 1
             sys.stdout = screen
 
@@ -689,171 +656,11 @@ class InputOutput:
 
         """
         warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release.\n"
-            "Use integrator.pretty_print(potential.type, parameters.load_method, parameters.restart_step)",
+            "Deprecated feature. It will be removed in the v2.0.0 release.\n" "Use Integrator.pretty_print()",
             category=DeprecationWarning,
         )
 
-        simulation.integrator.pretty_print(
-            simulation.potential.type,
-            simulation.parameters.load_method,
-            simulation.parameters.restart_step,
-        )
-        # simulation.potential.method_pretty_print()
-        # wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
-        # print("Time step = {:.6e} [s]".format(simulation.integrator.dt))
-        # if simulation.potential.type in ["Yukawa", "EGS", "Coulomb", "Moliere"]:
-        #     print("Total plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency))
-        #     print("w_p dt = {:2.4f}".format(wp_dt))
-        #     if simulation.parameters.magnetized:
-        #         if simulation.parameters.num_species > 1:
-        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-        #             print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
-        #             print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
-        #         else:
-        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-        #             print("w_c dt = {:2.4f}".format(high_wc_dt))
-        # elif simulation.potential.type == "QSP":
-        #     print("e plasma frequency = {:.6e} [rad/s]".format(simulation.species[0].plasma_frequency))
-        #     print("ion plasma frequency = {:.6e} [rad/s]".format(simulation.species[1].plasma_frequency))
-        #     print("w_pe dt = {:2.4f}".format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
-        #     if simulation.parameters.magnetized:
-        #         if simulation.parameters.num_species > 1:
-        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-        #             print("Electron w_ce dt = {:2.4f}".format(high_wc_dt))
-        #             print("Ions w_ci dt = {:2.4f}".format(low_wc_dt))
-        #         else:
-        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-        #             print("w_c dt = {:2.4f}".format(high_wc_dt))
-        # elif simulation.potential.type == "LJ":
-        #     print(
-        #         "Total equivalent plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency)
-        #     )
-        #     print("w_p dt = {:2.4f}".format(wp_dt))
-        #     if simulation.parameters.magnetized:
-        #         if simulation.parameters.num_species > 1:
-        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-        #             low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-        #             print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
-        #             print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
-        #         else:
-        #             high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-        #             print("w_c dt = {:2.4f}".format(high_wc_dt))
-        #
-        # # Print Time steps information
-        # # Check for restart simulations
-        # if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
-        #     print("Restart step: {}".format(simulation.parameters.restart_step))
-        #     print(
-        #         "Total production steps = {} \n"
-        #         "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
-        #             simulation.integrator.production_steps,
-        #             simulation.integrator.production_steps * simulation.integrator.dt,
-        #             int(simulation.integrator.production_steps * wp_dt),
-        #         )
-        #     )
-        #     print(
-        #         "snapshot interval step = {} \n"
-        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-        #             simulation.integrator.prod_dump_step,
-        #             simulation.integrator.prod_dump_step * simulation.integrator.dt,
-        #             simulation.integrator.prod_dump_step * wp_dt,
-        #         )
-        #     )
-        #
-        # elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
-        #     print("Restart step: {}".format(simulation.parameters.restart_step))
-        #     print(
-        #         "Total equilibration steps = {} \n"
-        #         "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq".format(
-        #             simulation.integrator.equilibration_steps,
-        #             simulation.integrator.equilibration_steps * simulation.integrator.dt,
-        #             int(simulation.integrator.eq_dump_step * wp_dt),
-        #         )
-        #     )
-        #     print(
-        #         "snapshot interval step = {} \n"
-        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-        #             simulation.integrator.eq_dump_step,
-        #             simulation.integrator.eq_dump_step * simulation.integrator.dt,
-        #             simulation.integrator.eq_dump_step * wp_dt,
-        #         )
-        #     )
-        #
-        # elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
-        #     print("Restart step: {}".format(simulation.parameters.restart_step))
-        #     print(
-        #         "Total magnetization steps = {} \n"
-        #         "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag".format(
-        #             simulation.integrator.magnetization_steps,
-        #             simulation.integrator.magnetization_steps * simulation.integrator.dt,
-        #             int(simulation.integrator.mag_dump_step * wp_dt),
-        #         )
-        #     )
-        #     print(
-        #         "snapshot interval step = {} \n"
-        #         "snapshot interval time = {:.4e} [s] ~ {:1.4f} w_p T_snap".format(
-        #             simulation.integrator.mag_dump_step,
-        #             simulation.integrator.mag_dump_step * simulation.integrator.dt,
-        #             simulation.integrator.mag_dump_step * wp_dt,
-        #         )
-        #     )
-        # else:
-        #     # Equilibration
-        #     print(
-        #         "\nEquilibration: \nNo. of equilibration steps = {} \n"
-        #         "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq ".format(
-        #             simulation.integrator.equilibration_steps,
-        #             simulation.integrator.equilibration_steps * simulation.integrator.dt,
-        #             int(simulation.integrator.equilibration_steps * wp_dt),
-        #         )
-        #     )
-        #     print(
-        #         "snapshot interval step = {} \n"
-        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-        #             simulation.integrator.eq_dump_step,
-        #             simulation.integrator.eq_dump_step * simulation.integrator.dt,
-        #             simulation.integrator.eq_dump_step * wp_dt,
-        #         )
-        #     )
-        #     # Magnetization
-        #     if simulation.integrator.electrostatic_equilibration:
-        #         print(
-        #             "\nMagnetization: \nNo. of magnetization steps = {} \n"
-        #             "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag ".format(
-        #                 simulation.integrator.magnetization_steps,
-        #                 simulation.integrator.magnetization_stepss * simulation.integrator.dt,
-        #                 int(simulation.integrator.magnetization_steps * wp_dt),
-        #             )
-        #         )
-        #
-        #         print(
-        #             "snapshot interval step = {} \n"
-        #             "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-        #                 simulation.integrator.mag_dump_step,
-        #                 simulation.integrator.mag_dump_step * simulation.integrator.dt,
-        #                 simulation.integrator.mag_dump_step * wp_dt,
-        #             )
-        #         )
-        #     # Production
-        #     print(
-        #         "\nProduction: \nNo. of production steps = {} \n"
-        #         "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
-        #             simulation.integrator.production_steps,
-        #             simulation.integrator.production_steps * simulation.integrator.dt,
-        #             int(simulation.integrator.production_steps * wp_dt),
-        #         )
-        #     )
-        #     print(
-        #         "snapshot interval step = {} \n"
-        #         "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-        #             simulation.integrator.prod_dump_step,
-        #             simulation.integrator.prod_dump_step * simulation.integrator.dt,
-        #             simulation.integrator.prod_dump_step * wp_dt,
-        #         )
-        #     )
+        simulation.integrator.pretty_print()
 
     @staticmethod
     def algorithm_info(simulation):
@@ -974,7 +781,7 @@ class InputOutput:
         simulation : :class:`sarkas.processes.Process`
             Process class containing MD run info to save.
         """
-        file_list = ["parameters", "integrator", "thermostat", "potential", "species"]
+        file_list = ["parameters", "integrator", "potential", "species"]
 
         # Redirect to the correct process folder
         if self.process == "preprocessing":
@@ -1000,7 +807,7 @@ class InputOutput:
             Process class containing MD run info to save.
 
         """
-        file_list = ["parameters", "integrator", "thermostat", "potential"]
+        file_list = ["parameters", "integrator", "potential"]
 
         # Redirect to the correct process folder
         if self.process == "preprocessing":
@@ -1048,7 +855,7 @@ class InputOutput:
             indx = 1
 
         filename = join(self.processes_dir[indx], class_to_read + ".pickle")
-        with open(filename, "wb") as pickle_file:
+        with open(filename, "rb") as pickle_file:
             data = pickle.load(pickle_file)
             _copy = deepcopy(data)
         return _copy
@@ -1197,7 +1004,7 @@ class InputOutput:
         f_xyz.close()
 
     @staticmethod
-    def read_npz(fldr: str, it: int):
+    def read_npz(fldr: str, filename: str):
         """
         Load particles' data from dumps.
 
@@ -1206,8 +1013,8 @@ class InputOutput:
         fldr : str
             Folder containing dumps.
 
-        it : str
-            Timestep to load.
+        filename: str
+            Name of the dump file to load.
 
         Returns
         -------
@@ -1216,7 +1023,7 @@ class InputOutput:
 
         """
 
-        file_name = join(fldr, it)
+        file_name = join(fldr, filename)
         data = np_load(file_name, allow_pickle=True)
         # Dev Notes: the old way of saving the xyz file by
         # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
@@ -1276,13 +1083,6 @@ def num_sort(text):
     """
     Sort strings with numbers inside.
 
-    Notes
-    -----
-    Method copied from
-    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside.
-    Originally from http://nedbatchelder.com/blog/200712/human_sorting.html
-    (See Toothy's implementation in the comments)
-
     Parameters
     ----------
     text : str
@@ -1293,13 +1093,20 @@ def num_sort(text):
      : list
         List containing text and integers
 
+    Notes
+    -----
+    Function copied from
+    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside.
+    Originally from http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+
     """
 
     return [alpha_to_int(c) for c in re.split(r"(\d+)", text)]
 
 
 def convert_bytes(tot_bytes):
-    """Convert bytes to human readable GB, MB, KB.
+    """Convert bytes to human-readable GB, MB, KB.
 
     Parameters
     ----------
