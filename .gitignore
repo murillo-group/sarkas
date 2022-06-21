@@ -88,6 +88,11 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/api/core_pckg
+docs/api/potentials_subpckg
+docs/api/time_evolution_subpckg
+docs/api/tools_subpckg
+docs/api/util_subpckg
 
 # PyBuilder
 target/

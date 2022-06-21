@@ -2,14 +2,20 @@
 Module handling the I/O for an MD run.
 """
 import csv
-import numpy as np
-import os
 import pickle
 import re
 import sys
 import yaml
+from copy import copy, deepcopy
 from IPython import get_ipython
+from numpy import float64
+from numpy import load as np_load
+from numpy import savetxt, savez, zeros
+from numpy.random import randint
+from os import listdir, mkdir
+from os.path import basename, exists, join
 from pyfiglet import Figlet, print_figlet
+from warnings import warn
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
@@ -39,7 +45,8 @@ DARK_COLORS = ["24;69;49", "0;129;131", "83;80;84", "110;0;95"]
 
 
 class InputOutput:
-    """Class handling the input and output functions of the MD run
+    """
+    Class handling the input and output functions of the MD run.
 
     Parameters
     ----------
@@ -82,6 +89,14 @@ class InputOutput:
             disp += "\t{} : {}\n".format(key, value)
         disp += ")"
         return disp
+
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.__dict__.update(self.__dict__)
+        return _copy
 
     def from_dict(self, input_dict: dict):
         """
@@ -158,21 +173,21 @@ class InputOutput:
         return dics
 
     def create_file_paths(self):
-        """Create all directories', subdirectories', and files' paths ."""
+        """Create all directories', subdirectories', and files' paths."""
 
         if self.job_dir is None:
-            self.job_dir = os.path.basename(self.input_file).split(".")[0]
+            self.job_dir = basename(self.input_file).split(".")[0]
 
         if self.job_id is None:
             self.job_id = self.job_dir
 
-        self.job_dir = os.path.join(self.simulations_dir, self.job_dir)
+        self.job_dir = join(self.simulations_dir, self.job_dir)
 
         # Create Processes directories
         self.processes_dir = [
-            os.path.join(self.job_dir, self.preprocessing_dir),
-            os.path.join(self.job_dir, self.simulation_dir),
-            os.path.join(self.job_dir, self.postprocessing_dir),
+            join(self.job_dir, self.preprocessing_dir),
+            join(self.job_dir, self.simulation_dir),
+            join(self.job_dir, self.postprocessing_dir),
         ]
 
         # Redundancy
@@ -189,77 +204,77 @@ class InputOutput:
             indx = 1
 
         # Equilibration directory and sub_dir
-        self.equilibration_dir = os.path.join(self.processes_dir[indx], self.equilibration_dir)
-        self.eq_dump_dir = os.path.join(self.equilibration_dir, "dumps")
+        self.equilibration_dir = join(self.processes_dir[indx], self.equilibration_dir)
+        self.eq_dump_dir = join(self.equilibration_dir, "dumps")
         # Production dir and sub_dir
-        self.production_dir = os.path.join(self.processes_dir[indx], self.production_dir)
-        self.prod_dump_dir = os.path.join(self.production_dir, "dumps")
+        self.production_dir = join(self.processes_dir[indx], self.production_dir)
+        self.prod_dump_dir = join(self.production_dir, "dumps")
 
         # Production phase filenames
-        self.prod_energy_filename = os.path.join(self.production_dir, "ProductionEnergy_" + self.job_id + ".csv")
-        self.prod_ptcls_filename = os.path.join(self.prod_dump_dir, "checkpoint_")
+        self.prod_energy_filename = join(self.production_dir, "ProductionEnergy_" + self.job_id + ".csv")
+        self.prod_ptcls_filename = join(self.prod_dump_dir, "checkpoint_")
 
         # Equilibration phase filenames
-        self.eq_energy_filename = os.path.join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + ".csv")
-        self.eq_ptcls_filename = os.path.join(self.eq_dump_dir, "checkpoint_")
+        self.eq_energy_filename = join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + ".csv")
+        self.eq_ptcls_filename = join(self.eq_dump_dir, "checkpoint_")
 
         # Magnetic dir
         if self.electrostatic_equilibration:
-            self.magnetization_dir = os.path.join(self.processes_dir[indx], self.magnetization_dir)
-            self.mag_dump_dir = os.path.join(self.magnetization_dir, "dumps")
+            self.magnetization_dir = join(self.processes_dir[indx], self.magnetization_dir)
+            self.mag_dump_dir = join(self.magnetization_dir, "dumps")
             # Magnetization phase filenames
-            self.mag_energy_filename = os.path.join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + ".csv")
-            self.mag_ptcls_filename = os.path.join(self.mag_dump_dir, "checkpoint_")
+            self.mag_energy_filename = join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + ".csv")
+            self.mag_ptcls_filename = join(self.mag_dump_dir, "checkpoint_")
 
         if self.process == "postprocessing":
             indx = 2  # Redirect to the correct folder
 
         # Log File
         if self.log_file is None:
-            self.log_file = os.path.join(self.processes_dir[indx], "log_" + self.job_id + ".out")
+            self.log_file = join(self.processes_dir[indx], "log_" + self.job_id + ".out")
         else:
-            self.log_file = os.path.join(self.processes_dir[indx], self.log_file)
+            self.log_file = join(self.processes_dir[indx], self.log_file)
 
     def make_directories(self):
         """Create directories where to store MD results."""
 
         # Check if the directories exist
-        if not os.path.exists(self.simulations_dir):
-            os.mkdir(self.simulations_dir)
+        if not exists(self.simulations_dir):
+            mkdir(self.simulations_dir)
 
-        if not os.path.exists(self.job_dir):
-            os.mkdir(self.job_dir)
+        if not exists(self.job_dir):
+            mkdir(self.job_dir)
 
         # Create Process' directories and their subdir
         for i in self.processes_dir:
-            if not os.path.exists(i):
-                os.mkdir(i)
+            if not exists(i):
+                mkdir(i)
         # The following automatically create directories in the correct Process
-        if not os.path.exists(self.equilibration_dir):
-            os.mkdir(self.equilibration_dir)
+        if not exists(self.equilibration_dir):
+            mkdir(self.equilibration_dir)
 
-        if not os.path.exists(self.eq_dump_dir):
-            os.mkdir(self.eq_dump_dir)
+        if not exists(self.eq_dump_dir):
+            mkdir(self.eq_dump_dir)
 
-        if not os.path.exists(self.production_dir):
-            os.mkdir(self.production_dir)
+        if not exists(self.production_dir):
+            mkdir(self.production_dir)
 
-        if not os.path.exists(self.prod_dump_dir):
-            os.mkdir(self.prod_dump_dir)
+        if not exists(self.prod_dump_dir):
+            mkdir(self.prod_dump_dir)
 
         if self.electrostatic_equilibration:
-            if not os.path.exists(self.magnetization_dir):
-                os.mkdir(self.magnetization_dir)
+            if not exists(self.magnetization_dir):
+                mkdir(self.magnetization_dir)
 
-            if not os.path.exists(self.mag_dump_dir):
-                os.mkdir(self.mag_dump_dir)
+            if not exists(self.mag_dump_dir):
+                mkdir(self.mag_dump_dir)
 
         if self.preprocessing:
-            if not os.path.exists(self.preprocessing_dir):
-                os.mkdir(self.preprocessing_dir)
+            if not exists(self.preprocessing_dir):
+                mkdir(self.preprocessing_dir)
 
-        if not os.path.exists(self.postprocessing_dir):
-            os.mkdir(self.postprocessing_dir)
+        if not exists(self.postprocessing_dir):
+            mkdir(self.postprocessing_dir)
 
     def file_header(self):
         """Create the log file and print the figlet if not a restart run."""
@@ -313,15 +328,15 @@ class InputOutput:
                 print(process_title)
                 print(*["*" for i in range(50)])
 
-                print("\nJob ID: ", self.job_id)
-                print("Job directory: ", self.job_dir)
-                print("PostProcessing directory: \n", self.postprocessing_dir)
+                print(f"\nJob ID: {self.job_id}")
+                print(f"Job directory: {self.job_dir}")
+                print(f"PostProcessing directory: \n{self.postprocessing_dir}")
 
-                print("\nEquilibration dumps directory: ", self.eq_dump_dir)
-                print("Production dumps directory: \n", self.prod_dump_dir)
+                print(f"\nEquilibration dumps directory: {self.eq_dump_dir}")
+                print(f"Production dumps directory: \n{self.prod_dump_dir}")
 
-                print("\nEquilibration Thermodynamics file: \n", self.eq_energy_filename)
-                print("Production Thermodynamics file: \n", self.prod_energy_filename)
+                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
+                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
 
             else:
 
@@ -332,41 +347,31 @@ class InputOutput:
                 print(process_title)
                 print(*["*" for i in range(50)])
 
-                print("\nJob ID: ", self.job_id)
-                print("Job directory: ", self.job_dir)
-                print("\nEquilibration dumps directory: \n", self.eq_dump_dir)
-                print("Production dumps directory: \n", self.prod_dump_dir)
+                print(f"\nJob ID: {self.job_id}")
+                print(f"Job directory: {self.job_dir}")
+                print(f"\nEquilibration dumps directory: \n", {self.eq_dump_dir})
+                print(f"Production dumps directory: \n", {self.prod_dump_dir})
 
-                print("\nEquilibration Thermodynamics file: \n", self.eq_energy_filename)
-                print("Production Thermodynamics file: \n", self.prod_energy_filename)
-
-                if hasattr(simulation.parameters, "rand_seed"):
-                    print("Random Seed = ", simulation.parameters.rand_seed)
+                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
+                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
 
                 print("\nPARTICLES:")
                 print("Total No. of particles = ", simulation.parameters.total_num_ptcls)
-                print("No. of species = ", len(simulation.species))
                 for isp, sp in enumerate(simulation.species):
-                    print("Species ID: {}".format(isp))
+                    if sp.name == "electron_background":
+                        sp_index = isp
+                print("No. of species = ", len(simulation.species[:isp]))
+                for isp, sp in enumerate(simulation.species):
+                    if sp.name != "electron_background":
+                        print("Species ID: {}".format(isp))
                     sp.pretty_print(simulation.potential.type, simulation.parameters.units)
 
+                # Parameters Info
                 simulation.parameters.pretty_print()
-
-                print("\nPOTENTIAL: ", simulation.potential.type)
-                self.potential_info(simulation)
-
-                print("\nALGORITHM: ", simulation.potential.method)
-                self.algorithm_info(simulation)
-
-                print("\nTHERMOSTAT: ")
-                simulation.thermostat.pretty_print()
-
-                print("\nINTEGRATOR: ")
-                simulation.integrator.pretty_print(
-                    simulation.potential.type,
-                    simulation.parameters.load_method,
-                    simulation.parameters.restart_step,
-                )
+                # Potential Info
+                simulation.potential.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             repeat -= 1
             sys.stdout = screen  # Restore the original sys.stdout
@@ -394,15 +399,11 @@ class InputOutput:
 
         while repeat > 0:
             if "Potential Initialization" in time_stamp:
-                print("\n\n{:-^70} \n".format(" Initialization Times "))
+                print("\n\n{:-^70} \n".format("Initialization Times"))
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-                print(
-                    "\n{} Time: {} sec {} msec {} usec {} nsec".format(
-                        time_stamp, int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
+                print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
             else:
-                print("\n{} Time: {} hrs {} min {} sec".format(time_stamp, int(t_hrs), int(t_min), int(t_sec)))
+                print(f"\n{time_stamp} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
 
             repeat -= 1
             sys.stdout = screen
@@ -538,45 +539,15 @@ class InputOutput:
                     )
                 )
 
-            elif str_id == "PP":
-                print(
-                    "Time of PP acceleration calculation averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
+            elif str_id in ["PP", "PM", "FMM"]:
+                print(f"Time of {str_id} acceleration calculation averaged over {loops - 1} steps:")
+                print(f"{int(t_min)} min {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec \n")
 
-            elif str_id == "PM":
-                print(
-                    "Time of PM acceleration calculation averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-
-            elif str_id == "Equilibration":
-                print(
-                    "Time of a single equilibration step averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-            elif str_id == "Magnetization":
-                print(
-                    "Time of a single magnetization step averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-            elif str_id == "Production":
-                print(
-                    "Time of a single production step averaged over {} steps: \n"
-                    "{} min {} sec {} msec {} usec {} nsec \n".format(
-                        loops - 1, int(t_min), int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-                    )
-                )
-
-                print("\n\n{:-^70} \n".format(" Total Estimated Times "))
+            elif str_id in ["Equilibration", "Magnetization", "Production"]:
+                print(f"Time of a single {str_id} step averaged over {loops - 1} steps:")
+                print(f"{int(t_min)} min {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec \n")
+                if str_id == "Production":
+                    print("\n\n{:-^70} \n".format(" Total Estimated Times "))
             repeat -= 1
             sys.stdout = screen
 
@@ -664,11 +635,11 @@ class InputOutput:
         """
         if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
             # Assume white background in Jupyter Notebook
-            clr = DARK_COLORS[np.random.randint(0, len(DARK_COLORS))]
+            clr = DARK_COLORS[randint(0, len(DARK_COLORS))]
         else:
             # Assume dark background in IPython/Python Kernel
-            clr = LIGHT_COLORS[np.random.randint(0, len(LIGHT_COLORS))]
-        fnt = FONTS[np.random.randint(0, len(FONTS))]
+            clr = LIGHT_COLORS[randint(0, len(LIGHT_COLORS))]
+        fnt = FONTS[randint(0, len(FONTS))]
         print_figlet("\nSarkas\n", font=fnt, colors=clr)
 
         print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.\n\n")
@@ -684,160 +655,12 @@ class InputOutput:
             Process class containing the timing info and other parameters.
 
         """
-        wp_dt = simulation.parameters.total_plasma_frequency * simulation.integrator.dt
-        print("Time step = {:.6e} [s]".format(simulation.integrator.dt))
-        if simulation.potential.type in ["Yukawa", "EGS", "Coulomb", "Moliere"]:
-            print("Total plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency))
-            print("w_p dt = {:2.4f}".format(wp_dt))
-            if simulation.parameters.magnetized:
-                if simulation.parameters.num_species > 1:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-                    print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
-                    print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
-                else:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    print("w_c dt = {:2.4f}".format(high_wc_dt))
-        elif simulation.potential.type == "QSP":
-            print("e plasma frequency = {:.6e} [rad/s]".format(simulation.species[0].plasma_frequency))
-            print("ion plasma frequency = {:.6e} [rad/s]".format(simulation.species[1].plasma_frequency))
-            print("w_pe dt = {:2.4f}".format(simulation.integrator.dt * simulation.species[0].plasma_frequency))
-            if simulation.parameters.magnetized:
-                if simulation.parameters.num_species > 1:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-                    print("Electron w_ce dt = {:2.4f}".format(high_wc_dt))
-                    print("Ions w_ci dt = {:2.4f}".format(low_wc_dt))
-                else:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    print("w_c dt = {:2.4f}".format(high_wc_dt))
-        elif simulation.potential.type == "LJ":
-            print(
-                "Total equivalent plasma frequency = {:1.6e} [rad/s]".format(simulation.parameters.total_plasma_frequency)
-            )
-            print("w_p dt = {:2.4f}".format(wp_dt))
-            if simulation.parameters.magnetized:
-                if simulation.parameters.num_species > 1:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    low_wc_dt = simulation.parameters.species_cyclotron_frequencies.min() * simulation.integrator.dt
-                    print("Highest w_c dt = {:2.4f}".format(high_wc_dt))
-                    print("Smalles w_c dt = {:2.4f}".format(low_wc_dt))
-                else:
-                    high_wc_dt = simulation.parameters.species_cyclotron_frequencies.max() * simulation.integrator.dt
-                    print("w_c dt = {:2.4f}".format(high_wc_dt))
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release.\n" "Use Integrator.pretty_print()",
+            category=DeprecationWarning,
+        )
 
-        # Print Time steps information
-        # Check for restart simulations
-        if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
-            print("Restart step: {}".format(simulation.parameters.restart_step))
-            print(
-                "Total production steps = {} \n"
-                "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
-                    simulation.integrator.production_steps,
-                    simulation.integrator.production_steps * simulation.integrator.dt,
-                    int(simulation.integrator.production_steps * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.prod_dump_step,
-                    simulation.integrator.prod_dump_step * simulation.integrator.dt,
-                    simulation.integrator.prod_dump_step * wp_dt,
-                )
-            )
-
-        elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
-            print("Restart step: {}".format(simulation.parameters.restart_step))
-            print(
-                "Total equilibration steps = {} \n"
-                "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq".format(
-                    simulation.integrator.equilibration_steps,
-                    simulation.integrator.equilibration_steps * simulation.integrator.dt,
-                    int(simulation.integrator.eq_dump_step * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.eq_dump_step,
-                    simulation.integrator.eq_dump_step * simulation.integrator.dt,
-                    simulation.integrator.eq_dump_step * wp_dt,
-                )
-            )
-
-        elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
-            print("Restart step: {}".format(simulation.parameters.restart_step))
-            print(
-                "Total magnetization steps = {} \n"
-                "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag".format(
-                    simulation.integrator.magnetization_steps,
-                    simulation.integrator.magnetization_steps * simulation.integrator.dt,
-                    int(simulation.integrator.mag_dump_step * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] ~ {:1.4f} w_p T_snap".format(
-                    simulation.integrator.mag_dump_step,
-                    simulation.integrator.mag_dump_step * simulation.integrator.dt,
-                    simulation.integrator.mag_dump_step * wp_dt,
-                )
-            )
-        else:
-            # Equilibration
-            print(
-                "\nEquilibration: \nNo. of equilibration steps = {} \n"
-                "Total equilibration time = {:.4e} [s] ~ {} w_p T_eq ".format(
-                    simulation.integrator.equilibration_steps,
-                    simulation.integrator.equilibration_steps * simulation.integrator.dt,
-                    int(simulation.integrator.equilibration_steps * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.eq_dump_step,
-                    simulation.integrator.eq_dump_step * simulation.integrator.dt,
-                    simulation.integrator.eq_dump_step * wp_dt,
-                )
-            )
-            # Magnetization
-            if simulation.integrator.electrostatic_equilibration:
-                print(
-                    "\nMagnetization: \nNo. of magnetization steps = {} \n"
-                    "Total magnetization time = {:.4e} [s] ~ {} w_p T_mag ".format(
-                        simulation.integrator.magnetization_steps,
-                        simulation.integrator.magnetization_stepss * simulation.integrator.dt,
-                        int(simulation.integrator.magnetization_steps * wp_dt),
-                    )
-                )
-
-                print(
-                    "snapshot interval step = {} \n"
-                    "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                        simulation.integrator.mag_dump_step,
-                        simulation.integrator.mag_dump_step * simulation.integrator.dt,
-                        simulation.integrator.mag_dump_step * wp_dt,
-                    )
-                )
-            # Production
-            print(
-                "\nProduction: \nNo. of production steps = {} \n"
-                "Total production time = {:.4e} [s] ~ {} w_p T_prod ".format(
-                    simulation.integrator.production_steps,
-                    simulation.integrator.production_steps * simulation.integrator.dt,
-                    int(simulation.integrator.production_steps * wp_dt),
-                )
-            )
-            print(
-                "snapshot interval step = {} \n"
-                "snapshot interval time = {:.4e} [s] = {:.4f} w_p T_snap".format(
-                    simulation.integrator.prod_dump_step,
-                    simulation.integrator.prod_dump_step * simulation.integrator.dt,
-                    simulation.integrator.prod_dump_step * wp_dt,
-                )
-            )
+        simulation.integrator.pretty_print()
 
     @staticmethod
     def algorithm_info(simulation):
@@ -850,123 +673,11 @@ class InputOutput:
             Process class containing the algorithm info and other parameters.
 
         """
-        if simulation.potential.method == "pppm":
-            print("Charge assignment order: {}".format(simulation.potential.pppm_cao))
-            print("FFT aliases: [{}, {}, {}]".format(*simulation.potential.pppm_aliases))
-            print("Mesh: {} x {} x {}".format(*simulation.potential.pppm_mesh))
-            print(
-                "Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} ".format(
-                    simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
-                    simulation.potential.pppm_alpha_ewald,
-                ),
-                end="",
-            )
-            print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-            print(
-                "Mesh width = {:.4f}, {:.4f}, {:.4f} a_ws".format(
-                    simulation.potential.pppm_h_array[0] / simulation.parameters.a_ws,
-                    simulation.potential.pppm_h_array[1] / simulation.parameters.a_ws,
-                    simulation.potential.pppm_h_array[2] / simulation.parameters.a_ws,
-                )
-            )
-            print(
-                "           = {:.4e}, {:.4e}, {:.4e} ".format(
-                    simulation.potential.pppm_h_array[0],
-                    simulation.potential.pppm_h_array[1],
-                    simulation.potential.pppm_h_array[2],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "Mesh size * Ewald_parameter (h * alpha) = {:2.4f}, {:2.4f}, {:2.4f} ".format(
-                    simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald,
-                    simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald,
-                    simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald,
-                )
-            )
-            print(
-                "                                        ~ 1/{}, 1/{}, 1/{}".format(
-                    int(1.0 / (simulation.potential.pppm_h_array[0] * simulation.potential.pppm_alpha_ewald)),
-                    int(1.0 / (simulation.potential.pppm_h_array[1] * simulation.potential.pppm_alpha_ewald)),
-                    int(1.0 / (simulation.potential.pppm_h_array[2] * simulation.potential.pppm_alpha_ewald)),
-                )
-            )
-            print(
-                "rcut = {:2.4f} a_ws = {:.6e} ".format(
-                    simulation.potential.rc / simulation.parameters.a_ws, simulation.potential.rc
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "No. of PP cells per dimension = {:2}, {:2}, {:2}".format(
-                    int(simulation.parameters.box_lengths[0] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[1] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[2] / simulation.potential.rc),
-                )
-            )
-            print(
-                "No. of particles in PP loop = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        / simulation.parameters.box_volume
-                        * (3 * simulation.potential.rc) ** 3
-                    )
-                )
-            )
-            print(
-                "No. of PP neighbors per particle = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        / simulation.parameters.box_volume
-                        * 4.0
-                        / 3.0
-                        * np.pi
-                        * (simulation.potential.rc) ** 3.0
-                    )
-                )
-            )
-            print("PM Force Error = {:.6e}".format(simulation.parameters.pppm_pm_err))
-            print("PP Force Error = {:.6e}".format(simulation.parameters.pppm_pp_err))
-
-        elif simulation.potential.method == "pp":
-            print(
-                "rcut = {:2.4f} a_ws = {:.6e} ".format(
-                    simulation.potential.rc / simulation.parameters.a_ws, simulation.potential.rc
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "No. of PP cells per dimension = {:2}, {:2}, {:2}".format(
-                    int(simulation.parameters.box_lengths[0] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[1] / simulation.potential.rc),
-                    int(simulation.parameters.box_lengths[2] / simulation.potential.rc),
-                )
-            )
-            print(
-                "No. of particles in PP loop = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        / simulation.parameters.box_volume
-                        * (3 * simulation.potential.rc) ** 3
-                    )
-                )
-            )
-            print(
-                "No. of PP neighbors per particle = {:6}".format(
-                    int(
-                        simulation.parameters.total_num_ptcls
-                        * 4.0
-                        / 3.0
-                        * np.pi
-                        * (simulation.potential.rc / simulation.parameters.box_lengths.min()) ** 3.0
-                    )
-                )
-            )
-
-        print("Tot Force Error = {:.6e}".format(simulation.parameters.force_error))
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.method_pretty_print()",
+            category=DeprecationWarning,
+        )
+        simulation.potential.method_pretty_print()
 
     @staticmethod
     def potential_info(simulation):
@@ -979,117 +690,30 @@ class InputOutput:
             Process class containing the potential info and other parameters.
 
         """
-        if simulation.potential.type == "yukawa":
-            print(f"screening type : {simulation.potential.screening_length_type}")
-            print(f"screening length = {simulation.potential.screening_length:.6e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print("Gamma_eff = {:.2f}".format(simulation.parameters.coupling_constant))
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.pot_pretty_print()",
+            category=DeprecationWarning,
+        )
+        simulation.potential.pot_pretty_print(simulation.potential)
 
-        elif simulation.potential.type == "egs":
-            # print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
-            #     simulation.parameters.electron_temperature,
-            #     simulation.parameters.electron_temperature / simulation.parameters.eV2K))
-            print("kappa = {:.4f}".format(simulation.parameters.a_ws / simulation.parameters.lambda_TF))
-            print("SGA Correction factor: lmbda = {:.4f}".format(simulation.potential.lmbda))
-            # print('lambda_TF = {:1.4e} '.format(simulation.parameters.lambda_TF), end='')
-            # print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("nu = {:.4f}".format(simulation.parameters.nu))
-            if simulation.parameters.nu < 1:
-                print("Exponential decay:")
-                print("lambda_p = {:.6e} ".format(simulation.parameters.lambda_p), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("lambda_m = {:.6e} ".format(simulation.parameters.lambda_m), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("alpha = {:.4f}".format(simulation.parameters.alpha))
-                # print('Theta = {:1.4e}'.format(simulation.parameters.electron_degeneracy_parameter))
-                print("b = {:.4f}".format(simulation.parameters.b))
+    def copy_params(self, params):
+        """
+        Copy necessary parameters.
 
-            else:
-                print("Oscillatory potential:")
-                print("gamma_p = {:.6e} ".format(simulation.parameters.gamma_p), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("gamma_m = {:.6e} ".format(simulation.parameters.gamma_m), end="")
-                print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-                print("alpha = {:.4f}".format(simulation.parameters.alphap))
-                print("b = {:.4f}".format(simulation.parameters.b))
+        Parameters
+        ----------
+        params: :class:`sarkas.core.Parameters`
+            Simulation's parameters.
 
-            print("Gamma_eff = {:4.2f}".format(simulation.parameters.coupling_constant))
+        """
+        self.dt = params.dt
+        self.a_ws = params.a_ws
+        self.total_num_ptcls = params.total_num_ptcls
+        self.total_plasma_frequency = params.total_plasma_frequency
+        self.species_names = params.species_names.copy()
+        self.coupling = params.coupling_constant * params.T_desired
 
-        elif simulation.potential.type == "coulomb":
-            print("Effective Coupling constant: Gamma_eff = {:4.2f}".format(simulation.parameters.coupling_constant))
-            print("Short-range Cutoff radius: a_rs = {:.6e} ".format(simulation.potential.a_rs), end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            # simulation.parameters.pretty_print()
-
-        elif simulation.potential.type == "lj":
-            print(f"epsilon_tot = {simulation.potential.epsilon_tot:.6e}")
-            print(f"sigma_avg = {simulation.potential.sigma_avg:.6e}")
-            rho = simulation.potential.sigma_avg**3 * simulation.parameters.total_num_density
-            tau = simulation.parameters.kB * simulation.parameters.T_desired / simulation.potential.epsilon_tot
-            print(f"reduced density = {rho:.6e}")
-            print(f"reduced temperature = {tau:.6e}")
-        elif simulation.potential.type == "qsp":
-            print("QSP type: {}".format(simulation.potential.qsp_type))
-            print("Pauli term: {}".format(simulation.potential.qsp_pauli))
-            print(
-                "e de Broglie wavelength = {:.4f} a_ws = {:.6e} ".format(
-                    np.sqrt(2.0) * np.pi / (simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws),
-                    np.sqrt(2.0) * np.pi / simulation.potential.matrix[1, 0, 0],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "ion de Broglie wavelength  = {:.4f} a_ws = {:.6e} ".format(
-                    np.sqrt(2.0) * np.pi / (simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws),
-                    np.sqrt(2.0) * np.pi / simulation.potential.matrix[1, 1, 1],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "e-e screening length = {:.4f} a_ws = {:.6e} ".format(
-                    1.0 / (simulation.potential.matrix[1, 0, 0] * simulation.parameters.a_ws),
-                    1.0 / simulation.potential.matrix[1, 0, 0],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "i-i screening length = {:.4f} a_ws = {:.6e} ".format(
-                    1.0 / (simulation.potential.matrix[1, 1, 1] * simulation.parameters.a_ws),
-                    1.0 / simulation.potential.matrix[1, 1, 1],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(
-                "e-i screening length = {:.4f} a_ws = {:.6e} ".format(
-                    1.0 / (simulation.potential.matrix[1, 0, 1] * simulation.parameters.a_ws),
-                    1.0 / simulation.potential.matrix[1, 0, 1],
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print("e-i coupling constant = {:.4f} ".format(simulation.parameters.coupling_constant))
-
-        elif simulation.potential.type == "moliere":
-            print(f"")
-        elif simulation.potential.type == "hs_yukawa":
-            b = simulation.potential.hs_diameter / simulation.parameters.a_ws
-            print(f"hard sphere diameter = {b:.4f} a_ws = {simulation.potential.hs_diameter:.4e} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"screening length = {simulation.potential.screening_length} ", end="")
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-            print(f"kappa = sigma/lambda = {simulation.potential.kappa:.4f}")
-            print(
-                f"reduced density = n sigma^3 = {simulation.potential.hs_diameter**3 * simulation.parameters.total_num_density:.4f}"
-            )
-            print(f"packing fraction = {simulation.potential.packing_fraction:.4f}")
-            print(f"Gamma_eff = {simulation.parameters.coupling_constant / b:.4f}")
-
-    def setup_checkpoint(self, params, species):
+    def setup_checkpoint(self, params):
         """
         Assign attributes needed for saving dumps.
 
@@ -1098,37 +722,32 @@ class InputOutput:
         params : :class:`sarkas.core.Parameters`
             General simulation parameters.
 
-        species : :class:`sarkas.core.Species`
+        species : :class:`sarkas.plasma.Species`
             List of Species classes.
 
         """
-        self.dt = params.dt
-        self.a_ws = params.a_ws
-        self.total_num_ptcls = params.total_num_ptcls
-        self.total_plasma_frequency = params.total_plasma_frequency
-        self.species_names = np.copy(params.species_names)
-        self.coupling = params.coupling_constant * params.T_desired
 
+        self.copy_params(params)
         # Check whether energy files exist already
-        if not os.path.exists(self.prod_energy_filename):
+        if not exists(self.prod_energy_filename):
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(species) > 1:
-                for i, sp in enumerate(species):
-                    dkeys.append("{} Kinetic Energy".format(sp.name))
-                    dkeys.append("{} Potential Energy".format(sp.name))
-                    dkeys.append("{} Temperature".format(sp.name))
+            if len(self.species_names) > 1:
+                for i, sp_name in enumerate(self.species_names):
+                    dkeys.append("{} Kinetic Energy".format(sp_name))
+                    dkeys.append("{} Potential Energy".format(sp_name))
+                    dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
 
             with open(self.prod_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
-        if not os.path.exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
+        if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
             # Create the Energy file
             dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(species) > 1:
-                for i, sp_name in enumerate(params.species_names):
+            if len(self.species_names) > 1:
+                for i, sp_name in enumerate(self.species_names):
                     dkeys.append("{} Kinetic Energy".format(sp_name))
                     dkeys.append("{} Potential Energy".format(sp_name))
                     dkeys.append("{} Temperature".format(sp_name))
@@ -1139,11 +758,11 @@ class InputOutput:
                 w.writerow(data.keys())
 
         if self.electrostatic_equilibration:
-            if not os.path.exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
+            if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
                 # Create the Energy file
                 dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-                if len(species) > 1:
-                    for i, sp_name in enumerate(params.species_names):
+                if len(self.species_names) > 1:
+                    for i, sp_name in enumerate(self.species_names):
                         dkeys.append("{} Kinetic Energy".format(sp_name))
                         dkeys.append("{} Potential Energy".format(sp_name))
                         dkeys.append("{} Temperature".format(sp_name))
@@ -1162,7 +781,7 @@ class InputOutput:
         simulation : :class:`sarkas.processes.Process`
             Process class containing MD run info to save.
         """
-        file_list = ["parameters", "integrator", "thermostat", "potential", "species"]
+        file_list = ["parameters", "integrator", "potential", "species"]
 
         # Redirect to the correct process folder
         if self.process == "preprocessing":
@@ -1173,10 +792,10 @@ class InputOutput:
             indx = 1
 
         for fl in file_list:
-            filename = os.path.join(self.processes_dir[indx], fl + ".pickle")
-            pickle_file = open(filename, "wb")
-            pickle.dump(simulation.__dict__[fl], pickle_file)
-            pickle_file.close()
+            filename = join(self.processes_dir[indx], fl + ".pickle")
+            with open(filename, "wb") as pickle_file:
+                pickle.dump(simulation.__dict__[fl], pickle_file)
+                pickle_file.close()
 
     def read_pickle(self, process):
         """
@@ -1188,9 +807,7 @@ class InputOutput:
             Process class containing MD run info to save.
 
         """
-        import copy as py_copy
-
-        file_list = ["parameters", "integrator", "thermostat", "potential", "species"]
+        file_list = ["parameters", "integrator", "potential"]
 
         # Redirect to the correct process folder
         if self.process == "preprocessing":
@@ -1201,9 +818,18 @@ class InputOutput:
             indx = 1
 
         for fl in file_list:
-            filename = os.path.join(self.processes_dir[indx], fl + ".pickle")
-            data = np.load(filename, allow_pickle=True)
-            process.__dict__[fl] = py_copy.copy(data)
+            filename = join(self.processes_dir[indx], fl + ".pickle")
+            with open(filename, "rb") as handle:
+
+                data = pickle.load(handle)
+                process.__dict__[fl] = copy(data)
+
+        # Read species
+        filename = join(self.processes_dir[indx], "species.pickle")
+        process.species = []
+        with open(filename, "rb") as handle:
+            data = pickle.load(handle)
+            process.species = copy(data)
 
     def read_pickle_single(self, class_to_read: str):
         """
@@ -1216,12 +842,10 @@ class InputOutput:
 
         Returns
         -------
-        : cls
+        _copy : cls
             Copy of desired class.
 
         """
-        from copy import copy as py_copy
-
         # Redirect to the correct process folder
         if self.process == "preprocessing":
             indx = 0
@@ -1230,9 +854,11 @@ class InputOutput:
             # because that is where I look for energy files and pickle files
             indx = 1
 
-        filename = os.path.join(self.processes_dir[indx], class_to_read + ".pickle")
-        data = np.load(filename, allow_pickle=True)
-        return py_copy(data)
+        filename = join(self.processes_dir[indx], class_to_read + ".pickle")
+        with open(filename, "rb") as pickle_file:
+            data = pickle.load(pickle_file)
+            _copy = deepcopy(data)
+        return _copy
 
     def dump(self, phase, ptcls, it):
         """
@@ -1243,7 +869,7 @@ class InputOutput:
         phase : str
             Simulation phase.
 
-        ptcls : :class:`sarkas.core.Particles`
+        ptcls : :class:`sarkas.particles.Particles`
             Particles data.
 
         it : int
@@ -1252,7 +878,7 @@ class InputOutput:
         if phase == "production":
             ptcls_file = self.prod_ptcls_filename + str(it)
             tme = it * self.dt
-            np.savez(
+            savez(
                 ptcls_file,
                 id=ptcls.id,
                 names=ptcls.names,
@@ -1270,7 +896,7 @@ class InputOutput:
         elif phase == "equilibration":
             ptcls_file = self.eq_ptcls_filename + str(it)
             tme = it * self.dt
-            np.savez(
+            savez(
                 ptcls_file,
                 id=ptcls.id,
                 names=ptcls.names,
@@ -1286,7 +912,7 @@ class InputOutput:
         elif phase == "magnetization":
             ptcls_file = self.mag_ptcls_filename + str(it)
             tme = it * self.dt
-            np.savez(
+            savez(
                 ptcls_file,
                 id=ptcls.id,
                 names=ptcls.names,
@@ -1304,16 +930,16 @@ class InputOutput:
         # Save Energy data
         data = {
             "Time": it * self.dt,
-            "Total Energy": np.sum(kinetic_energies) + ptcls.potential_energy,
-            "Total Kinetic Energy": np.sum(kinetic_energies),
+            "Total Energy": kinetic_energies.sum() + ptcls.potential_energy,
+            "Total Kinetic Energy": kinetic_energies.sum(),
             "Potential Energy": ptcls.potential_energy,
             "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
         }
         if len(temperatures) > 1:
             for sp, kin in enumerate(kinetic_energies):
-                data["{} Kinetic Energy".format(self.species_names[sp])] = kin
-                data["{} Potential Energy".format(self.species_names[sp])] = potential_energies[sp]
-                data["{} Temperature".format(self.species_names[sp])] = temperatures[sp]
+                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
+                data[f"{self.species_names[sp]} Potential Energy"] = potential_energies[sp]
+                data[f"{self.species_names[sp]} Temperature"] = temperatures[sp]
 
         with open(energy_file, "a") as f:
             w = csv.writer(f)
@@ -1334,11 +960,11 @@ class InputOutput:
         """
 
         if phase == "equilibration":
-            self.xyz_filename = os.path.join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
+            self.xyz_filename = join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
             dump_dir = self.eq_dump_dir
 
         else:
-            self.xyz_filename = os.path.join(self.production_dir, "pva_" + self.job_id + ".xyz")
+            self.xyz_filename = join(self.production_dir, "pva_" + self.job_id + ".xyz")
             dump_dir = self.prod_dump_dir
 
         f_xyz = open(self.xyz_filename, "w+")
@@ -1355,7 +981,7 @@ class InputOutput:
         ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
 
         # Read the list of dumps and sort them in the correct (natural) order
-        dumps = os.listdir(dump_dir)
+        dumps = listdir(dump_dir)
         dumps.sort(key=num_sort)
         for dump in tqdm(dumps, disable=not self.verbose):
             data = self.read_npz(dump_dir, dump)
@@ -1373,12 +999,12 @@ class InputOutput:
 
             f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            np.savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+            savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
 
         f_xyz.close()
 
     @staticmethod
-    def read_npz(fldr: str, it: int):
+    def read_npz(fldr: str, filename: str):
         """
         Load particles' data from dumps.
 
@@ -1387,8 +1013,8 @@ class InputOutput:
         fldr : str
             Folder containing dumps.
 
-        it : str
-            Timestep to load.
+        filename: str
+            Name of the dump file to load.
 
         Returns
         -------
@@ -1397,27 +1023,27 @@ class InputOutput:
 
         """
 
-        file_name = os.path.join(fldr, it)
-        data = np.load(file_name, allow_pickle=True)
+        file_name = join(fldr, filename)
+        data = np_load(file_name, allow_pickle=True)
         # Dev Notes: the old way of saving the xyz file by
-        # np.savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
+        # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
         # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
         # was not working, because the columns of np.c_[] all have the same data type <U32
         # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
         # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
-        struct_array = np.zeros(
+        struct_array = zeros(
             data["names"].size,
             dtype=[
                 ("names", "U6"),
-                ("pos_x", np.float64),
-                ("pos_y", np.float64),
-                ("pos_z", np.float64),
-                ("vel_x", np.float64),
-                ("vel_y", np.float64),
-                ("vel_z", np.float64),
-                ("acc_x", np.float64),
-                ("acc_y", np.float64),
-                ("acc_z", np.float64),
+                ("pos_x", float64),
+                ("pos_y", float64),
+                ("pos_z", float64),
+                ("vel_x", float64),
+                ("vel_y", float64),
+                ("vel_z", float64),
+                ("acc_x", float64),
+                ("acc_y", float64),
+                ("acc_z", float64),
             ],
         )
         struct_array["names"] = data["names"]
@@ -1457,13 +1083,6 @@ def num_sort(text):
     """
     Sort strings with numbers inside.
 
-    Notes
-    -----
-    Method copied from
-    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside.
-    Originally from http://nedbatchelder.com/blog/200712/human_sorting.html
-    (See Toothy's implementation in the comments)
-
     Parameters
     ----------
     text : str
@@ -1474,13 +1093,20 @@ def num_sort(text):
      : list
         List containing text and integers
 
+    Notes
+    -----
+    Function copied from
+    https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside.
+    Originally from http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+
     """
 
     return [alpha_to_int(c) for c in re.split(r"(\d+)", text)]
 
 
 def convert_bytes(tot_bytes):
-    """Convert bytes to human readable GB, MB, KB.
+    """Convert bytes to human-readable GB, MB, KB.
 
     Parameters
     ----------

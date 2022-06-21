@@ -46,24 +46,44 @@ First and foremost we run the help command in a terminal window
 
 This will produce the following output
 
-.. figure:: Help_output.png
-    :alt: Figure not found
+.. code-block:: bash
+
+    Usage: sarkas_simulate [options]
+
+    Options:
+      -h, --help            show this help message and exit
+      -t, --pre_run_testing
+                            Test input parameters
+      -v, --verbose         Verbose output
+      -p, --plot_show       Show plots
+      -c CHECK_STATUS, --check_status=CHECK_STATUS
+                            Check current state of run
+      -d SIM_DIR, --sim_dir=SIM_DIR
+                            Simulation Directory
+      -j JOB_DIR, --job_dir=JOB_DIR
+                            Job Directory
+      -s RAND_SEED, --seed=RAND_SEED
+                            Random Number Seed
+      -i INPUT_FILE, --input=INPUT_FILE
+                            YAML Input file
+      -r RESTART, --restart=RESTART
+                            Restart simulation
 
 This output prints out the different options with which you can run Sarkas.
 
-- ``-i`` or ``--input`` is required and is the path to the YAML input file of our simulation.
-- ``-c`` or ``--check_status`` which can be either ``equilibration`` or ``production`` and indicates whether we want to check the equilibration or production phase of the run.
 - ``-t`` or ``--pre_run_testing`` is a boolean flag indicating whether to run a test of our input parameters and estimate the simulation times.
-- ``-p`` or ``--plot_show`` is a boolean flag indicating whether to show plots to screen.
 - ``-v`` or ``--verbose`` boolean for verbose output.
+- ``-p`` or ``--plot_show`` is a boolean flag indicating whether to show plots to screen.
+- ``-c`` or ``--check_status`` which can be either ``equilibration`` or ``production`` and indicates whether we want to check the equilibration or production phase of the run.
 - ``-d`` or ``--sim_dir`` name of the directory storing all the simulations.
 - ``-j`` or ``--job_id`` name of the directory of the current run.
 - ``-s`` or ``--seed`` sets the random number seed.
+- ``-i`` or ``--input`` is required and is the path to the YAML input file of our simulation.
 - ``-r`` or ``--restart`` for starting the simulation from a specific point.
 
 The ``--input`` option is the only required option as it refers to the input file.
 If we wanted to run multiple simulations of the same system but with different initial conditions
-a typical bash script would look like this
+a typical ``bash`` script would look like this
 
 .. code-block:: bash
 
@@ -94,30 +114,32 @@ screening parameters and measure their diffusion coefficient. An example script 
 
 .. code-block:: python
 
+    import numpy as np
+    import os
+    from multiprocessing import Process
+    ## Import sarkas
     from sarkas.processes import Simulation, PostProcess
     from sarkas.tools.observables import VelocityAutoCorrelationFunction
     from sarkas.tools.transport import TransportCoefficients
-    import numpy as np
-    import os
 
-    # Path to the input file
-    examples_folder = os.path.join('sarkas', 'examples')
-    input_file_name = os.path.join(examples_folder,'yukawa_mks.yaml')
-
-    # Create arrays of screening parameters
-    kappas = np.linspace(1, 10)
-    # Run 10 simulations
-    for i, kappa in enumerate(kappas):
-        # Note that we don't want to overwrite each simulation
-        # So we save each simulation in its own folder by passing
-        # a dictionary of dictionary with folder's name
+    def launch(seed, kappa):
+        # Path to the input file
+        examples_folder = os.path.join('sarkas', 'examples')
+        input_file_name = os.path.join(examples_folder,'yukawa_mks.yaml')
         args = {
+            "Parameters" : {"rand_seed": seed},
             "IO":
                 {
-                    "job_dir": "yocp_kappa{}".format(kappa)
+                    "job_dir": f"yocp_kappa{kappa}"
+                    # Note that we don't want to overwrite each simulation
+                    # So we save each simulation in its own folder by passing
+                    # a dictionary of dictionary with folder's name
                 },
             "Potential":
-                {"kappa": kappa}
+                {
+                "screening_length_type": "kappa",
+                "kappa": kappa
+                }
         }
         # Initialize and run the simulation
         sim = Simulation(input_file_name)
@@ -135,5 +157,14 @@ screening parameters and measure their diffusion coefficient. An example script 
         tc = TransportCoefficients(postproc.parameters)
         tc.diffusion(vacf, plot=True)
 
+    if __name__ = "__main__":
+
+        rng = np.random.default_rng()
+        # Create arrays of screening parameters
+        kappas = np.linspace(1, 5)
+        # Run 10 simulations
+        for i, kappa in enumerate(kappas):
+            p0 = Process(target = launch, args = ( rng.integers(low = 2**32), kappa) )
+            p0.start()
 
 Notice how both the simulation and the postprocessing can be done all in one script.

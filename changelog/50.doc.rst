@@ -1,0 +1,2 @@
+Updated several docstrings.
+Updated the website/documentation with the new modifications and features.

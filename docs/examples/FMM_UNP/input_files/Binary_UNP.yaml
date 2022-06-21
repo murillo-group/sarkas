@@ -1,0 +1,49 @@
+
+Particles:
+    - Species:
+        name: Yb
+        number_density: 2.920e+16
+        mass: 2.9103621e-25
+        num: 5000
+        Z: 1.0
+        temperature: 2.0e-03
+
+    - Species:
+        name: Ca
+        number_density: 1.200e+16
+        mass: 6.690487592e-26
+        num: 2055
+        Z: 1.0
+        temperature: 2.0e-03
+
+
+Potential:
+    type: Yukawa
+    method: fmm
+    fmm_precision: 1.0e-07
+    screening_length_type: 'thomas-fermi'
+    electron_temperature: 96
+
+Integrator:
+    type: verlet
+    dt: 7.023527e-11
+    thermalization: no
+
+Parameters:
+    units: mks
+    boundary_conditions: open
+    load_method: gaussian
+    load_gauss_sigma: [342.0e-6, 697.0e-6]
+    production_steps: 500
+    prod_dump_step: 50
+
+IO:
+    verbose: True
+    job_dir: YbCa_fmm
+
+Observables:
+  - Thermodynamics:
+      phase: production
+
+  - RadialDistributionFunction:
+      no_bins: 1

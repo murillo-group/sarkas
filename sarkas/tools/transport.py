@@ -8,9 +8,11 @@ if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
 else:
     from tqdm import tqdm
 
-import numpy as np
-import os
 from matplotlib.pyplot import subplots
+from numpy import array, column_stack
+from os import mkdir as os_mkdir
+from os.path import exists as os_path_exists
+from os.path import join as os_path_join
 from pandas import DataFrame, MultiIndex, read_hdf
 
 from ..utilities.maths import fast_integral_loop
@@ -46,6 +48,7 @@ class TransportCoefficients:
         self.verbose = params.verbose
         self.dt = params.dt
         self.total_plasma_frequency = params.total_plasma_frequency
+        self.dimensions = params.dimensions
         self.box_volume = params.box_volume
         self.pbox_volume = params.pbox_volume
         #
@@ -82,13 +85,13 @@ class TransportCoefficients:
     def create_dir(self):
         """Create directory where to save the transport coefficients."""
 
-        saving_dir = os.path.join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
-        if not os.path.exists(saving_dir):
-            os.mkdir(saving_dir)
+        saving_dir = os_path_join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
+        if not os_path_exists(saving_dir):
+            os_mkdir(saving_dir)
 
-        self.saving_dir = os.path.join(saving_dir, self.phase.capitalize())
-        if not os.path.exists(self.saving_dir):
-            os.mkdir(self.saving_dir)
+        self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
+        if not os_path_exists(self.saving_dir):
+            os_mkdir(self.saving_dir)
 
     def save_hdf(self, df: DataFrame = None, df_slices: DataFrame = None, tc_name: str = None):
         """
@@ -118,12 +121,12 @@ class TransportCoefficients:
         df_slices.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in df_slices.columns])
         df_slices = df_slices.sort_index()
         df_slices.to_hdf(
-            os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="w", key=tc_name, index=False
+            os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="w", key=tc_name, index=False
         )
 
         df.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in df.columns])
         df = df.sort_index()
-        df.to_hdf(os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="w", key=tc_name, index=False)
+        df.to_hdf(os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="w", key=tc_name, index=False)
 
         return df, df_slices
 
@@ -149,40 +152,40 @@ class TransportCoefficients:
 
             if tc_name == "electricalconductivity":
                 self.conductivity_df = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
                 self.conductivity_df_slices = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
             elif tc_name == "diffusion":
                 self.diffusion_df = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
                 self.diffusion_df_slices = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
             elif tc_name == "interdiffusion":
 
                 self.interdiffusion_df = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
                 self.interdiffusion_df_slices = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
             elif tc_name == "viscosities":
 
                 self.viscosity_df = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
 
                 self.viscosity_df_slices = read_hdf(
-                    os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
+                    os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"), mode="r", index_col=False
                 )
         else:
             raise ValueError("Wrong tc_name. Please choose amongst ", self.tc_names)
@@ -269,7 +272,7 @@ class TransportCoefficients:
             axi.set(xlim=(1, self.slice_steps * 1.5), xscale="log", xlabel="Index")
 
         fig.tight_layout()
-        fig.savefig(os.path.join(self.saving_dir, figname))
+        fig.savefig(os_path_join(self.saving_dir, figname))
 
         if show:
             fig.show()
@@ -286,8 +289,8 @@ class TransportCoefficients:
             Name of Transport coefficient to calculate.
         """
 
-        print("Data saved in: \n", os.path.join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"))
-        print(os.path.join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"))
+        print("Data saved in: \n", os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"))
+        print(os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"))
         print("\nNo. of slices = {}".format(self.no_slices))
         print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
 
@@ -341,15 +344,15 @@ class TransportCoefficients:
         # to_numpy creates a 2d-array, hence the [:,0]
         time = observable.dataframe_acf["Time"].iloc[:, 0].to_numpy()
 
-        self.conductivity_df["Time"] = np.copy(time)
-        self.conductivity_df_slices["Time"] = np.copy(time)
+        self.conductivity_df["Time"] = time.copy()
+        self.conductivity_df_slices["Time"] = time.copy()
 
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
         const = self.beta / observable.box_volume
         if not observable.magnetized:
             for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
-                integrand = np.array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
+                integrand = array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
                 self.conductivity_df_slices[sigma_str + "_slice {}".format(isl)] = const * fast_integral_loop(
                     time, integrand
                 )
@@ -421,8 +424,8 @@ class TransportCoefficients:
 
                 self.plot_tc(
                     time=time,
-                    acf_data=np.column_stack((acf_avg, acf_std)),
-                    tc_data=np.column_stack((tc_avg, tc_std)),
+                    acf_data=column_stack((acf_avg, acf_std)),
+                    tc_data=column_stack((tc_avg, tc_std)),
                     acf_name="Electric Current ACF",
                     tc_name="Electrical Conductivity",
                     figname="ElectricalConductivity_Plot.png",
@@ -438,8 +441,8 @@ class TransportCoefficients:
 
                 self.plot_tc(
                     time=time,
-                    acf_data=np.column_stack((acf_avg, acf_std)),
-                    tc_data=np.column_stack((tc_avg, tc_std)),
+                    acf_data=column_stack((acf_avg, acf_std)),
+                    tc_data=column_stack((tc_avg, tc_std)),
                     acf_name="Electric Current ACF Parallel",
                     tc_name="Electrical Conductivity Parallel",
                     figname="ElectricalConductivity_Parallel_Plot.png",
@@ -454,8 +457,8 @@ class TransportCoefficients:
 
                 self.plot_tc(
                     time=time,
-                    acf_data=np.column_stack((acf_avg, acf_std)),
-                    tc_data=np.column_stack((tc_avg, tc_std)),
+                    acf_data=column_stack((acf_avg, acf_std)),
+                    tc_data=column_stack((tc_avg, tc_std)),
                     acf_name="Electric Current ACF Perpendicular",
                     tc_name="Electrical Conductivity Perpendicular",
                     figname="ElectricalConductivity_Perpendicular_Plot.png",
@@ -511,11 +514,11 @@ class TransportCoefficients:
         # to_numpy creates a 2d-array, hence the [:,0]
         time = observable.dataframe_acf["Time"].iloc[:, 0].to_numpy()
 
-        self.diffusion_df["Time"] = np.copy(time)
-        self.diffusion_df_slices["Time"] = np.copy(time)
+        self.diffusion_df["Time"] = time.copy()
+        self.diffusion_df_slices["Time"] = time.copy()
 
         vacf_str = "VACF"
-        const = 1.0 / 3.0
+        const = 1.0 / self.dimensions
 
         if not observable.magnetized:
             # Loop over time slices
@@ -523,18 +526,18 @@ class TransportCoefficients:
 
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_vacf_str = f"{sp} " + vacf_str
                     # Grab vacf data of each slice
-                    integrand = np.array(observable.dataframe_acf_slices[(sp_vacf_str, "Total", "slice {}".format(isl))])
-                    df_str = "{} Diffusion_slice {}".format(sp, isl)
+                    integrand = array(observable.dataframe_acf_slices[(sp_vacf_str, "Total", f"slice {isl}")])
+                    df_str = f"{sp} Diffusion_slice {isl}"
                     self.diffusion_df_slices[df_str] = const * fast_integral_loop(time=time, integrand=integrand)
 
             # Average and std of each diffusion coefficient.
             for isp, sp in enumerate(observable.species_names):
-                col_str = ["{} Diffusion_slice {}".format(sp, isl) for isl in range(observable.no_slices)]
+                col_str = [f"{sp} Diffusion_slice {isl}" for isl in range(observable.no_slices)]
 
-                self.diffusion_df["{} Diffusion_Mean".format(sp)] = self.diffusion_df_slices[col_str].mean(axis=1)
-                self.diffusion_df["{} Diffusion_Std".format(sp)] = self.diffusion_df_slices[col_str].std(axis=1)
+                self.diffusion_df[f"{sp} Diffusion_Mean"] = self.diffusion_df_slices[col_str].mean(axis=1)
+                self.diffusion_df[f"{sp} Diffusion_Std"] = self.diffusion_df_slices[col_str].std(axis=1)
 
         else:
             # Loop over time slices
@@ -542,7 +545,7 @@ class TransportCoefficients:
 
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_vacf_str = f"{sp} " + vacf_str
 
                     # Parallel
                     par_vacf_str = (sp_vacf_str, "Z", "slice {}".format(isl))
@@ -607,8 +610,8 @@ class TransportCoefficients:
 
             if observable.magnetized:
                 for isp, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
-                    sp_diff_str = "{} ".format(sp) + "Diffusion"
+                    sp_vacf_str = f"{sp} " + vacf_str
+                    sp_diff_str = f"{sp} Diffusion"
 
                     # Parallel
                     acf_avg = observable.dataframe_acf[(sp_vacf_str, "Parallel", "Mean")].to_numpy()
@@ -619,8 +622,8 @@ class TransportCoefficients:
 
                     self.plot_tc(
                         time=time,
-                        acf_data=np.column_stack((acf_avg, acf_std)),
-                        tc_data=np.column_stack((tc_avg, tc_std)),
+                        acf_data=column_stack((acf_avg, acf_std)),
+                        tc_data=column_stack((tc_avg, tc_std)),
                         acf_name=sp_vacf_str + " Parallel",
                         tc_name=sp_diff_str + " Parallel",
                         figname="{}_Parallel_Diffusion_Plot.png".format(sp),
@@ -636,8 +639,8 @@ class TransportCoefficients:
 
                     self.plot_tc(
                         time=time,
-                        acf_data=np.column_stack((acf_avg, acf_std)),
-                        tc_data=np.column_stack((tc_avg, tc_std)),
+                        acf_data=column_stack((acf_avg, acf_std)),
+                        tc_data=column_stack((tc_avg, tc_std)),
                         acf_name=sp_vacf_str + " Perpendicular",
                         tc_name=sp_diff_str + " Perpendicular",
                         figname="{}_Perpendicular_Diffusion_Plot.png".format(sp),
@@ -645,18 +648,18 @@ class TransportCoefficients:
                     )
             else:
                 for isp, sp in enumerate(observable.species_names):
-                    sp_vacf_str = "{} ".format(sp) + vacf_str
+                    sp_vacf_str = f"{sp} " + vacf_str
                     acf_avg = observable.dataframe_acf[(sp_vacf_str, "Total", "Mean")].to_numpy()
                     acf_std = observable.dataframe_acf[(sp_vacf_str, "Total", "Std")].to_numpy()
 
-                    d_str = "{} Diffusion".format(sp)
+                    d_str = f"{sp} Diffusion"
                     tc_avg = self.diffusion_df[(d_str, "Mean")].to_numpy()
                     tc_std = self.diffusion_df[(d_str, "Std")].to_numpy()
 
                     self.plot_tc(
                         time=time,
-                        acf_data=np.column_stack((acf_avg, acf_std)),
-                        tc_data=np.column_stack((tc_avg, tc_std)),
+                        acf_data=column_stack((acf_avg, acf_std)),
+                        tc_data=column_stack((tc_avg, tc_std)),
                         acf_name=sp_vacf_str,
                         tc_name=d_str,
                         figname="{}_Diffusion_Plot.png".format(sp),
@@ -707,8 +710,8 @@ class TransportCoefficients:
 
         # to_numpy creates a 2d-array, hence the [:,0]
         time = observable.dataframe_acf["Time"].to_numpy()[:, 0]
-        self.interdiffusion_df["Time"] = np.copy(time)
-        self.interdiffusion_df_slices["Time"] = np.copy(time)
+        self.interdiffusion_df["Time"] = time.copy()
+        self.interdiffusion_df_slices["Time"] = time.copy()
 
         no_fluxes_acf = observable.no_fluxes_acf
         # Normalization constant
@@ -717,7 +720,7 @@ class TransportCoefficients:
         df_str = "Diffusion Flux ACF"
         id_str = "Inter Diffusion Flux"
         for isl in tqdm(range(self.no_slices), disable=not self.verbose):
-            # D_ij = np.zeros((no_fluxes_acf, jc_acf.slice_steps))
+            # D_ij = zeros((no_fluxes_acf, jc_acf.slice_steps))
 
             for ij in range(no_fluxes_acf):
                 acf_df_str = (df_str + " {}".format(ij), "Total", "slice {}".format(isl))
@@ -749,8 +752,8 @@ class TransportCoefficients:
 
                 self.plot_tc(
                     time=time,
-                    acf_data=np.column_stack((acf_avg, acf_std)),
-                    tc_data=np.column_stack((tc_avg, tc_std)),
+                    acf_data=column_stack((acf_avg, acf_std)),
+                    tc_data=column_stack((tc_avg, tc_std)),
                     acf_name=flux_str,
                     tc_name=d_str,
                     figname="InterDiffusion_{}_Plot.png".format(flux),
@@ -789,7 +792,7 @@ class TransportCoefficients:
         Parameters
         ----------
         observable : :class:`sarkas.tools.observables.PressureTensor`
-            Observable object containing the ACF whose time integral leads to the interdiffusion coefficient.
+            Observable object containing the ACF whose time integral leads to the viscsosity coefficients.
 
         plot : bool, optional
             Flag for making the dual plot of the ACF and transport coefficient. Default = True.
@@ -815,8 +818,8 @@ class TransportCoefficients:
 
         # to_numpy creates a 2d-array, hence the [:,0]
         time = observable.dataframe_acf["Time"].iloc[:, 0].to_numpy()
-        self.viscosity_df["Time"] = np.copy(time)
-        self.viscosity_df_slices["Time"] = np.copy(time)
+        self.viscosity_df["Time"] = time.copy()
+        self.viscosity_df_slices["Time"] = time.copy()
 
         dim_lbl = ["x", "y", "z"]
 
@@ -843,7 +846,7 @@ class TransportCoefficients:
 
             const = observable.box_volume * self.beta
             # Calculate Bulk Viscosity
-            # It is is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
+            # It is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
             integrand = observable.dataframe_acf_slices[("Delta Pressure ACF", "slice {}".format(isl))].to_numpy()
             self.viscosity_df_slices["Bulk Viscosity_slice {}".format(isl)] = const * fast_integral_loop(time, integrand)
 
@@ -903,8 +906,8 @@ class TransportCoefficients:
 
                 self.plot_tc(
                     time=time,
-                    acf_data=np.column_stack((acf_avg, acf_std)),
-                    tc_data=np.column_stack((tc_avg, tc_std)),
+                    acf_data=column_stack((acf_avg, acf_std)),
+                    tc_data=column_stack((tc_avg, tc_std)),
                     acf_name=acf_str,
                     tc_name=pq,
                     figname="{}_Plot.png".format(pq),

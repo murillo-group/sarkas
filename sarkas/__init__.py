@@ -1,24 +1,21 @@
 """Welcome to Sarkas: a fast pure Python molecular dynamics software for plasmas physics."""
 
-__all__ = [
-    "Potential",
-    "Integrator",
-    "Thermostat",
-    "Process",
-    "Simulation",
-    "PreProcess",
-    "PostProcess",
-    "Particles",
-    "Parameters",
-    "Species",
-    "InputOutput",
-    "correlationfunction",
-    "fd_integral",
-    "inverse_fd_half",
-    "__version__",
-]
-
-__all__.sort()
+# __all__ = [
+#     "Potential",
+#     "Integrator",
+#     "Thermostat",
+#     "Process",
+#     "Simulation",
+#     "PreProcess",
+#     "PostProcess",
+#     "Particles",
+#     "Parameters",
+#     "Species",
+#     "InputOutput",
+#     "__version__",
+# ]
+#
+# __all__.sort()
 # This __init__.py follows the one from PlasmaPy
 
 # Enforce Python version check during package import.
@@ -33,13 +30,15 @@ if sys.version_info < (3, 7):
 # ----------------------------------------------------------------------------
 import pkg_resources
 
-from .core import Parameters, Particles, Species
-from .potentials.core import Potential
-from .processes import PostProcess, PreProcess, Process, Simulation
-from .time_evolution.integrators import Integrator
-from .time_evolution.thermostats import Thermostat
-from .utilities.io import InputOutput
-from .utilities.maths import correlationfunction, fd_integral, inverse_fd_half
+### This imports make the first import of Sarkas slow. That is why they are commented
+# from .core import Parameters
+# from .particles import Particles
+# from .plasma import Species
+# from .potentials.core import Potential
+# from .processes import PostProcess, PreProcess, Process, Simulation
+# from .time_evolution.integrators import Integrator
+# from .time_evolution.thermostats import Thermostat
+# from .utilities.io import InputOutput
 
 # define version
 try:

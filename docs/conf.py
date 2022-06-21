@@ -28,6 +28,7 @@ intersphinx_mapping = {
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "pandas": ("https://pandas.pydata.org/pandas-docs/dev/", None),
+    "numba": ("https://numba.readthedocs.io/en/stable/", None),
 }
 
 # -- Project information -----------------------------------------------------
@@ -45,20 +46,20 @@ release = sarkas.__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.napoleon", #Parse docstrings written per the NumPy or Google conventions
-    "sphinx.ext.autodoc", #Automatically generate the API reference documentation
-    "sphinx.ext.autosummary", #To recursively extract docstrings of all submodules and their functions
-    "sphinx_autodoc_typehints", #Type hints support for the Sphinx autodoc extension 
-    "sphinx.ext.autosectionlabel", #Allows to refer sections its title.
+    "sphinx.ext.napoleon",  # Parse docstrings written per the NumPy or Google conventions
+    "sphinx.ext.autodoc",  # Automatically generate the API reference documentation
+    "sphinx.ext.autosummary",  # To recursively extract docstrings of all submodules and their functions
+    "sphinx_autodoc_typehints",  # Type hints support for the Sphinx autodoc extension
+    "sphinx.ext.autosectionlabel",  # Allows to refer sections its title.
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode", #Add links to highlighted source code
-    "sphinxcontrib.bibtex", #Allows BibTeX citations to be inserted into documentation
-    "sphinx.ext.intersphinx", #To reference parts of other Sphinx documentations 
-    "nbsphinx", #Provides a source parser for *.ipynb files
-    "recommonmark", #A markdown parser for docutils --- should be substitued with MySt Markdown
-    "sphinx_design",  #For creating cards, grid layout, drop-downs, tabs
-    "sphinxext.opengraph", #to add Open Graph metadata
-    "sphinx_copybutton", #Add a "copy" button to code blocks
+    "sphinx.ext.viewcode",  # Add links to highlighted source code
+    "sphinxcontrib.bibtex",  # Allows BibTeX citations to be inserted into documentation
+    "sphinx.ext.intersphinx",  # To reference parts of other Sphinx documentations
+    "nbsphinx",  # Provides a source parser for *.ipynb files
+    "recommonmark",  # A markdown parser for docutils --- should be substitued with MySt Markdown
+    "sphinx_design",  # For creating cards, grid layout, drop-downs, tabs
+    "sphinxext.opengraph",  # to add Open Graph metadata
+    "sphinx_copybutton",  # Add a "copy" button to code blocks
     # "sphinx_codeautolink" #Automatic links from code examples to reference documentation --- it does not work properly at the moment
 ]
 # Add any paths that contain templates here, relative to this directory.
@@ -128,9 +129,9 @@ html_theme_options = {
     "show_navbar_depth": 1,
     "use_download_button": True,
     # "extra_navbar": "<p>Your HTML</p>",
-    #sidebar properties below
+    # sidebar properties below
     "toc_title": "Content",
-    "show_toc_level": 3
+    "show_toc_level": 3,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -138,10 +139,10 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_css_files = [
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css", 
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
     "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
-    "my-style.css"
-    ]
+    "my-style.css",
+]
 
 # panels_add_fontawesome_latex = True
 
@@ -154,14 +155,14 @@ html_show_sourcelink = False
 # ]
 
 
-#Open Graph metadata (social media link previews which improve SEO)
+# Open Graph metadata (social media link previews which improve SEO)
 ogp_site_url = "https://murillo-group.github.io/sarkas/"
 ogp_site_name = "SARKAS: Python MD code for plasma physics"
 ogp_type = "website"
 ogp_custom_meta_tags = [
-   '<meta property="twitter:card" content="summary">',
-   '<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">',
-   '<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">',
+    '<meta property="twitter:card" content="summary">',
+    '<meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">',
+    '<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">',
 ]
 
 # -- APIDoc configuration -----------------------------------------------------

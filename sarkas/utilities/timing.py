@@ -2,7 +2,6 @@
 Module for handling the timing in a MD run.
 """
 import time
-
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -24,13 +23,13 @@ class SarkasTimer:
 
         self._start_time = time.perf_counter_ns()
 
-    def stop(self) -> float:
+    def stop(self) -> int:
         """
         Stop the timer, and report the elapsed time.
 
         Returns
         -------
-        elapsed_time: float
+        elapsed_time: int
             Elapsed time in nanoseconds.
 
         """
@@ -44,18 +43,18 @@ class SarkasTimer:
         return elapsed_time
 
     @staticmethod
-    def current() -> float:
+    def current() -> int:
         """Grab the current time in nanoseconds."""
         return time.perf_counter_ns()
 
     @staticmethod
-    def time_division(tme: float) -> list:
+    def time_division(tme: int) -> list:
         """
         Divide time into hours, min, sec, msec, microsec (usec), and nanosec.
 
         Parameters
         ----------
-        tme : float
+        tme : int
             Time in nanoseconds.
 
         Returns

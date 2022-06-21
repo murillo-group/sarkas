@@ -62,3 +62,7 @@ class PhysicsWarning(Warning):
 
 class AlgorithmWarning(SarkasWarning):
     """The base warning for warnings related to the used algorithm."""
+
+
+class ParticlesWarning(SarkasWarning):
+    """The base warning for warnings related to the Particles class."""

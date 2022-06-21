@@ -1,0 +1,5 @@
+Improved imports of several modules. Only the necessary classes and functions are imported.
+Broke up the pppm algorithm in many functions for easier testing.
+Improved modular design by breaking up several long functions.
+Changing most print statement to use f-string formatting.
+Added towncrier, pre-commit, black, isort for software development.

@@ -1,8 +1,11 @@
 """
 Module containing various thermostat. Berendsen only for now.
 """
-import numpy as np
+
+from copy import deepcopy
 from numba import float64, int64, jit, void
+from numpy import array, ndarray, sqrt
+from scipy.constants import physical_constants
 
 
 class Thermostat:
@@ -11,17 +14,20 @@ class Thermostat:
 
     Attributes
     ----------
+    berendsen_tau: float
+        Berendsen parameter.
+
+    eV2K : float
+        Conversion factor from eV to Kelvin.
+
+    eV_temp_flag: bool
+        Flag if the input temperatures are in eV. Default = False.
+
+    K_temp_flag: bool
+        Flag if the input temperatures are in K. Default = False.
+
     kB : float
-        Boltzmann constant in correct units.
-
-    no_species : int
-        Total number of species.
-
-    species_np : numpy.ndarray
-        Number of particles of each species.
-
-    species_masses : numpy.ndarray
-        Mass of each species.
+        Boltzmann constant in correct units. Default is in J/K.
 
     relaxation_rate: float
         Berendsen parameter tau.
@@ -29,26 +35,34 @@ class Thermostat:
     relaxation_timestep: int
         Timestep at which thermostat is turned on.
 
+    species_num : numpy.ndarray
+        Number of particles of each species. Copy of :attr:`sarkas.core.Parameters.species_num`.
+
+    species_masses : numpy.ndarray
+        Mass of each species. Copy of :attr:`sarkas.core.Parameters.species_masses`.
+
+    temperatures: numpy.ndarray
+        Array of equilibration temperatures.
+
+    temperatures_eV: numpy.ndarray
+        Array of equilibration temperatures in eV.
+
     type: str
-        Thermostat type
-
-    berendsen_tau: float
-        Berendsen parameter.
-
+        Thermostat type.
     """
 
-    def __init__(self):
-        self.temperatures = None
-        self.temperatures_eV = None
-        self.type = None
-        self.relaxation_rate = None
-        self.relaxation_timestep = None
-        self.kB = None
-        self.species_num = None
-        self.species_masses = None
-        self.berendsen_tau = None
-        self.eV_temp_flag = False
-        self.K_temp_flag = False
+    berendsen_tau: float = None
+    eV2K: float = physical_constants["electron volt-kelvin relationship"][0]
+    eV_temp_flag: bool = False
+    K_temp_flag: bool = False
+    kB: float = physical_constants["Boltzmann constant"][0]
+    relaxation_rate: int = None
+    relaxation_timestep: int = None
+    species_num: ndarray = None
+    species_masses: ndarray = None
+    temperatures = None
+    temperatures_eV = None
+    type: str = None
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -57,6 +71,46 @@ class Thermostat:
             disp += "\t{} : {}\n".format(key, value)
         disp += ")"
         return disp
+
+    def __copy__(self):
+        """Make a shallow copy of the object using copy by creating a new instance of the object and copying its __dict__."""
+        # Create a new object
+        _copy = type(self)()
+        # copy the dictionary
+        _copy.__dict__.update(self.__dict__)
+        return _copy
+
+    def __deepcopy__(self, memodict: dict = {}):
+        """Make a deepcopy of the object.
+
+        Parameters
+        ----------
+        memodict: dict
+            Dictionary of id's to copies
+
+        Returns
+        -------
+        _copy: :class:`sarkas.time_evolution.thermostat.Thermostat`
+            A new Thermostat class.
+
+        """
+        id_self = id(self)  # memorization avoids unnecessary recursion
+        _copy = memodict.get(id_self)
+        if _copy is None:
+            _copy = type(self)()
+            _copy.temperatures = self.temperatures.copy()
+            _copy.temperatures_eV = self.temperatures_eV.copy()
+            _copy.type = deepcopy(self.type, memodict)
+            _copy.relaxation_rate = deepcopy(self.relaxation_rate, memodict)
+            _copy.relaxation_timestep = deepcopy(self.relaxation_timestep, memodict)
+            _copy.species_num = self.species_num.copy()
+            _copy.species_masses = self.species_masses.copy()
+            _copy.berendsen_tau = deepcopy(self.berendsen_tau, memodict)
+            _copy.eV_temp_flag = deepcopy(self.eV_temp_flag, memodict)
+            _copy.K_temp_flag = deepcopy(self.K_temp_flag, memodict)
+            _copy.kB = deepcopy(self.kB)
+            memodict[id_self] = _copy
+        return _copy
 
     def from_dict(self, input_dict: dict):
         """
@@ -71,18 +125,20 @@ class Thermostat:
         self.__dict__.update(input_dict)
 
         # Make sure list are turned into numpy arrays
+        # TODO: There should be a better way to check if the user passed eV or K
         if self.temperatures_eV:
-            if not isinstance(self.temperatures_eV, np.ndarray):
-                self.temperatures_eV = np.array([self.temperatures_eV])
+            if not isinstance(self.temperatures_eV, ndarray):
+                self.temperatures_eV = array([self.temperatures_eV])
             self.eV_temp_flag = True
 
         if self.temperatures:
-            if not isinstance(self.temperatures, np.ndarray):
-                self.temperatures = np.array([self.temperatures])
+            if not isinstance(self.temperatures, ndarray):
+                self.temperatures = array([self.temperatures])
             self.K_temp_flag = True
 
     def pretty_print(self):
         """Print Thermostat information in a user-friendly way."""
+        print("\nTHERMOSTAT: ")
         print(f"Type: {self.type}")
         print(f"First thermostating timestep, i.e. relaxation_timestep = {self.relaxation_timestep}")
         print(f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]")
@@ -115,12 +171,12 @@ class Thermostat:
         self.type = self.type.lower()
 
         if self.eV_temp_flag:
-            self.temperatures = params.eV2K * np.copy(self.temperatures_eV)
+            self.temperatures = self.eV2K * self.temperatures_eV.copy()
         elif self.K_temp_flag:
-            self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
+            self.temperatures_eV = self.temperatures.copy() / self.eV2K
         else:
-            self.temperatures = np.copy(params.species_temperatures)
-            self.temperatures_eV = np.copy(self.temperatures) / params.eV2K
+            self.temperatures = params.species_temperatures.copy()
+            self.temperatures_eV = self.temperatures.copy() / self.eV2K
 
         if self.berendsen_tau:
             self.relaxation_rate = 1.0 / self.berendsen_tau
@@ -128,11 +184,11 @@ class Thermostat:
             self.berendsen_tau = 1.0 / self.relaxation_rate
 
         if not self.temperatures.all():
-            self.temperatures = np.copy(params.species_temperatures)
+            self.temperatures = params.species_temperatures.copy()
 
         self.kB = params.kB
-        self.species_num = np.copy(params.species_num)
-        self.species_masses = np.copy(params.species_masses)
+        self.species_num = params.species_num.copy()
+        self.species_masses = params.species_masses.copy()
 
         if self.type != "berendsen":
             raise ValueError("Only Berendsen thermostat is supported.")
@@ -143,7 +199,7 @@ class Thermostat:
 
         Parameters
         ----------
-        ptcls : :class:`sarkas.core.Particles`
+        ptcls : :class:`sarkas.particles.Particles`
             Particles' data.
 
         it : int
@@ -185,12 +241,12 @@ def berendsen(vel, T_desired, T, species_np, therm_timestep, tau, it):
     """
 
     # if it < therm_timestep:
-    #     fact = np.sqrt(T_desired / T)
+    #     fact = sqrt(T_desired / T)
     # else:
-    #     fact = np.sqrt(1.0 + (T_desired / T - 1.0) * tau)  # eq.(11)
+    #     fact = sqrt(1.0 + (T_desired / T - 1.0) * tau)  # eq.(11)
 
     # branchless programming
-    fact = 1.0 * (it < therm_timestep) + np.sqrt(1.0 + (T_desired / T - 1.0) * tau) * (it >= therm_timestep)
+    fact = 1.0 * (it < therm_timestep) + sqrt(1.0 + (T_desired / T - 1.0) * tau) * (it >= therm_timestep)
     species_start = 0
     species_end = 0
 

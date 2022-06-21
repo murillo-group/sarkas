@@ -1,53 +1,50 @@
 # keywords: BIM, Coulomb, P3M, cgs, random_no_reject,
-# Paper: Hansen et al. Physica A 132, 472 (1985)
 Particles:
     - Species:
         name: H
-        number_density: 8.1e+27       # /cm^3
-        atomic_weight: 1.0             #
-        num: 2500                       # total number of H particles
-        Z: 1.0                         # degree of ionization
+        number_density: 8.1e+27
+        atomic_weight: 1.0
+        num: 2500
+        Z: 1.0
         temperature_eV: 14.68
 
     - Species:
         name: He
-        number_density: 8.1e+27       # /cm^3
+        number_density: 8.1e+27
         atomic_weight: 4
-        num: 2500                       # total number of He particles
-        Z: 2.0                          # degree of ionization
+        num: 2500
+        Z: 2.0
         temperature_eV: 14.68
 
 Potential:
     type: Coulomb
-    method: pppm                         # Particle-Particle Particle-Mesh
+    method: pppm
     rc: 1.7162e-09
     pppm_mesh: [32, 32, 32]
     pppm_aliases: [3,3,3]
-    pppm_cao: 6
+    pppm_cao: [6,6,6]
     pppm_alpha_ewald: 2.0802e+09
 
 Integrator:
-    type: Verlet                         # velocity integrator type
+    type: Verlet
+    dt: 9.5e-20
+    thermostat_type: berendsen
+    thermalization_timestep: 100
+    berendsen_tau: 5.0
+
+Parameters:
+    units: cgs
+    load_method: random_no_reject
+    boundary_conditions: periodic
     equilibration_steps: 5000
     production_steps: 100000
     eq_dump_step: 10
     prod_dump_step: 10
 
-Thermostat:
-    type: Berendsen                      # thermostat type
-    relaxation_timestep: 100
-    berendsen_tau: 5.0
-
-Parameters:
-    units: cgs                           # units
-    dt: 9.5e-20                     # sec
-    load_method: random_no_reject #prod_restart
-    boundary_conditions: periodic
-
 IO:
     verbose: yes
     simulations_dir: Simulations
-    job_dir: bim                         # dir name to save data.
+    job_dir: HeH_sim
 
 Observables:
   - RadialDistributionFunction:

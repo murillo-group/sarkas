@@ -1,46 +1,53 @@
 # keywords: YOCP, Yukawa, P3M, mks, random_no_reject
 Particles:
     - Species:
-        name: H
-        number_density: 1.62e+32       # /m^3
-        mass: 1.673e-27                # kg, ptcl mass of ion1
-        num: 10000                    # total number of particles of ion1
-        Z: 1.0                        # degree of ionization
-        temperature_eV: 1.25
+        name: H                                     # REQUIRED
+        num: 10000                                  # REQUIRED
+        Z: 1.0                                      # REQUIRED/OVERWRITTEN if charge is used
+        # charge: 1.602177e-19                      # REQUIRED unless Z is used.
+        number_density: 1.62e+32                    # REQUIRED/OPTIONAL if mass_density is used
+        mass: 1.673e-27                             # REQUIRED/OPTIONAL if mass_density is used
+        # atomic_weight: 1.0                        # OPTIONAL/REQUIRED if mass_density is used
+        # mass_density: 2.710260e+05
+        temperature_eV: 0.5                         # REQUIRED/OPTIONAL if temperature is used
+        # temperature:  5.802259e+03                # REQUIRED/OPTIONAL if temperature_eV is used
+        initial_velocity_distribution: boltzmann    # OPTIONAL
 
 Potential:
-    type: Yukawa
-    method: P3M                   # Particle-Particle Particle-Mesh
-    electron_temperature_eV: 1.25e+3
-    rc: 6.2702e-11            # [m]
-    pppm_mesh: [64, 64, 64]
-    pppm_aliases: [3,3,3]
-    pppm_cao: 6
-    pppm_alpha_ewald: 5.4659e+10 # 1/[m]
+    type: Yukawa                            # REQUIRED
+    screening_length_type: "thomas-fermi"   # REQUIRED for screened potentials
+    electron_temperature_eV: 1.25e+3        # REQUIRED if 'thomas-fermi' type
+    method: pppm                            # REQUIRED
+    rc: 6.2702e-11                          # REQUIRED
+    pppm_mesh: [64, 64, 64]                 # REQUIRED
+    pppm_aliases: [3,3,3]                   # REQUIRED
+    pppm_cao: 6                             # REQUIRED
+    pppm_alpha_ewald: 5.4659e+10            # REQUIRED
 
 Integrator:
-    type: Verlet                  # velocity integrator type
-    equilibration_steps: 5000                  # number of timesteps for the equilibrium
-    production_steps: 5000               # number of timesteps after the equilibrium
-    eq_dump_step: 10
-    prod_dump_step: 10
-
-Thermostat:
-    type: Berendsen               # thermostat type
-    relaxation_timestep: 50
-    berendsen_tau: 1.0
+    dt: 2.000e-18                       # REQUIRED
+    equilibration_type: verlet          # REQUIRED
+    production_type: verlet             # REQUIRED
+    boundary_conditions: periodic       # REQUIRED
+    thermalization: yes                 # OPTIONAL. Default = yes
+    thermostat_type: Berendsen          # REQUIRED if thermalization is yes
+    thermalization_timestep: 50         # REQUIRED if thermalization is yes
+    berendsen_tau: 1.0                  # REQUIRED if thermostat: berendsen
+    thermostate_temperatures_eV: 0.5    # OPTIONAL Default = Species.temperature_eV
 
 Parameters:
-    units: mks                  # units
-    dt: 2.000e-18            # sec
-    load_method: random_no_reject
-    boundary_conditions: periodic
+    units: mks                          # REQUIRED
+    load_method: random_no_reject       # REQUIRED
+    equilibration_steps: 5000           # REQUIRED
+    production_steps: 5000              # REQUIRED
+    eq_dump_step: 10                    # REQUIRED
+    prod_dump_step: 10                  # REQUIRED
 
 IO:
-    verbose: yes
-    simulations_dir: Simulations
-    job_dir: yocp_pppm  # dir name to save data.
-    job_id: yocp
+    verbose: yes                        # OPTIONAL. Default is yes
+    simulations_dir: Simulations        # OPTIONAL. Default is Simulations
+    job_dir: yocp_pppm                  # REQUIRED
+    job_id: yocp                        # OPTIONAL. Default is the job_dir values
 
 Observables:
   - RadialDistributionFunction:

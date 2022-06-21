@@ -2,7 +2,7 @@
 
 import scipy.signal as scp_signal
 from numba import njit
-from numpy import arange, array, exp, inf, log, pi, sqrt, trapz, zeros_like
+from numpy import arange, array, exp, inf, ndarray, pi, sqrt, trapz, zeros_like
 from scipy.integrate import quad
 
 TWOPI = 2.0 * pi
@@ -156,17 +156,58 @@ def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
     return intgrl
 
 
-def force_error_approx_pppm(kappa, rc, p, h, alpha):
+def force_error_approx_pppm(potential):
+    r"""
+     Calculates the force error, :math:`\Delta F_{\rm {pm}}, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
+     The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
+
+     Parameters
+     ----------
+     potential: :class:`sarkas.potentials.core.Potential`
+        Potential class with all the required information.
+
+     Returns
+     -------
+    tot_force_error: float
+        Total force error given by the L2 norm of the PP and PM force errors.
+
+    pppm_pm_err: float
+        PM force error.
+
+    pppm_pp_err: float
+        PM force error.
     """
-    Numba'd function to calculate the total force error for a given value of the PPPM parameters.
+
+    if potential.type in ["yukawa"]:
+        kappa = potential.a_ws / potential.screening_length
+        alpha = potential.pppm_alpha_ewald * potential.a_ws
+        ha = potential.pppm_h_array[0] / potential.a_ws
+        pppm_pm_err = force_error_approx_pm(kappa, potential.pppm_cao[0], ha, alpha)
+
+    elif potential.type == "coulomb":
+        alpha = potential.pppm_alpha_ewald * potential.a_ws
+        ha = potential.pppm_h_array[0] / potential.a_ws
+        pppm_pm_err = force_error_approx_pm(0.0, potential.pppm_cao[0], ha, alpha)
+
+    rescaling_constant = sqrt(potential.total_num_density) * potential.a_ws**2
+    pppm_pp_err = force_error_analytic_pp(
+        potential.type, potential.rc, potential.screening_length, potential.pppm_alpha_ewald, rescaling_constant
+    )
+    pppm_pm_err *= sqrt(potential.total_num_density * potential.a_ws**3)
+    force_error_tot = sqrt(pppm_pm_err**2 + pppm_pp_err**2)
+
+    return force_error_tot, pppm_pm_err, pppm_pp_err
+
+
+def force_error_approx_pm(kappa: float, p: int, h: float, alpha: float):
+    r"""
+    Calculates the PM part of the force error, :math:`\Delta F_{\rm {pm}},  for a given value of the PPPM parameters.
+    The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
     kappa : float
         Inverse screening length.
-
-    rc : float
-        Cutoff length.
 
     p : int
         Charge assignment order.
@@ -179,15 +220,6 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
 
     Returns
     -------
-    Tot_Delta_F : float
-        Total force error given by
-
-        .. math::
-            \\Delta F = \\sqrt{\\Delta F_{\\textrm {pp}}^2 + \\Delta F_{\\textrm {pm}}^2 }
-
-    pp_force_error : float
-        PP force error.
-
     pm_force_error: float
         PM force error.
 
@@ -234,15 +266,64 @@ def force_error_approx_pppm(kappa, rc, p, h, alpha):
     # eq.(36) in :cite:`Dharuman2017`
     pm_force_error = sqrt(3.0 * somma) / (2.0 * pi)
 
-    # eq.(30) from :cite:`Dharuman2017`
-    pp_force_error = 2.0 * exp(-((0.5 * kappa / alpha) ** 2) - alpha**2 * rc**2) / sqrt(rc)
-    # eq.(42) from :cite:`Dharuman2017`
-    Tot_DeltaF = sqrt(pm_force_error**2 + pp_force_error**2)
-
-    return Tot_DeltaF, pp_force_error, pm_force_error
+    return pm_force_error
 
 
-def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, rescaling_const):
+def force_error_analytic_pp(
+    potential_type: str, cutoff_length: float, screening_length: float, alpha_ewald: float, rescaling_const: float
+):
+    """
+    Calculate the short-range part of the force error from the approximation formula given in :cite:`Dharuman2017`.
+
+    Parameters
+    ----------
+    potential_type: str
+        Choice of potential.
+
+    cutoff_length: float
+        Short range cutoff.
+
+    screening_length: float
+        Screening length in case of screened potentials like yukawa. Pass 0 if coulomb
+
+    alpha_ewald: float
+        Ewald screening parameter.
+
+    rescaling_const: float
+        Constant by which to rescale the force error. \n
+        In case of electric forces = :math:`Q^2/(4 \\pi \\epsilon_0) 1/a^2`.
+
+    Returns
+    -------
+    pppm_pp_err: float
+        Short range force error in units of `rescaling_const`.
+
+    """
+    if potential_type in ["yukawa"]:
+        kappa = 1 / screening_length
+
+        # PP force error calculation. Note that the equation was derived for a single component plasma.
+        kappa_over_alpha = -0.25 * (kappa / alpha_ewald) ** 2
+        alpha_times_rcut = -((alpha_ewald * cutoff_length) ** 2)
+        # eq.(30) from :cite:`Dharuman2017`
+        pppm_pp_err = 2.0 * exp(kappa_over_alpha + alpha_times_rcut) / sqrt(cutoff_length)
+        # Renormalize
+        pppm_pp_err *= rescaling_const
+
+    elif potential_type in ["coulomb", "qsp"]:
+
+        # PP force error calculation. Note that the equation was derived for a single component plasma.
+        alpha_times_rcut = -((alpha_ewald * cutoff_length) ** 2)
+        pppm_pp_err = 2.0 * exp(alpha_times_rcut) / sqrt(cutoff_length)
+        # Renormalize
+        pppm_pp_err *= rescaling_const
+
+    return pppm_pp_err
+
+
+def force_error_analytic_lcl(
+    potential_type: str, cutoff_length: float, potential_matrix: ndarray, rescaling_const: float
+):
     """
     Calculate the force error from its analytic formula.
 
@@ -254,7 +335,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     potential_matrix : numpy.ndarray
         Potential parameters.
 
-    cutoff_length : numpy.ndarray
+    cutoff_length : float
         Cutoff radius of the potential.
 
     rescaling_const: float
@@ -278,7 +359,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     >>> potential_matrix[1,:,:] = kappa
     >>> rc = 6.0 # in units of a_ws
     >>> const = 1.0 # Rescaling const
-    >>> force_error_analytic_pp("yukawa", rc, potential_matrix, const)
+    >>> force_error_analytic_lcl("yukawa", rc, potential_matrix, const)
     2.1780665692875655e-05
 
     Lennard jones potential
@@ -293,7 +374,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     >>> potential_matrix[2] = high_pow
     >>> potential_matrix[3] = low_pow
     >>> rc = 10 * sigma
-    >>> force_error_analytic_pp("lj", rc, potential_matrix, 1.0)
+    >>> force_error_analytic_lcl("lj", rc, potential_matrix, 1.0)
     1.4590050212983888e-16
 
     Moliere potential
@@ -310,7 +391,7 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     >>> pot_mat[1: params_len + 1] = screening_charges.reshape((3, 1, 1))
     >>> pot_mat[params_len + 1:] = 1. / screening_lengths.reshape((3, 1, 1))
     >>> rc = 6.629e-10
-    >>> force_error_analytic_pp("moliere", rc, pot_mat, 1.0)
+    >>> force_error_analytic_lcl("moliere", rc, pot_mat, 1.0)
     2.1223648580087958e-14
 
     """
@@ -341,251 +422,3 @@ def force_error_analytic_pp(potential_type, cutoff_length, potential_matrix, res
     force_error *= rescaling_const
 
     return force_error
-
-
-def inverse_fd_half(u: float) -> float:
-    """Approximate the inverse of the Fermi-Dirac integral :math:`I_{-1/2}(\\eta)` using the fits provided by Fukushima.
-    Function translated from Fukushima's code.
-    TODO: Add references.
-
-    Parameters
-    ----------
-    u : float
-        Normalized electron density :math:` = \\Lambda_{\\rm deB}^3 n_e \\sqrt{\\pi}/4`, \n
-        where :math:`\\Lambda_{\\rm deB}` is the de Broglie wavelength of the electron gas.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> # Values taken from Tutorial Notebooks
-    >>> ne = 1.62e32 # [N/m^3]
-    >>> lambda_deB = 1.957093e-11 # [m]
-    >>> u = lambda_deB**3 * ne * np.sqrt(np.pi)/4.0
-    >>> eta = inverse_fd_half(u)
-    >>> f"{eta:.4f}"
-    '-0.2860'
-
-    Returns
-    -------
-    difdih : float
-        Scaled chemical potential.
-
-    """
-    u1 = 5.8936762325936050502
-    u2 = 20.292139527268839575
-    u3 = 69.680386701202787485
-    u4 = 246.24741525281437791
-    vc = 1543.4606939459401869
-
-    if u < u1:
-        v = u1 - u
-        r = (
-            u
-            * (
-                4.4225399543845577739e9
-                + u
-                * (
-                    +1.4318826531216930391e9
-                    + u
-                    * (
-                        +2.0024511162084252731e8
-                        + u
-                        * (
-                            +1.5771885953346837109e7
-                            + u
-                            * (
-                                +7.664073281017674960e5
-                                + u
-                                * (
-                                    +2.3599362498847900809e4
-                                    + u * (+4.4114601741712557348e2 + u * (+3.8844451277821727933e0))
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-            / (
-                +2.448084356710615572e9
-                + v
-                * (
-                    +2.063907695769060888e8
-                    + v
-                    * (
-                        +6.943821586626002503e6
-                        + v
-                        * (+8.039397005856418743e4 + v * (-1.791261676399435220e3 + v * (-7.908051927048792349e1 - v)))
-                    )
-                )
-            )
-        )
-        difd1h = log(r)
-    elif u < u2:
-        y = u - u1
-        difd1h = (
-            +5.849893914158469793e14
-            + y
-            * (
-                +3.353389340896418967e14
-                + y
-                * (
-                    +7.300790845633384552e13
-                    + y
-                    * (
-                        +7.531271098292146768e12
-                        + y * (+3.726221594134586141e11 + y * (+7.827935737269045014e9 + y * (+5.021972425404123509e7)))
-                    )
-                )
-            )
-        ) / (
-            +1.4397298668421281743e14
-            + y
-            * (
-                +6.440007889067504875e13
-                + y
-                * (
-                    +1.0498882082904393876e13
-                    + y
-                    * (
-                        +7.568424788316453035e11
-                        + y
-                        * (
-                            +2.3206228235771973103e10
-                            + y
-                            * (
-                                +2.4329782896354397638e8
-                                + y * (+3.6768664133860359837e5 + y * (-5.924317283823514482e2 + y))
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    elif u < u3:
-        y = u - u2
-        difd1h = (
-            +6.733834344762314874e18
-            + y
-            * (
-                +1.1385291167086018856e18
-                + y
-                * (
-                    +7.441797125810403052e16
-                    + y
-                    * (
-                        +2.3556527595722738211e15
-                        + y
-                        * (+3.6904107711114070061e13 + y * (+2.5927357055940595308e11 + y * (+5.989403440741097470e8)))
-                    )
-                )
-            )
-        ) / (
-            +6.968777783221497285e17
-            + y
-            * (
-                +9.451599633557071205e16
-                + y
-                * (
-                    +4.7388759083089595117e15
-                    + y
-                    * (
-                        +1.0766510215928549449e14
-                        + y
-                        * (
-                            +1.0888539870400255904e12
-                            + y
-                            * (
-                                +4.0374047390260294467e9
-                                + y * (+2.3126814357531839818e6 + y * (-1.4788294703774470115e3 + y))
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    elif u < u4:
-
-        y = u - u3
-        difd1h = (
-            +7.884494095314249799e19
-            + y
-            * (
-                +3.7486465573810023777e18
-                + y
-                * (
-                    +6.934193474730824900e16
-                    + y
-                    * (
-                        +6.302949477641708425e14
-                        + y
-                        * (
-                            +2.9299316609051704688e12
-                            + y
-                            * (+6.591658047866512380e9 + y * (+6.082995857672390394e6 + y * (+1.5054843420905807932e3)))
-                        )
-                    )
-                )
-            )
-        ) / (
-            +3.5593247304804720533e18
-            + y
-            * (
-                +1.3505797700306451874e17
-                + y
-                * (
-                    +1.9160919212553016350e15
-                    + y
-                    * (
-                        +1.2652560651095328402e13
-                        + y
-                        * (+3.9491055033213850687e10 + y * (+5.253083775042776560e7 + y * (+2.2252541165920236251e4 + y)))
-                    )
-                )
-            )
-        )
-    else:
-        t = vc * (u ** -(4.0 / 3.0))
-        s = 1.0 - t
-        w = (+3.4330125059142833612e7 + s * (+8.713462091032493289e5 + s * (+2.4245560148256419080e3 + s))) / (
-            t * (+1.2961677595919532465e4 + s * (+3.2092883892793106635e2 + s * (+0.7192193760323717351e0)))
-        )
-        difd1h = sqrt(w)
-
-    return difd1h
-
-
-def fd_integral(eta: float, p: float) -> float:
-    """Calculate the unnormalized Fermi-Dirac integral :math:`\\mathcal I_p(\\eta)` of order `p`
-     with given chemical potential `eta`. It uses :func:`scipy.integrate.quad`. \n
-     The integral is defined as
-
-    .. math::
-        \\mathcal I_{p} [\\eta] =  \\int_0^{\\infty} dx \\frac{x^p}{1 + e^{x - \\eta} }.
-
-    Examples
-    --------
-    >>> from numpy import pi, sqrt
-    >>> # Electron density
-    >>> eta = -0.2860
-    >>> I = fd_integral(eta = eta, p = 0.5)
-    >>> lambda_deB = 1.957093e-11 # [m]
-    >>> ne = 4.0/( sqrt(pi) * lambda_deB**3 ) * I
-    >>> f"{ne:.4e}"
-    '1.6201e+32'
-
-    Parameters
-    ----------
-    eta : float
-        Chemical potential divided by temperature.
-
-    p : float
-        Order of the FD integral.
-
-    Returns
-    -------
-
-    _ : float
-        FD Integral.
-
-    """
-    return quad(lambda x: x**p / (1 + exp(x - eta)), 0, 100)[0]

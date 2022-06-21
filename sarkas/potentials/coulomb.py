@@ -1,4 +1,4 @@
-"""
+r"""
 Module for handling Coulomb interaction.
 
 Potential
@@ -7,7 +7,7 @@ Potential
 The Coulomb potential between two particles :math:`a,b` is
 
 .. math::
-   U_{ab}(r) = \\frac{q_{a}q_b}{4 \\pi \\epsilon_0 r}.
+   U_{ab}(r) = \frac{q_{a}q_b}{4 \pi \epsilon_0 r}.
 
 Potential Attributes
 ********************
@@ -27,8 +27,10 @@ from numba import jit
 from numba.core.types import float64, UniTuple
 from numpy import exp, pi, sqrt, zeros
 
+from ..utilities.maths import force_error_analytic_pp
 
-def update_params(potential, params):
+
+def update_params(potential):
     """
     Assign potential dependent simulation's parameters.
 
@@ -37,32 +39,32 @@ def update_params(potential, params):
     potential : :class:`sarkas.potentials.core.Potential`
         Potential's information
 
-    params : :class:`sarkas.core.Parameters`
-        Simulation's parameters
-
-
     """
 
-    potential.matrix = zeros((3, params.num_species, params.num_species))
+    potential.matrix = zeros((3, potential.num_species, potential.num_species))
 
-    for i, q1 in enumerate(params.species_charges):
-        for j, q2 in enumerate(params.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / params.fourpie0
+    for i, q1 in enumerate(potential.species_charges):
+        for j, q2 in enumerate(potential.species_charges):
+            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
 
     if potential.method == "pp":
         potential.matrix[2, :, :] = potential.a_rs
         potential.force = coulomb_force
-        params.force_error = 0.0  # TODO: Implement force error in PP case
+        potential.force_error = 0.0  # TODO: Implement force error in PP case
     elif potential.method == "pppm":
         potential.matrix[1, :, :] = potential.pppm_alpha_ewald
         potential.matrix[2, :, :] = potential.a_rs
         # Calculate the (total) plasma frequency
         potential.force = coulomb_force_pppm
 
-        # PP force error calculation. Note that the equation was derived for a single component plasma.
-        alpha_times_rcut = -((potential.pppm_alpha_ewald * potential.rc) ** 2)
-        params.pppm_pp_err = 2.0 * exp(alpha_times_rcut) / sqrt(potential.rc)
-        params.pppm_pp_err *= sqrt(params.total_num_ptcls) * params.a_ws**2 / sqrt(params.pbox_volume)
+        rescaling_constant = sqrt(potential.total_num_ptcls) * potential.a_ws**2 / sqrt(potential.pbox_volume)
+        potential.pppm_pp_err = force_error_analytic_pp(
+            potential.type, potential.rc, potential.screening_length, potential.pppm_alpha_ewald, rescaling_constant
+        )
+        # # PP force error calculation. Note that the equation was derived for a single component plasma.
+        # alpha_times_rcut = -((potential.pppm_alpha_ewald * potential.rc) ** 2)
+        # potential.pppm_pp_err = 2.0 * exp(alpha_times_rcut) / sqrt(potential.rc)
+        # potential.pppm_pp_err *= sqrt(potential.total_num_ptcls) * potential.a_ws ** 2 / sqrt(potential.pbox_volume)
 
 
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
@@ -155,3 +157,21 @@ def coulomb_force(r_in, pot_matrix):
     fr = U / r
 
     return U, fr
+
+
+def pretty_print_info(potential):
+    """
+    Print potential specific parameters in a user-friendly way.
+
+    Parameters
+    ----------
+    potential : :class:`sarkas.potentials.core.Potential`
+        Class handling potential form.
+
+    """
+
+    if potential.method != "fmm":
+        print(f"Short-range Cutoff radius: a_rs = {potential.a_rs:.6e} ", end="")
+        print("[cm]" if potential.units == "cgs" else "[m]")
+
+    print(f"Effective coupling constant: Gamma_eff = {potential.coupling_constant:.2f}")
