@@ -1,6 +1,0 @@
-sarkas.utilities.maths.inverse\_fd\_half
-========================================
-
-.. currentmodule:: sarkas.utilities.maths
-
-.. autofunction:: inverse_fd_half

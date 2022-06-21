@@ -1,6 +1,0 @@
-sarkas.tools.observables.calc\_elec\_current
-============================================
-
-.. currentmodule:: sarkas.tools.observables
-
-.. autofunction:: calc_elec_current

@@ -9,15 +9,6 @@ sarkas.potentials.force\_pp
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      calculate_virial
-      update
-      update_0D
-   
    
 
    

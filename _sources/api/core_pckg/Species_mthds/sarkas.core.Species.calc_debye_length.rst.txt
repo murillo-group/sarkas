@@ -1,6 +1,0 @@
-sarkas.core.Species.calc\_debye\_length
-=======================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Species.calc_debye_length

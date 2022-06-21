@@ -1,6 +1,0 @@
-sarkas.core.Species.calc\_plasma\_frequency
-===========================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Species.calc_plasma_frequency

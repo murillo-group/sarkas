@@ -1,6 +1,0 @@
-sarkas.core.Particles.load\_from\_restart
-=========================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.load_from_restart

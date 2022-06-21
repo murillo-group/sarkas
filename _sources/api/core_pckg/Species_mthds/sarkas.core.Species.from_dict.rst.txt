@@ -1,6 +1,0 @@
-sarkas.core.Species.from\_dict
-==============================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Species.from_dict

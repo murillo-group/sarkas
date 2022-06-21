@@ -20,8 +20,6 @@
       :template: custom-class-template.rst
    
       Parameters
-      Particles
-      Species
    
    
 

@@ -1,6 +1,0 @@
-sarkas.potentials.force\_pm.calc\_acc\_pm
-=========================================
-
-.. currentmodule:: sarkas.potentials.force_pm
-
-.. autofunction:: calc_acc_pm

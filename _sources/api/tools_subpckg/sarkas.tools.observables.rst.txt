@@ -15,17 +15,12 @@ sarkas.tools.observables
       :toctree:
    
       arg_update_doc
-      calc_Sk
       calc_Skw
       calc_diff_flux_acf
-      calc_elec_current
       calc_moments
-      calc_nk
       calc_nkt
       calc_pressure_tensor
-      calc_statistical_efficiency
       calc_vacf
-      calc_vk
       calc_vkt
       calculate_herm_coeff
       col_mapper

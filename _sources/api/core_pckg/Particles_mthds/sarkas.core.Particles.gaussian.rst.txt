@@ -1,6 +1,0 @@
-sarkas.core.Particles.gaussian
-==============================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.gaussian

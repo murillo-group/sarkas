@@ -14,11 +14,9 @@ sarkas.utilities.tests.test\_maths
    .. autosummary::
       :toctree:
    
-      test_fd_integral
-      test_inverse_fd
-      test_lj_force_analytic_pp
-      test_moliere_force_analytic_pp
-      test_yukawa_force_analytic_pp
+      test_lj_force_analytic_lcl
+      test_moliere_force_analytic_lcl
+      test_yukawa_force_analytic_lcl
       test_yukawa_gk
    
    

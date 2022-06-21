@@ -35,6 +35,7 @@ sarkas.tools.observables.VelocityDistribution
       VelocityDistribution.save_pickle
       VelocityDistribution.setup
       VelocityDistribution.setup_init
+      VelocityDistribution.setup_multirun_dirs
       VelocityDistribution.time_stamp
       VelocityDistribution.update_args
       VelocityDistribution.update_finish

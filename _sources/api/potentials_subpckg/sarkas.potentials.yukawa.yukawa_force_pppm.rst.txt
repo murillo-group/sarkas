@@ -1,6 +1,0 @@
-sarkas.potentials.yukawa.yukawa\_force\_pppm
-============================================
-
-.. currentmodule:: sarkas.potentials.yukawa
-
-.. autofunction:: yukawa_force_pppm

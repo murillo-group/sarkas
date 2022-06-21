@@ -14,8 +14,7 @@ sarkas.potentials.coulomb
    .. autosummary::
       :toctree:
    
-      coulomb_force
-      coulomb_force_pppm
+      pretty_print_info
       update_params
    
    

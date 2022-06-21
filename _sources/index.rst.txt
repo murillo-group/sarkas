@@ -12,7 +12,7 @@
    :designer: Stefano Silvestri, Ph.D.
 
 
-.. the "raw" directive below is used to hide the title in favor of just the logo being visible 
+.. the "raw" directive below is used to hide the title in favor of just the logo being visible
 
 .. raw:: html
    <link rel="canonical" href="https://murillo-group.github.io/sarkas/">
@@ -31,7 +31,7 @@ SARKAS: Python MD code for plasma physics
 
 
 .. raw:: html
-  
+
    <div class="full-width p-0 m-0">
       <div class="jumbotron jumbotron-fluid p-0 bg-white">
          <div class="container-fluid p-0 m-0">
@@ -77,7 +77,7 @@ SARKAS: Python MD code for plasma physics
             <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines
                of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
          </div>
-         
+
          <div class="text-center col-xs-12 col-sm-12 col-md-6">
             <h4 class="text-center"><i class="fa fa-rocket fa-3x mb-3 text-muted"></i><br>Fast Pure Python</h4>
             <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable
@@ -94,7 +94,7 @@ SARKAS: Python MD code for plasma physics
             <h4 class="text-center"><i class="fa fa-database fa-3x mb-3 text-muted"></i><br>Data Science</h4>
             <p>Sarkas has been developed for data science. You can run multiple simulations and store data with a simple for loop.</p>
          </div>
-         
+
          <div class="text-center col-xs-12 col-sm-12 col-md-6">
             <h4 class="text-center"><i class="fa fa-chart-area fa-3x mb-3 text-muted"></i><br>Publications</h4>
             <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get
@@ -105,13 +105,13 @@ SARKAS: Python MD code for plasma physics
             <h4 class="text-center"><i class="fa fa-cogs fa-3x mb-3 text-muted"></i><br>Highly Customizable</h4>
             <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
          </div>
-         
+
          <div class="text-center col-xs-12 col-sm-12 col-md-6">
             <h4 class="text-center"><i class="fa fa-users fa-3x mb-3 text-muted"></i><br>Collaborative Effort</h4>
             <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging
             open problems in plasma physics.</p>
          </div>
-         
+
          <div class="text-center col-xs-12 col-sm-12 col-md-6">
             <h4 class="text-center"><i class="fa fa-github fa-3x mb-3 text-muted"></i><br>Open Source</h4>
             <p>Sarkas is released under the MIT License and maintained by the community on GitHub.</p>
@@ -131,6 +131,7 @@ SARKAS: Python MD code for plasma physics
 
          documentation/why_sarkas
          documentation/get_started
+         documentation/features
 
 
       .. toctree::

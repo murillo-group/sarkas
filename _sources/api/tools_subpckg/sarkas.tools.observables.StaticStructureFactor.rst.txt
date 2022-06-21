@@ -19,6 +19,7 @@ sarkas.tools.observables.StaticStructureFactor
       StaticStructureFactor.compute
       StaticStructureFactor.create_dirs_filenames
       StaticStructureFactor.from_dict
+      StaticStructureFactor.grab_sim_data
       StaticStructureFactor.parse
       StaticStructureFactor.parse_k_data
       StaticStructureFactor.parse_kt_data
@@ -29,6 +30,7 @@ sarkas.tools.observables.StaticStructureFactor
       StaticStructureFactor.save_pickle
       StaticStructureFactor.setup
       StaticStructureFactor.setup_init
+      StaticStructureFactor.setup_multirun_dirs
       StaticStructureFactor.time_stamp
       StaticStructureFactor.update_args
       StaticStructureFactor.update_finish

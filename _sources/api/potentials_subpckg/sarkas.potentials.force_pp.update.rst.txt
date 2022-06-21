@@ -1,6 +1,0 @@
-sarkas.potentials.force\_pp.update
-==================================
-
-.. currentmodule:: sarkas.potentials.force_pp
-
-.. autofunction:: update

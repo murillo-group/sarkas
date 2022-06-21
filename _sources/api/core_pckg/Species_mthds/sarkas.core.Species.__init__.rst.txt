@@ -1,6 +1,0 @@
-sarkas.core.Species.\_\_init\_\_
-================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Species.__init__

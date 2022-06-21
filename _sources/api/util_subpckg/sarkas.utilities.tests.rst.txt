@@ -28,5 +28,6 @@ sarkas.utilities.tests
    :template: custom-module-template.rst
    :recursive:
 
+   sarkas.utilities.tests.test_fdints
    sarkas.utilities.tests.test_maths
 

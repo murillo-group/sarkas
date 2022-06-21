@@ -14,7 +14,7 @@ sarkas.potentials.lennardjones
    .. autosummary::
       :toctree:
    
-      lj_force
+      pretty_print_info
       update_params
    
    

@@ -1,6 +1,0 @@
-sarkas.core.Particles.lattice
-=============================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.lattice

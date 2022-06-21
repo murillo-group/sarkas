@@ -14,7 +14,7 @@ sarkas.potentials.egs
    .. autosummary::
       :toctree:
    
-      egs_force
+      pretty_print_info
       update_params
    
    

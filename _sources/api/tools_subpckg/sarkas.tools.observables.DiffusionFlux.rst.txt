@@ -19,6 +19,7 @@ sarkas.tools.observables.DiffusionFlux
       DiffusionFlux.compute
       DiffusionFlux.create_dirs_filenames
       DiffusionFlux.from_dict
+      DiffusionFlux.grab_sim_data
       DiffusionFlux.parse
       DiffusionFlux.parse_k_data
       DiffusionFlux.parse_kt_data
@@ -29,6 +30,7 @@ sarkas.tools.observables.DiffusionFlux
       DiffusionFlux.save_pickle
       DiffusionFlux.setup
       DiffusionFlux.setup_init
+      DiffusionFlux.setup_multirun_dirs
       DiffusionFlux.time_stamp
       DiffusionFlux.update_args
       DiffusionFlux.update_finish

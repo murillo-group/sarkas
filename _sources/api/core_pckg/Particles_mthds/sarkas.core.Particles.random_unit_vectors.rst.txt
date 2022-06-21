@@ -1,6 +1,0 @@
-sarkas.core.Particles.random\_unit\_vectors
-===========================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.random_unit_vectors

@@ -1,6 +1,0 @@
-sarkas.core.Particles.load\_from\_file
-======================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.load_from_file

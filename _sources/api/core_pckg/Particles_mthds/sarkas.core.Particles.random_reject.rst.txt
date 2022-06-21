@@ -1,6 +1,0 @@
-sarkas.core.Particles.random\_reject
-====================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.random_reject

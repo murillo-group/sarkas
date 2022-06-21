@@ -20,6 +20,7 @@ sarkas.tools.observables.RadialDistributionFunction
       RadialDistributionFunction.compute_sum_rule_integrals
       RadialDistributionFunction.create_dirs_filenames
       RadialDistributionFunction.from_dict
+      RadialDistributionFunction.grab_sim_data
       RadialDistributionFunction.parse
       RadialDistributionFunction.parse_k_data
       RadialDistributionFunction.parse_kt_data
@@ -30,6 +31,7 @@ sarkas.tools.observables.RadialDistributionFunction
       RadialDistributionFunction.save_pickle
       RadialDistributionFunction.setup
       RadialDistributionFunction.setup_init
+      RadialDistributionFunction.setup_multirun_dirs
       RadialDistributionFunction.time_stamp
       RadialDistributionFunction.update_args
       RadialDistributionFunction.update_finish

@@ -15,6 +15,7 @@ sarkas.processes.PostProcess
    
       PostProcess.__init__
       PostProcess.common_parser
+      PostProcess.evolve_loop
       PostProcess.initialization
       PostProcess.run
       PostProcess.setup

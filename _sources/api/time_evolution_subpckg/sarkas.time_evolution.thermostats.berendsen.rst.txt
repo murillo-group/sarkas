@@ -1,6 +1,0 @@
-sarkas.time\_evolution.thermostats.berendsen
-============================================
-
-.. currentmodule:: sarkas.time_evolution.thermostats
-
-.. autofunction:: berendsen

@@ -15,6 +15,7 @@ sarkas.processes.Process
    
       Process.__init__
       Process.common_parser
+      Process.evolve_loop
       Process.initialization
       Process.setup
    

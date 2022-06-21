@@ -1,6 +1,0 @@
-sarkas.core.Particles.uniform\_no\_reject
-=========================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.uniform_no_reject

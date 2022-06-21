@@ -14,11 +14,14 @@ sarkas.tools.observables.VelocityAutoCorrelationFunction
 
    
       VelocityAutoCorrelationFunction.__init__
+      VelocityAutoCorrelationFunction.average_slices_data
       VelocityAutoCorrelationFunction.calc_k_data
       VelocityAutoCorrelationFunction.calc_kt_data
+      VelocityAutoCorrelationFunction.calc_slices_data
       VelocityAutoCorrelationFunction.compute
       VelocityAutoCorrelationFunction.create_dirs_filenames
       VelocityAutoCorrelationFunction.from_dict
+      VelocityAutoCorrelationFunction.grab_sim_data
       VelocityAutoCorrelationFunction.parse
       VelocityAutoCorrelationFunction.parse_k_data
       VelocityAutoCorrelationFunction.parse_kt_data
@@ -29,6 +32,7 @@ sarkas.tools.observables.VelocityAutoCorrelationFunction
       VelocityAutoCorrelationFunction.save_pickle
       VelocityAutoCorrelationFunction.setup
       VelocityAutoCorrelationFunction.setup_init
+      VelocityAutoCorrelationFunction.setup_multirun_dirs
       VelocityAutoCorrelationFunction.time_stamp
       VelocityAutoCorrelationFunction.update_args
       VelocityAutoCorrelationFunction.update_finish

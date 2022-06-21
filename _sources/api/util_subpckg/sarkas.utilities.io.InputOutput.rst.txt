@@ -15,6 +15,7 @@ sarkas.utilities.io.InputOutput
    
       InputOutput.__init__
       InputOutput.algorithm_info
+      InputOutput.copy_params
       InputOutput.create_file_paths
       InputOutput.dump
       InputOutput.dump_xyz

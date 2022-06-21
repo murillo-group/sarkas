@@ -1,6 +1,0 @@
-sarkas.potentials.hs\_yukawa.force\_deriv
-=========================================
-
-.. currentmodule:: sarkas.potentials.hs_yukawa
-
-.. autofunction:: force_deriv

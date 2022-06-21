@@ -9,16 +9,6 @@ sarkas.time\_evolution.integrators
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      enforce_abc
-      enforce_pbc
-      enforce_rbc
-      remove_drift
-   
    
 
    

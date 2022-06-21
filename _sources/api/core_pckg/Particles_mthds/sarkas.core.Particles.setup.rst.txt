@@ -1,6 +1,0 @@
-sarkas.core.Particles.setup
-===========================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.setup

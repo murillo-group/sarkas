@@ -1,6 +1,0 @@
-sarkas.core.Particles.remove\_drift
-===================================
-
-.. currentmodule:: sarkas.core
-
-.. automethod:: Particles.remove_drift

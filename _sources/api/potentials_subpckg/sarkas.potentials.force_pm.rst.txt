@@ -9,18 +9,6 @@ sarkas.potentials.force\_pm
 
    
    
-   .. rubric:: Functions
-
-   .. autosummary::
-      :toctree:
-   
-      assgnmnt_func
-      calc_acc_pm
-      calc_charge_dens
-      calc_field
-      force_optimized_green_function
-      update
-   
    
 
    

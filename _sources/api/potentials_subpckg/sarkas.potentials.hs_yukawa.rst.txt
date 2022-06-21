@@ -14,8 +14,7 @@ sarkas.potentials.hs\_yukawa
    .. autosummary::
       :toctree:
    
-      force_deriv
-      hs_yukawa_force
+      pretty_print_info
       update_params
    
    

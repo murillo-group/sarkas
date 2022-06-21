@@ -1,6 +1,0 @@
-sarkas.time\_evolution.integrators.enforce\_abc
-===============================================
-
-.. currentmodule:: sarkas.time_evolution.integrators
-
-.. autofunction:: enforce_abc

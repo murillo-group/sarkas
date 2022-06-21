@@ -18,6 +18,7 @@ sarkas.tools.observables.Observable
       Observable.calc_kt_data
       Observable.create_dirs_filenames
       Observable.from_dict
+      Observable.grab_sim_data
       Observable.parse
       Observable.parse_k_data
       Observable.parse_kt_data
@@ -26,6 +27,7 @@ sarkas.tools.observables.Observable
       Observable.save_hdf
       Observable.save_pickle
       Observable.setup_init
+      Observable.setup_multirun_dirs
       Observable.time_stamp
       Observable.update_finish
    

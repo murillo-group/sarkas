@@ -16,11 +16,10 @@ sarkas.utilities.maths
    
       betamp
       correlationfunction
-      fast_integral_loop
-      fd_integral
+      force_error_analytic_lcl
       force_error_analytic_pp
+      force_error_approx_pm
       force_error_approx_pppm
-      inverse_fd_half
       yukawa_green_function
    
    

@@ -25,6 +25,7 @@ sarkas.utilities.exceptions
       AlgorithmError
       AlgorithmWarning
       ParticlesError
+      ParticlesWarning
       PhysicsWarning
       SarkasError
       SarkasWarning

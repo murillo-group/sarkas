@@ -1,6 +1,0 @@
-sarkas.utilities.tests.test\_maths.test\_fd\_integral
-=====================================================
-
-.. currentmodule:: sarkas.utilities.tests.test_maths
-
-.. autofunction:: test_fd_integral

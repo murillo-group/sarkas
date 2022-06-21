@@ -14,8 +14,7 @@ sarkas.potentials.qsp
    .. autosummary::
       :toctree:
    
-      deutsch_force
-      kelbg_force
+      pretty_print_info
       update_params
    
    
