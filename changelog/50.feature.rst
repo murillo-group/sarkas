@@ -1,0 +1,4 @@
+Added 2D capability. Added FMM algorithm. Added Open boundary conditions.
+Added 2D hexagonal and square lattice as initial particles distribution.
+Added gaussian as initial particle distribution.
+Added multithreading for I/O. Added a fdint.py containing all the Fermi-Dirac integrals.

@@ -1,0 +1,2 @@
+Removed the Thermostat class. It is incorporated into the Integrator class.
+Removed the method calculate_electron_properties from the Potential class and included it into the Parameters class.
