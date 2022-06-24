@@ -32,7 +32,6 @@ dependencies:
   - sphinx-design
   - sphinxcontrib-bibtex
   - sphinx-autodoc-typehints
-  - sphinxext-opengraph
   - nbsphinx
   - recommonmark
   - sphinx-copybutton
@@ -43,3 +42,8 @@ dependencies:
 
   # Testing
   - pytest
+
+  - pip:
+      - sphinxext-opengraph
+
+

@@ -67,7 +67,7 @@ It is good practice to create virtual environment for each of your programming p
 to Sarkas or any other code will remain in this environment and won't affect your python packages.
 Below are instructions for creating the ``sarkas`` virtual environment.
 
-#. Enter the unzipped folder ``sarkas-master`` and open a terminal window (or command prompt in Windows).
+#. Enter the unzipped folder ``sarkas`` and open a terminal window (or command prompt in Windows).
 
 #. Check if you have ``conda`` installed
 
