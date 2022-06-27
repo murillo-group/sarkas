@@ -410,7 +410,7 @@ class Parameters:
             electrons["Z"] = -1.0
             electrons["charge"] = electrons["Z"] * self.qe
             electrons["spin_degeneracy"] = 2.0
-
+            electrons["num"] = self.species_num.T @ self.species_charges / self.qe
             e_species = Species(electrons)
             e_species.copy_params(self)
             e_species.calc_ws_radius()
