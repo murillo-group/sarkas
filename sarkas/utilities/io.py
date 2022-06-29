@@ -356,11 +356,9 @@ class InputOutput:
                 print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
 
                 print("\nPARTICLES:")
-                print("Total No. of particles = ", simulation.parameters.total_num_ptcls)
-                for isp, sp in enumerate(simulation.species):
-                    if sp.name == "electron_background":
-                        sp_index = isp
-                print("No. of species = ", len(simulation.species[:isp]))
+                print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
+
+                print(f"No. of species = {len(simulation.parameters.species_num)}")
                 for isp, sp in enumerate(simulation.species):
                     if sp.name != "electron_background":
                         print("Species ID: {}".format(isp))
@@ -478,7 +476,7 @@ class InputOutput:
                     int(size_GB), int(size_MB), int(size_KB), int(rem)
                 )
             )
-            if self.electrostatic_equilibration:
+            if self.magnetized and self.electrostatic_equilibration:
                 print("\nMagnetization:\n")
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 0])
                 print(

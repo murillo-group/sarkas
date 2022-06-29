@@ -181,6 +181,7 @@ class Species:
         self.eV2J = params.eV2J
         self.hbar = params.hbar
         self.c0 = params.c0
+
         self.dimensions = params.dimensions
         # Charged systems: Electrostatic constant  :math:`4 \\pi \\epsilon_0` [mks]
         # Neutral systems: :math:`1/n\\sigma^2`
@@ -218,7 +219,8 @@ class Species:
             Magnetic field strength.
 
         """
-        self.cyclotron_frequency = self.charge * magnetic_field_strength / self.mass
+
+        self.cyclotron_frequency = abs(self.charge) * magnetic_field_strength / self.mass
 
     def calc_landau_length(self):
         """Calculate the Landau Length."""

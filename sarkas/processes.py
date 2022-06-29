@@ -1151,12 +1151,13 @@ class PreProcess(Process):
             print(f"\nRunning {loops} equilibration and production steps to estimate simulation times\n")
 
         # Run few equilibration steps to estimate the equilibration time
-        self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
-        self.timer.start()
-        self.evolve_loop("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
-        self.eq_mean_time = self.timer.stop() / loops
-        # Print the average equilibration & production times
-        self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), loops)
+        if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
+            self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
+            self.timer.start()
+            self.evolve_loop("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
+            self.eq_mean_time = self.timer.stop() / loops
+            # Print the average equilibration & production times
+            self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), loops)
 
         if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
@@ -1173,11 +1174,14 @@ class PreProcess(Process):
         self.prod_mean_time = self.timer.stop() / loops
         self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), loops)
 
-        # Print the estimate for the full run
-        eq_prediction = self.eq_mean_time * self.parameters.equilibration_steps
-        self.io.time_stamp("Equilibration", self.timer.time_division(eq_prediction))
+        if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
+            # Print the estimate for the full run
+            eq_prediction = self.eq_mean_time * self.parameters.equilibration_steps
+            self.io.time_stamp("Equilibration", self.timer.time_division(eq_prediction))
+        else:
+            eq_prediction = 0.0
 
-        if self.parameters.magnetized:
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             mag_prediction = self.mag_mean_time * self.parameters.magnetization_steps
             self.io.time_stamp("Magnetization", self.timer.time_division(mag_prediction))
             eq_prediction += mag_prediction
@@ -1234,7 +1238,7 @@ class PreProcess(Process):
         # Prepare arguments to pass for print out
         sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
         # Check for electrostatic equilibration
-        if self.parameters.magnetized:
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             if not listdir(self.io.mag_dump_dir):
                 raise FileNotFoundError(
                     "Could not estimate the size of the magnetization phase dumps because"
