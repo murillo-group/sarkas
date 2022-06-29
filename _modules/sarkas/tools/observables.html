@@ -1640,10 +1640,10 @@ title="Source repository"
     <span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. </span><span class="se">\n</span><span class="s2"></span>
 <span class="s2">    The data of each slice is saved in hierarchical dataframes,</span>
-<span class="s2">    :attr:`~.dataframe_slices` (:attr:`~.dataframe_acf_slices`). </span><span class="se">\n</span><span class="s2"></span>
+<span class="s2">    :py:attr:`~.dataframe_slices` (:py:attr:`~.dataframe_acf_slices`). </span><span class="se">\n</span><span class="s2"></span>
 
 <span class="s2">    The sliced averaged data is saved in other hierarchical dataframes,</span>
-<span class="s2">    :attr:`~.dataframe` (:attr:`~.dataframe_acf_slices`).</span>
+<span class="s2">    :py:attr:`~.dataframe` (:py:attr:`~.dataframe_acf_slices`).</span>
 
 <span class="s2">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">func</span></div>
@@ -1716,7 +1716,7 @@ title="Source repository"
 
 <span class="sd">    dump_step : int</span>
 <span class="sd">        Correct step interval.</span>
-<span class="sd">        It is either :attr:`sarkas.core.Parameters.prod_dump_step` or :attr:`sarkas.core.Parameters.eq_dump_step`.</span>
+<span class="sd">        It is either :py:attr:`sarkas.core.Parameters.prod_dump_step` or :py:attr:`sarkas.core.Parameters.eq_dump_step`.</span>
 
 <span class="sd">    no_obs : int</span>
 <span class="sd">        Number of independent binary observable quantities.</span>
@@ -1833,7 +1833,20 @@ title="Source repository"
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Observable.setup_multirun_dirs"><a class="viewcode-back" href="../../../api/tools_subpckg/Observable_mthds/sarkas.tools.observables.Observable.setup_multirun_dirs.html#sarkas.tools.observables.Observable.setup_multirun_dirs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_multirun_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the attributes postprocessing_dir and dump_dirs_list.</span>
 
+<span class="sd">        The attribute postprocessing_dir refers to the location where to store postprocessing results.</span>
+<span class="sd">        If the attribute :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is set to `True` then the</span>
+<span class="sd">        postprocessing data will be saved in the :py:attr:`sarkas.core.Parameters.simulations_dir` directory, i.e. where</span>
+<span class="sd">        all the runs are.</span>
+<span class="sd">        Otherwise :py:attr:`sarkas.tools.observables.Observable.postprocessing_dir` will be</span>
+<span class="sd">        in the :py:attr:`sarkas.core.Parameters.job_dir`.</span>
+
+<span class="sd">        The attribute :py:attr:`sarkas.tools.observables.Observable.dump_dirs_list` is a list of the refers to the locations</span>
+<span class="sd">        of the production (or other phases) dumps. If :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is</span>
+<span class="sd">        `False` then the list will contain only one path, namely :py:attr:`sarkas.tools.observables.Observable.dump_dir`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dump_dirs_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_run_average</span><span class="p">:</span>
@@ -2587,7 +2600,7 @@ title="Source repository"
         <span class="bp">self</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Observable.update_finish"><a class="viewcode-back" href="../../../api/tools_subpckg/Observable_mthds/sarkas.tools.observables.Observable.update_finish.html#sarkas.tools.observables.Observable.update_finish">[docs]</a>    <span class="k">def</span> <span class="nf">update_finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Update the :attr:`~.slice_steps`, CCF&#39;s and DSF&#39;s attributes, and save pickle file with observable&#39;s info.</span>
+        <span class="sd">&quot;&quot;&quot;Update the :py:attr:`~.slice_steps`, CCF&#39;s and DSF&#39;s attributes, and save pickle file with observable&#39;s info.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -2666,7 +2679,7 @@ title="Source repository"
 <span class="sd">        Magnitude of each allowed :math:`ka` vector.</span>
 
 <span class="sd">    no_ka_values: int</span>
-<span class="sd">        Length of :attr:`~.ka_values` array.</span>
+<span class="sd">        Length of :py:attr:`~.ka_values` array.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3657,7 +3670,7 @@ title="Source repository"
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        beta: float</span>
-<span class="sd">            Inverse temperature factor. Grab it from :attr:`sarkas.tools.observables.Thermodynamics.beta`.</span>
+<span class="sd">            Inverse temperature factor. Grab it from :py:attr:`sarkas.tools.observables.Thermodynamics.beta`.</span>
 
 <span class="sd">        rdf: sarkas.tools.observables.RadialDistributionFunction</span>
 <span class="sd">            Radial Distribution function object.</span>
@@ -3842,11 +3855,11 @@ title="Source repository"
 <span class="sd">        -------</span>
 <span class="sd">        hartrees : numpy.ndarray</span>
 <span class="sd">            Hartree integrals with :math:`k = {0, 1, 2}`. \n</span>
-<span class="sd">            Shape = ( :attr:`sarkas.tools.observables.Observable.no_obs`, 3).</span>
+<span class="sd">            Shape = ( :py:attr:`sarkas.tools.observables.Observable.no_obs`, 3).</span>
 
 <span class="sd">        corrs : numpy.ndarray</span>
 <span class="sd">            Correlational integrals with :math:`k = {0, 1, 2}`. \n</span>
-<span class="sd">            Shape = ( :attr:`sarkas.tools.observables.Observable.no_obs`, 3).</span>
+<span class="sd">            Shape = ( :py:attr:`sarkas.tools.observables.Observable.no_obs`, 3).</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;Distance&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -4598,7 +4611,7 @@ title="Source repository"
 <span class="sd">    Moments of the velocity distributions defined as</span>
 
 <span class="sd">    .. math::</span>
-<span class="sd">        \\langle v^{\\alpha} \\rangle = \\int_{-\\infty}^{\\infty} d v \, f(v) v^{2 \\alpha}.</span>
+<span class="sd">        \\langle v^{\\alpha} \\rangle = \\int_{-\\infty}^{\\infty} d v \\, f(v) v^{2 \\alpha}.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -4612,7 +4625,7 @@ title="Source repository"
 <span class="sd">        Directory for each species where to save Hermite coefficients plots.</span>
 
 <span class="sd">    max_no_moment: int</span>
-<span class="sd">        Maximum number of moments = :math:`\alpha`. Default = 3.</span>
+<span class="sd">        Maximum number of moments = :math:`\\alpha`. Default = 6.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -6215,7 +6228,7 @@ title="Source repository"
     By MurilloGroup<br/>
   
       &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Jun 24, 2022.<br/>
+    Last updated on Jun 29, 2022.<br/>
 </p>
         </footer>
     </div>

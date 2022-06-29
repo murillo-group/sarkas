@@ -1602,6 +1602,11 @@ title="Print to PDF"
    PostProcessing
   </a>
  </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#MD-Movie">
+   MD Movie
+  </a>
+ </li>
 </ul>
 
     </nav>
@@ -1639,6 +1644,11 @@ title="Print to PDF"
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#PostProcessing">
    PostProcessing
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#MD-Movie">
+   MD Movie
   </a>
  </li>
 </ul>
@@ -1936,7 +1946,7 @@ ions and electrons immediately emerge after two-photon ionization. The excess en
 
 <span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">PreProcess</span><span class="p">,</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;../../../sarkas/mplstyles/MSUstyle.mplstyle&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
 <span class="n">input_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;uec.yaml&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1946,14 +1956,14 @@ ions and electrons immediately emerge after two-photon ionization. The excess en
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Using matplotlib backend: agg
+Using matplotlib backend: &lt;object object at 0x7f8c38283720&gt;
 Populating the interactive namespace from numpy and matplotlib
 </pre></div></div>
 </div>
 </section>
 <section id="Simulation">
 <h2>Simulation<a class="headerlink" href="#Simulation" title="Permalink to this headline">#</a></h2>
-<p>Let us start the simulation which takes ~30 minutes on 2021’s computer.</p>
+<p>Let us start the simulation.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -1972,29 +1982,22 @@ Populating the interactive namespace from numpy and matplotlib
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-<span style="color: rgb(110,0,95)">
+<span style="color: rgb(0,129,131)">
 
 
 
 
 
-
-     _______.     ___      .______       __  ___      ___           _______.
-    /       |    /   \     |   _  \     |  |/  /     /   \         /       |
-   |   (----`   /  ^  \    |  |_)  |    |  &#39;  /     /  ^  \       |   (----`
-    \   \      /  /_\  \   |      /     |    &lt;     /  /_\  \       \   \
-.----)   |    /  _____  \  |  |\  \----.|  .  \   /  _____  \  .----)   |
-|_______/    /__/     \__\ | _| `._____||__|\__\ /__/     \__\ |_______/
+ __            _
+/ _\ __ _ _ __| | ____ _ ___
+\ \ / _` | &#39;__| |/ / _` / __|
+_\ \ (_| | |  |   &lt; (_| \__ \
+\__/\__,_|_|  |_|\_\__,_|___/
 
 
 </span>
 An open-source pure-python molecular dynamics suite for non-ideal plasmas.
 
-WARNING: Short-range cut-off of 2.0000e-08 enabled. Use this feature with care!
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Use the PP method with care for pure Coulomb interactions.
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 
@@ -2003,18 +2006,18 @@ Use the PP method with care for pure Coulomb interactions.
                                    Simulation
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Job ID:  UEC_4000
-Job directory:  Simulations/UEC_4000
+Job ID: UEC_4000
+Job directory: Simulations/UEC_4000
 
 Equilibration dumps directory:
- Simulations/UEC_4000/Simulation/Equilibration/dumps
+ {&#39;Simulations/UEC_4000/Simulation/Equilibration/dumps&#39;}
 Production dumps directory:
- Simulations/UEC_4000/Simulation/Production/dumps
+ {&#39;Simulations/UEC_4000/Simulation/Production/dumps&#39;}
 
 Equilibration Thermodynamics file:
- Simulations/UEC_4000/Simulation/Equilibration/EquilibrationEnergy_UEC_4000.csv
+Simulations/UEC_4000/Simulation/Equilibration/EquilibrationEnergy_UEC_4000.csv
 Production Thermodynamics file:
- Simulations/UEC_4000/Simulation/Production/ProductionEnergy_UEC_4000.csv
+Simulations/UEC_4000/Simulation/Production/ProductionEnergy_UEC_4000.csv
 
 PARTICLES:
 Total No. of particles =  8000
@@ -2023,31 +2026,31 @@ Species ID: 0
         Name: e
         No. of particles = 4000
         Number density = 2.000000e+20 [N/m^3]
-        Atomic weight = 0.0005 [a.u.]
+        Atomic weight = 5.446170e-04 [a.u.]
         Mass = 9.109384e-31 [kg]
-        Mass density = 1.455190e-05 [kg/m^3]
+        Mass density = 1.821877e-10 [kg/m^3]
         Charge number/ionization degree = -1.0000
         Charge = -1.602177e-19 [C]
         Temperature = 5.250000e+03 [K] = 4.524100e-01 [eV]
-        Debye Length = 3.535658e-07 [Hz]
-        Plasma Frequency = 7.978230e+11 [Hz]
+        Debye Length = 3.535658e-07 [m]
+        Plasma Frequency = 7.978230e+11 [rad/s]
 Species ID: 1
         Name: Rb
         No. of particles = 4000
         Number density = 2.000000e+20 [N/m^3]
-        Atomic weight = 87.0000 [a.u.]
+        Atomic weight = 8.700000e+01 [a.u.]
         Mass = 1.455181e-25 [kg]
-        Mass density = 1.455190e-05 [kg/m^3]
+        Mass density = 2.910362e-05 [kg/m^3]
         Charge number/ionization degree = 1.0000
         Charge = 1.602177e-19 [C]
         Temperature = 3.300000e-02 [K] = 2.843720e-06 [eV]
-        Debye Length = 8.864364e-10 [Hz]
-        Plasma Frequency = 1.996147e+09 [Hz]
+        Debye Length = 8.864364e-10 [m]
+        Plasma Frequency = 1.996147e+09 [rad/s]
 
 SIMULATION AND INITIAL PARTICLE BOX:
-Units:  mks
+Units: mks
+No. of non-zero box dimensions = 3
 Wigner-Seitz radius = 8.419452e-08 [m]
-No. of non-zero box dimensions =  3
 Box side along x axis = 2.375452e+03 a_ws = 2.000000e-04 [m]
 Box side along y axis = 2.375452e+03 a_ws = 2.000000e-04 [m]
 Box side along z axis = 2.375452e+03 a_ws = 2.000000e-04 [m]
@@ -2058,51 +2061,6 @@ Initial particle box side along z axis = 5.037475e+01 a_ws = 4.241278e-06 [m]
 Initial particle box Volume = 2.000000e-17 [m^3]
 Boundary conditions: absorbing
 
-ELECTRON PROPERTIES:
-Number density: n_e = 2.000000e+20 [N/m^3]
-Wigner-Seitz radius: a_e = 1.060784e-07 [m]
-Temperature: T_e = 5.250000e+03 [K] = 4.524100e-01 [eV]
-de Broglie wavelength: lambda_deB = 1.028727e-09 [m]
-Thomas-Fermi length: lambda_TF = 3.535658e-07 [m]
-Fermi wave number: k_F = 1.809188e+07 [1/m]
-Fermi Energy: E_F = 1.247068e-05 [eV]
-Relativistic parameter: x_F = 6.986347e-06 --&gt; E_F = 1.247066e-05 [eV]
-Degeneracy parameter: Theta = 3.627788e+04
-Coupling: r_s = 2004.592027,  Gamma_e = 0.030005
-Warm Dense Matter Parameter: W = 3.3054e-06
-Chemical potential: mu = -1.6033e+01 k_B T_e = -5.8165e+05 E_F
-
-POTENTIAL:  Coulomb
-Effective Coupling constant: Gamma_eff = 2386.77
-Short-range Cutoff radius: rs = 2.000000e-08 [m]
-
-ALGORITHM:  PP
-rcut = 1187.7258 a_ws = 1.000000e-04 [m]
-No. of PP cells per dimension =  2,  2,  2
-No. of particles in PP loop =  27000
-No. of PP neighbors per particle =   4188
-Tot Force Error = 0.000000e+00
-
-THERMOSTAT:
-Type: Berendsen
-First thermostating timestep, i.e. relaxation_timestep = 0
-Berendsen parameter tau: 5.000 [timesteps]
-Berendsen relaxation rate: 0.200 [1/timesteps]
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Equilibration temperatures not defined. I will use the species&#39;s temperatures
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-Thermostating temperatures:
-Species ID 0: T_eq = 5.250000e+03 [K] = 4.524100e-01 [eV]
-Species ID 1: T_eq = 3.300000e-02 [K] = 2.843720e-06 [eV]
-
-INTEGRATOR:
-Type: verlet
-Time step = 5.000000e-14 [s]
-Total plasma frequency = 7.978255e+11 [Hz]
-w_p dt = 0.0399 ~ 1/25
-
 Equilibration:
 No. of equilibration steps = 0
 Total equilibration time = 0.0000e+00 [s] ~ 0 w_p T_eq
@@ -2112,46 +2070,61 @@ Total number of snapshots = 0
 
 Production:
 No. of production steps = 600
-Total production time = 3.0000e-11 [s] ~ 23 w_p T_prod
+Total production time = 3.0000e-11 [s] ~ 23 w_p T_eq
 snapshot interval step = 4
 snapshot interval time = 2.0000e-13 [s] = 0.1596 w_p T_snap
 Total number of snapshots = 150
 
+POTENTIAL:  coulomb
+Short-range Cutoff radius: a_rs = 2.000000e-08 [m]
+Effective coupling constant: Gamma_eff = 2386.77
 
------------------------- Initialization Times ------------------------
+ALGORITHM:  pp
+rcut = 1187.7258 a_ws = 1.000000e-04 [m]
+No. of PP cells per dimension = [2 2 2]
+No. of particles in PP loop = 10800000000
+No. of PP neighbors per particle = 1675516081
+Tot Force Error = 0.000000e+00
+
+INTEGRATOR:
+Equilibration Integrator Type: verlet
+Production Integrator Type: verlet
+Time step = 5.000000e-14 [s]
+Total plasma frequency = 7.978255e+11 [rad/s]
+w_p dt = 0.0399 ~ 1/25
 
 
-Potential Initialization Time: 0 sec 193 msec 315 usec 462 nsec
+-------------------------Initialization Times-------------------------
 
-Particles Initialization Time: 0 sec 131 msec 268 usec 760 nsec
 
-Total Simulation Initialization Time: 0 sec 193 msec 315 usec 462 nsec
+Potential Initialization Time: 0 sec 14 msec 697 usec 371 nsec
 
-------------- Equilibration -------------
+Particles Initialization Time: 0 sec 1 msec 747 usec 688 nsec
+
+Total Simulation Initialization Time: 0 sec 14 msec 697 usec 371 nsec
+
+
+------------------------------Production------------------------------
+
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "025178db57d648bd94aecf73b3e1f892", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
+<div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-
-Equilibration Time: 0 sec 31 msec 687 usec 913 nsec
-
-------------- Production -------------
+/home/luciano/Documents/Programming/sarkas/sarkas/sarkas/potentials/core.py:523: AlgorithmWarning: Use the PP method with care for pure Coulomb interactions.
+  warn(&#34;Use the PP method with care for pure Coulomb interactions.&#34;, category=AlgorithmWarning)
+/home/luciano/Documents/Programming/sarkas/sarkas/sarkas/potentials/core.py:416: AlgorithmWarning:
+Short-range cut-off enabled. Use this feature with care!
+  warn(&#34;\nShort-range cut-off enabled. Use this feature with care!&#34;, category=AlgorithmWarning)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3f82692d1cf149ff9ec2622796cce2b9", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "59498d23a1404ef89d74db65c8582ddd", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -2159,11 +2132,13 @@ Equilibration Time: 0 sec 31 msec 687 usec 913 nsec
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 
-Production Time: 0 hrs 31 min 2 sec
+Production Time: 0 hrs 15 min 51 sec
 
-Total Time: 0 hrs 31 min 3 sec
+Total Time: 0 hrs 15 min 51 sec
 </pre></div></div>
 </div>
+<p>Notice that we are getting a Warning. This is because we are using the linked cell list (LCL) algorithm for a bare Coulomb potential. The linked cell list algorithm calculates the forces between pair of particles that are within a sphere of radius <span class="math notranslate nohighlight">\(r_c\)</span>, <em>i.e.</em> the cutoff radius shown above. The Coulomb potential is a long range interaction therefore by using the LCL algorithm we are neglecting the long range portion of the force. For the purpose of this simulation we can neglect the long
+range part.</p>
 </section>
 <section id="PostProcessing">
 <h2>PostProcessing<a class="headerlink" href="#PostProcessing" title="Permalink to this headline">#</a></h2>
@@ -2193,39 +2168,26 @@ Total Time: 0 hrs 31 min 3 sec
                                  Postprocessing
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Job ID:  UEC_4000
-Job directory:  Simulations/UEC_4000
+Job ID: UEC_4000
+Job directory: Simulations/UEC_4000
 PostProcessing directory:
- Simulations/UEC_4000/PostProcessing
+Simulations/UEC_4000/PostProcessing
 
-Equilibration dumps directory:  Simulations/UEC_4000/Simulation/Equilibration/dumps
+Equilibration dumps directory: Simulations/UEC_4000/Simulation/Equilibration/dumps
 Production dumps directory:
- Simulations/UEC_4000/Simulation/Production/dumps
+Simulations/UEC_4000/Simulation/Production/dumps
 
 Equilibration Thermodynamics file:
- Simulations/UEC_4000/Simulation/Equilibration/EquilibrationEnergy_UEC_4000.csv
+Simulations/UEC_4000/Simulation/Equilibration/EquilibrationEnergy_UEC_4000.csv
 Production Thermodynamics file:
- Simulations/UEC_4000/Simulation/Production/ProductionEnergy_UEC_4000.csv
-
-
-==================== Radial Distribution Function ====================
-
-Data saved in:
- Simulations/UEC_4000/PostProcessing/RadialDistributionFunction/Production/RadialDistributionFunction_UEC_4000.csv
-Data accessible at: self.ra_values, self.dataframe
-
-No. bins = 51
-dr = 23.2887 a_ws = 1.9608e-06 [m]
-Maximum Distance (i.e. potential.rc)= 1187.7258 a_ws = 1.0000e-04 [m]
-
-Radial Distribution Function Calculation Time: 0 sec 4 msec 89 usec 455 nsec
+Simulations/UEC_4000/Simulation/Production/ProductionEnergy_UEC_4000.csv
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_6_1.png" src="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_6_1.png" />
+<img alt="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_7_1.png" src="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_7_1.png" />
 </div>
 </div>
 <p>Let us have a closer look at the energy evolution over time which we can extract from our Sarkas simulation into a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">pandas.DataFrame</a>.</p>
@@ -2301,10 +2263,52 @@ Radial Distribution Function Calculation Time: 0 sec 4 msec 89 usec 455 nsec
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" src="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_10_0.png" />
+<img alt="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_11_0.png" src="../../_images/examples_Ultrafast_EC_Ultrafast_EC_Validation_11_0.png" />
 </div>
 </div>
 <p>Nice! Sarkas accurately reproduces the ultrafast electron cooling. Minor descrepancies in the amplitude and electron plasma frequency are attributed to the initial particle distribution which is an elongated box in sarkas and a cylinder in the original publication.</p>
+</section>
+<section id="MD-Movie">
+<h2>MD Movie<a class="headerlink" href="#MD-Movie" title="Permalink to this headline">#</a></h2>
+<p>Let’s make a movie of our simulation. Running the following cell allows you to create XYZ files that can be read by <a class="reference external" href="https://www.ovito.org/">Ovito</a> to make nice MD movies.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">dump_xyz</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "9ef5f9ac29904a3d9d07073140d4ddd0", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>We have uploaded the video on the Sarkas channel on YouTube. You can watch it by running the following cell or by copying the video id.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">YouTubeVideo</span>
+<span class="n">YouTubeVideo</span><span class="p">(</span><span class="s2">&quot;AxP1R5WQOCk&quot;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span><span class="n">height</span><span class="o">=</span><span class="mi">450</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<iframe
+    width="800"
+    height="450"
+    src="https://www.youtube.com/embed/AxP1R5WQOCk"
+    frameborder="0"
+    allowfullscreen
+
+></iframe></div>
+</div>
 </section>
 </section>
 
@@ -2340,7 +2344,7 @@ Radial Distribution Function Calculation Time: 0 sec 4 msec 89 usec 455 nsec
     By MurilloGroup<br/>
   
       &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Jun 24, 2022.<br/>
+    Last updated on Jun 29, 2022.<br/>
 </p>
         </footer>
     </div>

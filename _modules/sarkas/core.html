@@ -1763,8 +1763,8 @@ title="Source repository"
         <span class="bp">self</span><span class="o">.</span><span class="n">ep1</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ep2</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ep3</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span> <span class="o">=</span> <span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">box_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pbox_volume</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">=</span> <span class="mi">3</span>
@@ -1933,13 +1933,19 @@ title="Source repository"
             <span class="n">electrons</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
             <span class="n">electrons</span><span class="p">[</span><span class="s2">&quot;charge&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">electrons</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">qe</span>
             <span class="n">electrons</span><span class="p">[</span><span class="s2">&quot;spin_degeneracy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span>
-
+            <span class="n">electrons</span><span class="p">[</span><span class="s2">&quot;num&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_num</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_charges</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">qe</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
             <span class="n">e_species</span> <span class="o">=</span> <span class="n">Species</span><span class="p">(</span><span class="n">electrons</span><span class="p">)</span>
             <span class="n">e_species</span><span class="o">.</span><span class="n">copy_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="n">e_species</span><span class="o">.</span><span class="n">calc_ws_radius</span><span class="p">()</span>
             <span class="n">e_species</span><span class="o">.</span><span class="n">calc_plasma_frequency</span><span class="p">()</span>
             <span class="n">e_species</span><span class="o">.</span><span class="n">calc_debye_length</span><span class="p">()</span>
             <span class="n">e_species</span><span class="o">.</span><span class="n">calc_landau_length</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
+                <span class="n">b_mag</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span>  <span class="c1"># magnitude of B</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
+                    <span class="n">b_mag</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c0</span>
+
+                <span class="n">e_species</span><span class="o">.</span><span class="n">calc_cyclotron_frequency</span><span class="p">(</span><span class="n">magnetic_field_strength</span><span class="o">=</span><span class="n">b_mag</span><span class="p">)</span>
             <span class="c1"># Electron should be the last species if not dynamical</span>
             <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_species</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1967,11 +1973,7 @@ title="Source repository"
         <span class="n">e_species</span><span class="o">.</span><span class="n">wdm_parameter</span> <span class="o">*=</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">e_species</span><span class="o">.</span><span class="n">coupling</span> <span class="o">+</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">e_species</span><span class="o">.</span><span class="n">coupling</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
-            <span class="n">b_mag</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span>  <span class="c1"># magnitude of B</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
-                <span class="n">e_species</span><span class="o">.</span><span class="n">cyclotron_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">b_mag</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">c0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">e_species</span><span class="o">.</span><span class="n">cyclotron_frequency</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qe</span> <span class="o">*</span> <span class="n">b_mag</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">me</span>
+
             <span class="c1"># Inverse temperature for convenience</span>
             <span class="n">beta_e</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="n">e_species</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
 
@@ -1987,9 +1989,9 @@ title="Source repository"
             <span class="n">e_species</span><span class="o">.</span><span class="n">horing_par_correction</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hbar</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">e_species</span><span class="o">.</span><span class="n">plasma_frequency</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mf">12.0</span>
 
             <span class="c1"># Quantum Anisotropy Parameter</span>
-            <span class="n">e_species</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horing_perp_correction</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="n">e_species</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hbar</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">e_species</span><span class="o">.</span><span class="n">cyclotron_frequency</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">12</span>
-            <span class="n">e_species</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horing_par_correction</span></div>
+            <span class="n">e_species</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">=</span> <span class="n">e_species</span><span class="o">.</span><span class="n">horing_perp_correction</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">e_species</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">+=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hbar</span> <span class="o">*</span> <span class="n">beta_e</span> <span class="o">*</span> <span class="n">e_species</span><span class="o">.</span><span class="n">cyclotron_frequency</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mf">12.0</span>
+            <span class="n">e_species</span><span class="o">.</span><span class="n">horing_delta</span> <span class="o">/=</span> <span class="n">e_species</span><span class="o">.</span><span class="n">horing_par_correction</span></div>
 
 <div class="viewcode-block" id="Parameters.calc_parameters"><a class="viewcode-back" href="../../api/core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_parameters.html#sarkas.core.Parameters.calc_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">calc_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2024,10 +2026,11 @@ title="Source repository"
         <span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_species</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
 
+            <span class="n">b_mag</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;cgs&quot;</span><span class="p">:</span>
-                <span class="n">sp</span><span class="o">.</span><span class="n">calc_cyclotron_frequency</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">c0</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">sp</span><span class="o">.</span><span class="n">calc_cyclotron_frequency</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">))</span>
+                <span class="n">b_mag</span> <span class="o">/=</span> <span class="bp">self</span><span class="o">.</span><span class="n">c0</span>
+
+            <span class="n">sp</span><span class="o">.</span><span class="n">calc_cyclotron_frequency</span><span class="p">(</span><span class="n">magnetic_field_strength</span><span class="o">=</span><span class="n">b_mag</span><span class="p">)</span>
 
             <span class="n">sp</span><span class="o">.</span><span class="n">beta_c</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">cyclotron_frequency</span> <span class="o">/</span> <span class="n">sp</span><span class="o">.</span><span class="n">plasma_frequency</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">species_cyclotron_frequencies</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">cyclotron_frequency</span></div>
@@ -2180,7 +2183,7 @@ title="Source repository"
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">magnetized</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">MAGNETIC FIELD:&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Magnetic Field = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Magnetic Field = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[Tesla]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;mks&quot;</span> <span class="k">else</span> <span class="s2">&quot;[Gauss]&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Magnetic Field Magnitude = </span><span class="si">{</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnetic_field</span><span class="p">)</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[Tesla]&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s2">&quot;mks&quot;</span> <span class="k">else</span> <span class="s2">&quot;[Gauss]&quot;</span><span class="p">)</span>
@@ -2336,9 +2339,26 @@ title="Source repository"
                 <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_density</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">np_per_side</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_num_ptcls</span> <span class="o">**</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">LPx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LPy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LPz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LPx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LPy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LPz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+        <span class="c1"># The following if are needed if you define Lx, Ly, Lz in the input file</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lx</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ly</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbox_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Lz</span>
 
         <span class="c1"># Dev Note: The following are useful for future geometries.</span>
         <span class="c1"># Dev Note: Do we really need it?</span>
@@ -2383,7 +2403,7 @@ title="Source repository"
     By MurilloGroup<br/>
   
       &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Jun 24, 2022.<br/>
+    Last updated on Jun 29, 2022.<br/>
 </p>
         </footer>
     </div>

@@ -1585,7 +1585,17 @@ title="Print to PDF"
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.tools.observables.DynamicStructureFactor.setup_multirun_dirs">
 <span class="sig-prename descclassname"><span class="pre">DynamicStructureFactor.</span></span><span class="sig-name descname"><span class="pre">setup_multirun_dirs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#sarkas.tools.observables.DynamicStructureFactor.setup_multirun_dirs" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Set the attributes postprocessing_dir and dump_dirs_list.</p>
+<p>The attribute postprocessing_dir refers to the location where to store postprocessing results.
+If the attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.multi_run_average</span></code> is set to <cite>True</cite> then the
+postprocessing data will be saved in the <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.simulations_dir</span></code> directory, i.e. where
+all the runs are.
+Otherwise <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.postprocessing_dir</span></code> will be
+in the <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.job_dir</span></code>.</p>
+<p>The attribute <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.dump_dirs_list</span></code> is a list of the refers to the locations
+of the production (or other phases) dumps. If <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.multi_run_average</span></code> is
+<cite>False</cite> then the list will contain only one path, namely <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.tools.observables.Observable.dump_dir</span></code>.</p>
+</dd></dl>
 
 </section>
 
@@ -1621,7 +1631,7 @@ title="Print to PDF"
     By MurilloGroup<br/>
   
       &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Jun 24, 2022.<br/>
+    Last updated on Jun 29, 2022.<br/>
 </p>
         </footer>
     </div>
