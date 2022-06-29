@@ -896,7 +896,7 @@ class Particles:
 
         uvec = self.rnd_gen.normal(size=(num_ptcls, dimensions))
         # Broadcasting
-        uvec /= norm(uvec).reshape(num_ptcls, 1)
+        uvec /= norm(uvec, axis=1).reshape(num_ptcls, 1)
 
         return uvec
 

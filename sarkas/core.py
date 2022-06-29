@@ -240,8 +240,8 @@ class Parameters:
         self.ep1 = None
         self.ep2 = None
         self.ep3 = None
-        self.box_lengths = None
-        self.pbox_lengths = None
+        self.box_lengths = array([0.0, 0.0, 0.0])
+        self.pbox_lengths = array([0.0, 0.0, 0.0])
         self.box_volume = 0.0
         self.pbox_volume = 0.0
         self.dimensions = 3
@@ -417,6 +417,12 @@ class Parameters:
             e_species.calc_plasma_frequency()
             e_species.calc_debye_length()
             e_species.calc_landau_length()
+            if self.magnetized:
+                b_mag = norm(self.magnetic_field)  # magnitude of B
+                if self.units == "cgs":
+                    b_mag /= self.c0
+
+                e_species.calc_cyclotron_frequency(magnetic_field_strength=b_mag)
             # Electron should be the last species if not dynamical
             species.append(e_species)
         else:
@@ -444,11 +450,7 @@ class Parameters:
         e_species.wdm_parameter *= 2.0 / (e_species.coupling + 1.0 / e_species.coupling)
 
         if self.magnetized:
-            b_mag = norm(self.magnetic_field)  # magnitude of B
-            if self.units == "cgs":
-                e_species.cyclotron_frequency = self.qe * b_mag / self.c0 / self.me
-            else:
-                e_species.cyclotron_frequency = self.qe * b_mag / self.me
+
             # Inverse temperature for convenience
             beta_e = 1.0 / (self.kB * e_species.temperature)
 
@@ -464,9 +466,9 @@ class Parameters:
             e_species.horing_par_correction = 1 - (self.hbar * beta_e * e_species.plasma_frequency) ** 2 / 12.0
 
             # Quantum Anisotropy Parameter
-            e_species.horing_delta = self.horing_perp_correction - 1
-            e_species.horing_delta += (self.hbar * beta_e * e_species.cyclotron_frequency) ** 2 / 12
-            e_species.horing_delta /= self.horing_par_correction
+            e_species.horing_delta = e_species.horing_perp_correction - 1
+            e_species.horing_delta += (self.hbar * beta_e * e_species.cyclotron_frequency) ** 2 / 12.0
+            e_species.horing_delta /= e_species.horing_par_correction
 
     def calc_parameters(self, species: list):
         """
@@ -501,10 +503,11 @@ class Parameters:
         self.species_cyclotron_frequencies = zeros(self.num_species)
         for i, sp in enumerate(species):
 
+            b_mag = norm(self.magnetic_field)
             if self.units == "cgs":
-                sp.calc_cyclotron_frequency(norm(self.magnetic_field) / self.c0)
-            else:
-                sp.calc_cyclotron_frequency(norm(self.magnetic_field))
+                b_mag /= self.c0
+
+            sp.calc_cyclotron_frequency(magnetic_field_strength=b_mag)
 
             sp.beta_c = sp.cyclotron_frequency / sp.plasma_frequency
             self.species_cyclotron_frequencies[i] = sp.cyclotron_frequency
@@ -657,7 +660,7 @@ class Parameters:
 
         if self.magnetized:
             print("\nMAGNETIC FIELD:")
-            print(f"Magnetic Field = {self.magnetic_field:.4e}", end="")
+            print(f"Magnetic Field = {self.magnetic_field}", end="")
             print("[Tesla]" if self.units == "mks" else "[Gauss]")
             print(f"Magnetic Field Magnitude = {norm(self.magnetic_field):.4e} ", end="")
             print("[Tesla]" if self.units == "mks" else "[Gauss]")
@@ -813,9 +816,26 @@ class Parameters:
                 self.pbox_lengths[d] = (self.total_num_ptcls / self.total_num_density) ** (1.0 / self.dimensions)
                 self.np_per_side[d] = self.total_num_ptcls ** (1.0 / self.dimensions)
 
-        self.box_lengths = self.pbox_lengths.copy()
-        self.LPx, self.LPy, self.LPz = self.box_lengths.ravel()
-        self.Lx, self.Ly, self.Lz = self.pbox_lengths.ravel()
+        self.LPx, self.LPy, self.LPz = self.pbox_lengths.ravel()
+
+        # The following if are needed if you define Lx, Ly, Lz in the input file
+        if self.Lx == 0.0:
+            self.box_lengths[0] = self.pbox_lengths[0]
+            self.Lx = self.box_lengths[0]
+        else:
+            self.box_lengths[0] = self.Lx
+
+        if self.Ly == 0.0:
+            self.box_lengths[1] = self.pbox_lengths[1]
+            self.Ly = self.box_lengths[1]
+        else:
+            self.box_lengths[1] = self.Ly
+
+        if self.Lz == 0.0:
+            self.box_lengths[2] = self.pbox_lengths[2]
+            self.Lz = self.box_lengths[2]
+        else:
+            self.box_lengths[2] = self.Lz
 
         # Dev Note: The following are useful for future geometries.
         # Dev Note: Do we really need it?

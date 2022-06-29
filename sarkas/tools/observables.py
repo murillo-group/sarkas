@@ -117,10 +117,10 @@ def compute_doc(func):
     func.__doc__ = """
     Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n
     The data of each slice is saved in hierarchical dataframes,
-    :attr:`~.dataframe_slices` (:attr:`~.dataframe_acf_slices`). \n
+    :py:attr:`~.dataframe_slices` (:py:attr:`~.dataframe_acf_slices`). \n
 
     The sliced averaged data is saved in other hierarchical dataframes,
-    :attr:`~.dataframe` (:attr:`~.dataframe_acf_slices`).
+    :py:attr:`~.dataframe` (:py:attr:`~.dataframe_acf_slices`).
 
     """
     return func
@@ -193,7 +193,7 @@ class Observable:
 
     dump_step : int
         Correct step interval.
-        It is either :attr:`sarkas.core.Parameters.prod_dump_step` or :attr:`sarkas.core.Parameters.eq_dump_step`.
+        It is either :py:attr:`sarkas.core.Parameters.prod_dump_step` or :py:attr:`sarkas.core.Parameters.eq_dump_step`.
 
     no_obs : int
         Number of independent binary observable quantities.
@@ -310,7 +310,20 @@ class Observable:
         self.__dict__.update(input_dict)
 
     def setup_multirun_dirs(self):
+        """Set the attributes postprocessing_dir and dump_dirs_list.
 
+        The attribute postprocessing_dir refers to the location where to store postprocessing results.
+        If the attribute :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is set to `True` then the
+        postprocessing data will be saved in the :py:attr:`sarkas.core.Parameters.simulations_dir` directory, i.e. where
+        all the runs are.
+        Otherwise :py:attr:`sarkas.tools.observables.Observable.postprocessing_dir` will be
+        in the :py:attr:`sarkas.core.Parameters.job_dir`.
+
+        The attribute :py:attr:`sarkas.tools.observables.Observable.dump_dirs_list` is a list of the refers to the locations
+        of the production (or other phases) dumps. If :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is
+        `False` then the list will contain only one path, namely :py:attr:`sarkas.tools.observables.Observable.dump_dir`.
+
+        """
         self.dump_dirs_list = []
 
         if self.multi_run_average:
@@ -1064,7 +1077,7 @@ class Observable:
         self.from_dict(data.__dict__)
 
     def update_finish(self):
-        """Update the :attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
+        """Update the :py:attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
 
         Notes
         -----
@@ -1143,7 +1156,7 @@ class CurrentCorrelationFunction(Observable):
         Magnitude of each allowed :math:`ka` vector.
 
     no_ka_values: int
-        Length of :attr:`~.ka_values` array.
+        Length of :py:attr:`~.ka_values` array.
 
     """
 
@@ -2134,7 +2147,7 @@ class PressureTensor(Observable):
         Parameters
         ----------
         beta: float
-            Inverse temperature factor. Grab it from :attr:`sarkas.tools.observables.Thermodynamics.beta`.
+            Inverse temperature factor. Grab it from :py:attr:`sarkas.tools.observables.Thermodynamics.beta`.
 
         rdf: sarkas.tools.observables.RadialDistributionFunction
             Radial Distribution function object.
@@ -2319,11 +2332,11 @@ class RadialDistributionFunction(Observable):
         -------
         hartrees : numpy.ndarray
             Hartree integrals with :math:`k = {0, 1, 2}`. \n
-            Shape = ( :attr:`sarkas.tools.observables.Observable.no_obs`, 3).
+            Shape = ( :py:attr:`sarkas.tools.observables.Observable.no_obs`, 3).
 
         corrs : numpy.ndarray
             Correlational integrals with :math:`k = {0, 1, 2}`. \n
-            Shape = ( :attr:`sarkas.tools.observables.Observable.no_obs`, 3).
+            Shape = ( :py:attr:`sarkas.tools.observables.Observable.no_obs`, 3).
 
         """
         r = self.dataframe["Distance"].iloc[:, 0].to_numpy().copy()
@@ -3075,7 +3088,7 @@ class VelocityDistribution(Observable):
     Moments of the velocity distributions defined as
 
     .. math::
-        \\langle v^{\\alpha} \\rangle = \\int_{-\\infty}^{\\infty} d v \, f(v) v^{2 \\alpha}.
+        \\langle v^{\\alpha} \\rangle = \\int_{-\\infty}^{\\infty} d v \\, f(v) v^{2 \\alpha}.
 
     Attributes
     ----------
@@ -3089,7 +3102,7 @@ class VelocityDistribution(Observable):
         Directory for each species where to save Hermite coefficients plots.
 
     max_no_moment: int
-        Maximum number of moments = :math:`\alpha`. Default = 3.
+        Maximum number of moments = :math:`\\alpha`. Default = 6.
 
     """
 
