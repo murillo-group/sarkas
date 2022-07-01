@@ -13,7 +13,18 @@ else:
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap, ScalarMappable
 from matplotlib.colors import LogNorm
-from numpy import arange, array, linspace, log10, logspace, meshgrid, sqrt, zeros, int64, rint
+from numpy import (
+    arange,
+    array,
+    int64,
+    linspace,
+    log10,
+    logspace,
+    meshgrid,
+    rint,
+    sqrt,
+    zeros,
+)
 from os import listdir, mkdir
 from os import remove as os_remove
 from os import stat as os_stat
@@ -27,7 +38,6 @@ from .particles import Particles
 from .plasma import Species
 from .potentials.core import Potential
 from .time_evolution.integrators import Integrator
-
 from .tools.observables import (
     CurrentCorrelationFunction,
     DiffusionFlux,

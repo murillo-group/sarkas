@@ -3,7 +3,7 @@ Module containing the three basic classes: Parameters, Particles, Species.
 """
 
 from copy import deepcopy
-from numpy import array, cross, ndarray, pi, sqrt, tanh, zeros, int64, float64, rint
+from numpy import array, cross, float64, int64, ndarray, pi, rint, sqrt, tanh, zeros
 from scipy.constants import physical_constants
 from scipy.linalg import norm
 
@@ -254,7 +254,7 @@ class Parameters:
         self.me = physical_constants["electron mass"][0]
         self.qe = physical_constants["elementary charge"][0]
         self.hbar = physical_constants["reduced Planck constant"][0]
-        self.hbar2 = self.hbar ** 2
+        self.hbar2 = self.hbar**2
         self.c0 = physical_constants["speed of light in vacuum"][0]
         self.eV2K = physical_constants["electron volt-kelvin relationship"][0]
         self.eV2J = physical_constants["electron volt-joule relationship"][0]
@@ -394,7 +394,7 @@ class Parameters:
             electrons = {
                 "name": "electron_background",
                 "number_density": (
-                        self.species_charges.transpose() @ self.species_concentrations * self.total_num_density / self.qe
+                    self.species_charges.transpose() @ self.species_concentrations * self.total_num_density / self.qe
                 ),
             }
             if hasattr(self, "electron_temperature_eV"):
@@ -441,9 +441,8 @@ class Parameters:
         e_species.relativistic_parameter = self.hbar * e_species.Fermi_wavenumber / (self.me * self.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        e_species.coupling = e_species.charge ** 2 / (
-                self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(
-            1.0 + e_species.degeneracy_parameter ** 2)
+        e_species.coupling = e_species.charge**2 / (
+            self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(1.0 + e_species.degeneracy_parameter**2)
         )
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
@@ -522,7 +521,7 @@ class Parameters:
             # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
             C2statC = 1.0e-01 * self.c0
             self.hbar = self.J2erg * self.hbar
-            self.hbar2 = self.hbar ** 2
+            self.hbar2 = self.hbar**2
             self.qe *= C2statC
             self.me *= 1.0e3
             self.eps0 = 1.0
@@ -581,8 +580,8 @@ class Parameters:
             self.species_plasma_frequencies[i] = sp.plasma_frequency
             self.QFactor += sp.QFactor / self.fourpie0
 
-            wp_tot_sq += sp.plasma_frequency ** 2
-            lambda_D += sp.debye_length ** 2
+            wp_tot_sq += sp.plasma_frequency**2
+            lambda_D += sp.debye_length**2
 
             if self.potential_type == "lj":
                 self.species_lj_sigmas[i] = sp.sigma
@@ -603,7 +602,7 @@ class Parameters:
         self.average_mass = (self.species_masses.transpose()) @ self.species_concentrations
         # Hydrodynamic Frequency
         self.hydrodynamic_frequency = sqrt(
-            4.0 * pi * self.average_charge ** 2 * self.total_num_density / (self.fourpie0 * self.average_mass)
+            4.0 * pi * self.average_charge**2 * self.total_num_density / (self.fourpie0 * self.average_mass)
         )
 
     def from_dict(self, input_dict: dict) -> None:
@@ -700,8 +699,7 @@ class Parameters:
                     print(f"\n{phase.capitalize()}: \nNo. of {phase} steps = {steps}")
                     print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_eq")
                     print(f"snapshot interval step = {dump_step}")
-                    print(
-                        f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
+                    print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
                     print(f"Total number of snapshots = {int(steps / dump_step)}")
 
     def set_species_attributes(self, species: list):
@@ -761,7 +759,7 @@ class Parameters:
                 sp.mass_density = sp.mass * sp.number_density
 
             # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008).
-            sp.QFactor = sp.num * sp.charge ** 2  # In case of LJ this is zero
+            sp.QFactor = sp.num * sp.charge**2  # In case of LJ this is zero
 
             sp.copy_params(self)
             sp.calc_ws_radius()

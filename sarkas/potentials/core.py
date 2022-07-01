@@ -3,7 +3,7 @@ Module handling the potential class.
 """
 from copy import deepcopy
 from fmm3dpy import hfmm3d, lfmm3d
-from numpy import array, ndarray, pi, sqrt, tanh, int64
+from numpy import array, int64, ndarray, pi, sqrt, tanh
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
