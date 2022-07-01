@@ -3,7 +3,7 @@ Module handling the potential class.
 """
 from copy import deepcopy
 from fmm3dpy import hfmm3d, lfmm3d
-from numpy import array, ndarray, pi, sqrt, tanh
+from numpy import array, ndarray, pi, sqrt, tanh, int64
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
@@ -100,10 +100,10 @@ class Potential:
     pbox_lengths: ndarray = None
     pbox_volume: float = 0.0
     pppm_on: bool = False
-    pppm_aliases: ndarray = array([3, 3, 3], dtype=int)
+    pppm_aliases: ndarray = array([3, 3, 3], dtype=int64)
     pppm_alpha_ewald: float = 0.0
-    pppm_cao: ndarray = array([3, 3, 3], dtype=int)
-    pppm_mesh: ndarray = array([8, 8, 8], dtype=int)
+    pppm_cao: ndarray = array([3, 3, 3], dtype=int64)
+    pppm_mesh: ndarray = array([8, 8, 8], dtype=int64)
     pppm_h_array: ndarray = array([1.0, 1.0, 1.0], dtype=float)
     pppm_pm_err: float = 0.0
     pppm_pp_err: float = 0.0
@@ -436,7 +436,7 @@ class Potential:
 
         # Change lists to numpy arrays for Numba compatibility
         if isinstance(self.pppm_mesh, list):
-            self.pppm_mesh = array(self.pppm_mesh, dtype=int)
+            self.pppm_mesh = array(self.pppm_mesh, dtype=int64)
         elif not isinstance(self.pppm_mesh, ndarray):
             raise TypeError(f"pppm_mesh is a {type(self.pppm_mesh)}. Please pass a list or numpy array.")
 
@@ -448,16 +448,16 @@ class Potential:
             )
 
         if isinstance(self.pppm_aliases, list):
-            self.pppm_aliases = array(self.pppm_aliases, dtype=int)
+            self.pppm_aliases = array(self.pppm_aliases, dtype=int64)
         elif not isinstance(self.pppm_aliases, ndarray):
             raise TypeError(f"pppm_aliases is a {type(self.pppm_aliases)}. Please pass a list or numpy array.")
 
         # In case you pass one number and not a list
         if isinstance(self.pppm_cao, int):
-            caos = array([1, 1, 1], dtype=int) * self.pppm_cao
+            caos = array([1, 1, 1], dtype=int64) * self.pppm_cao
             self.pppm_cao = caos.copy()
         elif isinstance(self.pppm_cao, list):
-            self.pppm_cao = array(self.pppm_cao, dtype=int)
+            self.pppm_cao = array(self.pppm_cao, dtype=int64)
         elif not isinstance(self.pppm_cao, ndarray):
             raise TypeError(f"pppm_cao is a {type(self.pppm_cao)}. Please pass a list or numpy array.")
 

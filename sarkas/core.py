@@ -3,7 +3,7 @@ Module containing the three basic classes: Parameters, Particles, Species.
 """
 
 from copy import deepcopy
-from numpy import array, cross, ndarray, pi, sqrt, tanh, zeros
+from numpy import array, cross, ndarray, pi, sqrt, tanh, zeros, int64, float64, rint
 from scipy.constants import physical_constants
 from scipy.linalg import norm
 
@@ -254,7 +254,7 @@ class Parameters:
         self.me = physical_constants["electron mass"][0]
         self.qe = physical_constants["elementary charge"][0]
         self.hbar = physical_constants["reduced Planck constant"][0]
-        self.hbar2 = self.hbar**2
+        self.hbar2 = self.hbar ** 2
         self.c0 = physical_constants["speed of light in vacuum"][0]
         self.eV2K = physical_constants["electron volt-kelvin relationship"][0]
         self.eV2J = physical_constants["electron volt-joule relationship"][0]
@@ -394,7 +394,7 @@ class Parameters:
             electrons = {
                 "name": "electron_background",
                 "number_density": (
-                    self.species_charges.transpose() @ self.species_concentrations * self.total_num_density / self.qe
+                        self.species_charges.transpose() @ self.species_concentrations * self.total_num_density / self.qe
                 ),
             }
             if hasattr(self, "electron_temperature_eV"):
@@ -410,7 +410,7 @@ class Parameters:
             electrons["Z"] = -1.0
             electrons["charge"] = electrons["Z"] * self.qe
             electrons["spin_degeneracy"] = 2.0
-            electrons["num"] = (self.species_num.T @ self.species_charges / self.qe).astype(int)
+            electrons["num"] = (self.species_num.T @ self.species_charges / self.qe).astype(int64)
             e_species = Species(electrons)
             e_species.copy_params(self)
             e_species.calc_ws_radius()
@@ -441,8 +441,9 @@ class Parameters:
         e_species.relativistic_parameter = self.hbar * e_species.Fermi_wavenumber / (self.me * self.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        e_species.coupling = e_species.charge**2 / (
-            self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(1.0 + e_species.degeneracy_parameter**2)
+        e_species.coupling = e_species.charge ** 2 / (
+                self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(
+            1.0 + e_species.degeneracy_parameter ** 2)
         )
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
@@ -450,7 +451,6 @@ class Parameters:
         e_species.wdm_parameter *= 2.0 / (e_species.coupling + 1.0 / e_species.coupling)
 
         if self.magnetized:
-
             # Inverse temperature for convenience
             beta_e = 1.0 / (self.kB * e_species.temperature)
 
@@ -522,7 +522,7 @@ class Parameters:
             # Coulomb to statCoulomb conversion factor. See https://en.wikipedia.org/wiki/Statcoulomb
             C2statC = 1.0e-01 * self.c0
             self.hbar = self.J2erg * self.hbar
-            self.hbar2 = self.hbar**2
+            self.hbar2 = self.hbar ** 2
             self.qe *= C2statC
             self.me *= 1.0e3
             self.eps0 = 1.0
@@ -547,7 +547,7 @@ class Parameters:
 
         # Initialize the arrays containing species attributes. This is needed for postprocessing
         self.species_names = []
-        self.species_num = zeros(self.num_species, dtype=int)
+        self.species_num = zeros(self.num_species, dtype=int64)
         self.species_num_dens = zeros(self.num_species)
         self.species_concentrations = zeros(self.num_species)
         self.species_temperatures = zeros(self.num_species)
@@ -581,8 +581,8 @@ class Parameters:
             self.species_plasma_frequencies[i] = sp.plasma_frequency
             self.QFactor += sp.QFactor / self.fourpie0
 
-            wp_tot_sq += sp.plasma_frequency**2
-            lambda_D += sp.debye_length**2
+            wp_tot_sq += sp.plasma_frequency ** 2
+            lambda_D += sp.debye_length ** 2
 
             if self.potential_type == "lj":
                 self.species_lj_sigmas[i] = sp.sigma
@@ -603,7 +603,7 @@ class Parameters:
         self.average_mass = (self.species_masses.transpose()) @ self.species_concentrations
         # Hydrodynamic Frequency
         self.hydrodynamic_frequency = sqrt(
-            4.0 * pi * self.average_charge**2 * self.total_num_density / (self.fourpie0 * self.average_mass)
+            4.0 * pi * self.average_charge ** 2 * self.total_num_density / (self.fourpie0 * self.average_mass)
         )
 
     def from_dict(self, input_dict: dict) -> None:
@@ -627,7 +627,7 @@ class Parameters:
             print("Random Seed = ", self.rand_seed)
 
         print(f"Units: {self.units}")
-        print(f"No. of non-zero box dimensions = {int(self.dimensions)}")
+        print(f"No. of non-zero box dimensions = {self.dimensions}")
         print(f"Wigner-Seitz radius = {self.a_ws:.6e} ", end="")
         print("[cm]" if self.units == "cgs" else "[m]")
         box_a = self.box_lengths / self.a_ws
@@ -687,7 +687,7 @@ class Parameters:
             print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_prod ")
             print(f"snapshot interval step = {dump_step}")
             print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
-            print(f"Total number of snapshots = {int(steps/dump_step)}")
+            print(f"Total number of snapshots = {int(steps / dump_step)}")
 
         else:
             for (key, phase_ls) in phase_dict.items():
@@ -700,7 +700,8 @@ class Parameters:
                     print(f"\n{phase.capitalize()}: \nNo. of {phase} steps = {steps}")
                     print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_eq")
                     print(f"snapshot interval step = {dump_step}")
-                    print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
+                    print(
+                        f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
                     print(f"Total number of snapshots = {int(steps / dump_step)}")
 
     def set_species_attributes(self, species: list):
@@ -760,7 +761,7 @@ class Parameters:
                 sp.mass_density = sp.mass * sp.number_density
 
             # Q^2 factor see eq.(2.10) in Ballenegger et al. J Chem Phys 128 034109 (2008).
-            sp.QFactor = sp.num * sp.charge**2  # In case of LJ this is zero
+            sp.QFactor = sp.num * sp.charge ** 2  # In case of LJ this is zero
 
             sp.copy_params(self)
             sp.calc_ws_radius()
@@ -794,13 +795,13 @@ class Parameters:
         # Calculate initial particle's and simulation's box parameters
         if self.np_per_side:
             if not isinstance(self.np_per_side, ndarray):
-                self.np_per_side = array(self.np_per_side)
+                self.np_per_side = array(self.np_per_side, dtype=int64)
 
-            if int(self.np_per_side.prod()) != self.total_num_ptcls:
+            if rint(self.np_per_side.prod()) != self.total_num_ptcls:
                 raise ParticlesError("Number of particles per dimension does not match total number of particles.")
 
             if self.dimensions != 3:
-                new_array = zeros(3)
+                new_array = zeros(3, dtype=int64)
                 for d in range(self.dimensions):
                     new_array[d] = self.np_per_side[d]
 
@@ -810,11 +811,11 @@ class Parameters:
             self.pbox_lengths = self.np_per_side / self.total_num_density ** (1.0 / self.dimensions)
 
         else:
-            self.pbox_lengths = zeros(3)
-            self.np_per_side = zeros(3)
+            self.pbox_lengths = zeros(3, dtype=float64)
+            self.np_per_side = zeros(3, dtype=int64)
             for d in range(self.dimensions):
                 self.pbox_lengths[d] = (self.total_num_ptcls / self.total_num_density) ** (1.0 / self.dimensions)
-                self.np_per_side[d] = self.total_num_ptcls ** (1.0 / self.dimensions)
+                self.np_per_side[d] = rint(self.total_num_ptcls ** (1.0 / self.dimensions))
 
         self.LPx, self.LPy, self.LPz = self.pbox_lengths.ravel()
 

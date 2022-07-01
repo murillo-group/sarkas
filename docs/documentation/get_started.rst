@@ -103,7 +103,7 @@ External packages
 Sarkas uses two external packages: `FFTW <http://www.fftw.org/>`_ and `FMM3D <https://fmm3d.readthedocs.io/en/latest/>`_ .
 The first is used to perform fast Fourier transforms and the second to simulate systems with open boundary conditions.
 
-FFTW3 is a very commong library in scientific computation, however, it may happen that you don't have it already installed on your computer.
+FFTW3 is a very common library in scientific computation, however, it may happen that you don't have it already installed on your computer.
 In this case, follow their `instructions <http://www.fftw.org/#documentation>`_ to install it.
 
 FMM3D is package written in Fortran to compute the potential field using the Multipole expansion. The documentation for installing it is `here <https://fmm3d.readthedocs.io/en/latest/install.html>`_.
