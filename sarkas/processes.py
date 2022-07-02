@@ -1,7 +1,7 @@
 """
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
-import pandas as pd
+
 from IPython import get_ipython
 from threading import Thread
 
@@ -13,12 +13,23 @@ else:
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap, ScalarMappable
 from matplotlib.colors import LogNorm
-from numpy import arange, array, linspace, log10, logspace, meshgrid, sqrt, zeros
+from numpy import (
+    arange,
+    array,
+    int64,
+    linspace,
+    log10,
+    logspace,
+    meshgrid,
+    rint,
+    sqrt,
+    zeros,
+)
 from os import listdir, mkdir
 from os import remove as os_remove
 from os import stat as os_stat
 from os.path import exists, join
-from pandas import DataFrame
+from pandas import DataFrame, read_csv
 from seaborn import scatterplot
 from warnings import warn
 
@@ -27,8 +38,6 @@ from .particles import Particles
 from .plasma import Species
 from .potentials.core import Potential
 from .time_evolution.integrators import Integrator
-
-# from .time_evolution.thermostats import Thermostat
 from .tools.observables import (
     CurrentCorrelationFunction,
     DiffusionFlux,
@@ -505,10 +514,10 @@ class PreProcess(Process):
     def __init__(self, input_file: str = None):
         self.__name__ = "preprocessing"
         self.estimate = False
-        self.pm_meshes = logspace(3, 7, 12, base=2, dtype=int)
-        # array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int)
+        self.pm_meshes = logspace(3, 7, 12, base=2, dtype=int64)
+        # array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int64)
         self.pm_caos = arange(1, 8)
-        self.pp_cells = arange(3, 16, dtype=int)
+        self.pp_cells = arange(3, 16, dtype=int64)
         self.kappa = None
         super().__init__(input_file)
 
@@ -835,7 +844,7 @@ class PreProcess(Process):
 
         if not data_df:
             try:
-                data_df = pd.read_csv(
+                data_df = read_csv(
                     join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
                 )
             except FileNotFoundError:
@@ -875,7 +884,7 @@ class PreProcess(Process):
         fig_path = self.pppm_plots_dir
         if not data_df:
             try:
-                data_df = pd.read_csv(
+                data_df = read_csv(
                     join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
                 )
             except FileNotFoundError:

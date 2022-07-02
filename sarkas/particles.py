@@ -3,9 +3,9 @@ Module containing the basic class for handling particles properties.
 """
 
 from copy import deepcopy
-from numpy import arange, ceil, empty, floor, int64
+from numpy import arange, empty, floor, int64
 from numpy import load as np_load
-from numpy import loadtxt, meshgrid, ndarray, sqrt, triu_indices, zeros
+from numpy import loadtxt, meshgrid, ndarray, rint, sqrt, triu_indices, zeros
 from numpy.random import Generator, PCG64
 from os.path import join
 from scipy.linalg import norm
@@ -246,7 +246,7 @@ class Particles:
             self.rdf_nbins = params.rdf_nbins
         else:
             # nbins = 5% of the number of particles.
-            self.rdf_nbins = int(0.05 * params.total_num_ptcls)
+            self.rdf_nbins = int64(0.05 * params.total_num_ptcls)
             params.rdf_nbins = self.rdf_nbins
 
     def gaussian(self, mean, sigma, size):
@@ -412,7 +412,7 @@ class Particles:
         self.cyclotron_frequencies = zeros(self.total_num_ptcls)
 
         # No. of independent rdf
-        self.no_grs = int(self.num_species * (self.num_species + 1) / 2)
+        self.no_grs = int64(self.num_species * (self.num_species + 1) / 2)
 
         self.rdf_hist = zeros((self.rdf_nbins, self.num_species, self.num_species))
 
@@ -568,7 +568,7 @@ class Particles:
 
             # Check if total number of particles is a perfect cube, if not, place more than the requested amount
             if round(part_per_side) ** 3 != self.total_num_ptcls:
-                part_per_side = ceil(self.total_num_ptcls ** (1.0 / 3.0))
+                part_per_side = rint(self.total_num_ptcls ** (1.0 / 3.0))
                 raise ParticlesError(
                     f"N = {self.total_num_ptcls} cannot be placed in a simple cubic lattice. "
                     f"Use {int(part_per_side ** 3)} particles instead."
@@ -598,7 +598,7 @@ class Particles:
 
         elif self.lattice_type in ["square", "tetragonal_2D"]:
             # Determining number of particles per side of simple cubic lattice
-            part_per_side = round(sqrt(self.total_num_ptcls))  # Number of particles per side of a square lattice
+            part_per_side = rint(sqrt(self.total_num_ptcls))  # Number of particles per side of a square lattice
 
             # Check if total number of particles is a perfect cube, if not, place more than the requested amount
             if part_per_side**2 != self.total_num_ptcls:

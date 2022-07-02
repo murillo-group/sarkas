@@ -45,5 +45,6 @@ dependencies:
 
   - pip:
       - sphinxext-opengraph
+      - fmm3dpy
 
 

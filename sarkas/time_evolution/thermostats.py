@@ -56,7 +56,7 @@ class Thermostat:
     eV_temp_flag: bool = False
     K_temp_flag: bool = False
     kB: float = physical_constants["Boltzmann constant"][0]
-    relaxation_rate: int = None
+    relaxation_rate: float = None
     relaxation_timestep: int = None
     species_num: ndarray = None
     species_masses: ndarray = None

@@ -3,7 +3,7 @@ Module containing the three basic classes: Parameters, Particles, Species.
 """
 
 from copy import deepcopy
-from numpy import array, cross, ndarray, pi, sqrt, tanh, zeros
+from numpy import array, cross, float64, int64, ndarray, pi, rint, sqrt, tanh, zeros
 from scipy.constants import physical_constants
 from scipy.linalg import norm
 
@@ -410,7 +410,7 @@ class Parameters:
             electrons["Z"] = -1.0
             electrons["charge"] = electrons["Z"] * self.qe
             electrons["spin_degeneracy"] = 2.0
-            electrons["num"] = (self.species_num.T @ self.species_charges / self.qe).astype(int)
+            electrons["num"] = (self.species_num.T @ self.species_charges / self.qe).astype(int64)
             e_species = Species(electrons)
             e_species.copy_params(self)
             e_species.calc_ws_radius()
@@ -450,7 +450,6 @@ class Parameters:
         e_species.wdm_parameter *= 2.0 / (e_species.coupling + 1.0 / e_species.coupling)
 
         if self.magnetized:
-
             # Inverse temperature for convenience
             beta_e = 1.0 / (self.kB * e_species.temperature)
 
@@ -547,7 +546,7 @@ class Parameters:
 
         # Initialize the arrays containing species attributes. This is needed for postprocessing
         self.species_names = []
-        self.species_num = zeros(self.num_species, dtype=int)
+        self.species_num = zeros(self.num_species, dtype=int64)
         self.species_num_dens = zeros(self.num_species)
         self.species_concentrations = zeros(self.num_species)
         self.species_temperatures = zeros(self.num_species)
@@ -627,7 +626,7 @@ class Parameters:
             print("Random Seed = ", self.rand_seed)
 
         print(f"Units: {self.units}")
-        print(f"No. of non-zero box dimensions = {int(self.dimensions)}")
+        print(f"No. of non-zero box dimensions = {self.dimensions}")
         print(f"Wigner-Seitz radius = {self.a_ws:.6e} ", end="")
         print("[cm]" if self.units == "cgs" else "[m]")
         box_a = self.box_lengths / self.a_ws
@@ -687,7 +686,7 @@ class Parameters:
             print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_prod ")
             print(f"snapshot interval step = {dump_step}")
             print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
-            print(f"Total number of snapshots = {int(steps/dump_step)}")
+            print(f"Total number of snapshots = {int(steps / dump_step)}")
 
         else:
             for (key, phase_ls) in phase_dict.items():
@@ -794,13 +793,13 @@ class Parameters:
         # Calculate initial particle's and simulation's box parameters
         if self.np_per_side:
             if not isinstance(self.np_per_side, ndarray):
-                self.np_per_side = array(self.np_per_side)
+                self.np_per_side = array(self.np_per_side, dtype=int64)
 
-            if int(self.np_per_side.prod()) != self.total_num_ptcls:
+            if rint(self.np_per_side.prod()) != self.total_num_ptcls:
                 raise ParticlesError("Number of particles per dimension does not match total number of particles.")
 
             if self.dimensions != 3:
-                new_array = zeros(3)
+                new_array = zeros(3, dtype=int64)
                 for d in range(self.dimensions):
                     new_array[d] = self.np_per_side[d]
 
@@ -810,11 +809,11 @@ class Parameters:
             self.pbox_lengths = self.np_per_side / self.total_num_density ** (1.0 / self.dimensions)
 
         else:
-            self.pbox_lengths = zeros(3)
-            self.np_per_side = zeros(3)
+            self.pbox_lengths = zeros(3, dtype=float64)
+            self.np_per_side = zeros(3, dtype=int64)
             for d in range(self.dimensions):
                 self.pbox_lengths[d] = (self.total_num_ptcls / self.total_num_density) ** (1.0 / self.dimensions)
-                self.np_per_side[d] = self.total_num_ptcls ** (1.0 / self.dimensions)
+                self.np_per_side[d] = rint(self.total_num_ptcls ** (1.0 / self.dimensions))
 
         self.LPx, self.LPy, self.LPz = self.pbox_lengths.ravel()
 
