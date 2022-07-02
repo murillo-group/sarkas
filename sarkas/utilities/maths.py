@@ -178,13 +178,13 @@ def force_error_approx_pppm(potential):
         PM force error.
     """
 
-    if potential.type in ["yukawa"]:
+    if potential.type == "yukawa":
         kappa = potential.a_ws / potential.screening_length
         alpha = potential.pppm_alpha_ewald * potential.a_ws
         ha = potential.pppm_h_array[0] / potential.a_ws
         pppm_pm_err = force_error_approx_pm(kappa, potential.pppm_cao[0], ha, alpha)
 
-    elif potential.type == "coulomb":
+    elif potential.type in ["coulomb", "qsp"]:
         alpha = potential.pppm_alpha_ewald * potential.a_ws
         ha = potential.pppm_h_array[0] / potential.a_ws
         pppm_pm_err = force_error_approx_pm(0.0, potential.pppm_cao[0], ha, alpha)

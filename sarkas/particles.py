@@ -5,7 +5,7 @@ Module containing the basic class for handling particles properties.
 from copy import deepcopy
 from numpy import arange, ceil, empty, floor, int64
 from numpy import load as np_load
-from numpy import loadtxt, meshgrid, ndarray, pi, sqrt, triu_indices, zeros
+from numpy import loadtxt, meshgrid, ndarray, sqrt, triu_indices, zeros
 from numpy.random import Generator, PCG64
 from os.path import join
 from scipy.linalg import norm

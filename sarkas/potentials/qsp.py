@@ -76,7 +76,7 @@ from numpy import exp, log, pi, sqrt, zeros
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
-from ..utilities.maths import force_error_analytic_lcl, TWOPI
+from ..utilities.maths import force_error_analytic_pp, TWOPI
 
 
 def update_params(potential, species):
@@ -160,15 +160,19 @@ def update_params(potential, species):
     if potential.qsp_type == "deutsch":
         potential.force = deutsch_force
 
-        # Calculate the LCL Force error from the e-e diffraction term only since it is the largest.
-        potential.pppm_pp_err = force_error_analytic_lcl(
-            potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
+        # Calculate the PP Force error from the e-e diffraction term only since it is the largest.
+        potential.pppm_pp_err = force_error_analytic_pp(
+            potential.type,
+            potential.rc,
+            0.0,
+            potential.pppm_alpha_ewald,
+            sqrt(3.0 * potential.a_ws / (4.0 * pi)),
         )
     elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
         # the following is a placeholder
-        potential.pppm_pp_err = force_error_analytic_lcl(
+        potential.pppm_pp_err = force_error_analytic_pp(
             potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
         )
 
@@ -317,8 +321,11 @@ def pretty_print_info(potential):
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"e-e screening length = {ee_scr_len / a_ws:.4f} a_ws = {ee_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"e-e screening kappa = {potential.matrix[1, 0, 0] *  a_ws:.4e}")
     print(f"i-i screening length = {ii_scr_len / a_ws:.4f} a_ws = {ii_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
+    print(f"i-i screening kappa = {potential.matrix[1, 1, 1] * a_ws:.4e}")
     print(f"e-i screening length = {ei_scr_len / a_ws:.4f} a_ws = {ei_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"e-i coupling constant = {potential.coupling_constant:.4f}")
+    print(f"e-i screening kappa = {potential.matrix[1, 0, 1] *  a_ws:.4e}")

@@ -277,6 +277,8 @@ class Potential:
             self.screening_length = species[-1].debye_length
         elif self.screening_length_type in ["kappa", "from_kappa"]:
             self.screening_length = self.a_ws / self.kappa
+        elif self.screening_length_type in ["qsp", "deBroglie"]:
+            self.screening_length = species[0].deBroglie_wavelength / (2.0 * pi)
         elif self.screening_length_type in ["custom"]:
             if self.screening_length is None:
                 raise AttributeError("potential.screening_length not defined!")
@@ -563,6 +565,8 @@ class Potential:
             # QSP potential
             from .qsp import pretty_print_info, update_params
 
+            self.screening_length_type = "qsp"
+            self.calc_screening_length(species)
             self.pot_update_params = update_params
             update_params(self, species)
 
