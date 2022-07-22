@@ -2079,7 +2079,7 @@ Static Structure Function Calculation Time: 0 sec 346 msec 697 usec 472 nsec
 <p>The bar plots are the next most important thing to notice. We want these to look like Maxwellian distributions. The orange line in the Temperature bar plot is a Maxwellian distribution with a centered at the desired Temperature (dashed red line) with a standard deviation obtained from the actual data. The orange line in the Energy bar plot is again a Maxwellian distribution centered at the dashed red line with a std equal to <span class="math notranslate nohighlight">\(k_BT\)</span>.</p>
 <section id="Thermodynamics">
 <h2>Thermodynamics<a class="headerlink" href="#Thermodynamics" title="Permalink to this headline">#</a></h2>
-<p>We can create a similar plot for the equilibration phase by calling the method <code class="docutils literal notranslate"><span class="pre">`temp_energy_plot</span></code> &lt;../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.html#sarkas.tools.observables.Thermodynamics.temp_energy_plot&gt;`__</p>
+<p>We can create a similar plot for the equilibration phase by calling the method <a class="reference external" href="../../api/sarkas.tools.observables.html#sarkas.tools.observables.Thermodynamics.html#sarkas.tools.observables.Thermodynamics.temp_energy_plot">temp_energy_plot</a></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -2103,7 +2103,7 @@ Static Structure Function Calculation Time: 0 sec 346 msec 697 usec 472 nsec
 <section id="Radial-Distribution-Function">
 <h2>Radial Distribution Function<a class="headerlink" href="#Radial-Distribution-Function" title="Permalink to this headline">#</a></h2>
 <p>The RDF has been already calculated and the data saved on disk in the directory displayed above.</p>
-<p>As mentioned in the output the data is stored in a <code class="docutils literal notranslate"><span class="pre">`pandas.DataFrame()</span></code> &lt;<a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html</a>&gt;`__. Let’s take a look</p>
+<p>As mentioned in the output the data is stored in a <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html">pandas.DataFrame()</a>. Let’s take a look</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -2219,7 +2219,7 @@ Static Structure Function Calculation Time: 0 sec 346 msec 697 usec 472 nsec
 </div>
 <p>This is a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">MultiIndex</span></code>. There are two rows of columns this means that columns of data are called via tuples, <em>e.g.</em> <code class="docutils literal notranslate"><span class="pre">postproc.rdf.dataframe[(&quot;H-H</span> <span class="pre">RDF&quot;,</span> <span class="pre">&quot;Mean&quot;)]</span></code></p>
 <p>As you can see there are three columns. The first is the distance between two particles and it is given in the same units as provided in the YAML. The next two columns are the Mean and Std of the RDF calculated for each slice. The Std column is full of <code class="docutils literal notranslate"><span class="pre">NaN</span></code> because we only had one slice as such no std.</p>
-<p>Let’s plot it!. This can be done by calling the <code class="docutils literal notranslate"><span class="pre">`plot()</span></code> &lt;../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable.plot&gt;`__ method of the <code class="docutils literal notranslate"><span class="pre">`Observable</span></code> &lt;../../api/sarkas.tools.observables.html#sarkas.tools.observables.Observable&gt;`__ class. We reproduce here the docs for convenience</p>
+<p>Let’s plot it!. This can be done by calling the <a class="reference external" href="../../api/tools_subpckg/Observable_mthds/sarkas.tools.observables.Observable.plot.html">plot()</a> method of the <a class="reference external" href="../../api/tools_subpckg/sarkas.tools.observables.Observable.html#sarkas.tools.observables.Observable">Observable</a> class. We reproduce here the docs for convenience</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>def plot(self, scaling=None, acf=False, longitudinal=True, figname=None, show=False, **kwargs):
     &quot;&quot;&quot;
     Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
