@@ -149,6 +149,8 @@ html_css_files = [
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
 
+# Suffix to be appended to source links, unless they have this suffix already. Default is .txt
+html_sourcelink_suffix = ""
 
 # html_js_files = [
 #     "js/myscript.js",
