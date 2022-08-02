@@ -5,6 +5,5 @@ sphinx-book-theme
 sphinx-design
 sphinx-autodoc-typehints
 sphinxext-opengraph
-nbsphinx
-recommonmark
 sphinx-copybutton
+myst-nb

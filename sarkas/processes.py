@@ -18,6 +18,7 @@ from numpy import (
     array,
     int64,
     linspace,
+    log2,
     log10,
     logspace,
     meshgrid,
@@ -516,7 +517,7 @@ class PreProcess(Process):
         self.estimate = False
         self.pm_meshes = logspace(3, 7, 12, base=2, dtype=int64)
         # array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int64)
-        self.pm_caos = arange(1, 8)
+        self.pm_caos = arange(1, 8, dtype=int64)
         self.pp_cells = arange(3, 16, dtype=int64)
         self.kappa = None
         super().__init__(input_file)
@@ -854,19 +855,21 @@ class PreProcess(Process):
             data_df = self.dataframe.copy(deep=True)
 
         fig, ax = plt.subplots(1, 3, figsize=(21, 7))
-        scatterplot(data=data_df, x="pp_cells", y="pp_acc_time [ns]", hue="M_x", s=100, palette="viridis", ax=ax[0])
+        scatterplot(data=data_df, x="pp_cells", y="pp_acc_time [s]", hue="M_x", s=100, palette="viridis", ax=ax[0])
 
-        scatterplot(data=data_df, x="M_x", y="pm_acc_time [ns]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[1])
+        scatterplot(data=data_df, x="M_x", y="pm_acc_time [s]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[1])
 
-        scatterplot(data=data_df, x="M_x", y="G_k time [ns]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[2])
+        scatterplot(data=data_df, x="M_x", y="G_k time [s]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[2])
         # ax[0].legend(ncol = 2)
-        ax[0].set(yscale="log", xlabel="LCL Cells", ylabel="PP Time [ns]")
-        ax[1].set(yscale="log", xlabel="Mesh", ylabel="PM Time [ns]")
-        ax[2].set(yscale="log", xlabel="Mesh", ylabel="Green Function Time [ns]")
+        ax[0].set(yscale="log", xlabel="LCL Cells", ylabel="PP Time [s]")
+        ax[1].set(yscale="log", xlabel="Mesh", ylabel="PM Time [s]")
+        ax[2].set(yscale="log", xlabel="Mesh", ylabel="Green Function Time [s]")
         ax[1].set_xscale("log", base=2)
         ax[2].set_xscale("log", base=2)
         fig_path = self.pppm_plots_dir
         fig.savefig(join(fig_path, f"PPPM_Times_{self.io.job_id}.png"))
+
+        print(f"\nFigures can be found in {self.pppm_plots_dir}")
 
     def make_force_v_timing_plot(self, data_df: DataFrame = None):
         """Make contour maps of the force error and total acc time as functions of LCL cells and PM meshes for each
@@ -901,20 +904,22 @@ class PreProcess(Process):
                     "M_x",
                     "pp_cells",
                     "force error [measured]",
-                    "pp_acc_time [ns]",
-                    "pm_acc_time [ns]",
-                    "tot_acc_time [ns]",
+                    "pp_acc_time [s]",
+                    "pm_acc_time [s]",
+                    "tot_acc_time [s]",
                 ]
             ]
 
             # 2D-arrays from DataFrame
-            x1 = linspace(df["M_x"].min(), df["M_x"].max(), len(df["M_x"].unique()))
-            y1 = linspace(df["pp_cells"].min(), df["pp_cells"].max(), len(df["pp_cells"].unique()))
+            n_meshes = len(df["M_x"].unique())
+            x1 = logspace(log2(df["M_x"].min()), log2(df["M_x"].max()), 5 * n_meshes, base=2)
+            n_cells = len(df["pp_cells"].unique())
+            y1 = linspace(df["pp_cells"].min(), df["pp_cells"].max(), 5 * n_cells)
 
             m_mesh, c_mesh = meshgrid(x1, y1)
 
             # Interpolate unstructured D-dimensional data.
-            tot_time_map = griddata((df["M_x"], df["pp_cells"]), df["tot_acc_time [ns]"], (m_mesh, c_mesh))
+            tot_time_map = griddata((df["M_x"], df["pp_cells"]), df["tot_acc_time [s]"], (m_mesh, c_mesh))
             force_error_map = griddata((df["M_x"], df["pp_cells"]), df["force error [measured]"], (m_mesh, c_mesh))
 
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 9))
@@ -939,9 +944,8 @@ class PreProcess(Process):
                 input_Nc = int(self.potential.box_lengths[0] / self.potential.rc)
                 ax1.scatter(self.potential.pppm_mesh[0], input_Nc, s=200, c="k")
 
-            ax1.set_xlabel("Mesh size")
-            ax1.set_ylabel(r"LCL Cells")
-            ax1.set_title(f"Force Error Map @ cao = {cao}")
+            ax1.set_xscale("log", base=2)
+            ax1.set(xlabel="Mesh size", ylabel=r"LCL Cells", title=f"Force Error Map @ cao = {cao}")
 
             # Timing Plot
             maxt = tot_time_map.max()
@@ -956,13 +960,13 @@ class PreProcess(Process):
             ax2.clabel(CS2, fmt="%.2e", colors="w")
             # fig.colorbar(, ax = ax2)
             clb = fig.colorbar(ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax2)
-            clb.set_label("CPU Time [ns]", rotation=270, va="bottom")
+            clb.set_label("CPU Time [s]", rotation=270, va="bottom")
             if cao == self.potential.pppm_cao[0]:
                 input_Nc = int(self.potential.box_lengths[0] / self.potential.rc)
                 ax2.scatter(self.potential.pppm_mesh[0], input_Nc, s=200, c="k")
 
-            ax2.set_xlabel("Mesh size")
-            ax2.set_title(f"Timing Map @ cao = {cao}")
+            ax2.set_xscale("log", base=2)
+            ax2.set(xlabel="Mesh size", title=f"Timing Map @ cao = {cao}")
             fig.savefig(join(fig_path, f"ForceErrorMap_v_Timing_cao_{cao}_{self.io.job_id}.png"))
 
     def postproc_estimates(self):
@@ -1332,6 +1336,7 @@ class PreProcess(Process):
                         self.potential.pppm_alpha_ewald,
                         rescaling_constant,
                     )
+
                     # Note: the PM error does not depend on rc. Only on alpha and it is given by G_k
                     self.potential.force_error = sqrt(self.potential.pppm_pp_err**2 + self.potential.pppm_pm_err**2)
 
@@ -1372,22 +1377,20 @@ class PreProcess(Process):
                             "h_y alpha": self.potential.pppm_h_array[1] * self.potential.pppm_alpha_ewald,
                             "h_z alpha": self.potential.pppm_h_array[2] * self.potential.pppm_alpha_ewald,
                             "h_M a_ws^3": self.potential.pppm_h_array.prod() * self.potential.pppm_alpha_ewald**3,
-                            "G_k time [ns]": green_time * 1e-9,
-                            "pp_acc_time [ns]": pp_acc_time * 1e-9,
-                            "pm_acc_time [ns]": pm_acc_time * 1e-9,
-                            "tot_acc_time [ns]": (pp_acc_time + pm_acc_time) * 1e-9,
+                            "G_k time [s]": green_time * 1.0e-9,
+                            "pp_acc_time [s]": pp_acc_time * 1.0e-9,
+                            "pm_acc_time [s]": pm_acc_time * 1.0e-9,
+                            "tot_acc_time [s]": (pp_acc_time + pm_acc_time) * 1.0e-9,
                             "pppm_pp_error [measured]": self.potential.pppm_pp_err,
                             "pppm_pm_error [measured]": self.potential.pppm_pm_err,
-                            "force error [measured]": self.potential.force_error
-                            # "pppm_pp_error [measured]": pppm_pp_err,
-                            # "pppm_pm_error [measured]": pppm_pm_err,
-                            # "force error [measured]": tot_pppm_err,
+                            "force error [measured]": self.potential.force_error,
                         },
                         ignore_index=True,
                     )
 
         self.dataframe = data
-        self.dataframe.to_csv(join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index=False)
+        csv_location = join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv")
+        self.dataframe.to_csv(csv_location, index=False)
 
         # Reset the original values.
         self.potential.rc = self.input_rc
@@ -1395,6 +1398,12 @@ class PreProcess(Process):
         self.potential.pppm_alpha_ewald = self.input_alpha
         self.potential.pppm_cao = self.input_cao.copy()
         self.potential.setup(self.parameters, self.species)
+
+        print(
+            f"\nThe force error and computation times can be found in a dataframe at PreProcess.dataframe "
+            f"and the corresponding csv file is saved in {csv_location}"
+        )
+
         # pm_popt = zeros((len(self.pm_caos), 2))
         # for ic, cao in enumerate(self.pm_caos):
         #     # Fit the PM times

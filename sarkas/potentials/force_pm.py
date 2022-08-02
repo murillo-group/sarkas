@@ -4,20 +4,7 @@ Module for handling the Particle-Mesh part of the force and potential calculatio
 
 from numba import jit
 from numba.core.types import complex128, float64, int64, Tuple, UniTuple
-from numpy import (
-    arange,
-    array,
-    exp,
-    imag,
-    mod,
-    pi,
-    real,
-    rint,
-    sin,
-    sqrt,
-    zeros,
-    zeros_like,
-)
+from numpy import arange, array, exp, mod, pi, rint, sin, sqrt, zeros, zeros_like
 from numpy.fft import fftshift, ifftshift
 from pyfftw.builders import fftn, ifftn
 
@@ -215,7 +202,6 @@ def force_optimized_green_function(box_lengths, h_array, mesh_sizes, aliases, p,
     fourpie0 = constants[2]
 
     four_pi = 4.0 * pi if fourpie0 == 1.0 else 4.0 * pi / fourpie0
-    two_pi = 2.0 * pi
 
     mask = box_lengths.nonzero()
     non_zero_box_lengths = array([1.0, 1.0, 1.0], dtype=float64)
@@ -237,7 +223,7 @@ def force_optimized_green_function(box_lengths, h_array, mesh_sizes, aliases, p,
             for nx, kx in enumerate(kx_v[0, :]):
                 k_sq = kx * kx + ky * ky + kz * kz
                 if k_sq != 0.0:
-                    #
+                    # old code
                     # U_k_sq = 0.0
                     # U_G_k = 0.0
 
@@ -444,20 +430,26 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
 
     Parameters
     ----------
-    h_array: numpy.ndarray
-        Distances between mesh points per dimension.
-
-    mesh_sz: numpy.ndarray
-        Mesh points per direction.
-
-    pos: numpy.ndarray
+    mesh_pos: numpy.ndarray
         Particles' positions.
+
+    mesh_points: numpy.ndarray
+        Particles' positions on the mesh.
 
     charges: numpy.ndarray
         Particles' charges.
 
     cao: numpy.ndarray
         Charge assignment order.
+
+    mesh_sz: numpy.ndarray
+        Mesh points per direction.
+
+    mid: numpy.ndarray
+        Midpoint flag for the three directions.
+
+    pshift: numpy.ndarray
+        Midpoint shift in each direction.
 
     Returns
     -------
@@ -474,18 +466,18 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
     for ipart in range(len(charges)):
 
         ix = mesh_points[ipart, 0]
-        x = mesh_pos[ipart, 0] - (ix + mid[0])
+        delta_x = mesh_pos[ipart, 0] - (ix + mid[0])
 
         iy = mesh_points[ipart, 1]
-        y = mesh_pos[ipart, 1] - (iy + mid[1])
+        delta_y = mesh_pos[ipart, 1] - (iy + mid[1])
 
         iz = mesh_points[ipart, 2]
-        z = mesh_pos[ipart, 2] - (iz + mid[2])
-        # x, y, z = particle's distances to the closest (mid)-point of the mesh
+        delta_z = mesh_pos[ipart, 2] - (iz + mid[2])
+        # delta_x, delta_y, delta_z = particle's distances to the closest (mid)-point of the mesh
 
-        wx = assgnmnt_func(cao[0], x)
-        wy = assgnmnt_func(cao[1], y)
-        wz = assgnmnt_func(cao[2], z)
+        wx = assgnmnt_func(cao[0], delta_x)
+        wy = assgnmnt_func(cao[1], delta_y)
+        wz = assgnmnt_func(cao[2], delta_z)
 
         izn = iz - pshift[2]  # min. index along z-axis
 
@@ -532,7 +524,7 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
 
             izn += 1 * (mesh_sz[2] > 1)
             # Do not increase the index if there is only 1 point mesh. This is kinda redundant because if there is only
-            # one point than also cao == 1. add a test for this!
+            # one point then also cao == 1. add a test for this!
 
     return rho_r
 

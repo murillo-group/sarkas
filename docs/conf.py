@@ -19,7 +19,6 @@ sys.path.insert(0, os.path.abspath("../sarkas"))
 sys.path.insert(0, os.path.abspath("../sarkas/time_evolution"))
 sys.path.insert(0, os.path.abspath("../sarkas/utilities"))
 sys.path.insert(0, os.path.abspath("../sarkas/potentials"))
-sys.path.insert(0, os.path.abspath("../sarkas/thermostats"))
 sys.path.insert(0, os.path.abspath("../sarkas/tools"))
 
 intersphinx_mapping = {
@@ -55,13 +54,25 @@ extensions = [
     "sphinx.ext.viewcode",  # Add links to highlighted source code
     "sphinxcontrib.bibtex",  # Allows BibTeX citations to be inserted into documentation
     "sphinx.ext.intersphinx",  # To reference parts of other Sphinx documentations
-    "nbsphinx",  # Provides a source parser for *.ipynb files
-    "recommonmark",  # A markdown parser for docutils --- should be substitued with MySt Markdown
+    # "nbsphinx",  # Provides a source parser for *.ipynb files
+    # "recommonmark",  # A markdown parser for docutils --- should be substitued with MySt Markdown
     "sphinx_design",  # For creating cards, grid layout, drop-downs, tabs
     "sphinxext.opengraph",  # to add Open Graph metadata
     "sphinx_copybutton",  # Add a "copy" button to code blocks
     # "sphinx_codeautolink" #Automatic links from code examples to reference documentation --- it does not work properly at the moment
+    "myst_nb",
 ]
+# MyST configuration
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "html_image",
+]
+myst_url_schemes = ("http", "https", "mailto")
+nb_execution_mode = "off"
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -102,10 +113,10 @@ autodoc_mock_imports = ["yaml", "numba", "scipy", "optparse", "time", "pyfftw", 
 html_last_updated_fmt = "%b %d, %Y"
 html_logo = os.path.join("graphics", os.path.join("logo", "logo_s_orange.png"))
 
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".md": "markdown",
-}
+# source_suffix = {
+#     ".rst": "restructuredtext",
+#     ".md": "markdown",
+# }
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
