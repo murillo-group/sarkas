@@ -1909,7 +1909,7 @@ thermostat period is more consistent with the underlying equations of motion. In
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;MSUstyle&#39;</span><span class="p">)</span>
 <span class="c1"># Import sarkas</span>
-<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span><span class="p">,</span> <span class="n">PreProcess</span>
+<span class="kn">from</span> <span class="nn">sarkas.processes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">PostProcess</span>
 
 <span class="c1"># Create the file path to the YAML input file</span>
 <span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;input_files&#39;</span><span class="p">,</span> <span class="s1">&#39;yocp_cgs_pp_therm.yaml&#39;</span> <span class="p">)</span>
@@ -1921,234 +1921,20 @@ thermostat period is more consistent with the underlying equations of motion. In
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Using matplotlib backend: Qt5Agg
+Using matplotlib backend: &lt;object object at 0x7fe2257efb50&gt;
 Populating the interactive namespace from numpy and matplotlib
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preproc</span> <span class="o">=</span> <span class="n">PreProcess</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
-<span class="n">preproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span> <span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">preproc</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-<span style="color: rgb(0,129,131)">
-
-
-
-
-
-________             ______
-__  ___/_____ __________  /_______ ________
-_____ \_  __ `/_  ___/_  //_/  __ `/_  ___/
-____/ // /_/ /_  /   _  ,&lt;  / /_/ /_(__  )
-/____/ \__,_/ /_/    /_/|_| \__,_/ /____/
-
-
-</span>
-An open-source pure-python molecular dynamics suite for non-ideal plasmas.
-
-
-
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-                                 Preprocessing
-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-Job ID:  tau_2
-Job directory:  Berendsen_runs/tau_2
-
-Equilibration dumps directory:
- Berendsen_runs/tau_2/PreProcessing/Equilibration/dumps
-Production dumps directory:
- Berendsen_runs/tau_2/PreProcessing/Production/dumps
-
-Equilibration Thermodynamics file:
- Berendsen_runs/tau_2/PreProcessing/Equilibration/EquilibrationEnergy_tau_2.csv
-Production Thermodynamics file:
- Berendsen_runs/tau_2/PreProcessing/Production/ProductionEnergy_tau_2.csv
-
-PARTICLES:
-Total No. of particles =  1000
-No. of species =  1
-Species ID: 0
-        Name: C
-        No. of particles = 1000
-        Number density = 1.136669e+23 [N/cc]
-        Atomic weight = 12.0105 [a.u.]
-        Mass = 2.008900e-23 [g]
-        Mass density = 2.283455e+00 [g/cc]
-        Charge number/ionization degree = 1.9766
-        Charge = 9.494010e-10 [esu]
-        Temperature = 5.000000e+03 [K] = 4.308667e-01 [eV]
-        Debye Length = 7.322426e-10 [Hz]
-        Plasma Frequency = 2.531585e+14 [Hz]
-
-SIMULATION BOX:
-Units:  cgs
-Wigner-Seitz radius = 1.280636e-08 [cm]
-No. of non-zero box dimensions =  3
-Box side along x axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
-Box side along y axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
-Box side along z axis = 1.611992e+01 a_ws = 2.064375e-07 [cm]
-Box Volume = 8.797633e-21 [cm^3]
-Boundary conditions: periodic
-
-ELECTRON PROPERTIES:
-Number density: n_e = 2.246739e+23 [N/cc]
-Wigner-Seitz radius: a_e = 1.020437e-08 [cm]
-Temperature: T_e = 5.000000e+03 [K] = 4.308667e-01 [eV]
-de Broglie wavelength: lambda_deB = 1.054132e-07 [cm]
-Thomas-Fermi length: lambda_TF = 4.702909e-09 [cm]
-Fermi wave number: k_F = 1.880722e+08 [1/cm]
-Fermi Energy: E_F = 1.347634e+01 [eV]
-Relativistic parameter: x_F = 7.262582e-03 --&gt; E_F = 1.347617e+01 [eV]
-Degeneracy parameter: Theta = 3.197207e-02
-Coupling: r_s = 1.928347,  Gamma_e = 32.750858
-Warm Dense Matter Parameter: W = 3.8973e-03
-Chemical potential: mu = 3.1251e+01 k_B T_e = 9.9916e-01 E_F
-
-POTENTIAL:  Yukawa
-electron temperature = 5.0000e+03 [K] = 4.3087e-01 [eV]
-kappa = 2.7231
-Gamma_eff = 101.96
-
-ALGORITHM:  PP
-rcut = 4.6852 a_ws = 6.000000e-08 [cm]
-No. of PP cells per dimension =  3,  3,  3
-No. of particles in PP loop =    662
-No. of PP neighbors per particle =    102
-Tot Force Error = 5.818612e-06
-
-THERMOSTAT:
-Type: Berendsen
-First thermostating timestep, i.e. relaxation_timestep = 100
-Berendsen parameter tau: 2.000 [timesteps]
-Berendsen relaxation rate: 0.500 [1/timesteps]
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Equilibration temperatures not defined. I will use the species&#39;s temperatures
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-Thermostating temperatures:
-Species ID 0: T_eq = 5.000000e+03 [K] = 4.308667e-01 [eV]
-
-INTEGRATOR:
-Type: Verlet
-Time step = 5.000000e-17 [s]
-Total plasma frequency = 2.531585e+14 [Hz]
-w_p dt = 0.0127 ~ 1/79
-
-Equilibration:
-No. of equilibration steps = 5000
-Total equilibration time = 2.5000e-13 [s] ~ 63 w_p T_eq
-snapshot interval step = 2
-snapshot interval time = 1.0000e-16 [s] = 0.0253 w_p T_snap
-Total number of snapshots = 2500
-
-Production:
-No. of production steps = 0
-Total production time = 0.0000e+00 [s] ~ 0 w_p T_prod
-snapshot interval step = 10
-snapshot interval time = 5.0000e-16 [s] = 0.1266 w_p T_snap
-Total number of snapshots = 0
-
-
------------------------- Initialization Times ------------------------
-
-
-Potential Initialization Time: 0 sec 31 msec 105 usec 493 nsec
-
-Particles Initialization Time: 0 sec 0 msec 379 usec 361 nsec
-
-Total Simulation Initialization Time: 0 sec 31 msec 105 usec 493 nsec
-
-
-========================== Times Estimates ===========================
-
-Time of PP acceleration calculation averaged over 9 steps:
-0 min 0 sec 8 msec 482 usec 538 nsec
-
-
-Running 10 equilibration and production steps to estimate simulation times
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "142f1b64ee1b47019a2e8485ebf03e2d"}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Time of a single equilibration step averaged over 9 steps:
-0 min 0 sec 68 msec 870 usec 493 nsec
-
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"version_major": 2, "version_minor": 0, "model_id": "843672cb5e49418c8cbcbf65c7093a78"}</script></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Time of a single production step averaged over 9 steps:
-0 min 0 sec 9 msec 552 usec 583 nsec
-
-
-
------------------------ Total Estimated Times ------------------------
-
-
-Equilibration Time: 0 hrs 5 min 44 sec
-
-Production Time: 0 sec 0 msec 0 usec 0 nsec
-
-Total Run Time: 0 hrs 5 min 44 sec
-
-
-========================= Filesize Estimates =========================
-
-
-Equilibration:
-
-Checkpoint filesize: 0 GB 0 MB 83 KB 470 bytes
-Checkpoint folder size: 0 GB 203 MB 775 KB 472 bytes
-
-Production:
-
-Checkpoint filesize: 0 GB 0 MB 83 KB 470 bytes
-Checkpoint folder size: 0 GB 0 MB 0 KB 0 bytes
-
-Total minimum needed space: 0 GB 203 MB 775 KB 472 bytes
 </pre></div></div>
 </div>
 <p>We select six different values of <span class="math notranslate nohighlight">\(\tau_B\)</span> and for each of them run a simulation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">taus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mf">50.</span><span class="p">,</span> <span class="mf">100.</span> <span class="p">])</span>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">taus</span><span class="p">):</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;Thermostat&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;relaxation_timestep&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="s1">&#39;Integrator&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;thermalization_timestep&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
                        <span class="s1">&#39;berendsen_tau&#39;</span><span class="p">:</span> <span class="n">tau</span><span class="p">},</span> <span class="c1"># Change tau for each simulation</span>
 
             <span class="s2">&quot;IO&quot;</span><span class="p">:</span>   <span class="c1"># Store all simulations&#39; data in simulations_dir,</span>
@@ -2158,6 +1944,8 @@ Total minimum needed space: 0 GB 203 MB 775 KB 472 bytes
                 <span class="s2">&quot;job_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;tau_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span> <span class="p">),</span>
                 <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span> <span class="c1"># This is so not to print to screen for every run</span>
             <span class="p">},</span>
+            <span class="s2">&quot;Parameters&quot;</span><span class="p">:{</span> <span class="s2">&quot;rand_seed&quot;</span><span class="p">:</span> <span class="mi">123456</span><span class="p">}</span>
+
     <span class="p">}</span>
     <span class="c1"># Run the simulation.</span>
     <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">input_file_name</span><span class="p">)</span>
@@ -2183,15 +1971,15 @@ Tau = 100.0 Done
 </div>
 <p>Now we plot the temperature evolution to show the effect of changing <span class="math notranslate nohighlight">\(\tau_B\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axt</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">9</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tau</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">taus</span><span class="p">):</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;Thermostat&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;relaxation_timestep&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-                       <span class="s1">&#39;berendsen_tau&#39;</span><span class="p">:</span> <span class="n">tau</span><span class="p">},</span> <span class="c1"># Change tau for each simulation</span>
+       <span class="s1">&#39;Integrator&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;thermalization_timestep&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                       <span class="s1">&#39;berendsen_tau&#39;</span><span class="p">:</span> <span class="n">tau</span><span class="p">},</span>
 
             <span class="s2">&quot;IO&quot;</span><span class="p">:</span>   <span class="c1"># Store all simulations&#39; data in simulations_dir,</span>
                 <span class="c1"># but save the dumps in different subfolders (job_dir)</span>
@@ -2206,14 +1994,13 @@ Tau = 100.0 Done
     <span class="n">postproc</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">read_yaml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">other_inputs</span> <span class="o">=</span> <span class="n">args</span><span class="p">)</span>
     <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="p">,</span> <span class="n">phase</span> <span class="o">=</span> <span class="s1">&#39;equilibration&#39;</span><span class="p">)</span>
     <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
-
     <span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
         <span class="n">scaling</span> <span class="o">=</span> <span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">therm</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">eV2K</span><span class="p">),</span>
         <span class="n">y</span> <span class="o">=</span> <span class="s1">&#39;Temperature&#39;</span><span class="p">,</span>
         <span class="n">ylabel</span> <span class="o">=</span> <span class="s1">&#39;Temperature [eV]&#39;</span><span class="p">,</span>
         <span class="n">xlabel</span> <span class="o">=</span> <span class="s1">&#39;Number of timesteps&#39;</span><span class="p">,</span> <span class="n">logx</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">axt</span><span class="p">)</span>
 
-<span class="n">axt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">thermostat</span><span class="o">.</span><span class="n">temperatures_eV</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">axt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">postproc</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">species_temperatures_eV</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ls</span> <span class="o">=</span> <span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
 <span class="n">axt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span>
     <span class="sa">r</span><span class="s1">&#39;$\tau_B = 1.0$&#39;</span><span class="p">,</span>
     <span class="sa">r</span><span class="s1">&#39;$\tau_B = 2.0$&#39;</span><span class="p">,</span>
@@ -2226,22 +2013,30 @@ Tau = 100.0 Done
 </div>
 </div>
 <div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;matplotlib.legend.Legend at 0x7fd6d41af450&gt;
+&lt;matplotlib.legend.Legend at 0x7fe22c5922d0&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/documentation_Features_files_Berendsen_NB_Berendsen_Thermostat_6_1.png" src="../../../_images/documentation_Features_files_Berendsen_NB_Berendsen_Thermostat_6_1.png" />
+<img alt="../../../_images/documentation_Features_files_Berendsen_NB_Berendsen_Thermostat_5_1.png" src="../../../_images/documentation_Features_files_Berendsen_NB_Berendsen_Thermostat_5_1.png" />
 </div>
 </div>
-<p>As you can see, the temperature increase for the first hundred time steps. The reason being that we selected the option <code class="docutils literal notranslate"><span class="pre">relaxation_timestep:</span> <span class="pre">100</span></code>. We do this to allow the system to transform all of its initial potential energy into kinetic energy.</p>
+<p>As you can see, the temperature increase for the first hundred time steps. The reason being that we selected the option <code class="docutils literal notranslate"><span class="pre">thermalization_timestep:</span> <span class="pre">100</span></code>. We do this to allow the system to transform all of its initial potential energy into kinetic energy.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 
@@ -2277,7 +2072,7 @@ Tau = 100.0 Done
     By MurilloGroup<br/>
   
       &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Jul 22, 2022.<br/>
+    Last updated on Aug 22, 2022.<br/>
 </p>
         </footer>
     </div>
