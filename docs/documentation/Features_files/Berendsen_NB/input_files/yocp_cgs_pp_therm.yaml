@@ -20,17 +20,20 @@ Integrator:
     production_steps: 0                # number of timesteps after the equilibrium
     eq_dump_step: 2
     prod_dump_step: 10
-
-Thermostat:
-    type: Berendsen                         # thermostat type
-    relaxation_timestep: 100
-    berendsen_tau: 2.0
+    boundary_conditions: periodic       # REQUIRED
+    thermalization: yes                 # OPTIONAL. Default = yes
+    thermostat_type: berendsen          # REQUIRED if thermalization is yes
+    thermalization_timestep: 50         # REQUIRED if thermalization is yes
+    berendsen_tau: 1.0                  # REQUIRED if thermostat: berendsen
+    thermostate_temperatures_eV: 0.5    # OPTIONAL Default = Species.temperature_eV
 
 Parameters:
     units: cgs                              # units
     load_method: random_no_reject
-    rdf_nbins: 250
-    boundary_conditions: periodic
+    equilibration_steps: 5000           # REQUIRED
+    production_steps: 0                 # REQUIRED
+    eq_dump_step: 2                     # REQUIRED
+    prod_dump_step: 10                  # REQUIRED
 
 IO:
     verbose: yes

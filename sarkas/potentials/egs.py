@@ -124,7 +124,7 @@ def update_params(potential, params):
         potential.lmbda = 1.0 / 9.0
 
     # eq. (14) of Ref. [1]_
-    params.nu = 3.0 / pi**1.5 * potential.electron_landau_length / potential.electron_deBroglie_wavelength
+    potential.nu = 3.0 / pi**1.5 * potential.electron_landau_length / potential.electron_deBroglie_wavelength
     dIdeta = -3.0 / 2.0 * fdm3h(potential.electron_dimensionless_chemical_potential)
     potential.nu *= potential.lmbda * dIdeta
 
