@@ -2648,7 +2648,7 @@ class Thermodynamics(Observable):
 
         Parameters
         ----------
-        rdf: sarkas.tools.observables.RadialDistributionFunction
+        rdf: :class:`sarkas.tools.observables.RadialDistributionFunction`
             Radial Distribution Function object.
 
         potential : :class:`sarkas.potentials.core.Potential`

@@ -3,7 +3,7 @@ Module handling the potential class.
 """
 from copy import deepcopy
 from fmm3dpy import hfmm3d, lfmm3d
-from numpy import array, int64, ndarray, pi, sqrt, tanh
+from numpy import array, inf, int64, ndarray, pi, sqrt, tanh
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
@@ -279,6 +279,8 @@ class Potential:
             self.screening_length = self.a_ws / self.kappa
         elif self.screening_length_type in ["qsp", "deBroglie"]:
             self.screening_length = species[0].deBroglie_wavelength / (2.0 * pi)
+        elif self.screening_length_type in ["coulomb"]:
+            self.screening_length = inf
         elif self.screening_length_type in ["custom"]:
             if self.screening_length is None:
                 raise AttributeError("potential.screening_length not defined!")
@@ -685,7 +687,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.particles.Particles`
             Particles' data
 
         """
@@ -703,7 +705,7 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.particles.Particles`
             Particles' data
 
         """

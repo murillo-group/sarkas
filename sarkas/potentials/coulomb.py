@@ -25,7 +25,7 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
 from math import erfc
 from numba import jit
 from numba.core.types import float64, UniTuple
-from numpy import exp, pi, sqrt, zeros
+from numpy import exp, inf, pi, sqrt, zeros
 
 from ..utilities.maths import force_error_analytic_pp
 
@@ -42,7 +42,8 @@ def update_params(potential):
     """
 
     potential.matrix = zeros((3, potential.num_species, potential.num_species))
-
+    potential.screening_length = inf
+    potential.screening_length_type = "coulomb"
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
             potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0

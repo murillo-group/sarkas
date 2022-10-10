@@ -848,6 +848,7 @@ class PreProcess(Process):
                 data_df = read_csv(
                     join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
                 )
+                self.dataframe = data_df.copy()
             except FileNotFoundError:
                 print(f"I could not find the data from the timing study. Running the timing study now.")
                 self.timing_study_calculation()
@@ -890,6 +891,7 @@ class PreProcess(Process):
                 data_df = read_csv(
                     join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
                 )
+                self.dataframe = data_df.copy()
             except FileNotFoundError:
                 print(f"I could not find the data from the timing study. Running the timing study now.")
                 self.timing_study_calculation()
@@ -900,14 +902,7 @@ class PreProcess(Process):
         for _, cao in enumerate(self.pm_caos):
             mask = self.dataframe["pppm_cao_x"] == cao
             df = data_df[mask][
-                [
-                    "M_x",
-                    "pp_cells",
-                    "force error [measured]",
-                    "pp_acc_time [s]",
-                    "pm_acc_time [s]",
-                    "tot_acc_time [s]",
-                ]
+                ["M_x", "pp_cells", "force error [measured]", "pp_acc_time [s]", "pm_acc_time [s]", "tot_acc_time [s]"]
             ]
 
             # 2D-arrays from DataFrame

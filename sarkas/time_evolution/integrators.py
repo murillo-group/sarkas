@@ -4,7 +4,7 @@ Module of various types of time_evolution
 
 from copy import deepcopy
 from numba import float64, int64, jit, void
-from numpy import arange, array, cos, cross, pi, sin, sqrt, zeros
+from numpy import arange, array, cos, cross, log, pi, sin, sqrt, zeros
 from scipy.linalg import norm
 
 
@@ -1076,8 +1076,11 @@ class Integrator:
                 print(f"w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi")
 
         if self.equilibration_type == "langevin" or self.production_type == "langevin":
+            print(f"langevin_gamma = {self.langevin_gamma:.4e}")
             print(f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}")
             print(f"langevin_gamma / wp = {self.langevin_gamma / wp_tot:.4e}")
+            N = -log(0.001) / (self.langevin_gamma * self.dt)
+            print(f"exp( - gamma N dt) = 0.001 ==> N = {N:.4f}")
 
 
 @jit(void(float64[:, :], float64[:], float64[:], int64[:], float64), nopython=True)
