@@ -767,20 +767,20 @@ class Particles:
         """
         P = zeros(self.num_species)
 
-        species_start = 0
-        species_end = 0
-        for i, num in enumerate(self.species_num):
-            species_end += num
-
-            # TODO: Consider writing a numba function speedup in distance calculation
-            species_charges = self.charges[species_start:species_end]
-            uti = triu_indices(species_charges.size, k=1)
-            species_charge2 = species_charges[uti[0]] * species_charges[uti[1]]
-            species_distances = pdist(self.pos[species_start:species_end, :])
-            potential = species_charge2 / self.fourpie0 / species_distances
-            P[i] = potential.sum()
-
-            species_start = species_end
+        # species_start = 0
+        # species_end = 0
+        # for i, num in enumerate(self.species_num):
+        #     species_end += num
+        #
+        #     # TODO: Consider writing a numba function speedup in distance calculation
+        #     species_charges = self.charges[species_start:species_end]
+        #     uti = triu_indices(species_charges.size, k=1)
+        #     species_charge2 = species_charges[uti[0]] * species_charges[uti[1]]
+        #     species_distances = pdist(self.pos[species_start:species_end, :])
+        #     potential = species_charge2 / self.fourpie0 / species_distances
+        #     P[i] = potential.sum()
+        #
+        #     species_start = species_end
 
         return P
 

@@ -417,12 +417,14 @@ class Integrator:
         beta = ptcls.gaussian(0.0, 1.0, (self.total_num_ptcls, self.dimensions))
         sp_start = 0  # start index for species loop
         sp_end = 0
+
         for ic, num in enumerate(self.species_num):
             sp_end += num
+
             ptcls.pos[sp_start:sp_end, : self.dimensions] += (
                 self.c1 * self.dt * ptcls.vel[sp_start:sp_end, : self.dimensions]
                 + 0.5 * self.dt**2 * ptcls.acc[sp_start:sp_end, : self.dimensions]
-                + 0.5 * self.sigma[ic] * self.dt**1.5 * beta
+                + 0.5 * self.sigma[ic] * self.dt**1.5 * beta[sp_start:sp_end, : self.dimensions]
             )
             sp_start += num
 
@@ -443,7 +445,7 @@ class Integrator:
                 * self.c2
                 * self.dt
                 * (ptcls.acc[sp_start:sp_end, : self.dimensions] + acc_old[sp_start:sp_end, : self.dimensions])
-                + self.c2 * self.sigma[ic] * sqrt(self.dt) * beta
+                + self.c2 * self.sigma[ic] * sqrt(self.dt) * beta[sp_start:sp_end, : self.dimensions]
             )
             sp_start += num
 

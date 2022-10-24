@@ -2844,7 +2844,7 @@ class Thermodynamics(Observable):
         T_dist = scp_stats.norm(loc=T_desired, scale=Temperature.std())
         # Histogram plot
         sns_histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
-        T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
+        T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[], ylim=T_main_plot.get_ylim())
         T_hist_plot.plot(T_dist.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1])
 
         # ------------------------------------------- Total Energy -------------------------------------------#
@@ -2882,7 +2882,7 @@ class Thermodynamics(Observable):
         # Grab the second color since the first is used for histplot
         E_hist_plot.plot(E_dist.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
 
-        E_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[])
+        E_hist_plot.set(ylabel=None, xlabel=None, ylim=E_main_plot.get_ylim(), xticks=[], yticks=[])
 
         if not publication:
             dt_mul, _, _, _, dt_lbl, _ = plot_labels(
