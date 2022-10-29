@@ -371,6 +371,16 @@ class Process:
             if not exists(self.io.log_file):
                 self.io.simulation_summary(self)
 
+            # Initialize the Particles class attributes by reading the last step
+            old_method = self.parameters.load_method
+            self.parameters.load_method = "prod_restart"
+            no_dumps = len(listdir(self.parameters.prod_dump_dir))
+            last_step = self.parameters.prod_dump_step * (no_dumps - 1)
+            self.parameters.restart_step = last_step
+            self.particles.setup(self.parameters, self.species)
+            # Restore the original value for future use
+            self.parameters.load_method = old_method
+
             # Initialize the observable classes
             # for obs in self.observables_list:
             #     if obs in self.__dict__.keys():

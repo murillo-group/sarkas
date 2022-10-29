@@ -260,16 +260,18 @@ class TransportCoefficients:
         )
 
         xlims = (xmul * time[1], xmul * time[-1] * 1.5)
-
         ax1.set(xlim=xlims, xscale="log", ylabel=acf_name, xlabel=r"Time difference" + xlbl)
-        ax2.set(xlim=xlims, xscale="log", ylabel=tc_name + ylbl, xlabel=r"$\tau$" + xlbl)
+        xlims = (0, xmul * time[-1] * 1.05)
+        ax2.set(xlim=xlims, ylabel=tc_name + ylbl, xlabel=r"$\tau$" + xlbl)
 
         # ax1.legend(loc='best')
         # ax2.legend(loc='best')
         # Finish the index axes
+        ax3.set(xlim=(1, self.slice_steps * 1.5), xscale="log")
         for axi in [ax3, ax4]:
             axi.grid(alpha=0.1)
-            axi.set(xlim=(1, self.slice_steps * 1.5), xscale="log", xlabel="Index")
+            axi.set(xlabel="Index")
+        ax4.set(xlim=(0, self.slice_steps * 1.05))
 
         fig.tight_layout()
         fig.savefig(os_path_join(self.saving_dir, figname))

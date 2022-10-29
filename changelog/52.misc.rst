@@ -1,0 +1,2 @@
+Added the calculation of rdf sum rules for qsp (deutchs only) potential
+bug fixes

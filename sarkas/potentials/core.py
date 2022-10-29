@@ -501,7 +501,7 @@ class Potential:
         self.method_pretty_print()
 
     def setup(self, params, species) -> None:
-        """Setup the potential class.
+        """Set up the potential class.
 
         Parameters
         ----------

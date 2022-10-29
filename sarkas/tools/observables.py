@@ -24,6 +24,7 @@ from numpy import (
     histogram,
     isfinite,
     load,
+    log,
     ndarray,
     pi,
     real,
@@ -44,7 +45,7 @@ from pickle import dump
 from pickle import load as pickle_load
 from scipy.fft import fft, fftfreq, fftshift
 from scipy.linalg import norm
-from scipy.special import factorial
+from scipy.special import erfc, factorial
 from seaborn import histplot as sns_histplot
 
 from ..utilities.maths import correlationfunction
@@ -1735,7 +1736,7 @@ class ElectricCurrent(Observable):
             for i, sp_name in enumerate(self.species_names):
                 sp_col_str = f"{sp_name} " + self.__long_name__
                 sp_col_str_acf = f"{sp_name} " + self.__long_name__ + " ACF"
-                sp_tot_acf = zeros(len(species_current))
+                sp_tot_acf = zeros(total_current.shape[1])
                 for d in range(self.dimensions):
                     dl = self.dim_labels[d]
 
@@ -1750,7 +1751,7 @@ class ElectricCurrent(Observable):
                 self.dataframe_acf_slices[sp_col_str_acf + f"_Total_slice {isl}"] = sp_tot_acf
 
             # Total current and its ACF
-            tot_acf = zeros(len(total_current))
+            tot_acf = zeros(total_current.shape[1])
             for d in range(self.dimensions):
                 dl = self.dim_labels[d]
                 col_str = self.__long_name__ + f"_{dl}_slice {isl}"
@@ -1761,12 +1762,12 @@ class ElectricCurrent(Observable):
                 tot_acf += tot_acf_dim
                 self.dataframe_acf_slices[col_str_acf] = tot_acf_dim
 
-            self.dataframe_acf_slices[self.__long_name__ + f"_Total_slice {isl}"] = tot_acf
+            self.dataframe_acf_slices[self.__long_name__ + f" ACF_Total_slice {isl}"] = tot_acf
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
-        self.average_slice_data()
+        self.average_slices_data()
 
         self.save_hdf()
 
@@ -1790,7 +1791,7 @@ class ElectricCurrent(Observable):
                 self.dataframe_acf[col_str_acf + f"_{dl}_Mean"] = self.dataframe_acf_slices[dim_col_str_acf].mean(axis=1)
                 self.dataframe_acf[col_str_acf + f"_{dl}_Std"] = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1)
 
-            tot_col_str = [col_str + f"_Total_slice {isl}" for isl in range(self.no_slices)]
+            tot_col_str = [col_str_acf + f"_Total_slice {isl}" for isl in range(self.no_slices)]
             self.dataframe_acf[col_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
             self.dataframe_acf[col_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
 
@@ -1801,11 +1802,13 @@ class ElectricCurrent(Observable):
             dim_col_str = [self.__long_name__ + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
             dim_col_str_acf = [self.__long_name__ + f" ACF_{dl}_slice {isl}" for isl in range(self.no_slices)]
 
-            self.dataframe[dim_col_str + f"_{dl}_Mean"] = self.dataframe_slices[dim_col_str].mean(axis=1)
-            self.dataframe[dim_col_str + f"_{dl}_Std"] = self.dataframe_slices[dim_col_str].std(axis=1)
+            self.dataframe[self.__long_name__ + f"_{dl}_Mean"] = self.dataframe_slices[dim_col_str].mean(axis=1)
+            self.dataframe[self.__long_name__ + f"_{dl}_Std"] = self.dataframe_slices[dim_col_str].std(axis=1)
             # ACF
-            self.dataframe_acf[dim_col_str_acf + f"_{dl}_Mean"] = self.dataframe_acf_slices[dim_col_str_acf].mean(axis=1)
-            self.dataframe_acf[dim_col_str_acf + f"_{dl}_Std"] = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1)
+            self.dataframe_acf[self.__long_name__ + f"_{dl}_Mean"] = self.dataframe_acf_slices[dim_col_str_acf].mean(
+                axis=1
+            )
+            self.dataframe_acf[self.__long_name__ + f"_{dl}_Std"] = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1)
 
         # Total ACF
         tot_col_str = [self.__long_name__ + f" ACF_Total_slice {isl}" for isl in range(self.no_slices)]
@@ -2360,8 +2363,8 @@ class RadialDistributionFunction(Observable):
 
                 if potential.type == "coulomb":
                     u_r = potential.matrix[0, sp1, sp2] / r
-                    dv_dr = -potential.matrix[0, sp1, sp2] / r2
-                    d2v_dr2 = 2.0 * potential.matrix[0, sp1, sp2] / r3
+                    dv_dr = -u_r / r
+                    d2v_dr2 = u_r / r - dv_dr / r
                     # Check for finiteness of first element when r[0] = 0.0
                     if not isfinite(dv_dr[0]):
                         dv_dr[0] = dv_dr[1]
@@ -2378,6 +2381,64 @@ class RadialDistributionFunction(Observable):
                     if not isfinite(dv_dr[0]):
                         dv_dr[0] = dv_dr[1]
                         d2v_dr2[0] = d2v_dr2[1]
+
+                elif potential.type == "qsp":
+
+                    A = potential.matrix[0, sp1, sp2]  # qi*qj/4*pi*eps0
+                    C = potential.matrix[1, sp1, sp2]  # 2pi/deBroglie
+                    D = potential.matrix[2, sp1, sp2]  # e-e Pauli term factor
+                    F = potential.matrix[3, sp1, sp2]  # e-e Pauli term exponent term
+
+                    # Pauli term. Note that D = 0 if Pauli is false
+                    u_r_pauli = D * log(1.0 - 0.5 * exp(-F * r2))
+                    dvdr_pauli = r * F / (exp(F * r2) - 0.5)
+                    d2v_dr2_pauli = -2.0 * F * (exp(F * r2) * (4 * F * r2 - 2) + 1) / (2.0 * exp(F * r2) - 1.0) ** 2
+
+                    if potential.qsp_type == "kelbg":
+                        # Diffraction potential and force term
+                        C2 = C * C
+                        # potential
+                        u_r_diff = A * C * sqrt(pi) * r * erfc(C * r / sqrt(pi))
+                        u_r_diff_1 = -A * exp(-C2 * r2 / pi) / r
+                        # Force
+                        dvdr_diff = -2.0 * A * C2 * exp(-C2 * r2 / pi) / pi  # erfc derivative
+                        dvdr_diff_1 = -u_r_diff_1 * (1.0 / r + 2.0 * C2 * r / pi)  # exp(r)/r derivative
+                        #
+                        d2v_dr2_diff = dvdr_diff * (-2.0 * C2 * r / pi)
+                        d2v_dr2_diff_1 = (
+                            u_r_diff_1 * (1.0 / r2 - 2.0 * C2 / pi) + (1.0 / r + 2.0 * C2 * r / pi) * dvdr_diff_1
+                        )
+
+                        u_r_diff += u_r_diff_1
+                        dvdr_diff += dvdr_diff_1
+                        d2v_dr2_diff += d2v_dr2_diff_1
+
+                    elif potential.qsp_type == "deutsch":
+                        # Diffraction potential and force term
+                        u_r_diff = -A * exp(-C * r) / r
+                        dvdr_diff = -u_r_diff * (1.0 / r + C)  # 1/r derivative
+                        d2v_dr2_diff = u_r_diff / r2 + dvdr_diff * (1.0 / r + C)
+
+                    elif potential.qsp_type == "hansen":
+
+                        # Diffraction potential and force term
+                        u_r_diff = -A * exp(-C * r) / r
+                        dvdr_diff = -u_r_diff * (1.0 / r + C)  # 1/r derivative
+                        d2v_dr2_diff = u_r_diff / r2 + dvdr_diff * (1.0 / r + C)
+
+                        # Pauli potential and force terms
+                        u_r_pauli = D * exp(-F * r2)
+                        dvdr_pauli = 2.0 * F * r * u_r_pauli
+                        d2v_dr2_pauli = 2.0 * F * u_r_pauli + dvdr_pauli * 2.0 * F * r
+
+                    # Coulomb part
+                    u_r_coul = A / r
+                    dvdr_coul = -A / r2
+                    d2v_dr2_coul = 2.0 * A / r3
+
+                    u_r = u_r_coul + u_r_diff + u_r_pauli
+                    dv_dr = dvdr_coul + dvdr_diff + dvdr_pauli
+                    d2v_dr2 = d2v_dr2_coul + d2v_dr2_diff + d2v_dr2_pauli
 
                 elif potential.type == "lj":
                     epsilon = potential.matrix[0, sp1, sp2]
@@ -2840,8 +2901,11 @@ class Thermodynamics(Observable):
         T_delta_plot.set(xticks=[], ylabel=r"Deviation [%]")
 
         # This was a failed attempt to calculate the theoretical Temperature distribution.
-        # Gaussian
-        T_dist = scp_stats.norm(loc=T_desired, scale=Temperature.std())
+        # The Temperature fluctuations in an NVT ensemble are
+        # < delta T^2> = T_desired^2 *( 2 /(Np * Dims))
+        T_std = T_desired * sqrt(2.0 / (process.parameters.total_num_ptcls * process.parameters.dimensions))
+        err = T_std - Temperature.std()
+        T_dist = scp_stats.norm(loc=T_desired, scale=T_std)
         # Histogram plot
         sns_histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
         T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[], ylim=T_main_plot.get_ylim())
@@ -2927,10 +2991,12 @@ class Thermodynamics(Observable):
                     * process.integrator.dt
                     * process.parameters.total_plasma_frequency
                 )
+                # calculate the actual coupling constant
+                t_ratio = self.T_desired / self.dataframe["Temperature"].mean()
                 to_append = [
                     f"Equilibration cycles = {eq_cycles}",
                     f"Potential: {process.potential.type}",
-                    f"  Coupling Const = {process.parameters.coupling_constant:.2e}",
+                    f"  Eff Coupl Const = {process.parameters.coupling_constant*t_ratio:.2e}",
                     f"  Tot Force Error = {process.potential.force_error:.2e}",
                     f"Integrator: {integrator_type[self.phase]}",
                 ]

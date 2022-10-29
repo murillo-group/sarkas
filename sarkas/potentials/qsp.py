@@ -88,8 +88,8 @@ def update_params(potential, species):
     potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
 
-    species : list, [:class:`sarkas.plasma.Species`,]
-        Species' data.
+    species : list,
+        List of species data (:class:`sarkas.plasma.Species`).
 
 
     """
@@ -144,9 +144,15 @@ def update_params(potential, species):
                 # Use ion temperature in i-i interactions only
                 lambda_deB = sqrt(deBroglie_const / (reduced * total_ion_temperature))
 
-            if sp1.name == sp2.name:  # e-e
-                potential.matrix[2, i, j] = log_2 * potential.kB * sp1.temperature
-                potential.matrix[3, i, j] = four_pi / (log_2 * lambda_deB**2)
+                # Pauli term only for e-e interaction
+                if sp1.name == sp2.name:  # e-e
+
+                    if potential.qsp_type == "hansen":
+                        potential.matrix[2, i, j] = log_2 * potential.kB * sp1.temperature
+                        potential.matrix[3, i, j] = four_pi / (log_2 * lambda_deB**2)
+                    else:
+                        potential.matrix[2, i, j] = -potential.kB * sp1.temperature
+                        potential.matrix[3, i, j] = TWOPI / (lambda_deB**2)
 
             potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
             potential.matrix[1, i, j] = TWOPI / lambda_deB
@@ -168,6 +174,18 @@ def update_params(potential, species):
             potential.pppm_alpha_ewald,
             sqrt(3.0 * potential.a_ws / (4.0 * pi)),
         )
+    elif potential.qsp_type == "hansen":
+        potential.force = hansen_force
+
+        # Calculate the PP Force error from the e-e diffraction term only since it is the largest.
+        potential.pppm_pp_err = force_error_analytic_pp(
+            potential.type,
+            potential.rc,
+            0.0,
+            potential.pppm_alpha_ewald,
+            sqrt(3.0 * potential.a_ws / (4.0 * pi)),
+        )
+
     elif potential.qsp_type == "kelbg":
         potential.force = kelbg_force
         # TODO: Calculate the PP Force error from the e-e diffraction term only.
@@ -179,6 +197,99 @@ def update_params(potential, species):
 
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
 def deutsch_force(r_in, pot_matrix):
+    """
+    Calculate Deutsch QSP Force between two particles.
+
+    Parameters
+    ----------
+    r_in : float
+        Distance between two particles.
+
+    pot_matrix : numpy.ndarray
+        It contains potential dependent variables. \n
+        Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Returns
+    -------
+    U : float
+        Potential.
+
+    force : float
+        Force between two particles.
+
+
+    """
+
+    A = pot_matrix[0]
+    C = pot_matrix[1]
+    D = pot_matrix[2]
+    F = pot_matrix[3]
+    alpha = pot_matrix[4]
+    rs = pot_matrix[5]
+
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
+
+    a2 = alpha * alpha
+    r2 = r * r
+
+    # Ewald short-range potential and force terms
+    U_ewald = A * erfc(alpha * r) / r
+    f_ewald = U_ewald / r  # 1/r derivative
+    f_ewald += A * (2.0 * alpha / sqrt(pi)) * exp(-a2 * r2) / r  # erfc derivative
+
+    # Diffraction potential and force term
+    U_diff = -A * exp(-C * r) / r
+    f_diff = U_diff * (1.0 / r + C)  # 1/r derivative
+
+    # Pauli Term
+    U_pauli = D * log(1.0 - 0.5 * exp(-F * r2))
+    f_pauli = -r * D * F / (exp(F * r2) - 0.5)
+
+    U = U_ewald + U_diff + U_pauli
+    force = f_ewald + f_diff + f_pauli
+
+    return U, force
+
+
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
+def pauli_force(r, pot_matrix):
+    """
+    Calculate Pauli term of the QSP potential
+
+    Parameters
+    ----------
+    r : float
+        Distance between two particles.
+
+    pot_matrix : numpy.ndarray
+        It contains potential dependent variables. \n
+        Shape = (6, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Returns
+    -------
+    U_pauli : float
+        Pauli Potential.
+
+    f_pauli : float
+        Pauli Force between two particles.
+
+
+    """
+    D = pot_matrix[2]
+    F = pot_matrix[3]
+
+    r2 = r * r
+
+    # Pauli Term
+    U_pauli = D * log(1.0 - 0.5 * exp(-F * r2))
+    f_pauli = -D * (2.0 * r * F * exp(-F * r2)) / (1.0 - 0.5 * exp(-F * r2))
+
+    return U_pauli, f_pauli
+
+
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
+def hansen_force(r_in, pot_matrix):
     """
     Calculate Deutsch QSP Force between two particles.
 
@@ -278,19 +389,18 @@ def kelbg_force(r_in, pot_matrix):
     f_ewald = U_ewald / r2  # 1/r derivative
     f_ewald += A * (2.0 * alpha / sqrt(pi) / r2) * exp(-a2 * r2)  # erfc derivative
 
-    # Diffraction potential and force term
-    U_diff = -A * exp(-C2 * r2 / pi) / r
-    U_diff += A * C * erfc(C * r / sqrt(pi))
-
-    f_diff = -A * (2.0 * C2 * r2 + pi) * exp(-C2 * r2 / pi) / (pi * r * r2)  # exp(r)/r derivative
-    f_diff += 2.0 * A * C2 * exp(-C2 * r2 / pi) / r / pi  # erfc derivative
+    # potential
+    u_r_diff = A * C * sqrt(pi) * erfc(C * r / sqrt(pi))
+    u_r_diff_1 = -A * exp(-C2 * r2 / pi) / r
+    # Force
+    dvdr_diff = A * C * sqrt(pi) * (2.0 * C2 * exp(-C2 * r2 / pi) / pi)  # erfc derivative
+    dvdr_diff_1 = u_r_diff_1 * (1.0 / r + 2.0 * C2 * r / pi)  # exp(r)/r derivative
 
     # Pauli Term
-    U_pauli = D * exp(-F * r2)
-    f_pauli = 2.0 * D * F * exp(-F * r2)
+    U_pauli, f_pauli = pauli_force(r, pot_matrix)
 
-    U = U_ewald + U_diff + U_pauli
-    force = f_ewald + f_diff + f_pauli
+    U = U_ewald + u_r_diff + u_r_diff_1 + U_pauli
+    force = f_ewald + dvdr_diff + dvdr_diff_1 + f_pauli
 
     return U, force
 
@@ -321,11 +431,11 @@ def pretty_print_info(potential):
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"e-e screening length = {ee_scr_len / a_ws:.4f} a_ws = {ee_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
-    print(f"e-e screening kappa = {potential.matrix[1, 0, 0] *  a_ws:.4e}")
+    print(f"e-e screening kappa = {potential.matrix[1, 0, 0] * a_ws:.4e}")
     print(f"i-i screening length = {ii_scr_len / a_ws:.4f} a_ws = {ii_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"i-i screening kappa = {potential.matrix[1, 1, 1] * a_ws:.4e}")
     print(f"e-i screening length = {ei_scr_len / a_ws:.4f} a_ws = {ei_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"e-i coupling constant = {potential.coupling_constant:.4f}")
-    print(f"e-i screening kappa = {potential.matrix[1, 0, 1] *  a_ws:.4e}")
+    print(f"e-i screening kappa = {potential.matrix[1, 0, 1] * a_ws:.4e}")
