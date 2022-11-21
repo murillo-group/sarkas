@@ -1,7 +1,7 @@
 """
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
-
+import pandas as pd
 from IPython import get_ipython
 from threading import Thread
 
@@ -59,33 +59,30 @@ from .utilities.timing import SarkasTimer
 
 
 class Process:
-    """Stage of a Molecular Dynamics simulation. \n
-    This is the parent class for PreProcess, Simulation, and PostProcess.
+    """Parent class for :class:`sarkas.process.PreProcess`, :class:`sarkas.process.Simulation`, and
+    :class:`sarkas.process.PostProcess`.
 
     Parameters
     ----------
     input_file : str
-        Path to the YAML input file.
+        Path to the YAML input file. Default = `None`
 
     Attributes
     ----------
-    potential : sarkas.potential.base.Potential
+    potential : :class:`sarkas.potential.base.Potential`
         Class handling the interaction between particles.
 
     integrator : :class:`sarkas.time_evolution.integrators.Integrator`
         Class handling the integrator.
 
-    thermostat : :class:`sarkas.time_evolution.thermostats.Thermostat`
-        Class handling the equilibration thermostat.
-
-    particles: :class:`sarkas.core.Particles`
+    particles: :class:`sarkas.particles.Particles`
         Class handling particles properties.
 
     parameters : :class:`sarkas.core.Parameters`
         Class handling simulation's parameters.
 
     species : list
-        List of :class:`sarkas.core.Species` classes.
+        List of :class:`sarkas.plasma.Species` classes.
 
     input_file : str
         Path to YAML input file.
@@ -101,7 +98,6 @@ class Process:
     def __init__(self, input_file: str = None):
         self.potential = Potential()
         self.integrator = Integrator()
-        # self.thermostat = Thermostat()
         self.parameters = Parameters()
         self.particles = Particles()
         self.species = []
@@ -205,7 +201,29 @@ class Process:
             if "TransportCoefficients" in dics.keys():
                 self.transport_dict = dics["TransportCoefficients"].copy()
 
-    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step):
+    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step) -> None:
+        """
+        Evolve the system forward in time.
+
+        Parameters
+        ----------
+        phase: str
+            Indicates the stage of the simulation used for saving dumps in the right directory. \n
+            Choices = ("equilibration", "production", "magnetization")
+
+        thermalization : bool
+            Indicates whether to apply the thermostat or not.
+
+        it_start: int
+            Initial timestep of the loop.
+
+        it_end: int
+            Final timestep of the loop.
+
+        dump_step: int
+            Interval for dumping data.
+
+        """
 
         for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
             # Calculate the Potential energy and update particles' data
@@ -213,10 +231,46 @@ class Process:
             self.integrator.update(self.particles)
 
             if (it + 1) % dump_step == 0:
+                self.io.dump(phase, self.particles.__deepcopy__(), it + 1)
 
+            if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
+                self.integrator.thermostate(self.particles)
+
+    def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step) -> None:
+        """
+        Evolve the system forward in time. This method is similar to :meth:`sarkas.processes.Process.evolve_loop` with
+        the only difference that it uses `threading` for saving data, it starts a new thread to save the data.
+        In the case of small number of particles this can slow down the simulation, therefore it must be chosen by setting
+        the parameters `threading = True` in the input file or in the :class:`sarkas.core.Parameters` class.
+
+        Parameters
+        ----------
+        phase: str
+            Indicates the stage of the simulation used for saving dumps in the right directory. \n
+            Choices = ("equilibration", "production", "magnetization")
+
+        thermalization : bool
+            Indicates whether to apply the thermostat or not.
+
+        it_start: int
+            Initial timestep of the loop.
+
+        it_end: int
+            Final timestep of the loop.
+
+        dump_step: int
+            Interval for dumping data.
+
+        """
+        for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
+            # Calculate the Potential energy and update particles' data
+
+            self.integrator.update(self.particles)
+
+            if (it + 1) % dump_step == 0:
                 th = Thread(
                     target=self.io.dump,
-                    name=f"Sarkas_{phase.capitalize()}_Thread - {it+1}",
+                    name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
                     args=(
                         phase,
                         self.particles.__deepcopy__(),
@@ -247,7 +301,8 @@ class Process:
 
         # Update parameters' dictionary with filenames and directories
         self.parameters.from_dict(self.io.__dict__)
-
+        # Copy some parameters needed for saving data
+        self.io.copy_params(self.parameters)
         self.parameters.potential_type = self.potential.type.lower()
 
         self.parameters.setup(self.species)
@@ -276,6 +331,7 @@ class Process:
         self.io.simulation_summary(self)
         time_end = self.timer.current()
 
+        self.evolve = self.evolve_loop_threading if self.parameters.threading else self.evolve_loop
         # Print timing
         self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
         self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
@@ -366,7 +422,7 @@ class Process:
 
             # Read previously stored files
             self.io.read_pickle(self)
-
+            self.io.copy_params(self.parameters)
             # Print parameters to log file
             if not exists(self.io.log_file):
                 self.io.simulation_summary(self)
@@ -374,7 +430,7 @@ class Process:
             # Initialize the Particles class attributes by reading the last step
             old_method = self.parameters.load_method
             self.parameters.load_method = "prod_restart"
-            no_dumps = len(listdir(self.parameters.prod_dump_dir))
+            no_dumps = len(listdir(self.io.prod_dump_dir))
             last_step = self.parameters.prod_dump_step * (no_dumps - 1)
             self.parameters.restart_step = last_step
             self.particles.setup(self.parameters, self.species)
@@ -407,23 +463,6 @@ class PostProcess(Process):
     def __init__(self, input_file: str = None):
         self.__name__ = "postprocessing"
         super().__init__(input_file)
-
-    def setup_from_simulation(self, simulation):
-        """
-        Setup postprocess' subclasses by (shallow) copying them from simulation object.
-
-        Parameters
-        ----------
-        simulation: sarkas.core.processes.Simulation
-            Simulation object
-
-        """
-        self.parameters = simulation.parameters.__copy__()
-        self.integrator = simulation.integrator.__copy__()
-        self.potential = simulation.potential.__copy__()
-        self.species = simulation.species.copy()
-        self.io = simulation.io.__copy__()
-        self.io.process = "postprocess"
 
     def run(self):
         """Calculate all the observables from the YAML input file."""
@@ -492,6 +531,23 @@ class PostProcess(Process):
                                     self.ec.parse()
 
                                 tc.electrical_conductivity(self.ec)
+
+    def setup_from_simulation(self, simulation):
+        """
+        Setup postprocess' subclasses by (shallow) copying them from simulation object.
+
+        Parameters
+        ----------
+        simulation: sarkas.core.processes.Simulation
+            Simulation object
+
+        """
+        self.parameters = simulation.parameters.__copy__()
+        self.integrator = simulation.integrator.__copy__()
+        self.potential = simulation.potential.__copy__()
+        self.species = simulation.species.copy()
+        self.io = simulation.io.__copy__()
+        self.io.process = "postprocess"
 
 
 class PreProcess(Process):
@@ -1172,7 +1228,7 @@ class PreProcess(Process):
         if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
             self.timer.start()
-            self.evolve_loop("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
+            self.evolve("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
             self.eq_mean_time = self.timer.stop() / loops
             # Print the average equilibration & production times
             self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), loops)
@@ -1180,7 +1236,7 @@ class PreProcess(Process):
         if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
             self.timer.start()
-            self.evolve_loop("magnetization", self.integrator.thermalization, 0, loops, self.parameters.mag_dump_step)
+            self.evolve("magnetization", self.integrator.thermalization, 0, loops, self.parameters.mag_dump_step)
             self.mag_mean_time = self.timer.stop() / loops
             # Print the average equilibration & production times
             self.io.preprocess_timing("Magnetization", self.timer.time_division(self.mag_mean_time), loops)
@@ -1188,7 +1244,7 @@ class PreProcess(Process):
         # Run few production steps to estimate the equilibration time
         self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
         self.timer.start()
-        self.evolve_loop("production", False, 0, loops, self.parameters.prod_dump_step)
+        self.evolve("production", False, 0, loops, self.parameters.prod_dump_step)
         self.prod_mean_time = self.timer.stop() / loops
         self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), loops)
 
@@ -1567,7 +1623,7 @@ class Simulation(Process):
         self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
         # Start timer, equilibrate, and print run time.
         self.timer.start()
-        self.evolve_loop(
+        self.evolve(
             "equilibration",
             self.integrator.thermalization,
             it_start,
@@ -1577,29 +1633,21 @@ class Simulation(Process):
         time_eq = self.timer.stop()
         self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
 
-    # def evolve_loop(self, phase, it_start, it_end, dump_step):
+    # def check_equil_dist(self):
     #
-    #     for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
-    #         # Calculate the Potential energy and update particles' data
+    #     vel_dist = VelocityDistribution()
+    #     vel_dist.setup(
+    #         params=self.parameters,
+    #         phase="equilibration",
+    #         no_slices=1,
+    #         max_no_moment=6,
+    #         multi_run_average=False,
+    #         dimensional_average=False,
+    #         runs=1,
+    #     )
+    #     vel_dist.compute()
     #
-    #         self.integrator.update(self.particles)
-    #
-    #         if (it + 1) % dump_step == 0:
-    #             th = Thread(
-    #                 target=self.io.dump,
-    #                 name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
-    #                 args=(phase, self.particles.__deepcopy__(), it + 1,),
-    #             )
-    #
-    #             self.threads_ls.append(th)
-    #
-    #             th.start()
-    #
-    #     # Wait for all the threads to finish
-    #     for x in self.threads_ls:
-    #         x.join()
-    #
-    #     self.threads_ls.clear()
+    #     pass
 
     def magnetize(self) -> None:
         # Check for magnetization phase
@@ -1608,7 +1656,7 @@ class Simulation(Process):
         self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
         # Start timer, magnetize, and print run time.
         self.timer.start()
-        self.evolve_loop(
+        self.evolve(
             "magnetization",
             self.integrator.thermalization,
             it_start,
@@ -1626,7 +1674,7 @@ class Simulation(Process):
         # Update measurement flag for rdf.
         self.potential.measure = True
         self.timer.start()
-        self.evolve_loop("production", False, it_start, self.parameters.production_steps, self.parameters.prod_dump_step)
+        self.evolve("production", False, it_start, self.parameters.production_steps, self.parameters.prod_dump_step)
         time_eq = self.timer.stop()
         self.io.time_stamp("Production", self.timer.time_division(time_eq))
 

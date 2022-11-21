@@ -8,7 +8,7 @@ import sys
 import yaml
 from copy import copy, deepcopy
 from IPython import get_ipython
-from numpy import float64
+from numpy import c_, float64
 from numpy import load as np_load
 from numpy import savetxt, savez, zeros
 from numpy.random import randint
@@ -20,9 +20,10 @@ from warnings import warn
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
     from tqdm import tqdm_notebook as tqdm
+    from tqdm.notebook import trange
 else:
     # If you are using IPython or Python kernel
-    from tqdm import tqdm
+    from tqdm import tqdm, trange
 
 FONTS = ["speed", "starwars", "graffiti", "chunky", "epic", "larry3d", "ogre"]
 
@@ -98,79 +99,47 @@ class InputOutput:
         _copy.__dict__.update(self.__dict__)
         return _copy
 
-    def from_dict(self, input_dict: dict):
+    @staticmethod
+    def algorithm_info(simulation):
         """
-        Update attributes from input dictionary.
+        Print algorithm information.
 
         Parameters
         ----------
-        input_dict: dict
-            Dictionary to be copied.
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the algorithm info and other parameters.
 
         """
-        self.__dict__.update(input_dict)
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.method_pretty_print()",
+            category=DeprecationWarning,
+        )
+        simulation.potential.method_pretty_print()
 
-    def setup(self):
-        """Create file paths and directories for the simulation."""
-        self.create_file_paths()
-        self.make_directories()
-        self.file_header()
-
-    def from_yaml(self, filename: str):
+    def copy_params(self, params):
         """
-        Parse inputs from YAML file.
+        Copy necessary parameters.
 
         Parameters
         ----------
-        filename: str
-            Input YAML file.
+        params: :class:`sarkas.core.Parameters`
+            Simulation's parameters.
 
-        Returns
-        -------
-        dics : dict
-            Content of YAML file parsed in a nested dictionary
         """
+        self.dt = params.dt
+        self.a_ws = params.a_ws
+        self.total_num_ptcls = params.total_num_ptcls
+        self.total_plasma_frequency = params.total_plasma_frequency
+        self.species_names = params.species_names.copy()
+        self.coupling = params.coupling_constant * params.T_desired
 
-        self.input_file = filename
-        with open(filename, "r") as stream:
-            dics = yaml.load(stream, Loader=yaml.FullLoader)
-            self.__dict__.update(dics["IO"])
+        self.eq_dump_step = params.eq_dump_step
+        self.mag_dump_step = params.mag_dump_step
+        self.prod_dump_step = params.prod_dump_step
 
-        if "Parameters" in dics.keys():
-            keyed = "Parameters"
-            for key, value in dics[keyed].items():
-
-                if key == "verbose":
-                    self.verbose = value
-
-                if key == "magnetized":
-                    self.magnetized = value
-
-                if key == "load_method":
-                    self.load_method = value
-                    if value[-7:] == "restart":
-                        self.restart = True
-                    else:
-                        self.restart = False
-
-                if key == "preprocessing":
-                    self.preprocessing = value
-
-        if "Integrator" in dics.keys():
-            keyed = "Integrator"
-            for key, value in dics[keyed].items():
-
-                if key == "electrostatic_equilibration":
-                    self.electrostatic_equilibration = value
-
-        # rdf_nbins can be defined in either Parameters or Postprocessing. However, Postprocessing will always
-        # supersede Parameters choice.
-        if "Observables" in dics.keys():
-            for i in dics["Observables"]:
-                if "RadialDistributionFunction" in i.keys():
-                    dics["Parameters"]["rdf_nbins"] = i["RadialDistributionFunction"]["no_bins"]
-
-        return dics
+        self.equilibration_stpss = params.equilibration_steps
+        self.magentization_stpss = params.magnetization_steps
+        self.production_stpss = params.production_steps
 
     def create_file_paths(self):
         """Create all directories', subdirectories', and files' paths."""
@@ -235,6 +204,337 @@ class InputOutput:
         else:
             self.log_file = join(self.processes_dir[indx], self.log_file)
 
+    def dump(self, phase, ptcls, it):
+        """
+        Save particles' data to binary file for future restart.
+
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
+
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+        if phase == "production":
+            ptcls_file = self.prod_ptcls_filename + str(it)
+            tme = it * self.dt
+            savez(
+                ptcls_file,
+                id=ptcls.id,
+                names=ptcls.names,
+                pos=ptcls.pos,
+                vel=ptcls.vel,
+                acc=ptcls.acc,
+                cntr=ptcls.pbc_cntr,
+                rdf_hist=ptcls.rdf_hist,
+                virial=ptcls.virial,
+                time=tme,
+            )
+
+            energy_file = self.prod_energy_filename
+
+        elif phase == "equilibration":
+            ptcls_file = self.eq_ptcls_filename + str(it)
+            tme = it * self.dt
+            savez(
+                ptcls_file,
+                id=ptcls.id,
+                names=ptcls.names,
+                pos=ptcls.pos,
+                vel=ptcls.vel,
+                acc=ptcls.acc,
+                virial=ptcls.virial,
+                time=tme,
+            )
+
+            energy_file = self.eq_energy_filename
+
+        elif phase == "magnetization":
+            ptcls_file = self.mag_ptcls_filename + str(it)
+            tme = it * self.dt
+            savez(
+                ptcls_file,
+                id=ptcls.id,
+                names=ptcls.names,
+                pos=ptcls.pos,
+                vel=ptcls.vel,
+                acc=ptcls.acc,
+                virial=ptcls.virial,
+                time=tme,
+            )
+
+            energy_file = self.mag_energy_filename
+
+        kinetic_energies, temperatures = ptcls.kinetic_temperature()
+        potential_energies = ptcls.potential_energies()
+        # Save Energy data
+        data = {
+            "Time": it * self.dt,
+            "Total Energy": kinetic_energies.sum() + ptcls.potential_energy,
+            "Total Kinetic Energy": kinetic_energies.sum(),
+            "Potential Energy": ptcls.potential_energy,
+            "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
+        }
+        if len(temperatures) > 1:
+            for sp, kin in enumerate(kinetic_energies):
+                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
+                data[f"{self.species_names[sp]} Potential Energy"] = potential_energies[sp]
+                data[f"{self.species_names[sp]} Temperature"] = temperatures[sp]
+
+        with open(energy_file, "a") as f:
+            w = csv.writer(f)
+            w.writerow(data.values())
+
+    def dump_xyz(self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1) -> None:
+        """
+        Save the XYZ file by reading Sarkas dumps.
+
+        Parameters
+        ----------
+        phase : str
+            Phase from which to read dumps. 'equilibration' or 'production'.
+
+        dump_start : int
+            Step number from which to start saving. Default is 0.
+
+        dump_end: int
+            Last step number to save. Default is None.
+
+        dump_skip : int
+            Interval of dumps to skip. Default is 1
+
+        """
+
+        if phase == "equilibration":
+            self.xyz_filename = join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
+            dump_dir = self.eq_dump_dir
+            dump_step = self.eq_dump_step
+
+        elif phase == "magnetization":
+            self.xyz_filename = join(self.magnetization_dir, "pva_" + self.job_id + ".xyz")
+            dump_dir = self.mag_dump_dir
+            dump_step = self.mag_dump_step
+
+        else:
+            self.xyz_filename = join(self.production_dir, "pva_" + self.job_id + ".xyz")
+            dump_dir = self.prod_dump_dir
+            dump_step = self.prod_dump_step
+
+        # Rescale constants. This is needed since OVITO has a small number limit.
+        pscale = 1.0 / self.a_ws
+        vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
+        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
+
+        f_xyz = open(self.xyz_filename, "w+")
+
+        # Read the list of dumps and sort them in the correct (natural) order
+        dumps = listdir(dump_dir)
+        dumps.sort(key=num_sort)
+        dumps_dict = {}
+        for i in dumps:
+            _, key = i.strip("_")
+            dumps_dict[int(key)] = i
+
+        if not dump_end:
+            dump_end = len(dumps) * dump_step
+
+        dump_skip *= dump_step
+
+        for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
+            dump = dumps_dict[i]
+            data = self.read_npz(dump_dir, dump)
+            data["pos_x"] *= pscale
+            data["pos_y"] *= pscale
+            data["pos_z"] *= pscale
+
+            data["vel_x"] *= vscale
+            data["vel_y"] *= vscale
+            data["vel_z"] *= vscale
+
+            data["acc_x"] *= ascale
+            data["acc_y"] *= ascale
+            data["acc_z"] *= ascale
+
+            f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
+            f_xyz.writelines("name x y z vx vy vz ax ay az\n")
+            savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+
+        f_xyz.close()
+
+    def dump_potfit_config(
+        self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1
+    ) -> None:
+        """Write configuration files for PotFit by reading the npz dumps.
+
+        Parameters
+        ----------
+        phase : str
+            Phase from which to read dumps. 'equilibration' or 'production'.
+
+        dump_start : int
+            Step number from which to start saving. Default is 0.
+
+        dump_end: int
+            Last step number to save. Default is None.
+
+        dump_skip : int
+            Interval of dumps to skip. Default is 1
+
+        """
+
+        if phase == "equilibration":
+            pot_fit_dir = join(self.equilibration_dir, "potfit_configs")
+            dump_dir = self.eq_dump_dir
+            dump_step = self.eq_dump_step
+
+        elif phase == "magnetization":
+            pot_fit_dir = join(self.magnetization_dir, "potfit_configs")
+            dump_dir = self.mag_dump_dir
+            dump_step = self.mag_dump_step
+
+        else:
+            pot_fit_dir = join(self.production_dir, "potfit_configs")
+            dump_dir = self.prod_dump_dir
+            dump_step = self.prod_dump_step
+
+        if not exists(pot_fit_dir):
+            mkdir(pot_fit_dir)
+
+        # Get particles info
+        params = self.read_pickle_single("parameters")
+        masses = zeros(params.total_num_ptcls)
+        sp_start = 0
+        sp_end = 0
+        for sp_num, sp_m in zip(params.species_num, params.species_masses):
+            sp_end += sp_num
+            masses[sp_start:sp_end] = sp_m
+            sp_start += sp_num
+
+        # Read the list of dumps and sort them in the correct (natural) order
+        dumps = listdir(dump_dir)
+        dumps.sort(key=num_sort)
+        dumps_dict = {}
+        for i in dumps:
+            s = i.strip("checkpoint_")
+            key = s.strip(".npz")
+            dumps_dict[int(key)] = i
+
+        if not dump_end:
+            dump_end = len(dumps) * dump_step
+
+        dump_skip *= dump_step
+
+        for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
+            dump = dumps_dict[i]
+            data = self.read_npz(dump_dir, dump)
+
+            data["acc_x"] *= masses
+            data["acc_y"] *= masses
+            data["acc_z"] *= masses
+
+            fname = join(pot_fit_dir, f"config_{i}.out")
+            f_xyz = open(fname, "w")
+            f_xyz.writelines(f"#N {params.total_num_ptcls:d} 1\n")
+            f_xyz.writelines(f"#C {' '.join(n for n in params.species_names)} \n")
+            f_xyz.writelines(f"#X {params.Lx} 0.0 0.0\n")
+            f_xyz.writelines(f"#Y 0.0 {params.Ly} 0.0\n")
+            f_xyz.writelines(f"#Z 0.0 0.0 {params.Lz}\n")
+            f_xyz.writelines(f"#E 0.0 \n")
+            f_xyz.writelines(f"#F\n")
+
+            savetxt(
+                f_xyz,
+                c_[data["id"], data["pos_x"], data["pos_y"], data["pos_z"], data["acc_x"], data["acc_y"], data["acc_z"]],
+                fmt="%i %.6e %.6e %.6e %.6e %.6e %.6e",
+            )
+
+            f_xyz.close()
+
+    def file_header(self):
+        """Create the log file and print the figlet if not a restart run."""
+
+        if not self.restart:
+            with open(self.log_file, "w+") as f_log:
+                figlet_obj = Figlet(font="starwars")
+                print(figlet_obj.renderText("Sarkas"), file=f_log)
+                print("An open-source pure-Python molecular dynamics suite for non-ideal plasmas.", file=f_log)
+
+        # Print figlet to screen if verbose
+        if self.verbose:
+            self.screen_figlet()
+
+    def from_dict(self, input_dict: dict):
+        """
+        Update attributes from input dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
+
+    def from_yaml(self, filename: str):
+        """
+        Parse inputs from YAML file.
+
+        Parameters
+        ----------
+        filename: str
+            Input YAML file.
+
+        Returns
+        -------
+        dics : dict
+            Content of YAML file parsed in a nested dictionary
+        """
+
+        self.input_file = filename
+        with open(filename, "r") as stream:
+            dics = yaml.load(stream, Loader=yaml.FullLoader)
+            self.__dict__.update(dics["IO"])
+
+        if "Parameters" in dics.keys():
+            keyed = "Parameters"
+            for key, value in dics[keyed].items():
+
+                if key == "verbose":
+                    self.verbose = value
+
+                if key == "magnetized":
+                    self.magnetized = value
+
+                if key == "load_method":
+                    self.load_method = value
+                    if value[-7:] == "restart":
+                        self.restart = True
+                    else:
+                        self.restart = False
+
+                if key == "preprocessing":
+                    self.preprocessing = value
+
+        if "Integrator" in dics.keys():
+            keyed = "Integrator"
+            for key, value in dics[keyed].items():
+
+                if key == "electrostatic_equilibration":
+                    self.electrostatic_equilibration = value
+
+        # rdf_nbins can be defined in either Parameters or Postprocessing. However, Postprocessing will always
+        # supersede Parameters choice.
+        if "Observables" in dics.keys():
+            for i in dics["Observables"]:
+                if "RadialDistributionFunction" in i.keys():
+                    dics["Parameters"]["rdf_nbins"] = i["RadialDistributionFunction"]["no_bins"]
+
+        return dics
+
     def make_directories(self):
         """Create directories where to store MD results."""
 
@@ -276,51 +576,52 @@ class InputOutput:
         if not exists(self.postprocessing_dir):
             mkdir(self.postprocessing_dir)
 
-    def file_header(self):
-        """Create the log file and print the figlet if not a restart run."""
-
-        if not self.restart:
-            with open(self.log_file, "w+") as f_log:
-                figlet_obj = Figlet(font="starwars")
-                print(figlet_obj.renderText("Sarkas"), file=f_log)
-                print("An open-source pure-Python molecular dynamics suite for non-ideal plasmas.", file=f_log)
-
-        # Print figlet to screen if verbose
-        if self.verbose:
-            self.screen_figlet()
-
-    def simulation_summary(self, simulation):
+    def postprocess_info(self, simulation, write_to_file=False, observable=None):
         """
-        Print out to file a summary of simulation's parameters.
-        If verbose output then it will print twice: the first time to file and second time to screen.
+        Print Post-processing info to file and/or screen in a reader-friendly format.
 
         Parameters
         ----------
-        simulation : :class:`sarkas.processes.Process`
-            Simulation's parameters
+        simulation : :class:`sarkas.processes.PostProcess`
+            PostProcess class.
+
+        write_to_file : bool
+            Flag for printing info also to file. Default= False.
+
+        observable : str
+            Observable whose info to print. Default = None.
+            Choices = ['header','rdf', 'ccf', 'dsf', 'ssf', 'vm']
 
         """
 
-        screen = sys.stdout
-        f_log = open(self.log_file, "a+")
+        choices = ["header", "rdf", "ccf", "dsf", "ssf", "vd"]
+        msg = (
+            "Observable not defined. \n "
+            "Please choose an observable from this list \n"
+            "'rdf' = Radial Distribution Function, \n"
+            "'ccf' = Current Correlation Function, \n"
+            "'dsf' = Dynamic Structure Function, \n"
+            "'ssf' = Static Structure Factor, \n"
+            "'vd' = Velocity Distribution"
+        )
+        if observable is None:
+            raise ValueError(msg)
 
-        repeat = 2 if self.verbose else 1
-        # redirect printing to file
-        sys.stdout = f_log
+        if observable not in choices:
+            raise ValueError(msg)
 
-        # Print to file first then to screen if repeat == 2
+        if write_to_file:
+            screen = sys.stdout
+            f_log = open(self.log_file, "a+")
+            repeat = 2 if self.verbose else 1
+
+            # redirect printing to file
+            sys.stdout = f_log
+        else:
+            repeat = 1
+
         while repeat > 0:
-
-            if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
-                print("\n\n--------------------------- Production Restart -------------------------------------")
-                self.time_info(simulation)
-            elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
-                print("\n\n------------------------ Equilibration Restart ----------------------------------")
-                self.time_info(simulation)
-            elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
-                print("\n\n------------------------ Magnetization Restart ----------------------------------")
-                self.time_info(simulation)
-            elif self.process == "postprocessing":
+            if observable == "header":
                 # Header of process
                 process_title = "{:^80}".format(self.process.capitalize())
                 print("\n\n")
@@ -328,128 +629,44 @@ class InputOutput:
                 print(process_title)
                 print(*["*" for i in range(50)])
 
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(f"PostProcessing directory: \n{self.postprocessing_dir}")
-
-                print(f"\nEquilibration dumps directory: {self.eq_dump_dir}")
-                print(f"Production dumps directory: \n{self.prod_dump_dir}")
-
-                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
-                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
-
-            else:
-
-                # Header of process
-                process_title = "{:^80}".format(self.process.capitalize())
-                print("\n\n")
-                print(*["*" for i in range(50)])
-                print(process_title)
-                print(*["*" for i in range(50)])
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(f"\nEquilibration dumps directory: \n", {self.eq_dump_dir})
-                print(f"Production dumps directory: \n", {self.prod_dump_dir})
-
-                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
-                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
-
-                print("\nPARTICLES:")
-                print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
-
-                print(f"No. of species = {len(simulation.parameters.species_num)}")
-                for isp, sp in enumerate(simulation.species):
-                    if sp.name != "electron_background":
-                        print("Species ID: {}".format(isp))
-                    sp.pretty_print(simulation.potential.type, simulation.parameters.units)
-
-                # Parameters Info
-                simulation.parameters.pretty_print()
-                # Potential Info
-                simulation.potential.pretty_print()
-                # Integrator
-                simulation.integrator.pretty_print()
+            elif observable == "rdf":
+                simulation.rdf.pretty_print()
+            elif observable == "ssf":
+                simulation.ssf.pretty_print()
+            elif observable == "dsf":
+                simulation.dsf.pretty_print()
+            elif observable == "ccf":
+                simulation.ccf.pretty_print()
+            elif observable == "vd":
+                simulation.vm.setup(simulation.parameters)
+                print("\nVelocity Moments:")
+                print("Maximum no. of moments = {}".format(simulation.vm.max_no_moment))
+                print("Maximum velocity moment = {}".format(int(2 * simulation.vm.max_no_moment)))
 
             repeat -= 1
-            sys.stdout = screen  # Restore the original sys.stdout
 
-        f_log.close()
+            if write_to_file:
+                sys.stdout = screen
 
-    def time_stamp(self, time_stamp, t):
+        if write_to_file:
+            f_log.close()
+
+    @staticmethod
+    def potential_info(simulation):
         """
-        Print out to screen elapsed times. If verbose output, print to file first and then to screen.
-
-        Parameters
-        ----------
-        time_stamp : str
-            Array of time stamps.
-
-        t : float
-            Elapsed time.
-        """
-        screen = sys.stdout
-        f_log = open(self.log_file, "a+")
-        repeat = 2 if self.verbose else 1
-        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
-        # redirect printing to file
-        sys.stdout = f_log
-
-        while repeat > 0:
-            if "Potential Initialization" in time_stamp:
-                print("\n\n{:-^70} \n".format("Initialization Times"))
-            if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-                print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
-            else:
-                print(f"\n{time_stamp} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
-
-            repeat -= 1
-            sys.stdout = screen
-
-        f_log.close()
-
-    def timing_study(self, simulation):
-        """
-        Info specific for timing study.
+        Print potential information.
 
         Parameters
         ----------
         simulation : :class:`sarkas.processes.Process`
-            Process class containing the info to print.
+            Process class containing the potential info and other parameters.
 
         """
-        screen = sys.stdout
-        f_log = open(self.log_file, "a+")
-        repeat = 2 if self.verbose else 1
-
-        # redirect printing to file
-        sys.stdout = f_log
-
-        # Print to file first then to screen if repeat == 2
-        while repeat > 0:
-            print("\n\n------------ Conclusion ------------\n")
-            print("Suggested Mesh = [ {} , {} , {} ]".format(*simulation.potential.pppm_mesh))
-            print(
-                "Suggested Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} ".format(
-                    simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
-                    simulation.potential.pppm_alpha_ewald,
-                ),
-                end="",
-            )
-            print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
-            print(
-                "Suggested rcut = {:2.4f} a_ws = {:.6e} ".format(
-                    simulation.potential.rc / simulation.parameters.a_ws, simulation.potential.rc
-                ),
-                end="",
-            )
-            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
-
-            self.algorithm_info(simulation)
-            repeat -= 1
-            sys.stdout = screen  # Restore the original sys.stdout
-
-        f_log.close()
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.pot_pretty_print()",
+            category=DeprecationWarning,
+        )
+        simulation.potential.pot_pretty_print(simulation.potential)
 
     def preprocess_sizing(self, sizes):
         """Print the estimated file sizes."""
@@ -551,249 +768,65 @@ class InputOutput:
 
         f_log.close()
 
-    def postprocess_info(self, simulation, write_to_file=False, observable=None):
-        """
-        Print Post-processing info to file and/or screen in a reader-friendly format.
-
-        Parameters
-        ----------
-        simulation : :class:`sarkas.processes.PostProcess`
-            PostProcess class.
-
-        write_to_file : bool
-            Flag for printing info also to file. Default= False.
-
-        observable : str
-            Observable whose info to print. Default = None.
-            Choices = ['header','rdf', 'ccf', 'dsf', 'ssf', 'vm']
-
-        """
-
-        choices = ["header", "rdf", "ccf", "dsf", "ssf", "vd"]
-        msg = (
-            "Observable not defined. \n "
-            "Please choose an observable from this list \n"
-            "'rdf' = Radial Distribution Function, \n"
-            "'ccf' = Current Correlation Function, \n"
-            "'dsf' = Dynamic Structure Function, \n"
-            "'ssf' = Static Structure Factor, \n"
-            "'vd' = Velocity Distribution"
-        )
-        if observable is None:
-            raise ValueError(msg)
-
-        if observable not in choices:
-            raise ValueError(msg)
-
-        if write_to_file:
-            screen = sys.stdout
-            f_log = open(self.log_file, "a+")
-            repeat = 2 if self.verbose else 1
-
-            # redirect printing to file
-            sys.stdout = f_log
-        else:
-            repeat = 1
-
-        while repeat > 0:
-            if observable == "header":
-                # Header of process
-                process_title = "{:^80}".format(self.process.capitalize())
-                print("\n\n")
-                print(*["*" for i in range(50)])
-                print(process_title)
-                print(*["*" for i in range(50)])
-
-            elif observable == "rdf":
-                simulation.rdf.pretty_print()
-            elif observable == "ssf":
-                simulation.ssf.pretty_print()
-            elif observable == "dsf":
-                simulation.dsf.pretty_print()
-            elif observable == "ccf":
-                simulation.ccf.pretty_print()
-            elif observable == "vd":
-                simulation.vm.setup(simulation.parameters)
-                print("\nVelocity Moments:")
-                print("Maximum no. of moments = {}".format(simulation.vm.max_no_moment))
-                print("Maximum velocity moment = {}".format(int(2 * simulation.vm.max_no_moment)))
-
-            repeat -= 1
-
-            if write_to_file:
-                sys.stdout = screen
-
-        if write_to_file:
-            f_log.close()
-
     @staticmethod
-    def screen_figlet():
+    def read_npz(fldr: str, filename: str):
         """
-        Print a colored figlet of Sarkas to screen.
-        """
-        if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
-            # Assume white background in Jupyter Notebook
-            clr = DARK_COLORS[randint(0, len(DARK_COLORS))]
-        else:
-            # Assume dark background in IPython/Python Kernel
-            clr = LIGHT_COLORS[randint(0, len(LIGHT_COLORS))]
-        fnt = FONTS[randint(0, len(FONTS))]
-        print_figlet("\nSarkas\n", font=fnt, colors=clr)
-
-        print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.\n\n")
-
-    @staticmethod
-    def time_info(simulation):
-        """
-        Print time simulation's parameters.
+        Load particles' data from dumps.
 
         Parameters
         ----------
-        simulation : :class:`sarkas.processes.Process`
-            Process class containing the timing info and other parameters.
+        fldr : str
+            Folder containing dumps.
+
+        filename: str
+            Name of the dump file to load.
+
+        Returns
+        -------
+        struct_array : numpy.ndarray
+            Structured data array.
 
         """
-        warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release.\n" "Use Integrator.pretty_print()",
-            category=DeprecationWarning,
+
+        file_name = join(fldr, filename)
+        data = np_load(file_name, allow_pickle=True)
+        # Dev Notes: the old way of saving the xyz file by
+        # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
+        # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+        # was not working, because the columns of np.c_[] all have the same data type <U32
+        # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
+        # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
+        struct_array = zeros(
+            data["names"].size,
+            dtype=[
+                ("names", "U6"),
+                ("id", int),
+                ("pos_x", float64),
+                ("pos_y", float64),
+                ("pos_z", float64),
+                ("vel_x", float64),
+                ("vel_y", float64),
+                ("vel_z", float64),
+                ("acc_x", float64),
+                ("acc_y", float64),
+                ("acc_z", float64),
+            ],
         )
+        struct_array["names"] = data["names"]
+        struct_array["id"] = data["id"]
+        struct_array["pos_x"] = data["pos"][:, 0]
+        struct_array["pos_y"] = data["pos"][:, 1]
+        struct_array["pos_z"] = data["pos"][:, 2]
 
-        simulation.integrator.pretty_print()
+        struct_array["vel_x"] = data["vel"][:, 0]
+        struct_array["vel_y"] = data["vel"][:, 1]
+        struct_array["vel_z"] = data["vel"][:, 2]
 
-    @staticmethod
-    def algorithm_info(simulation):
-        """
-        Print algorithm information.
+        struct_array["acc_x"] = data["acc"][:, 0]
+        struct_array["acc_y"] = data["acc"][:, 1]
+        struct_array["acc_z"] = data["acc"][:, 2]
 
-        Parameters
-        ----------
-        simulation : :class:`sarkas.processes.Process`
-            Process class containing the algorithm info and other parameters.
-
-        """
-        warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.method_pretty_print()",
-            category=DeprecationWarning,
-        )
-        simulation.potential.method_pretty_print()
-
-    @staticmethod
-    def potential_info(simulation):
-        """
-        Print potential information.
-
-        Parameters
-        ----------
-        simulation : :class:`sarkas.processes.Process`
-            Process class containing the potential info and other parameters.
-
-        """
-        warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.pot_pretty_print()",
-            category=DeprecationWarning,
-        )
-        simulation.potential.pot_pretty_print(simulation.potential)
-
-    def copy_params(self, params):
-        """
-        Copy necessary parameters.
-
-        Parameters
-        ----------
-        params: :class:`sarkas.core.Parameters`
-            Simulation's parameters.
-
-        """
-        self.dt = params.dt
-        self.a_ws = params.a_ws
-        self.total_num_ptcls = params.total_num_ptcls
-        self.total_plasma_frequency = params.total_plasma_frequency
-        self.species_names = params.species_names.copy()
-        self.coupling = params.coupling_constant * params.T_desired
-
-    def setup_checkpoint(self, params):
-        """
-        Assign attributes needed for saving dumps.
-
-        Parameters
-        ----------
-        params : :class:`sarkas.core.Parameters`
-            General simulation parameters.
-
-        species : :class:`sarkas.plasma.Species`
-            List of Species classes.
-
-        """
-
-        self.copy_params(params)
-        # Check whether energy files exist already
-        if not exists(self.prod_energy_filename):
-            # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(self.species_names) > 1:
-                for i, sp_name in enumerate(self.species_names):
-                    dkeys.append("{} Kinetic Energy".format(sp_name))
-                    dkeys.append("{} Potential Energy".format(sp_name))
-                    dkeys.append("{} Temperature".format(sp_name))
-            data = dict.fromkeys(dkeys)
-
-            with open(self.prod_energy_filename, "w+") as f:
-                w = csv.writer(f)
-                w.writerow(data.keys())
-
-        if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
-            # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(self.species_names) > 1:
-                for i, sp_name in enumerate(self.species_names):
-                    dkeys.append("{} Kinetic Energy".format(sp_name))
-                    dkeys.append("{} Potential Energy".format(sp_name))
-                    dkeys.append("{} Temperature".format(sp_name))
-            data = dict.fromkeys(dkeys)
-
-            with open(self.eq_energy_filename, "w+") as f:
-                w = csv.writer(f)
-                w.writerow(data.keys())
-
-        if self.electrostatic_equilibration:
-            if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
-                # Create the Energy file
-                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-                if len(self.species_names) > 1:
-                    for i, sp_name in enumerate(self.species_names):
-                        dkeys.append("{} Kinetic Energy".format(sp_name))
-                        dkeys.append("{} Potential Energy".format(sp_name))
-                        dkeys.append("{} Temperature".format(sp_name))
-                data = dict.fromkeys(dkeys)
-
-                with open(self.mag_energy_filename, "w+") as f:
-                    w = csv.writer(f)
-                    w.writerow(data.keys())
-
-    def save_pickle(self, simulation):
-        """
-        Save all simulations parameters in pickle files.
-
-        Parameters
-        ----------
-        simulation : :class:`sarkas.processes.Process`
-            Process class containing MD run info to save.
-        """
-        file_list = ["parameters", "integrator", "potential", "species"]
-
-        # Redirect to the correct process folder
-        if self.process == "preprocessing":
-            indx = 0
-        else:
-            # Note that Postprocessing needs the link to simulation's folder
-            # because that is where I look for energy files and pickle files
-            indx = 1
-
-        for fl in file_list:
-            filename = join(self.processes_dir[indx], fl + ".pickle")
-            with open(filename, "wb") as pickle_file:
-                pickle.dump(simulation.__dict__[fl], pickle_file)
-                pickle_file.close()
+        return struct_array
 
     def read_pickle(self, process):
         """
@@ -858,206 +891,310 @@ class InputOutput:
             _copy = deepcopy(data)
         return _copy
 
-    def dump(self, phase, ptcls, it):
+    def save_pickle(self, simulation):
         """
-        Save particles' data to binary file for future restart.
+        Save all simulations parameters in pickle files.
 
         Parameters
         ----------
-        phase : str
-            Simulation phase.
-
-        ptcls : :class:`sarkas.particles.Particles`
-            Particles data.
-
-        it : int
-            Timestep number.
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing MD run info to save.
         """
-        if phase == "production":
-            ptcls_file = self.prod_ptcls_filename + str(it)
-            tme = it * self.dt
-            savez(
-                ptcls_file,
-                id=ptcls.id,
-                names=ptcls.names,
-                pos=ptcls.pos,
-                vel=ptcls.vel,
-                acc=ptcls.acc,
-                cntr=ptcls.pbc_cntr,
-                rdf_hist=ptcls.rdf_hist,
-                virial=ptcls.virial,
-                time=tme,
-            )
+        file_list = ["parameters", "integrator", "potential", "species"]
 
-            energy_file = self.prod_energy_filename
-
-        elif phase == "equilibration":
-            ptcls_file = self.eq_ptcls_filename + str(it)
-            tme = it * self.dt
-            savez(
-                ptcls_file,
-                id=ptcls.id,
-                names=ptcls.names,
-                pos=ptcls.pos,
-                vel=ptcls.vel,
-                acc=ptcls.acc,
-                virial=ptcls.virial,
-                time=tme,
-            )
-
-            energy_file = self.eq_energy_filename
-
-        elif phase == "magnetization":
-            ptcls_file = self.mag_ptcls_filename + str(it)
-            tme = it * self.dt
-            savez(
-                ptcls_file,
-                id=ptcls.id,
-                names=ptcls.names,
-                pos=ptcls.pos,
-                vel=ptcls.vel,
-                acc=ptcls.acc,
-                virial=ptcls.virial,
-                time=tme,
-            )
-
-            energy_file = self.mag_energy_filename
-
-        kinetic_energies, temperatures = ptcls.kinetic_temperature()
-        potential_energies = ptcls.potential_energies()
-        # Save Energy data
-        data = {
-            "Time": it * self.dt,
-            "Total Energy": kinetic_energies.sum() + ptcls.potential_energy,
-            "Total Kinetic Energy": kinetic_energies.sum(),
-            "Potential Energy": ptcls.potential_energy,
-            "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
-        }
-        if len(temperatures) > 1:
-            for sp, kin in enumerate(kinetic_energies):
-                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
-                data[f"{self.species_names[sp]} Potential Energy"] = potential_energies[sp]
-                data[f"{self.species_names[sp]} Temperature"] = temperatures[sp]
-
-        with open(energy_file, "a") as f:
-            w = csv.writer(f)
-            w.writerow(data.values())
-
-    def dump_xyz(self, phase: str = "production"):
-        """
-        Save the XYZ file by reading Sarkas dumps.
-
-        Parameters
-        ----------
-        phase : str
-            Phase from which to read dumps. 'equilibration' or 'production'.
-
-        dump_skip : int
-            Interval of dumps to skip. Default = 1
-
-        """
-
-        if phase == "equilibration":
-            self.xyz_filename = join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
-            dump_dir = self.eq_dump_dir
-
+        # Redirect to the correct process folder
+        if self.process == "preprocessing":
+            indx = 0
         else:
-            self.xyz_filename = join(self.production_dir, "pva_" + self.job_id + ".xyz")
-            dump_dir = self.prod_dump_dir
+            # Note that Postprocessing needs the link to simulation's folder
+            # because that is where I look for energy files and pickle files
+            indx = 1
 
-        f_xyz = open(self.xyz_filename, "w+")
-
-        if not hasattr(self, "a_ws"):
-            params = self.read_pickle_single("parameters")
-            self.a_ws = params.a_ws
-            self.total_num_ptcls = params.total_num_ptcls
-            self.total_plasma_frequency = params.total_plasma_frequency
-
-        # Rescale constants. This is needed since OVITO has a small number limit.
-        pscale = 1.0 / self.a_ws
-        vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
-        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
-
-        # Read the list of dumps and sort them in the correct (natural) order
-        dumps = listdir(dump_dir)
-        dumps.sort(key=num_sort)
-        for dump in tqdm(dumps, disable=not self.verbose):
-            data = self.read_npz(dump_dir, dump)
-            data["pos_x"] *= pscale
-            data["pos_y"] *= pscale
-            data["pos_z"] *= pscale
-
-            data["vel_x"] *= vscale
-            data["vel_y"] *= vscale
-            data["vel_z"] *= vscale
-
-            data["acc_x"] *= ascale
-            data["acc_y"] *= ascale
-            data["acc_z"] *= ascale
-
-            f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
-            f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-
-        f_xyz.close()
+        for fl in file_list:
+            filename = join(self.processes_dir[indx], fl + ".pickle")
+            with open(filename, "wb") as pickle_file:
+                pickle.dump(simulation.__dict__[fl], pickle_file)
+                pickle_file.close()
 
     @staticmethod
-    def read_npz(fldr: str, filename: str):
+    def screen_figlet():
         """
-        Load particles' data from dumps.
+        Print a colored figlet of Sarkas to screen.
+        """
+        if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
+            # Assume white background in Jupyter Notebook
+            clr = DARK_COLORS[randint(0, len(DARK_COLORS))]
+        else:
+            # Assume dark background in IPython/Python Kernel
+            clr = LIGHT_COLORS[randint(0, len(LIGHT_COLORS))]
+        fnt = FONTS[randint(0, len(FONTS))]
+        print_figlet("\nSarkas\n", font=fnt, colors=clr)
+
+        print("\nAn open-source pure-python molecular dynamics suite for non-ideal plasmas.\n\n")
+
+    def setup(self):
+        """Create file paths and directories for the simulation."""
+        self.create_file_paths()
+        self.make_directories()
+        self.file_header()
+
+    def setup_checkpoint(self, params):
+        """
+        Assign attributes needed for saving dumps.
 
         Parameters
         ----------
-        fldr : str
-            Folder containing dumps.
+        params : :class:`sarkas.core.Parameters`
+            General simulation parameters.
 
-        filename: str
-            Name of the dump file to load.
-
-        Returns
-        -------
-        struct_array : numpy.ndarray
-            Structured data array.
+        species : :class:`sarkas.plasma.Species`
+            List of Species classes.
 
         """
 
-        file_name = join(fldr, filename)
-        data = np_load(file_name, allow_pickle=True)
-        # Dev Notes: the old way of saving the xyz file by
-        # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
-        # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-        # was not working, because the columns of np.c_[] all have the same data type <U32
-        # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
-        # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
-        struct_array = zeros(
-            data["names"].size,
-            dtype=[
-                ("names", "U6"),
-                ("pos_x", float64),
-                ("pos_y", float64),
-                ("pos_z", float64),
-                ("vel_x", float64),
-                ("vel_y", float64),
-                ("vel_z", float64),
-                ("acc_x", float64),
-                ("acc_y", float64),
-                ("acc_z", float64),
-            ],
+        self.copy_params(params)
+        # Check whether energy files exist already
+        if not exists(self.prod_energy_filename):
+            # Create the Energy file
+            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+            if len(self.species_names) > 1:
+                for i, sp_name in enumerate(self.species_names):
+                    dkeys.append("{} Kinetic Energy".format(sp_name))
+                    dkeys.append("{} Potential Energy".format(sp_name))
+                    dkeys.append("{} Temperature".format(sp_name))
+            data = dict.fromkeys(dkeys)
+
+            with open(self.prod_energy_filename, "w+") as f:
+                w = csv.writer(f)
+                w.writerow(data.keys())
+
+        if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
+            # Create the Energy file
+            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+            if len(self.species_names) > 1:
+                for i, sp_name in enumerate(self.species_names):
+                    dkeys.append("{} Kinetic Energy".format(sp_name))
+                    dkeys.append("{} Potential Energy".format(sp_name))
+                    dkeys.append("{} Temperature".format(sp_name))
+            data = dict.fromkeys(dkeys)
+
+            with open(self.eq_energy_filename, "w+") as f:
+                w = csv.writer(f)
+                w.writerow(data.keys())
+
+        if self.electrostatic_equilibration:
+            if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
+                # Create the Energy file
+                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+                if len(self.species_names) > 1:
+                    for i, sp_name in enumerate(self.species_names):
+                        dkeys.append("{} Kinetic Energy".format(sp_name))
+                        dkeys.append("{} Potential Energy".format(sp_name))
+                        dkeys.append("{} Temperature".format(sp_name))
+                data = dict.fromkeys(dkeys)
+
+                with open(self.mag_energy_filename, "w+") as f:
+                    w = csv.writer(f)
+                    w.writerow(data.keys())
+
+    def simulation_summary(self, simulation):
+        """
+        Print out to file a summary of simulation's parameters.
+        If verbose output then it will print twice: the first time to file and second time to screen.
+
+        Parameters
+        ----------
+        simulation : :class:`sarkas.processes.Process`
+            Simulation's parameters
+
+        """
+
+        screen = sys.stdout
+        f_log = open(self.log_file, "a+")
+
+        repeat = 2 if self.verbose else 1
+        # redirect printing to file
+        sys.stdout = f_log
+
+        # Print to file first then to screen if repeat == 2
+        while repeat > 0:
+
+            if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
+                print("\n\n--------------------------- Production Restart -------------------------------------")
+                self.time_info(simulation)
+            elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
+                print("\n\n------------------------ Equilibration Restart ----------------------------------")
+                self.time_info(simulation)
+            elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
+                print("\n\n------------------------ Magnetization Restart ----------------------------------")
+                self.time_info(simulation)
+            elif self.process == "postprocessing":
+                # Header of process
+                process_title = "{:^80}".format(self.process.capitalize())
+                print("\n\n")
+                print(*["*" for i in range(50)])
+                print(process_title)
+                print(*["*" for i in range(50)])
+
+                print(f"\nJob ID: {self.job_id}")
+                print(f"Job directory: {self.job_dir}")
+                print(f"PostProcessing directory: \n{self.postprocessing_dir}")
+
+                print(f"\nEquilibration dumps directory: {self.eq_dump_dir}")
+                print(f"Production dumps directory: \n{self.prod_dump_dir}")
+
+                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
+                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
+
+            else:
+
+                # Header of process
+                process_title = "{:^80}".format(self.process.capitalize())
+                print("\n\n")
+                print(*["*" for i in range(50)])
+                print(process_title)
+                print(*["*" for i in range(50)])
+
+                print(f"\nJob ID: {self.job_id}")
+                print(f"Job directory: {self.job_dir}")
+                print(f"\nEquilibration dumps directory: \n", {self.eq_dump_dir})
+                print(f"Production dumps directory: \n", {self.prod_dump_dir})
+
+                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
+                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
+
+                print("\nPARTICLES:")
+                print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
+
+                print(f"No. of species = {len(simulation.parameters.species_num)}")
+                for isp, sp in enumerate(simulation.species):
+                    if sp.name != "electron_background":
+                        print("Species ID: {}".format(isp))
+                    sp.pretty_print(simulation.potential.type, simulation.parameters.units)
+
+                # Parameters Info
+                simulation.parameters.pretty_print()
+                # Potential Info
+                simulation.potential.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
+
+            repeat -= 1
+            sys.stdout = screen  # Restore the original sys.stdout
+
+        f_log.close()
+
+    @staticmethod
+    def time_info(simulation):
+        """
+        Print time simulation's parameters.
+
+        Parameters
+        ----------
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the timing info and other parameters.
+
+        """
+        warn(
+            "Deprecated feature. It will be removed in the v2.0.0 release.\n" "Use Integrator.pretty_print()",
+            category=DeprecationWarning,
         )
-        struct_array["names"] = data["names"]
-        struct_array["pos_x"] = data["pos"][:, 0]
-        struct_array["pos_y"] = data["pos"][:, 1]
-        struct_array["pos_z"] = data["pos"][:, 2]
 
-        struct_array["vel_x"] = data["vel"][:, 0]
-        struct_array["vel_y"] = data["vel"][:, 1]
-        struct_array["vel_z"] = data["vel"][:, 2]
+        simulation.integrator.pretty_print()
 
-        struct_array["acc_x"] = data["acc"][:, 0]
-        struct_array["acc_y"] = data["acc"][:, 1]
-        struct_array["acc_z"] = data["acc"][:, 2]
+    def time_stamp(self, time_stamp, t):
+        """
+        Print out to screen elapsed times. If verbose output, print to file first and then to screen.
 
-        return struct_array
+        Parameters
+        ----------
+        time_stamp : str
+            Array of time stamps.
+
+        t : float
+            Elapsed time.
+        """
+        screen = sys.stdout
+        f_log = open(self.log_file, "a+")
+        repeat = 2 if self.verbose else 1
+        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
+        # redirect printing to file
+        sys.stdout = f_log
+
+        while repeat > 0:
+            if "Potential Initialization" in time_stamp:
+                print("\n\n{:-^70} \n".format("Initialization Times"))
+            elif "Equilibration" in time_stamp:
+                print("\n\n{:-^70} \n".format("Phases Times"))
+
+            if t_hrs == 0 and t_min == 0 and t_sec <= 2:
+                print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
+            else:
+                print(f"\n{time_stamp} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
+
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()
+
+    def timing_study(self, simulation):
+        """
+        Info specific for timing study.
+
+        Parameters
+        ----------
+        simulation : :class:`sarkas.processes.Process`
+            Process class containing the info to print.
+
+        """
+        screen = sys.stdout
+        f_log = open(self.log_file, "a+")
+        repeat = 2 if self.verbose else 1
+
+        # redirect printing to file
+        sys.stdout = f_log
+
+        # Print to file first then to screen if repeat == 2
+        while repeat > 0:
+            print("\n\n------------ Conclusion ------------\n")
+            print("Suggested Mesh = [ {} , {} , {} ]".format(*simulation.potential.pppm_mesh))
+            print(
+                "Suggested Ewald parameter alpha = {:2.4f} / a_ws = {:1.6e} ".format(
+                    simulation.potential.pppm_alpha_ewald * simulation.parameters.a_ws,
+                    simulation.potential.pppm_alpha_ewald,
+                ),
+                end="",
+            )
+            print("[1/cm]" if simulation.parameters.units == "cgs" else "[1/m]")
+            print(
+                "Suggested rcut = {:2.4f} a_ws = {:.6e} ".format(
+                    simulation.potential.rc / simulation.parameters.a_ws, simulation.potential.rc
+                ),
+                end="",
+            )
+            print("[cm]" if simulation.parameters.units == "cgs" else "[m]")
+
+            self.algorithm_info(simulation)
+            repeat -= 1
+            sys.stdout = screen  # Restore the original sys.stdout
+
+        f_log.close()
+
+    def write_to_logger(self, message):
+
+        screen = sys.stdout
+        f_log = open(self.log_file, "a+")
+        repeat = 2 if self.verbose else 1
+        # redirect printing to file
+        sys.stdout = f_log
+
+        while repeat > 0:
+            print(message)
+
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()
 
 
 def alpha_to_int(text):

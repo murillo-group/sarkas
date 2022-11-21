@@ -298,361 +298,6 @@ class Observable:
         # Restore the previously deleted dataframes.
         self.parse()
 
-    def from_dict(self, input_dict: dict):
-        """
-        Update attributes from input dictionary.
-
-        Parameters
-        ----------
-        input_dict: dict
-            Dictionary to be copied.
-
-        """
-        self.__dict__.update(input_dict)
-
-    def setup_multirun_dirs(self):
-        """Set the attributes postprocessing_dir and dump_dirs_list.
-
-        The attribute postprocessing_dir refers to the location where to store postprocessing results.
-        If the attribute :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is set to `True` then the
-        postprocessing data will be saved in the :py:attr:`sarkas.core.Parameters.simulations_dir` directory, i.e. where
-        all the runs are.
-        Otherwise :py:attr:`sarkas.tools.observables.Observable.postprocessing_dir` will be
-        in the :py:attr:`sarkas.core.Parameters.job_dir`.
-
-        The attribute :py:attr:`sarkas.tools.observables.Observable.dump_dirs_list` is a list of the refers to the locations
-        of the production (or other phases) dumps. If :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is
-        `False` then the list will contain only one path, namely :py:attr:`sarkas.tools.observables.Observable.dump_dir`.
-
-        """
-        self.dump_dirs_list = []
-
-        if self.multi_run_average:
-            for r in range(self.runs):
-                # Direct to the correct dumps directory
-                dump_dir = os_path_join(
-                    f"run{r}", os_path_join("Simulation", os_path_join(self.phase.capitalize(), "dumps"))
-                )
-                dump_dir = os_path_join(self.simulations_dir, dump_dir)
-                self.dump_dirs_list.append(dump_dir)
-
-            # Re-path the saving directory.
-            # Data is saved in Simulations/PostProcessing/Observable/Phase/
-            self.postprocessing_dir = os_path_join(self.simulations_dir, "PostProcessing")
-            if not os_path_exists(self.postprocessing_dir):
-                mkdir(self.postprocessing_dir)
-        else:
-            self.dump_dirs_list = [self.dump_dir]
-
-    def setup_init(
-        self, params, phase: str = None, no_slices: int = None, multi_run_average: bool = None, runs: int = None
-    ):
-        """
-        Assign Observables attributes and copy the simulation's parameters.
-
-        Parameters
-        ----------
-        params : sarkas.core.Parameters
-            Simulation's parameters.
-
-        phase : str, optional
-            Phase to compute. Default = 'production'.
-
-        no_slices : int, optional
-            Number of independent runs inside a long simulation. Default = 1.
-
-        """
-
-        if phase:
-            self.phase = phase.lower()
-
-        if no_slices:
-            self.no_slices = no_slices
-
-        if multi_run_average:
-            self.multi_run_average = multi_run_average
-
-        if runs:
-            self.runs = 1
-
-        # The dict update could overwrite the names
-        name = self.__name__
-        long_name = self.__long_name__
-
-        self.__dict__.update(params.__dict__)
-
-        # Restore the correct names
-        self.__name__ = name
-        self.__long_name__ = long_name
-
-        if self.k_observable:
-            # Check for k space information.
-            if self.angle_averaging in ["full", "principal_axis"]:
-                if self.max_k_harmonics is None and self.max_ka_value is None:
-                    raise AttributeError("max_ka_value and max_k_harmonics not defined.")
-            elif self.angle_averaging == "custom":
-                # if custom i expect that there is a portion that must be angle averaged.
-                # Therefore check for those values.
-                if self.max_aa_ka_value is None and self.max_aa_harmonics is None:
-                    raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
-
-            # More checks on k attributes and initialization of k vectors
-            if self.max_k_harmonics is not None:
-                # Update angle averaged attributes depending on the choice of angle_averaging
-
-                # Convert max_k_harmonics to a numpy array. YAML reads in a list.
-                if not isinstance(self.max_k_harmonics, ndarray):
-                    self.max_k_harmonics = array(self.max_k_harmonics)
-
-                # Calculate max_aa_harmonics based on the choice of angle averaging and inputs
-                if self.angle_averaging == "full":
-                    self.max_aa_harmonics = self.max_k_harmonics.copy()
-
-                elif self.angle_averaging == "custom":
-                    # Check if the user has defined the max_aa_harmonics
-                    if self.max_aa_ka_value:
-                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
-                        self.max_aa_harmonics = array([nx, nx, nx])
-                    # else max_aa_harmonics is user defined
-                elif self.angle_averaging == "principal_axis":
-                    self.max_aa_harmonics = array([0, 0, 0])
-                # max_ka_value is still None
-
-            elif self.max_ka_value is not None:
-                # Update max_k_harmonics and angle average attributes based on the choice of angle_averaging
-                # Calculate max_k_harmonics from max_ka_value
-
-                # Check for angle_averaging choice
-                if self.angle_averaging == "full":
-                    # The maximum value is calculated assuming that max nx = max ny = max nz
-                    # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
-                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
-                    self.max_k_harmonics = array([nx, nx, nx])
-                    self.max_aa_harmonics = array([nx, nx, nx])
-
-                elif self.angle_averaging == "custom":
-                    # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
-                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
-                    self.max_k_harmonics = array([nx, nx, nx])
-                    # Check if the user has defined the max_aa_harmonics
-                    if self.max_aa_ka_value:
-                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
-                        self.max_aa_harmonics = array([nx, nx, nx])
-                    # else max_aa_harmonics is user defined
-                elif self.angle_averaging == "principal_axis":
-                    # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
-                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
-                    self.max_k_harmonics = array([nx, nx, nx])
-                    self.max_aa_harmonics = array([0, 0, 0])
-
-            # Calculate the maximum ka value based on user's choice of angle_averaging
-            # Dev notes: Make sure max_ka_value, max_aa_ka_value are defined when this if is done
-            if self.angle_averaging == "full":
-                self.max_ka_value = 2.0 * pi * self.a_ws * norm(self.max_k_harmonics / self.box_lengths)
-                self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_k_harmonics / self.box_lengths)
-
-            elif self.angle_averaging == "principal_axis":
-                self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
-                self.max_aa_ka_value = 0.0
-
-            elif self.angle_averaging == "custom":
-                self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_aa_harmonics / self.box_lengths)
-                self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
-
-            # Create paths for files
-            self.k_space_dir = os_path_join(self.postprocessing_dir, "k_space_data")
-            self.k_file = os_path_join(self.k_space_dir, "k_arrays.npz")
-            self.nkt_hdf_file = os_path_join(self.k_space_dir, "nkt.h5")
-            self.vkt_hdf_file = os_path_join(self.k_space_dir, "vkt.h5")
-
-        # Get the number of independent observables if multi-species
-        self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
-
-        # Get the total number of dumps by looking at the files in the directory
-        self.prod_no_dumps = len(listdir(self.prod_dump_dir))
-        self.eq_no_dumps = len(listdir(self.eq_dump_dir))
-
-        # Check for magnetized plasma options
-        if self.magnetized and self.electrostatic_equilibration:
-            self.mag_no_dumps = len(listdir(self.mag_dump_dir))
-
-        # Assign dumps variables based on the choice of phase
-        if self.phase == "equilibration":
-            self.no_dumps = self.eq_no_dumps
-            self.dump_step = self.eq_dump_step
-            self.no_steps = self.equilibration_steps
-            self.dump_dir = self.eq_dump_dir
-
-        elif self.phase == "production":
-            self.no_dumps = self.prod_no_dumps
-            self.dump_step = self.prod_dump_step
-            self.no_steps = self.production_steps
-            self.dump_dir = self.prod_dump_dir
-
-        elif self.phase == "magnetization":
-            self.no_dumps = self.mag_no_dumps
-            self.dump_step = self.mag_dump_step
-            self.no_steps = self.magnetization_steps
-            self.dump_dir = self.mag_dump_dir
-
-        # Needed for preprocessing pretty print
-        self.slice_steps = (
-            int(self.no_steps / self.dump_step / self.no_slices)
-            if self.no_dumps < self.no_slices
-            else int(self.no_dumps / self.no_slices)
-        )
-
-        # Array containing the start index of each species.
-        self.species_index_start = array([0, *self.species_num.cumsum()], dtype=int)
-
-    def create_dirs_filenames(self):
-        # Saving Directory
-        self.setup_multirun_dirs()
-
-        # If multi_run_average self.postprocessing_dir is Simulations/Postprocessing else Job_dir/Postprocessing
-        saving_dir = os_path_join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
-        if not os_path_exists(saving_dir):
-            mkdir(saving_dir)
-
-        self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
-        if not os_path_exists(self.saving_dir):
-            mkdir(self.saving_dir)
-
-        # Filenames and strings
-        self.filename_hdf = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
-
-        self.filename_hdf_slices = os_path_join(
-            self.saving_dir, self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
-        )
-
-        if self.acf_observable:
-            self.filename_hdf_acf = os_path_join(
-                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + ".h5"
-            )
-
-            self.filename_hdf_acf_slices = os_path_join(
-                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
-            )
-
-    def grab_sim_data(self, pva: str = None):
-        """Read in particles data"""
-
-        # Velocity array for storing simulation data
-        data_all = zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
-        time = zeros(self.no_dumps)
-
-        print("\nCollecting data from snapshots ...")
-        if self.dimensional_average:
-            # Loop over the runs
-            for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
-                # Loop over the timesteps
-                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
-                    # Read data from file
-                    dump = int(it * self.dump_step)
-                    datap = load_from_restart(dump_dir_r, dump)
-                    # Loop over the particles' species
-                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
-                        # Calculate the correct start and end index for storage
-                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
-                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
-                        # Use a mask to grab only the selected species and flatten along the first axis
-                        # data = ( v1_x, v1_y, v1_z,
-                        #          v2_x, v2_y, v2_z,
-                        #          v3_x, v3_y, v3_z,
-                        #          ...)
-                        # The flatten array would like this
-                        # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
-                        mask = datap["names"] == sp_name
-                        data_all[it, 0, start_indx:end_indx] = datap[pva][mask].flatten("F")
-
-                    time[it] = datap["time"]
-
-        else:  # Dimensional Average = False
-            # Loop over the runs
-            for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
-                # Loop over the timesteps
-                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
-                    # Read data from file
-                    dump = int(it * self.dump_step)
-                    datap = load_from_restart(dump_dir_r, dump)
-                    # Loop over the particles' species
-                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
-                        # Calculate the correct start and end index for storage
-                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
-                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
-                        # Use a mask to grab only the selected species and transpose the array to put dimensions first
-                        for d in range(self.dimensions):
-                            mask = datap["names"] == sp_name
-                            data_all[it, d, start_indx:end_indx] = datap[pva][mask][:, d]
-
-                    time[it] = datap["time"]
-
-        return time, data_all
-
-    def parse(self):
-        """
-        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
-        """
-        if self.k_observable:
-            try:
-                self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
-
-                k_data = load(self.k_file)
-                self.k_list = k_data["k_list"]
-                self.k_counts = k_data["k_counts"]
-                self.ka_values = k_data["ka_values"]
-
-            except FileNotFoundError:
-                print("\nFile {} not found!".format(self.filename_hdf))
-                print("\nComputing Observable now ...")
-                self.compute()
-        else:
-            try:
-                if hasattr(self, "filename_csv"):
-                    self.dataframe = read_csv(self.filename_csv, index_col=False)
-                else:
-                    self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
-
-            except FileNotFoundError:
-                if hasattr(self, "filename_csv"):
-                    data_file = self.filename_csv
-                else:
-                    data_file = self.filename_hdf
-                print("\nData file not found! \n {}".format(data_file))
-                print("\nComputing Observable now ...")
-                self.compute()
-
-            if hasattr(self, "dataframe_slices"):
-                self.dataframe_slices = read_hdf(self.filename_hdf_slices, mode="r", index_col=False)
-
-            if self.acf_observable:
-                self.dataframe_acf = read_hdf(self.filename_hdf_acf, mode="r", index_col=False)
-                self.dataframe_acf_slices = read_hdf(self.filename_hdf_acf_slices, mode="r", index_col=False)
-
-    def parse_k_data(self):
-        """Read in the precomputed Fourier space data. Recalculate if not correct."""
-
-        try:
-            k_data = load(self.k_file)
-            # Check for the correct number of k values
-            if self.angle_averaging == k_data["angle_averaging"]:
-                # Check for the correct max harmonics
-                comp = self.max_k_harmonics == k_data["max_k_harmonics"]
-                if comp.all():
-                    self.k_list = k_data["k_list"]
-                    self.k_harmonics = k_data["k_harmonics"]
-                    self.k_counts = k_data["k_counts"]
-                    self.k_values = k_data["k_values"]
-                    self.ka_values = k_data["ka_values"]
-                    self.no_ka_values = len(self.ka_values)
-                else:
-                    self.calc_k_data()
-            else:
-                self.calc_k_data()
-
-        except FileNotFoundError:
-            self.calc_k_data()
-
     def calc_k_data(self):
         """Calculate and save Fourier space data."""
 
@@ -690,74 +335,6 @@ class Observable:
             max_k_harmonics=self.max_k_harmonics,
             max_aa_harmonics=self.max_aa_harmonics,
         )
-
-    def parse_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
-        """
-        Read in the precomputed time dependent Fourier space data. Recalculate if not.
-
-        Parameters
-        ----------
-        nkt_flag : bool
-            Flag for reading microscopic density Fourier components :math:`n(\\mathbf k, t)`. \n
-            Default = False.
-
-        vkt_flag : bool
-            Flag for reading microscopic velocity Fourier components, :math:`v(\\mathbf k, t)`. \n
-            Default = False.
-
-        """
-        if nkt_flag:
-            try:
-                # Check that what was already calculated is correct
-                with HDFStore(self.nkt_hdf_file, mode="r") as nkt_hfile:
-                    metadata = nkt_hfile.get_storer("nkt").attrs.metadata
-
-                if metadata["no_slices"] == self.no_slices:
-                    # Check for the correct number of k values
-                    if metadata["angle_averaging"] == self.angle_averaging:
-                        # Check for the correct max harmonics
-                        comp = self.max_k_harmonics == metadata["max_k_harmonics"]
-                        if not comp.all():
-                            self.calc_kt_data(nkt_flag=True)
-                    else:
-                        self.calc_kt_data(nkt_flag=True)
-                else:
-                    self.calc_kt_data(nkt_flag=True)
-
-                # elif metadata['max_k_harmonics']
-                #
-                # if self.angle_averaging == nkt_data["angle_averaging"]:
-                #
-                #     comp = self.max_k_harmonics == nkt_data["max_harmonics"]
-                #     if not comp.all():
-                #         self.calc_kt_data(nkt_flag=True)
-                # else:
-                #     self.calc_kt_data(nkt_flag=True)
-
-            except OSError:
-                self.calc_kt_data(nkt_flag=True)
-
-        if vkt_flag:
-
-            try:
-                # Check that what was already calculated is correct
-                with HDFStore(self.vkt_hdf_file, mode="r") as vkt_hfile:
-                    metadata = vkt_hfile.get_storer("vkt").attrs.metadata
-
-                if metadata["no_slices"] == self.no_slices:
-                    # Check for the correct number of k values
-                    if metadata["angle_averaging"] == self.angle_averaging:
-                        # Check for the correct max harmonics
-                        comp = self.max_k_harmonics == metadata["max_k_harmonics"]
-                        if not comp.all():
-                            self.calc_kt_data(vkt_flag=True)
-                    else:
-                        self.calc_kt_data(vkt_flag=True)
-                else:
-                    self.calc_kt_data(vkt_flag=True)
-
-            except OSError:
-                self.calc_kt_data(vkt_flag=True)
 
     def calc_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
         """Calculate Time dependent Fourier space quantities.
@@ -912,6 +489,255 @@ class Observable:
             #          max_harmonics=self.max_k_harmonics,
             #          angle_averaging=self.angle_averaging)
 
+    def create_dirs_filenames(self):
+        # Saving Directory
+        self.setup_multirun_dirs()
+
+        # If multi_run_average self.postprocessing_dir is Simulations/Postprocessing else Job_dir/Postprocessing
+        saving_dir = os_path_join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
+        if not os_path_exists(saving_dir):
+            mkdir(saving_dir)
+
+        self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
+        if not os_path_exists(self.saving_dir):
+            mkdir(self.saving_dir)
+
+        # Filenames and strings
+        self.filename_hdf = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
+
+        self.filename_hdf_slices = os_path_join(
+            self.saving_dir, self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
+        )
+
+        if self.acf_observable:
+            self.filename_hdf_acf = os_path_join(
+                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + ".h5"
+            )
+
+            self.filename_hdf_acf_slices = os_path_join(
+                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
+            )
+
+    def from_dict(self, input_dict: dict):
+        """
+        Update attributes from input dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Dictionary to be copied.
+
+        """
+        self.__dict__.update(input_dict)
+
+    def grab_sim_data(self, pva: str = "vel"):
+        """Read in particles data into one large array.
+
+        Parameters
+        ----------
+        pva : str
+            Key of the data to be collected. Options ["pos", "vel", "acc"], Default = "vel"
+
+        Returns
+        -------
+        time : numpy.ndarray
+            One dimensional array with time data.
+
+        data_all : numpy.ndarray
+                Array with shape (:attr:`sarkas.tools.observables.Observable.no_dumps`,
+        :attr:`sarkas.tools.observables.Observable.self.dim`, :attr:`sarkas.tools.observables.Observable.runs` *
+        :attr:`sarkas.tools.observables.Observable.inv_dim` * :attr:`sarkas.tools.observables.Observable.total_num_ptcls`).
+        `.dim` = 1 if :attr:`sarkas.tools.observables.Observable.dimensional_average = True` otherwise equals the number
+        of dimensions, (e.g. 3D : 3) `.runs` is the number of runs to be averaged over. Default = 1. `.inv_dim` is
+        the else option of `dim`. If `dim = 1` then `.inv_dim = .dimensions` and viceversa.
+
+
+        """
+
+        # Velocity array for storing simulation data
+        data_all = zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
+        time = zeros(self.no_dumps)
+
+        print("\nCollecting data from snapshots ...")
+        if self.dimensional_average:
+            # Loop over the runs
+            for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
+                # Loop over the timesteps
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
+                    # Read data from file
+                    dump = int(it * self.dump_step)
+                    datap = load_from_restart(dump_dir_r, dump)
+                    # Loop over the particles' species
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
+                        # Calculate the correct start and end index for storage
+                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
+                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
+                        # Use a mask to grab only the selected species and flatten along the first axis
+                        # data = ( v1_x, v1_y, v1_z,
+                        #          v2_x, v2_y, v2_z,
+                        #          v3_x, v3_y, v3_z,
+                        #          ...)
+                        # The flatten array would like this
+                        # flattened = ( v1_x, v2_x, v3_x, ..., v1_y, v2_y, v3_y, ..., v1_z, v2_z, v3_z, ...)
+                        mask = datap["names"] == sp_name
+                        data_all[it, 0, start_indx:end_indx] = datap[pva][mask].flatten("F")
+
+                    time[it] = datap["time"]
+
+        else:  # Dimensional Average = False
+            # Loop over the runs
+            for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
+                # Loop over the timesteps
+                for it in tqdm(range(self.no_dumps), disable=(not self.verbose), desc="Timestep Loop"):
+                    # Read data from file
+                    dump = int(it * self.dump_step)
+                    datap = load_from_restart(dump_dir_r, dump)
+                    # Loop over the particles' species
+                    for sp_indx, (sp_name, sp_num) in enumerate(zip(self.species_names, self.species_num)):
+                        # Calculate the correct start and end index for storage
+                        start_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * r
+                        end_indx = self.species_index_start[sp_indx] + self.inv_dim * sp_num * (r + 1)
+                        # Use a mask to grab only the selected species and transpose the array to put dimensions first
+                        for d in range(self.dimensions):
+                            mask = datap["names"] == sp_name
+                            data_all[it, d, start_indx:end_indx] = datap[pva][mask][:, d]
+
+                    time[it] = datap["time"]
+
+        return time, data_all
+
+    def parse(self):
+        """
+        Grab the pandas dataframe from the saved csv file. If file does not exist call ``compute``.
+        """
+        if self.k_observable:
+            try:
+                self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
+
+                k_data = load(self.k_file)
+                self.k_list = k_data["k_list"]
+                self.k_counts = k_data["k_counts"]
+                self.ka_values = k_data["ka_values"]
+
+            except FileNotFoundError:
+                print("\nFile {} not found!".format(self.filename_hdf))
+                print("\nComputing Observable now ...")
+                self.compute()
+        else:
+            try:
+                if hasattr(self, "filename_csv"):
+                    self.dataframe = read_csv(self.filename_csv, index_col=False)
+                else:
+                    self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
+
+            except FileNotFoundError:
+                if hasattr(self, "filename_csv"):
+                    data_file = self.filename_csv
+                else:
+                    data_file = self.filename_hdf
+                print("\nData file not found! \n {}".format(data_file))
+                print("\nComputing Observable now ...")
+                self.compute()
+
+            if hasattr(self, "dataframe_slices"):
+                self.dataframe_slices = read_hdf(self.filename_hdf_slices, mode="r", index_col=False)
+
+            if self.acf_observable:
+                self.dataframe_acf = read_hdf(self.filename_hdf_acf, mode="r", index_col=False)
+                self.dataframe_acf_slices = read_hdf(self.filename_hdf_acf_slices, mode="r", index_col=False)
+
+    def parse_k_data(self):
+        """Read in the precomputed Fourier space data. Recalculate if not correct."""
+
+        try:
+            k_data = load(self.k_file)
+            # Check for the correct number of k values
+            if self.angle_averaging == k_data["angle_averaging"]:
+                # Check for the correct max harmonics
+                comp = self.max_k_harmonics == k_data["max_k_harmonics"]
+                if comp.all():
+                    self.k_list = k_data["k_list"]
+                    self.k_harmonics = k_data["k_harmonics"]
+                    self.k_counts = k_data["k_counts"]
+                    self.k_values = k_data["k_values"]
+                    self.ka_values = k_data["ka_values"]
+                    self.no_ka_values = len(self.ka_values)
+                else:
+                    self.calc_k_data()
+            else:
+                self.calc_k_data()
+
+        except FileNotFoundError:
+            self.calc_k_data()
+
+    def parse_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
+        """
+        Read in the precomputed time dependent Fourier space data. Recalculate if not.
+
+        Parameters
+        ----------
+        nkt_flag : bool
+            Flag for reading microscopic density Fourier components :math:`n(\\mathbf k, t)`. \n
+            Default = False.
+
+        vkt_flag : bool
+            Flag for reading microscopic velocity Fourier components, :math:`v(\\mathbf k, t)`. \n
+            Default = False.
+
+        """
+        if nkt_flag:
+            try:
+                # Check that what was already calculated is correct
+                with HDFStore(self.nkt_hdf_file, mode="r") as nkt_hfile:
+                    metadata = nkt_hfile.get_storer("nkt").attrs.metadata
+
+                if metadata["no_slices"] == self.no_slices:
+                    # Check for the correct number of k values
+                    if metadata["angle_averaging"] == self.angle_averaging:
+                        # Check for the correct max harmonics
+                        comp = self.max_k_harmonics == metadata["max_k_harmonics"]
+                        if not comp.all():
+                            self.calc_kt_data(nkt_flag=True)
+                    else:
+                        self.calc_kt_data(nkt_flag=True)
+                else:
+                    self.calc_kt_data(nkt_flag=True)
+
+                # elif metadata['max_k_harmonics']
+                #
+                # if self.angle_averaging == nkt_data["angle_averaging"]:
+                #
+                #     comp = self.max_k_harmonics == nkt_data["max_harmonics"]
+                #     if not comp.all():
+                #         self.calc_kt_data(nkt_flag=True)
+                # else:
+                #     self.calc_kt_data(nkt_flag=True)
+
+            except OSError:
+                self.calc_kt_data(nkt_flag=True)
+
+        if vkt_flag:
+
+            try:
+                # Check that what was already calculated is correct
+                with HDFStore(self.vkt_hdf_file, mode="r") as vkt_hfile:
+                    metadata = vkt_hfile.get_storer("vkt").attrs.metadata
+
+                if metadata["no_slices"] == self.no_slices:
+                    # Check for the correct number of k values
+                    if metadata["angle_averaging"] == self.angle_averaging:
+                        # Check for the correct max harmonics
+                        comp = self.max_k_harmonics == metadata["max_k_harmonics"]
+                        if not comp.all():
+                            self.calc_kt_data(vkt_flag=True)
+                    else:
+                        self.calc_kt_data(vkt_flag=True)
+                else:
+                    self.calc_kt_data(vkt_flag=True)
+
+            except OSError:
+                self.calc_kt_data(vkt_flag=True)
+
     def plot(self, scaling: tuple = None, acf: bool = False, figname: str = None, show: bool = False, **kwargs):
         """
         Plot the observable by calling the pandas.DataFrame.plot() function and save the figure.
@@ -987,31 +813,12 @@ class Observable:
 
         return axes_handle
 
-    def time_stamp(self, message: str, timing: tuple):
-        """Print to screen the elapsed time of the calculation.
-
-        Parameters
-        ----------
-        message : str
-            Message to print.
-
-        timing : tuple
-            Time in hrs, min, sec, msec, usec, nsec.
-
-        """
-
-        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
-
-        if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-            print_message = "\n{} Time: {} sec {} msec {} usec {} nsec".format(
-                message, int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-            )
-
-        else:
-            print_message = "\n{} Time: {} hrs {} min {} sec".format(message, int(t_hrs), int(t_min), int(t_sec))
-
-        # logging.info(print_message)
-        print(print_message)
+    def read_pickle(self):
+        """Read the observable's info from the pickle file."""
+        self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
+        with open(self.filename_pickle, "rb") as pkl_data:
+            data = pickle_load()
+        self.from_dict(data.__dict__)
 
     def save_hdf(self):
 
@@ -1070,12 +877,237 @@ class Observable:
             dump(self, pickle_file)
             pickle_file.close()
 
-    def read_pickle(self):
-        """Read the observable's info from the pickle file."""
-        self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
-        with open(self.filename_pickle, "rb") as pkl_data:
-            data = pickle_load()
-        self.from_dict(data.__dict__)
+    def setup_init(
+        self,
+        params,
+        phase: str = None,
+        no_slices: int = None,
+        multi_run_average: bool = None,
+        dimensional_average: bool = None,
+        runs: int = None,
+    ):
+        """
+        Assign Observables attributes and copy the simulation's parameters.
+
+        Parameters
+        ----------
+        runs
+        dimensional_average
+        multi_run_average
+        params : sarkas.core.Parameters
+            Simulation's parameters.
+
+        phase : str, optional
+            Phase to compute. Default = 'production'.
+
+        no_slices : int, optional
+            Number of independent runs inside a long simulation. Default = 1.
+
+        """
+
+        if phase:
+            self.phase = phase.lower()
+
+        if no_slices:
+            self.no_slices = no_slices
+
+        if multi_run_average:
+            self.multi_run_average = multi_run_average
+
+        if dimensional_average:
+            self.dimensional_average = dimensional_average
+
+        if runs:
+            self.runs = 1
+
+        # The dict update could overwrite the names
+        name = self.__name__
+        long_name = self.__long_name__
+
+        self.__dict__.update(params.__dict__)
+
+        # Restore the correct names
+        self.__name__ = name
+        self.__long_name__ = long_name
+
+        if self.k_observable:
+            # Check for k space information.
+            if self.angle_averaging in ["full", "principal_axis"]:
+                if self.max_k_harmonics is None and self.max_ka_value is None:
+                    raise AttributeError("max_ka_value and max_k_harmonics not defined.")
+            elif self.angle_averaging == "custom":
+                # if "custom" I expect that there is a portion that must be angle averaged. Hence, check for those values.
+                if self.max_aa_ka_value is None and self.max_aa_harmonics is None:
+                    raise AttributeError("max_aa_harmonics and max_aa_ka_value not defined.")
+
+            # More checks on k attributes and initialization of k vectors
+            if self.max_k_harmonics is not None:
+                # Update angle averaged attributes depending on the choice of angle_averaging
+
+                # Convert max_k_harmonics to a numpy array. YAML reads in a list.
+                if not isinstance(self.max_k_harmonics, ndarray):
+                    self.max_k_harmonics = array(self.max_k_harmonics)
+
+                # Calculate max_aa_harmonics based on the choice of angle averaging and inputs
+                if self.angle_averaging == "full":
+                    self.max_aa_harmonics = self.max_k_harmonics.copy()
+
+                elif self.angle_averaging == "custom":
+                    # Check if the user has defined the max_aa_harmonics
+                    if self.max_aa_ka_value:
+                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        self.max_aa_harmonics = array([nx, nx, nx])
+                    # else max_aa_harmonics is user defined
+                elif self.angle_averaging == "principal_axis":
+                    self.max_aa_harmonics = array([0, 0, 0])
+                # max_ka_value is still None
+
+            elif self.max_ka_value is not None:
+                # Update max_k_harmonics and angle average attributes based on the choice of angle_averaging
+                # Calculate max_k_harmonics from max_ka_value
+
+                # Check for angle_averaging choice
+                if self.angle_averaging == "full":
+                    # The maximum value is calculated assuming that max nx = max ny = max nz
+                    # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                    self.max_k_harmonics = array([nx, nx, nx])
+                    self.max_aa_harmonics = array([nx, nx, nx])
+
+                elif self.angle_averaging == "custom":
+                    # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
+                    self.max_k_harmonics = array([nx, nx, nx])
+                    # Check if the user has defined the max_aa_harmonics
+                    if self.max_aa_ka_value:
+                        nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        self.max_aa_harmonics = array([nx, nx, nx])
+                    # else max_aa_harmonics is user defined
+                elif self.angle_averaging == "principal_axis":
+                    # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
+                    nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
+                    self.max_k_harmonics = array([nx, nx, nx])
+                    self.max_aa_harmonics = array([0, 0, 0])
+
+            # Calculate the maximum ka value based on user's choice of angle_averaging
+            # Dev notes: Make sure max_ka_value, max_aa_ka_value are defined when this if is done
+            if self.angle_averaging == "full":
+                self.max_ka_value = 2.0 * pi * self.a_ws * norm(self.max_k_harmonics / self.box_lengths)
+                self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_k_harmonics / self.box_lengths)
+
+            elif self.angle_averaging == "principal_axis":
+                self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
+                self.max_aa_ka_value = 0.0
+
+            elif self.angle_averaging == "custom":
+                self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_aa_harmonics / self.box_lengths)
+                self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
+
+            # Create paths for files
+            self.k_space_dir = os_path_join(self.postprocessing_dir, "k_space_data")
+            self.k_file = os_path_join(self.k_space_dir, "k_arrays.npz")
+            self.nkt_hdf_file = os_path_join(self.k_space_dir, "nkt.h5")
+            self.vkt_hdf_file = os_path_join(self.k_space_dir, "vkt.h5")
+
+        # Get the number of independent observables if multi-species
+        self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
+
+        # Get the total number of dumps by looking at the files in the directory
+        self.prod_no_dumps = len(listdir(self.prod_dump_dir))
+        self.eq_no_dumps = len(listdir(self.eq_dump_dir))
+
+        # Check for magnetized plasma options
+        if self.magnetized and self.electrostatic_equilibration:
+            self.mag_no_dumps = len(listdir(self.mag_dump_dir))
+
+        # Assign dumps variables based on the choice of phase
+        if self.phase == "equilibration":
+            self.no_dumps = self.eq_no_dumps
+            self.dump_step = self.eq_dump_step
+            self.no_steps = self.equilibration_steps
+            self.dump_dir = self.eq_dump_dir
+
+        elif self.phase == "production":
+            self.no_dumps = self.prod_no_dumps
+            self.dump_step = self.prod_dump_step
+            self.no_steps = self.production_steps
+            self.dump_dir = self.prod_dump_dir
+
+        elif self.phase == "magnetization":
+            self.no_dumps = self.mag_no_dumps
+            self.dump_step = self.mag_dump_step
+            self.no_steps = self.magnetization_steps
+            self.dump_dir = self.mag_dump_dir
+
+        # Needed for preprocessing pretty print
+        self.slice_steps = (
+            int(self.no_steps / self.dump_step / self.no_slices)
+            if self.no_dumps < self.no_slices
+            else int(self.no_dumps / self.no_slices)
+        )
+
+        # Array containing the start index of each species.
+        self.species_index_start = array([0, *self.species_num.cumsum()], dtype=int)
+
+    def setup_multirun_dirs(self):
+        """Set the attributes postprocessing_dir and dump_dirs_list.
+
+        The attribute postprocessing_dir refers to the location where to store postprocessing results.
+        If the attribute :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is set to `True` then the
+        postprocessing data will be saved in the :py:attr:`sarkas.core.Parameters.simulations_dir` directory, i.e. where
+        all the runs are.
+        Otherwise :py:attr:`sarkas.tools.observables.Observable.postprocessing_dir` will be
+        in the :py:attr:`sarkas.core.Parameters.job_dir`.
+
+        The attribute :py:attr:`sarkas.tools.observables.Observable.dump_dirs_list` is a list of the refers to the locations
+        of the production (or other phases) dumps. If :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is
+        `False` then the list will contain only one path, namely :py:attr:`sarkas.tools.observables.Observable.dump_dir`.
+
+        """
+        self.dump_dirs_list = []
+
+        if self.multi_run_average:
+            for r in range(self.runs):
+                # Direct to the correct dumps directory
+                dump_dir = os_path_join(
+                    f"run{r}", os_path_join("Simulation", os_path_join(self.phase.capitalize(), "dumps"))
+                )
+                dump_dir = os_path_join(self.simulations_dir, dump_dir)
+                self.dump_dirs_list.append(dump_dir)
+
+            # Re-path the saving directory.
+            # Data is saved in Simulations/PostProcessing/Observable/Phase/
+            self.postprocessing_dir = os_path_join(self.simulations_dir, "PostProcessing")
+            if not os_path_exists(self.postprocessing_dir):
+                mkdir(self.postprocessing_dir)
+        else:
+            self.dump_dirs_list = [self.dump_dir]
+
+    def time_stamp(self, message: str, timing: tuple):
+        """Print to screen the elapsed time of the calculation.
+
+        Parameters
+        ----------
+        message : str
+            Message to print.
+
+        timing : tuple
+            Time in hrs, min, sec, msec, usec, nsec.
+
+        """
+
+        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
+
+        if t_hrs == 0 and t_min == 0 and t_sec <= 2:
+            print_message = "\n{} Time: {} sec {} msec {} usec {} nsec".format(
+                message, int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
+            )
+
+        else:
+            print_message = "\n{} Time: {} hrs {} min {} sec".format(message, int(t_hrs), int(t_min), int(t_sec))
+
+        # logging.info(print_message)
+        print(print_message)
 
     def update_finish(self):
         """Update the :py:attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
@@ -2904,7 +2936,7 @@ class Thermodynamics(Observable):
         # The Temperature fluctuations in an NVT ensemble are
         # < delta T^2> = T_desired^2 *( 2 /(Np * Dims))
         T_std = T_desired * sqrt(2.0 / (process.parameters.total_num_ptcls * process.parameters.dimensions))
-        err = T_std - Temperature.std()
+
         T_dist = scp_stats.norm(loc=T_desired, scale=T_std)
         # Histogram plot
         sns_histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
@@ -3197,7 +3229,10 @@ class VelocityDistribution(Observable):
 
         Parameters
         ----------
-        params : sarkas.core.Parameters
+        runs
+        dimensional_average
+        multi_run_average
+        params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
         phase : str, optional
@@ -3221,7 +3256,14 @@ class VelocityDistribution(Observable):
 
         """
 
-        super().setup_init(params, phase=phase, multi_run_average=multi_run_average, runs=runs, no_slices=no_slices)
+        super().setup_init(
+            params,
+            phase=phase,
+            dimensional_average=dimensional_average,
+            multi_run_average=multi_run_average,
+            runs=runs,
+            no_slices=no_slices,
+        )
         self.update_args(hist_kwargs, max_no_moment, curve_fit_kwargs, **kwargs)
 
     @arg_update_doc
@@ -3251,22 +3293,11 @@ class VelocityDistribution(Observable):
 
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
-
-        # Create the directory where to store the computed data
-        # First the name of the observable
-        saving_dir = os_path_join(self.postprocessing_dir, "VelocityDistribution")
-        if not os_path_exists(saving_dir):
-            mkdir(saving_dir)
-        # then the phase
-        self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
-
-        if not os_path_exists(self.saving_dir):
-            mkdir(self.saving_dir)
-
-        # Directories in which to store plots
-        self.plots_dir = os_path_join(self.saving_dir, "Plots")
-        if not os_path_exists(self.plots_dir):
-            mkdir(self.plots_dir)
+        self.update_finish()
+        # # Directories in which to store plots
+        # self.plots_dir = os_path_join(self.saving_dir, "Plots")
+        # if not os_path_exists(self.plots_dir):
+        #     mkdir(self.plots_dir)
 
         # Paths where to store the dataframes
         if self.multi_run_average:
@@ -3297,6 +3328,7 @@ class VelocityDistribution(Observable):
         self.inv_dim = self.dimensions if self.dimensional_average else 1
 
         self.prepare_histogram_args()
+
         self.save_pickle()
 
     def compute(self, compute_moments: bool = False, compute_Grad_expansion: bool = False):
@@ -3319,7 +3351,7 @@ class VelocityDistribution(Observable):
         self.pretty_print()
 
         # Grab simulation data
-        time, vel_raw = self.grab_sim_data()
+        time, vel_raw = self.grab_sim_data(pva="vel")
         # Normality test
         self.normality_tests(time=time, vel_data=vel_raw)
 
@@ -3335,16 +3367,23 @@ class VelocityDistribution(Observable):
 
     def normality_tests(self, time, vel_data):
         """
-        Calculate the Shapiro-Wilks test for each timestep from the raw velocity data.
-
+        Calculate the Shapiro-Wilks test for each timestep from the raw velocity data and store it into a dataframe.
 
         Parameters
         ----------
-        time:
-        vel_data
-
         Returns
         -------
+        time : numpy.ndarray
+            One dimensional array with time data.
+
+        vel_data : numpy.ndarray
+            See `Returns` of :meth:`sarkas.tools.observables.Observable.grab_sim_data`
+            Array with shape (:attr:`sarkas.tools.observables.Observable.no_dumps`,
+        :attr:`sarkas.tools.observables.Observable.self.dim`, :attr:`sarkas.tools.observables.Observable.runs` *
+        :attr:`sarkas.tools.observables.Observable.inv_dim` * :attr:`sarkas.tools.observables.Observable.total_num_ptcls`).
+        `.dim` = 1 if :attr:`sarkas.tools.observables.Observable.dimensional_average = True` otherwise equals the number
+        of dimensions, (e.g. 3D : 3) `.runs` is the number of runs to be averaged over. Default = 1. `.inv_dim` is
+        the else option of `dim`. If `dim = 1` then `.inv_dim = .dimensions` and viceversa.
 
         """
 
@@ -3428,7 +3467,7 @@ class VelocityDistribution(Observable):
                 self.hist_kwargs[key] = default_hist_kwargs[key]
 
         # Ok at this point I have a dictionary whose elements are list.
-        # I want the inverse a list whose elements are dicts
+        # I want the inverse: a list whose elements are dicts
         self.list_hist_kwargs = []
         for indx in range(self.num_species):
             another_dict = {}
@@ -3479,7 +3518,7 @@ class VelocityDistribution(Observable):
 
         full_df_columns = []
         # At the first time step I will create the columns list.
-        dist_matrix = zeros((len(time), self.dim * (self.hist_kwargs["bins"].sum() + self.num_species)))
+        dist_matrix = zeros((len(time), self.dim * (sum(self.hist_kwargs["bins"]) + self.num_species)))
         # The +1 at the end is because I decided to add a column containing the timestep
         # For convenience save the bin edges somewhere else. The columns of the dataframe are string. This will give
         # problems when plotting.
@@ -3569,28 +3608,26 @@ class VelocityDistribution(Observable):
         # Save the dataframe
         if self.dimensional_average:
             for i, sp in enumerate(self.species_names):
-                self.moments_hdf_dataframe["{}_X_Time".format(sp)] = time
+                self.moments_hdf_dataframe[f"{sp}_X_Time"] = time
                 for m in range(self.max_no_moment):
-                    self.moments_dataframe["{} {} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
-                    self.moments_hdf_dataframe["{}_X_{} moment".format(sp, m + 1)] = moments[i, :, :, m][:, 0]
+                    self.moments_dataframe[f"{sp} {m+1} moment"] = moments[i, :, 0, m]
+                    self.moments_hdf_dataframe[f"{sp}_X_{m+1} moment"] = moments[i, :, 0, m]
                 for m in range(self.max_no_moment):
-                    self.moments_dataframe["{} {} moment ratio".format(sp, m + 1)] = ratios[i, :, :, m][:, 0]
-                    self.moments_hdf_dataframe["{}_X_{}-2 ratio".format(sp, m + 1)] = ratios[i, :, :, m][:, 0]
+                    self.moments_dataframe[f"{sp} {m + 1} moment ratio"] = ratios[i, :, 0, m]
+                    self.moments_hdf_dataframe[f"{sp}_X_{m + 1}-2 ratio"] = ratios[i, :, 0, m]
         else:
             for i, sp in enumerate(self.species_names):
                 for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    self.moments_hdf_dataframe["{}_{}_Time".format(sp, ds)] = time
+                    self.moments_hdf_dataframe[f"{sp}_{ds}_Time"] = time
                     for m in range(self.max_no_moment):
-                        self.moments_dataframe["{} {} moment axis {}".format(sp, m + 1, ds)] = moments[i, :, d, m][:, 0]
-                        self.moments_hdf_dataframe["{}_{}_{} moment".format(sp, ds, m + 1)] = moments[i, :, :, m][:, 0]
+                        self.moments_dataframe[f"{sp} {m + 1} moment axis {ds}"] = moments[i, :, d, m]
+                        self.moments_hdf_dataframe[f"{sp}_{ds}_{m + 1} moment"] = moments[i, :, d, m]
 
                 for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    self.moments_hdf_dataframe["{}_{}_Time".format(sp, ds)] = time
+                    self.moments_hdf_dataframe[f"{sp}_{ds}_Time"] = time
                     for m in range(self.max_no_moment):
-                        self.moments_dataframe["{} {} moment ratio axis {}".format(sp, m + 1, ds)] = ratios[i, :, d, m][
-                            :, 0
-                        ]
-                        self.moments_hdf_dataframe["{}_{}_{}-2 ratio ".format(sp, ds, m + 1)] = ratios[i, :, d, m][:, 0]
+                        self.moments_dataframe[f"{sp} {m + 1} moment ratio axis {ds}"] = ratios[i, :, d, m]
+                        self.moments_hdf_dataframe[f"{sp}_{ds}_{m + 1}-2 ratio"] = ratios[i, :, d, m]
 
         self.moments_dataframe.to_csv(self.filename_csv, index=False, encoding="utf-8")
         # Hierarchical DF Save
@@ -3929,7 +3966,7 @@ def calc_moments(dist, max_moment, species_index_start):
         Shape=( ``no_species``, ``no_dumps``, ``dim``, ``max_moment`` )
 
     ratios: numpy.ndarray
-        Ratios of each moments with respect to the expected Maxwellian value.
+        Ratios of each moment with respect to the expected Maxwellian value.
         Shape=( ``no_species``, ``no_dumps``,  ``no_dim``, ``max_moment - 1``)
 
     Notes
@@ -3951,7 +3988,7 @@ def calc_moments(dist, max_moment, species_index_start):
         sp_end = species_index_start[indx + 1]
 
         for mom in range(max_moment):
-            moments[indx, :, :, mom] = scp_stats.moment(dist[:, :, sp_start:sp_end], moment=mom + 1, axis=2)
+            moments[indx, :, :, mom] = scp_stats.moment(dist[:, :, sp_start:sp_end], moment=mom + 1, axis=-1)
 
     # sqrt( <v^2> ) = standard deviation = moments[:, :, :, 1] ** (1/2)
     for mom in range(max_moment):
