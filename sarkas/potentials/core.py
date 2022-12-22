@@ -396,7 +396,7 @@ class Potential:
 
             mask = self.box_lengths > 0.0
             min_length = self.box_lengths[mask].min()
-
+            self.calc_acc_pot = self.update_linked_list
             if not self.rc:
                 warn(
                     f"\nThe cut-off radius is not defined. I will use the brute force method.",
@@ -404,6 +404,7 @@ class Potential:
                 )
                 self.rc = min_length / 2.0
                 self.linked_list_on = False  # linked list off
+                self.calc_acc_pot = self.update_brute
 
             if self.rc > min_length / 2.0:
                 warn(
@@ -415,6 +416,7 @@ class Potential:
 
                 self.rc = min_length / 2.0
                 self.linked_list_on = False  # linked list off
+                self.calc_acc_pot = self.update_linked_list
 
             if self.a_rs != 0.0:
                 warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
@@ -427,13 +429,16 @@ class Potential:
             if self.method == "pppm":
                 self.pppm_on = True
                 self.pppm_setup()
+                self.calc_acc_pot = self.update_pppm
         else:
             self.linked_list_on = False
             self.pppm_on = False
             if self.type == "coulomb":
                 self.force_error = self.fmm_precision
+                self.calc_acc_pot = self.update_fmm_coulomb
             else:
                 self.force_error = self.fmm_precision
+                self.calc_acc_pot = self.update_fmm_yukawa
 
     def pppm_setup(self):
         """Calculate the pppm parameters."""
@@ -696,9 +701,8 @@ class Potential:
 
         potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
-        ptcls.acc = acc.transpose()
-
-        return potential_energy
+        ptcls.acc = acc.transpose().copy()
+        ptcls.potential_energy = potential_energy
 
     def update_fmm_yukawa(self, ptcls):
         """Calculate particles' potential and accelerations using FMM method.
@@ -719,6 +723,5 @@ class Potential:
 
         potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
-        ptcls.acc = acc.transpose()
-
-        return potential_energy
+        ptcls.acc = acc.transpose().copy()
+        ptcls.potential_energy = potential_energy

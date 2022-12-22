@@ -7,8 +7,9 @@ from threading import Thread
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
+    from tqdm.notebook import trange
 else:
-    from tqdm import tqdm
+    from tqdm import tqdm, trange
 
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap, ScalarMappable
@@ -22,7 +23,6 @@ from numpy import (
     log10,
     logspace,
     meshgrid,
-    rint,
     sqrt,
     zeros,
 )
@@ -225,13 +225,13 @@ class Process:
 
         """
 
-        for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
+        for it in trange(it_start, it_end, disable=not self.parameters.verbose):
             # Calculate the Potential energy and update particles' data
 
             self.integrator.update(self.particles)
 
             if (it + 1) % dump_step == 0:
-                self.io.dump(phase, self.particles.__deepcopy__(), it + 1)
+                self.io.dump(phase, self.particles, it + 1)
 
             if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
                 self.integrator.thermostate(self.particles)
@@ -262,7 +262,7 @@ class Process:
             Interval for dumping data.
 
         """
-        for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
+        for it in trange(it_start, it_end, disable=not self.parameters.verbose):
             # Calculate the Potential energy and update particles' data
 
             self.integrator.update(self.particles)
@@ -301,20 +301,22 @@ class Process:
 
         # Update parameters' dictionary with filenames and directories
         self.parameters.from_dict(self.io.__dict__)
-        # Copy some parameters needed for saving data
-        self.io.copy_params(self.parameters)
         self.parameters.potential_type = self.potential.type.lower()
-
         self.parameters.setup(self.species)
 
+        # Initialize particles
         t0 = self.timer.current()
+        self.particles.setup(self.parameters, self.species)
+        time_ptcls = self.timer.current()
+
+        # Initialize potential and calculate initial potential
         self.potential.setup(self.parameters, self.species)
+        self.potential.calc_acc_pot(self.particles)
         time_pot = self.timer.current()
         self.parameters.cutoff_radius = self.potential.rc
 
+        # Initialize Integrator
         self.integrator.setup(self.parameters, self.potential)
-        self.particles.setup(self.parameters, self.species)
-        time_ptcls = self.timer.current()
 
         # Copy needed parameters for pretty print
         self.parameters.dt = self.integrator.dt
@@ -323,6 +325,8 @@ class Process:
         if self.parameters.magnetized:
             self.parameters.magnetization_integrator = self.integrator.magnetization_type
 
+        # Copy some parameters needed for saving data
+        self.io.copy_params(self.parameters)
         # For restart and backups.
         self.io.setup_checkpoint(self.parameters)
         self.io.save_pickle(self)
@@ -332,10 +336,43 @@ class Process:
         time_end = self.timer.current()
 
         self.evolve = self.evolve_loop_threading if self.parameters.threading else self.evolve_loop
+
         # Print timing
-        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
-        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
+        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - t0))
+        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_pot - time_ptcls))
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
+
+        self.print_initial_state()
+
+    def print_initial_state(self):
+        """Print the initial energies of the system."""
+
+        self.io.write_to_logger("\n\n{:-^70} \n".format(" Initial Energies "))
+        msg = f"Initial temperature and kinetic energy of each species"
+        self.io.write_to_logger(msg)
+
+        units_msg = f"[erg]" if self.parameters.units == "cgs" else f"[J]"
+        Kins, Temps = self.particles.kinetic_temperature()
+        factor = self.parameters.J2erg if self.parameters.units == "mks" else 1.0 / self.parameters.J2erg
+
+        for sp, kp, tp in zip(self.species, Kins, Temps):
+            sp_msg = (
+                f"{sp.name} :\n\tTemperature = {tp:.6e} [K] = {tp*self.parameters.eV2K:.6e} [eV]"
+                f"\n\tKinetic Energy = {kp:.6e} {units_msg} = {kp*factor/self.parameters.eV2J:.6e} [eV]"
+            )
+            self.io.write_to_logger(sp_msg)
+
+        tot_kin_e = Kins.sum()
+        tot_e = tot_kin_e + self.particles.potential_energy
+
+        msg = f"Initial total kinetic energy = {tot_kin_e:.6e} {units_msg} = {tot_kin_e * factor / self.parameters.eV2J:.6e} [eV]"
+        self.io.write_to_logger(msg)
+
+        msg = f"Initial total potential energy = {self.particles.potential_energy:.6e} {units_msg} = {self.particles.potential_energy * factor  / self.parameters.eV2J:.6e} [eV]"
+        self.io.write_to_logger(msg)
+
+        msg = f"Initial total energy = {tot_e:.6e} {units_msg} = {tot_e * factor  / self.parameters.eV2J:.6e} [eV]"
+        self.io.write_to_logger(msg)
 
     def setup(self, read_yaml: bool = False, other_inputs: dict = None):
         """Setup simulations' parameters and io subclasses.
@@ -432,6 +469,10 @@ class Process:
             self.parameters.load_method = "prod_restart"
             no_dumps = len(listdir(self.io.prod_dump_dir))
             last_step = self.parameters.prod_dump_step * (no_dumps - 1)
+            if no_dumps == 0:
+                self.parameters.load_method = "eq_restart"
+                no_dumps = len(listdir(self.io.eq_dump_dir))
+                last_step = self.parameters.eq_dump_step * (no_dumps - 1)
             self.parameters.restart_step = last_step
             self.particles.setup(self.parameters, self.species)
             # Restore the original value for future use
@@ -538,7 +579,7 @@ class PostProcess(Process):
 
         Parameters
         ----------
-        simulation: sarkas.core.processes.Simulation
+        simulation: :class:`sarkas.core.processes.Simulation`
             Simulation object
 
         """
@@ -1221,8 +1262,8 @@ class PreProcess(Process):
 
         """
 
-        if self.io.verbose:
-            print(f"\nRunning {loops} equilibration and production steps to estimate simulation times\n")
+        msg = f"\nRunning {loops} steps for each phase to estimate simulation times\n"
+        self.io.write_to_logger(msg)
 
         # Run few equilibration steps to estimate the equilibration time
         if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
@@ -1290,12 +1331,19 @@ class PreProcess(Process):
 
         # Estimate size of dump folder
         # Grab one file from the dump directory and get the size of it.
-        if not listdir(self.io.eq_dump_dir):
-            raise FileNotFoundError(
-                "Could not estimate the size of the equilibration phase dumps"
-                " because there are no dumps in the equilibration directory."
-                "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
-            )
+        if self.parameters.equilibration_phase:
+            if not listdir(self.io.eq_dump_dir):
+                raise FileNotFoundError(
+                    "Could not estimate the size of the equilibration phase dumps"
+                    " because there are no dumps in the equilibration directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
+                )
+            else:
+                eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+                eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
+        else:
+            eq_dump_size = 0
+            eq_dump_fldr_size = 0
 
         if not listdir(self.io.prod_dump_dir):
             raise FileNotFoundError(
@@ -1304,8 +1352,6 @@ class PreProcess(Process):
                 "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
             )
 
-        eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
         # Grab one file from the dump directory and get the size of it.
         prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
         prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
@@ -1366,10 +1412,10 @@ class PreProcess(Process):
             self.potential.pppm_mesh = m * array([1, 1, 1], dtype=int)
             self.potential.pppm_alpha_ewald = 0.3 * m / self.potential.box_lengths.min()
             self.potential.pppm_h_array = self.potential.box_lengths / self.potential.pppm_mesh
-            print(f"\n Mesh = {m, m, m}:\n\t cao = ", end="")
+            self.io.write_to_logger(f"\n Mesh = {m, m, m}:\n\t cao = ")
 
             for _, cao in enumerate(self.pm_caos):
-                print(f"{cao}, ", end="")
+                self.io.write_to_logger(f"{cao}, ")
                 self.potential.pppm_cao = cao * array([1, 1, 1], dtype=int)
 
                 # Update the potential matrix since alpha has changed

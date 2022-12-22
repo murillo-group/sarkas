@@ -287,7 +287,7 @@ class Integrator:
         Raises
         ------
         ValueError
-            If a thermostat different than Berendsen is chosen.
+            If a thermostat different from Berendsen is chosen.
 
         """
 

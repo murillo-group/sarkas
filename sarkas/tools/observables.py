@@ -2900,7 +2900,7 @@ class Thermodynamics(Observable):
         plt.rc("xtick", labelsize=fsz - 2)  # fontsize of the tick labels
         plt.rc("ytick", labelsize=fsz - 2)  # fontsize of the tick labels
 
-        # Grab the color line list from the plt cycler. I will used this in the hist plots
+        # Grab the color line list from the plt cycler. I will use this in the hist plots
         color_from_cycler = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
         # ------------------------------------------- Temperature -------------------------------------------#
@@ -2932,7 +2932,6 @@ class Thermodynamics(Observable):
         T_delta_plot.plot(time, Delta_T_cum_avg, alpha=0.8)
         T_delta_plot.set(xticks=[], ylabel=r"Deviation [%]")
 
-        # This was a failed attempt to calculate the theoretical Temperature distribution.
         # The Temperature fluctuations in an NVT ensemble are
         # < delta T^2> = T_desired^2 *( 2 /(Np * Dims))
         T_std = T_desired * sqrt(2.0 / (process.parameters.total_num_ptcls * process.parameters.dimensions))
@@ -2948,7 +2947,9 @@ class Thermodynamics(Observable):
         time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
             self.dataframe["Time"], self.dataframe["Total Energy"], "Time", "Energy", self.units
         )
-
+        if self.phase == "equilibration":
+            T_main_plot.set(ylim=(T_desired * 0.85, T_desired * 1.15))
+            T_hist_plot.set(ylim=(T_desired * 0.85, T_desired * 1.15))
         Energy = energy_mul * self.dataframe["Total Energy"]
         # Total Energy moving average
         E_cumavg = Energy.expanding().mean()

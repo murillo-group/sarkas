@@ -285,6 +285,7 @@ class Parameters:
         self.magnetized = False
         self.plot_style = None
         self.pre_run = False
+        self.threading = False
         self.simulations_dir = "Simulations"
         self.production_dir = "Production"
         self.magnetization_dir = "Magnetization"
@@ -693,7 +694,9 @@ class Parameters:
                 phase = phase_ls[0]
                 steps = self.__dict__[phase_ls[1]]
                 dump_step = self.__dict__[phase_ls[2]]
-                if key == "mg" and not self.magnetized:
+                if key == "eq" and not self.equilibration_phase:
+                    continue
+                elif key == "ma" and not self.magnetized:
                     continue
                 else:
                     print(f"\n{phase.capitalize()}: \nNo. of {phase} steps = {steps}")

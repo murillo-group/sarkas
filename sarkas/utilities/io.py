@@ -19,11 +19,10 @@ from warnings import warn
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
-    from tqdm import tqdm_notebook as tqdm
     from tqdm.notebook import trange
 else:
     # If you are using IPython or Python kernel
-    from tqdm import tqdm, trange
+    from tqdm import trange
 
 FONTS = ["speed", "starwars", "graffiti", "chunky", "epic", "larry3d", "ogre"]
 
@@ -133,13 +132,15 @@ class InputOutput:
         self.species_names = params.species_names.copy()
         self.coupling = params.coupling_constant * params.T_desired
 
+        self.equilibration_phase = params.equilibration_phase
+
         self.eq_dump_step = params.eq_dump_step
         self.mag_dump_step = params.mag_dump_step
         self.prod_dump_step = params.prod_dump_step
 
-        self.equilibration_stpss = params.equilibration_steps
-        self.magentization_stpss = params.magnetization_steps
-        self.production_stpss = params.production_steps
+        self.equilibration_steps = params.equilibration_steps
+        self.magentization_steps = params.magnetization_steps
+        self.production_steps = params.production_steps
 
     def create_file_paths(self):
         """Create all directories', subdirectories', and files' paths."""
@@ -679,20 +680,22 @@ class InputOutput:
         sys.stdout = f_log
         while repeat > 0:
             print("\n\n{:=^70} \n".format(" Filesize Estimates "))
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 0])
-            print("\nEquilibration:\n")
-            print(
-                "Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(
-                    int(size_GB), int(size_MB), int(size_KB), int(rem)
-                )
-            )
 
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
-            print(
-                "Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(
-                    int(size_GB), int(size_MB), int(size_KB), int(rem)
+            if self.equilibration_phase:
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 0])
+                print("\nEquilibration:\n")
+                print(
+                    "Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(
+                        int(size_GB), int(size_MB), int(size_KB), int(rem)
+                    )
                 )
-            )
+
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
+                print(
+                    "Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(
+                        int(size_GB), int(size_MB), int(size_KB), int(rem)
+                    )
+                )
             if self.magnetized and self.electrostatic_equilibration:
                 print("\nMagnetization:\n")
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 0])
@@ -1096,7 +1099,7 @@ class InputOutput:
 
         """
         warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release.\n" "Use Integrator.pretty_print()",
+            "Deprecated feature. It will be removed in a future release.\n" "Use Integrator.pretty_print()",
             category=DeprecationWarning,
         )
 
@@ -1122,10 +1125,10 @@ class InputOutput:
         sys.stdout = f_log
 
         while repeat > 0:
-            if "Potential Initialization" in time_stamp:
-                print("\n\n{:-^70} \n".format("Initialization Times"))
-            elif "Equilibration" in time_stamp:
-                print("\n\n{:-^70} \n".format("Phases Times"))
+            if "Particles Initialization" in time_stamp:
+                print("\n\n{:-^70} \n".format(" Initialization Times "))
+            # elif "Production" in time_stamp:
+            #     print("\n\n{:-^70} \n".format(" Phases Times "))
 
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")

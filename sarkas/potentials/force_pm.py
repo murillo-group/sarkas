@@ -9,57 +9,415 @@ from numpy.fft import fftshift, ifftshift
 from pyfftw.builders import fftn, ifftn
 
 
-@jit(Tuple((float64[:, :], float64[:, :], float64[:, :, :]))(int64[:], float64[:]), nopython=True)
-def create_k_arrays(mesh_sizes, non_zero_box_lengths):
-    """Calculate the reciprocal space arrays.
+@jit(float64[:](int64, float64), nopython=True)
+def assgnmnt_func(cao, x):
+    """
+    Calculate the charge assignment function as given in Ref.:cite:`Deserno1998`
 
     Parameters
     ----------
-    non_zero_box_lengths : numpy.ndarray
-        Length of simulation's box in each direction. Note that no element should be equal to 0.0.
-        If the dimensionality of the problem is lower than 3, then use 1.0 as the box length for those dimensions.
-        Example: 2D non_zero_box_lengths = [Lx, Ly, 1.0].
+    cao : int
+        Charge assignment order.
 
-    mesh_sizes : numpy.ndarray
-        Number of mesh points in x,y,z.
+    x : float
+        Distance to the closest mesh point.
+
+    Returns
+    ------
+    W : numpy.ndarray
+        Charge Assignment Function. Each element is the fraction of the charge on each of the `cao` mesh points
+        starting from the far left.
+
+    """
+    W = zeros(cao)
+
+    if cao == 1:
+
+        W[0] = 1.0
+
+    elif cao == 2:
+
+        W[0] = 0.5 * (1.0 - 2.0 * x)
+        W[1] = 0.5 * (1.0 + 2.0 * x)
+
+    elif cao == 3:
+
+        W[0] = (1.0 - 4.0 * x + 4.0 * x**2) / 8.0
+        W[1] = (3.0 - 4.0 * x**2) / 4.0
+        W[2] = (1.0 + 4.0 * x + 4.0 * x**2) / 8.0
+
+    elif cao == 4:
+
+        W[0] = (1.0 - 6.0 * x + 12.0 * x**2 - 8.0 * x**3) / 48.0
+        W[1] = (23.0 - 30.0 * x - 12.0 * x**2 + 24.0 * x**3) / 48.0
+        W[2] = (23.0 + 30.0 * x - 12.0 * x**2 - 24.0 * x**3) / 48.0
+        W[3] = (1.0 + 6.0 * x + 12.0 * x**2 + 8.0 * x**3) / 48.0
+
+    elif cao == 5:
+
+        W[0] = (1.0 - 8.0 * x + 24.0 * x**2 - 32.0 * x**3 + 16.0 * x**4) / 384.0
+        W[1] = (19.0 - 44.0 * x + 24.0 * x**2 + 16.0 * x**3 - 16.0 * x**4) / 96.0
+        W[2] = (115.0 - 120.0 * x**2 + 48.0 * x**4) / 192.0
+        W[3] = (19.0 + 44.0 * x + 24.0 * x**2 - 16.0 * x**3 - 16.0 * x**4) / 96.0
+        W[4] = (1.0 + 8.0 * x + 24.0 * x**2 + 32.0 * x**3 + 16.0 * x**4) / 384.0
+
+    elif cao == 6:
+        W[0] = (1.0 - 10.0 * x + 40.0 * x**2 - 80.0 * x**3 + 80.0 * x**4 - 32.0 * x**5) / 3840.0
+        W[1] = (237.0 - 750.0 * x + 840.0 * x**2 - 240.0 * x**3 - 240.0 * x**4 + 160.0 * x**5) / 3840.0
+        W[2] = (841.0 - 770.0 * x - 440.0 * x**2 + 560.0 * x**3 + 80.0 * x**4 - 160.0 * x**5) / 1920.0
+        W[3] = (841.0 + 770.0 * x - 440.0 * x**2 - 560.0 * x**3 + 80.0 * x**4 + 160.0 * x**5) / 1920.0
+        W[4] = (237.0 + 750.0 * x + 840.0 * x**2 + 240.0 * x**3 - 240.0 * x**4 - 160.0 * x**5) / 3840.0
+        W[5] = (1.0 + 10.0 * x + 40.0 * x**2 + 80.0 * x**3 + 80.0 * x**4 + 32.0 * x**5) / 3840.0
+
+    elif cao == 7:
+
+        W[0] = (
+            1.0 - 12.0 * x + 60.0 * x * 2 - 160.0 * x**3 + 240.0 * x**4 - 192.0 * x**5 + 64.0 * x**6
+        ) / 46080.0
+
+        W[1] = (
+            361.0 - 1416.0 * x + 2220.0 * x**2 - 1600.0 * x**3 + 240.0 * x**4 + 384.0 * x**5 - 192.0 * x**6
+        ) / 23040.0
+
+        W[2] = (
+            10543.0 - 17340.0 * x + 4740.0 * x**2 + 6880.0 * x**3 - 4080.0 * x**4 - 960.0 * x**5 + 960.0 * x**6
+        ) / 46080.0
+
+        W[3] = (5887.0 - 4620.0 * x**2 + 1680.0 * x**4 - 320.0 * x**6) / 11520.0
+
+        W[4] = (
+            10543.0 + 17340.0 * x + 4740.0 * x**2 - 6880.0 * x**3 - 4080.0 * x**4 + 960.0 * x**5 + 960.0 * x**6
+        ) / 46080.0
+
+        W[5] = (
+            361.0 + 1416.0 * x + 2220.0 * x**2 + 1600.0 * x**3 + 240.0 * x**4 - 384.0 * x**5 - 192.0 * x**6
+        ) / 23040.0
+
+        W[6] = (
+            1.0 + 12.0 * x + 60.0 * x**2 + 160.0 * x**3 + 240.0 * x**4 + 192.0 * x**5 + 64.0 * x**6
+        ) / 46080.0
+
+    return W
+
+
+@jit(
+    float64[:, :](
+        float64[:, :, :],  # E_x_r
+        float64[:, :, :],  # E_y_r
+        float64[:, :, :],  # E_z_r
+        float64[:, :],  # mesh_pos
+        int64[:, :],  # mesh_points
+        float64[:],  # charges / masses
+        # float64[:],  # masses
+        int64[:],  # cao
+        int64[:],  # mesh_sz
+        float64[:],  # mid
+        int64[:],  # pshift
+    ),
+    nopython=True,
+)
+def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_sz, mid, pshift):
+    """
+    Calculates the long range part of particles' accelerations.
+
+    Parameters
+    ----------
+    E_x_r : numpy.ndarray
+        Electric field along x-axis.
+
+    E_y_r : numpy.ndarray
+        Electric field along y-axis.
+
+    E_z_r : numpy.ndarray
+        Electric field along z-axis.
+
+    mesh_pos: numpy.ndarray
+        Particles' positions relative to the mesh.
+
+    mesh_points: numpy.ndarray
+        Particles' positions on the mesh.
+
+    q_over_m : numpy.ndarray
+        Particles' charges divide by their masses.
+
+    cao : int
+        Charge assignment order.
+
+    mesh_sz: numpy.ndarray
+        Mesh points per direction.
+
+    mid: numpy.ndarray
+        Midpoint flag for the three directions.
+
+    pshift: numpy.ndarray
+        Midpoint shift in each direction.
 
     Returns
     -------
-    kx_v : numpy.ndarray
-       Array of reciprocal space vectors along the x-axis
 
-    ky_v : numpy.ndarray
-       Array of reciprocal space vectors along the y-axis
-
-    kz_v : numpy.ndarray
-       Array of reciprocal space vectors along the z-axis
+    acc : numpy.ndarray
+          Acceleration from Electric Field.
 
     """
-    nz_mid = mesh_sizes[2] / 2 if mod(mesh_sizes[2], 2) == 0 else (mesh_sizes[2] - 1) / 2
-    ny_mid = mesh_sizes[1] / 2 if mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1) / 2
-    nx_mid = mesh_sizes[0] / 2 if mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1) / 2
+    E_x_p = zeros_like(q_over_m)
+    E_y_p = zeros_like(q_over_m)
+    E_z_p = zeros_like(q_over_m)
 
-    # nx_v = arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
-    # ny_v = arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
-    # nz_v = arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))
-    # Dev Note:
-    # The above three lines where giving a problem with Numba in Windows only.
-    # I replaced them with the ones below. I don't know why it was giving a problem.
-    nx_v = zeros((1, mesh_sizes[0]), dtype=int64)
-    nx_v[0, :] = arange(mesh_sizes[0])
+    acc = zeros_like(mesh_pos)
 
-    ny_v = zeros((mesh_sizes[1], 1), dtype=int64)
-    ny_v[:, 0] = arange(mesh_sizes[1])
+    for ipart, q_m in enumerate(q_over_m):
 
-    nz_v = zeros((mesh_sizes[2], 1, 1), dtype=int64)
-    nz_v[:, 0, 0] = arange(mesh_sizes[2])
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-    two_pi = 2.0 * pi
-    kx_v = two_pi * (nx_v - nx_mid) / non_zero_box_lengths[0]
-    ky_v = two_pi * (ny_v - ny_mid) / non_zero_box_lengths[1]
-    kz_v = two_pi * (nz_v - nz_mid) / non_zero_box_lengths[2]
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-    return kx_v, ky_v, kz_v
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
+
+        wx = assgnmnt_func(cao[0], x)
+        wy = assgnmnt_func(cao[1], y)
+        wz = assgnmnt_func(cao[2], z)
+
+        izn = iz - pshift[2]  # min. index along z-axis
+
+        for g in range(cao[2]):
+            #
+            # if izn < 0:
+            #     r_g = izn + mesh_sz[2]
+            # elif izn > (mesh_sz[2] - 1):
+            #     r_g = izn - mesh_sz[2]
+            # else:
+            #     r_g = izn
+
+            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
+
+            iyn = iy - pshift[1]  # min. index along y-axis
+
+            for i in range(cao[1]):
+
+                # if iyn < 0:
+                #     r_i = iyn + mesh_sz[1]
+                # elif iyn > (mesh_sz[1] - 1):
+                #     r_i = iyn - mesh_sz[1]
+                # else:
+                #     r_i = iyn
+                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
+
+                ixn = ix - pshift[0]  # min. index along x-axis
+
+                for j in range(cao[0]):
+                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
+
+                    # if ixn < 0:
+                    #     r_j = ixn + mesh_sz[0]
+                    # elif ixn > (mesh_sz[0] - 1):
+                    #     r_j = ixn - mesh_sz[0]
+                    # else:
+                    #     r_j = ixn
+
+                    # q_over_m = charges[ipart] / masses[ipart]
+                    E_x_p[ipart] += q_m * E_x_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+                    E_y_p[ipart] += q_m * E_y_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+                    E_z_p[ipart] += q_m * E_z_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+
+                    ixn += 1
+
+                iyn += 1
+
+            izn += 1
+
+    acc[:, 0] = E_x_p
+    acc[:, 1] = E_y_p
+    acc[:, 2] = E_z_p
+
+    return acc
+
+
+@jit(float64[:, :, :](float64[:, :], int64[:, :], float64[:], int64[:], int64[:], float64[:], int64[:]), nopython=True)
+def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
+    """
+    Assigns Charges to Mesh Points.
+
+    Parameters
+    ----------
+    mesh_pos: numpy.ndarray
+        Particles' positions relative to the mesh.
+
+    mesh_points: numpy.ndarray
+        Particles' positions on the mesh.
+
+    charges: numpy.ndarray
+        Particles' charges.
+
+    cao: numpy.ndarray
+        Charge assignment order.
+
+    mesh_sz: numpy.ndarray
+        Mesh points per direction.
+
+    mid: numpy.ndarray
+        Midpoint flag for the three directions.
+
+    pshift: numpy.ndarray
+        Midpoint shift in each direction.
+
+    Returns
+    -------
+    rho_r: numpy.ndarray
+        Charge density distributed on mesh.
+
+    """
+
+    rho_r = zeros((mesh_sz[2], mesh_sz[1], mesh_sz[0]), dtype=float64)
+
+    # ix = x-coord of the (left) closest mesh point
+    # (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle
+
+    for ipart in range(len(charges)):
+
+        ix = mesh_points[ipart, 0]
+        delta_x = mesh_pos[ipart, 0] - (ix + mid[0])
+
+        iy = mesh_points[ipart, 1]
+        delta_y = mesh_pos[ipart, 1] - (iy + mid[1])
+
+        iz = mesh_points[ipart, 2]
+        delta_z = mesh_pos[ipart, 2] - (iz + mid[2])
+        # delta_x, delta_y, delta_z = particle's distances to the closest (mid)-point of the mesh
+
+        wx = assgnmnt_func(cao[0], delta_x)
+        wy = assgnmnt_func(cao[1], delta_y)
+        wz = assgnmnt_func(cao[2], delta_z)
+
+        izn = iz - pshift[2]  # min. index along z-axis
+
+        for g in range(cao[2]):
+
+            # if izn < 0:
+            #   r_g = izn + mesh_sz[2]
+            # elif izn > (mesh_sz[2] - 1):
+            #     r_g = izn - mesh_sz[2]
+            # else:
+            #     r_g = izn
+
+            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
+            iyn = iy - pshift[1]  # min. index along y-axis
+
+            for i in range(cao[1]):
+
+                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
+
+                # if iyn < 0:
+                #     r_i = iyn + mesh_sz[1]
+                # elif iyn > (mesh_sz[1] - 1):
+                #     r_i = iyn - mesh_sz[1]
+                # else:
+                #     r_i = iyn
+
+                ixn = ix - pshift[0]  # min. index along x-axis
+
+                for j in range(cao[0]):
+                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
+
+                    # if ixn < 0:
+                    #     r_j = ixn + mesh_sz[0]
+                    # elif ixn > (mesh_sz[0] - 1):
+                    #     r_j = ixn - mesh_sz[0]
+                    # else:
+                    #     r_j = ixn
+
+                    rho_r[r_g, r_i, r_j] += charges[ipart] * wz[g] * wy[i] * wx[j]
+
+                    ixn += 1 * (mesh_sz[0] > 1)  # Do not increase the index if there is only 1 point mesh
+
+                iyn += 1 * (mesh_sz[1] > 1)  # Do not increase the index if there is only 1 point mesh
+
+            izn += 1 * (mesh_sz[2] > 1)
+            # Do not increase the index if there is only 1 point mesh. This is kinda redundant because if there is only
+            # one point then also cao == 1. add a test for this!
+
+    return rho_r
+
+
+@jit(
+    UniTuple(complex128[:, :, :], 3)(complex128[:, :, :], float64[:, :], float64[:, :], float64[:, :, :]),
+    nopython=True,
+)
+def calc_field(phi_k, kx_v, ky_v, kz_v):
+    """
+    Numba'd function that calculates the Electric field in Fourier space.
+
+    Parameters
+    ----------
+    phi_k : numpy.ndarray, numba.complex128
+        3D array of the Potential.
+
+    kx_v : numpy.ndarray, numba.float64
+        2D array containing the values of kx.
+
+    ky_v : numpy.ndarray, numba.float64
+        2D array containing the values of ky.
+
+    kz_v : numpy.ndarray, numba.float64
+        3D array containing the values of kz.
+
+    Returns
+    -------
+    E_kx : numpy.ndarray, numba.complex128
+       Electric Field along kx-axis.
+
+    E_ky : numpy.ndarray, numba.complex128
+       Electric Field along ky-axis.
+
+    E_kz : numpy.ndarray, numba.complex128
+       Electric Field along kz-axis.
+
+    """
+
+    E_kx = -1j * kx_v * phi_k
+    E_ky = -1j * ky_v * phi_k
+    E_kz = -1j * kz_v * phi_k
+
+    return E_kx, E_ky, E_kz
+
+
+@jit(Tuple((float64[:, :], int64[:, :]))(float64[:, :], float64[:], int64[:]), nopython=True)
+def calc_mesh_coord(pos, h_array, cao):
+    """
+    Calculate the particles positions with respect to the mesh and their closest point on the mesh.
+
+    Parameters
+    ----------
+    pos: numpy.ndarray
+        Particles' positions.
+
+    h_array: numpy.ndarray
+        Width of the mesh cells.
+
+    cao: numpy.ndarray
+        Charge assignment order.
+
+    Returns
+    -------
+    mesh_pos: numpy.ndarray
+        Particles' positions relative to the mesh, i.e. pos/h_array.
+
+    mesh_points: numpy.ndarray
+        Particles' positions on the mesh.
+
+    """
+    # Avoid division by zero. if mesh_sz[i] == 0 then there is no mesh in that direction, h_array = 0
+    non_zero_hs = h_array.copy()
+    non_zero_hs += 1.0 * (h_array == 0)
+
+    # Calculate the particles' coordinates relative to the mesh
+    mesh_pos = pos / non_zero_hs
+    # Calculate the particles' closest grid points (if cao is odd) or closest mid points if cao is even
+    mesh_points = rint(mesh_pos - 0.5 * (cao % 2 == 0))
+
+    return mesh_pos, mesh_points.astype(int64)
 
 
 @jit(UniTuple(float64[:, :], 3)(int64[:], int64[:], float64[:]), nopython=True)
@@ -120,6 +478,59 @@ def create_k_aliases(aliases, mesh_sizes, non_zero_box_lengths):
     return kx_M, ky_M, kz_M
 
 
+@jit(Tuple((float64[:, :], float64[:, :], float64[:, :, :]))(int64[:], float64[:]), nopython=True)
+def create_k_arrays(mesh_sizes, non_zero_box_lengths):
+    """Calculate the reciprocal space arrays.
+
+    Parameters
+    ----------
+    non_zero_box_lengths : numpy.ndarray
+        Length of simulation's box in each direction. Note that no element should be equal to 0.0.
+        If the dimensionality of the problem is lower than 3, then use 1.0 as the box length for those dimensions.
+        Example: 2D non_zero_box_lengths = [Lx, Ly, 1.0].
+
+    mesh_sizes : numpy.ndarray
+        Number of mesh points in x,y,z.
+
+    Returns
+    -------
+    kx_v : numpy.ndarray
+       Array of reciprocal space vectors along the x-axis
+
+    ky_v : numpy.ndarray
+       Array of reciprocal space vectors along the y-axis
+
+    kz_v : numpy.ndarray
+       Array of reciprocal space vectors along the z-axis
+
+    """
+    nz_mid = mesh_sizes[2] / 2 if mod(mesh_sizes[2], 2) == 0 else (mesh_sizes[2] - 1) / 2
+    ny_mid = mesh_sizes[1] / 2 if mod(mesh_sizes[1], 2) == 0 else (mesh_sizes[1] - 1) / 2
+    nx_mid = mesh_sizes[0] / 2 if mod(mesh_sizes[0], 2) == 0 else (mesh_sizes[0] - 1) / 2
+
+    # nx_v = arange(mesh_sizes[0]).reshape((1, mesh_sizes[0]))
+    # ny_v = arange(mesh_sizes[1]).reshape((mesh_sizes[1], 1))
+    # nz_v = arange(mesh_sizes[2]).reshape((mesh_sizes[2], 1, 1))
+    # Dev Note:
+    # The above three lines where giving a problem with Numba in Windows only.
+    # I replaced them with the ones below. I don't know why it was giving a problem.
+    nx_v = zeros((1, mesh_sizes[0]), dtype=int64)
+    nx_v[0, :] = arange(mesh_sizes[0])
+
+    ny_v = zeros((mesh_sizes[1], 1), dtype=int64)
+    ny_v[:, 0] = arange(mesh_sizes[1])
+
+    nz_v = zeros((mesh_sizes[2], 1, 1), dtype=int64)
+    nz_v[:, 0, 0] = arange(mesh_sizes[2])
+
+    two_pi = 2.0 * pi
+    kx_v = two_pi * (nx_v - nx_mid) / non_zero_box_lengths[0]
+    ky_v = two_pi * (ny_v - ny_mid) / non_zero_box_lengths[1]
+    kz_v = two_pi * (nz_v - nz_mid) / non_zero_box_lengths[2]
+
+    return kx_v, ky_v, kz_v
+
+
 @jit(
     UniTuple(float64, 2)(
         float64, float64, float64, float64[:], float64[:], float64[:], float64[:], int64[:], float64, float64, float64
@@ -127,6 +538,53 @@ def create_k_aliases(aliases, mesh_sizes, non_zero_box_lengths):
     nopython=True,
 )
 def sum_over_aliases(kx, ky, kz, kx_M, ky_M, kz_M, h_array, p, four_pi, alpha_sq, kappa_sq):
+    """
+    Perform the sum over aliases in each direction.
+
+    Parameters
+    ----------
+    kx : float
+        Value of the k_x wavenumber.
+
+    ky : float
+        Value of the k_y wavenumber.
+
+    kz : float
+        Value of the k_z wavenumber.
+
+    kx_M : numpy.ndarray
+       Array of aliases for each kx value. Shape=( 2 * aliases[0] + 1)
+
+    ky_M : numpy.ndarray
+       Array of aliases for each ky value. Shape=(2 * aliases[1] + 1)
+
+    kz_M : numpy.ndarray
+       Array of aliases for each kz value. Shape=(2 * aliases[2] + 1)
+
+    h_array : numpy.ndarray
+        Mesh spacings.
+
+    p : numpy.ndarray
+        Charge assignment order for each direction. i.e. cao_x, cao_y, cao_z
+
+    four_pi: float
+        Multiplier constant. :math:`4 \\pi` if cgs units or :math:`4 \\pi \\eplison_0` if mks units.
+
+    alpha_sq: float
+        Ewald parameter squared, :math:`\\alpha^2`.
+
+    kappa_sq: float
+        Screening parameter squared. It is equal to 0 (zero) in case of Coulomb interaction.
+
+    Returns
+    -------
+    U_G_k : float
+        Product of the Green's function and the FFT of the B-splines squared. i.e. The numerator of eq.(31) in :cite:`Dharuman2017`.
+
+    U_k_sq : float
+        Sqared sum of the FFT of the B-spline. i.e. The denominator (without the :math:`|k_n|^2`:) in cite:`Dharuman2017`.
+
+    """
     U_k_sq = 0.0
     U_G_k = 0.0
 
@@ -273,97 +731,6 @@ def force_optimized_green_function(box_lengths, h_array, mesh_sizes, aliases, p,
     return G_k, kx_v, ky_v, kz_v, PM_err
 
 
-@jit(float64[:](int64, float64), nopython=True)
-def assgnmnt_func(cao, x):
-    """
-    Calculate the charge assignment function as given in Ref.:cite:`Deserno1998`
-
-    Parameters
-    ----------
-    cao : int
-        Charge assignment order.
-
-    x : float
-        Distance to the closest mesh point.
-
-    Returns
-    ------
-    W : numpy.ndarray
-        Charge Assignment Function. Each element is the fraction of the charge on each of the `cao` mesh points
-        starting from the far left.
-
-    """
-    W = zeros(cao)
-
-    if cao == 1:
-
-        W[0] = 1.0
-
-    elif cao == 2:
-
-        W[0] = 0.5 * (1.0 - 2.0 * x)
-        W[1] = 0.5 * (1.0 + 2.0 * x)
-
-    elif cao == 3:
-
-        W[0] = (1.0 - 4.0 * x + 4.0 * x**2) / 8.0
-        W[1] = (3.0 - 4.0 * x**2) / 4.0
-        W[2] = (1.0 + 4.0 * x + 4.0 * x**2) / 8.0
-
-    elif cao == 4:
-
-        W[0] = (1.0 - 6.0 * x + 12.0 * x**2 - 8.0 * x**3) / 48.0
-        W[1] = (23.0 - 30.0 * x - 12.0 * x**2 + 24.0 * x**3) / 48.0
-        W[2] = (23.0 + 30.0 * x - 12.0 * x**2 - 24.0 * x**3) / 48.0
-        W[3] = (1.0 + 6.0 * x + 12.0 * x**2 + 8.0 * x**3) / 48.0
-
-    elif cao == 5:
-
-        W[0] = (1.0 - 8.0 * x + 24.0 * x**2 - 32.0 * x**3 + 16.0 * x**4) / 384.0
-        W[1] = (19.0 - 44.0 * x + 24.0 * x**2 + 16.0 * x**3 - 16.0 * x**4) / 96.0
-        W[2] = (115.0 - 120.0 * x**2 + 48.0 * x**4) / 192.0
-        W[3] = (19.0 + 44.0 * x + 24.0 * x**2 - 16.0 * x**3 - 16.0 * x**4) / 96.0
-        W[4] = (1.0 + 8.0 * x + 24.0 * x**2 + 32.0 * x**3 + 16.0 * x**4) / 384.0
-
-    elif cao == 6:
-        W[0] = (1.0 - 10.0 * x + 40.0 * x**2 - 80.0 * x**3 + 80.0 * x**4 - 32.0 * x**5) / 3840.0
-        W[1] = (237.0 - 750.0 * x + 840.0 * x**2 - 240.0 * x**3 - 240.0 * x**4 + 160.0 * x**5) / 3840.0
-        W[2] = (841.0 - 770.0 * x - 440.0 * x**2 + 560.0 * x**3 + 80.0 * x**4 - 160.0 * x**5) / 1920.0
-        W[3] = (841.0 + 770.0 * x - 440.0 * x**2 - 560.0 * x**3 + 80.0 * x**4 + 160.0 * x**5) / 1920.0
-        W[4] = (237.0 + 750.0 * x + 840.0 * x**2 + 240.0 * x**3 - 240.0 * x**4 - 160.0 * x**5) / 3840.0
-        W[5] = (1.0 + 10.0 * x + 40.0 * x**2 + 80.0 * x**3 + 80.0 * x**4 + 32.0 * x**5) / 3840.0
-
-    elif cao == 7:
-
-        W[0] = (
-            1.0 - 12.0 * x + 60.0 * x * 2 - 160.0 * x**3 + 240.0 * x**4 - 192.0 * x**5 + 64.0 * x**6
-        ) / 46080.0
-
-        W[1] = (
-            361.0 - 1416.0 * x + 2220.0 * x**2 - 1600.0 * x**3 + 240.0 * x**4 + 384.0 * x**5 - 192.0 * x**6
-        ) / 23040.0
-
-        W[2] = (
-            10543.0 - 17340.0 * x + 4740.0 * x**2 + 6880.0 * x**3 - 4080.0 * x**4 - 960.0 * x**5 + 960.0 * x**6
-        ) / 46080.0
-
-        W[3] = (5887.0 - 4620.0 * x**2 + 1680.0 * x**4 - 320.0 * x**6) / 11520.0
-
-        W[4] = (
-            10543.0 + 17340.0 * x + 4740.0 * x**2 - 6880.0 * x**3 - 4080.0 * x**4 + 960.0 * x**5 + 960.0 * x**6
-        ) / 46080.0
-
-        W[5] = (
-            361.0 + 1416.0 * x + 2220.0 * x**2 + 1600.0 * x**3 + 240.0 * x**4 - 384.0 * x**5 - 192.0 * x**6
-        ) / 23040.0
-
-        W[6] = (
-            1.0 + 12.0 * x + 60.0 * x**2 + 160.0 * x**3 + 240.0 * x**4 + 192.0 * x**5 + 64.0 * x**6
-        ) / 46080.0
-
-    return W
-
-
 @jit(Tuple((float64[:], int64[:]))(int64[:]), nopython=True)
 def mesh_point_shift(cao):
     """
@@ -394,308 +761,6 @@ def mesh_point_shift(cao):
         pshift[ic] = int(0.5 * p - 1 * (p % 2 == 0))
 
     return mid, pshift
-
-
-@jit(Tuple((float64[:, :], int64[:, :]))(float64[:, :], float64[:], int64[:]), nopython=True)
-def calc_mesh_coord(pos, h_array, cao):
-    """
-
-    Parameters
-    ----------
-    pos
-    h_array
-    mesh_sz
-    cao
-
-    Returns
-    -------
-
-    """
-    # Avoid division by zero. if mesh_sz[i] == 0 then there is no mesh in that direction, h_array = 0
-    non_zero_hs = h_array.copy()
-    non_zero_hs += 1.0 * (h_array == 0)
-
-    # Calculate the particles' coordinates relative to the mesh
-    mesh_pos = pos / non_zero_hs
-    # Calculate the particles' closest grid points (if cao is odd) or closest mid points if cao is even
-    mesh_points = rint(mesh_pos - 0.5 * (cao % 2 == 0))
-
-    return mesh_pos, mesh_points.astype(int64)
-
-
-@jit(float64[:, :, :](float64[:, :], int64[:, :], float64[:], int64[:], int64[:], float64[:], int64[:]), nopython=True)
-def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
-    """
-    Assigns Charges to Mesh Points.
-
-    Parameters
-    ----------
-    mesh_pos: numpy.ndarray
-        Particles' positions.
-
-    mesh_points: numpy.ndarray
-        Particles' positions on the mesh.
-
-    charges: numpy.ndarray
-        Particles' charges.
-
-    cao: numpy.ndarray
-        Charge assignment order.
-
-    mesh_sz: numpy.ndarray
-        Mesh points per direction.
-
-    mid: numpy.ndarray
-        Midpoint flag for the three directions.
-
-    pshift: numpy.ndarray
-        Midpoint shift in each direction.
-
-    Returns
-    -------
-    rho_r: numpy.ndarray
-        Charge density distributed on mesh.
-
-    """
-
-    rho_r = zeros((mesh_sz[2], mesh_sz[1], mesh_sz[0]), dtype=float64)
-
-    # ix = x-coord of the (left) closest mesh point
-    # (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle
-
-    for ipart in range(len(charges)):
-
-        ix = mesh_points[ipart, 0]
-        delta_x = mesh_pos[ipart, 0] - (ix + mid[0])
-
-        iy = mesh_points[ipart, 1]
-        delta_y = mesh_pos[ipart, 1] - (iy + mid[1])
-
-        iz = mesh_points[ipart, 2]
-        delta_z = mesh_pos[ipart, 2] - (iz + mid[2])
-        # delta_x, delta_y, delta_z = particle's distances to the closest (mid)-point of the mesh
-
-        wx = assgnmnt_func(cao[0], delta_x)
-        wy = assgnmnt_func(cao[1], delta_y)
-        wz = assgnmnt_func(cao[2], delta_z)
-
-        izn = iz - pshift[2]  # min. index along z-axis
-
-        for g in range(cao[2]):
-
-            # if izn < 0:
-            #   r_g = izn + mesh_sz[2]
-            # elif izn > (mesh_sz[2] - 1):
-            #     r_g = izn - mesh_sz[2]
-            # else:
-            #     r_g = izn
-
-            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
-            iyn = iy - pshift[1]  # min. index along y-axis
-
-            for i in range(cao[1]):
-
-                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
-
-                # if iyn < 0:
-                #     r_i = iyn + mesh_sz[1]
-                # elif iyn > (mesh_sz[1] - 1):
-                #     r_i = iyn - mesh_sz[1]
-                # else:
-                #     r_i = iyn
-
-                ixn = ix - pshift[0]  # min. index along x-axis
-
-                for j in range(cao[0]):
-                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
-
-                    # if ixn < 0:
-                    #     r_j = ixn + mesh_sz[0]
-                    # elif ixn > (mesh_sz[0] - 1):
-                    #     r_j = ixn - mesh_sz[0]
-                    # else:
-                    #     r_j = ixn
-
-                    rho_r[r_g, r_i, r_j] += charges[ipart] * wz[g] * wy[i] * wx[j]
-
-                    ixn += 1 * (mesh_sz[0] > 1)  # Do not increase the index if there is only 1 point mesh
-
-                iyn += 1 * (mesh_sz[1] > 1)  # Do not increase the index if there is only 1 point mesh
-
-            izn += 1 * (mesh_sz[2] > 1)
-            # Do not increase the index if there is only 1 point mesh. This is kinda redundant because if there is only
-            # one point then also cao == 1. add a test for this!
-
-    return rho_r
-
-
-@jit(
-    UniTuple(complex128[:, :, :], 3)(complex128[:, :, :], float64[:, :], float64[:, :], float64[:, :, :]),
-    nopython=True,
-)
-def calc_field(phi_k, kx_v, ky_v, kz_v):
-    """
-    Numba'd function that calculates the Electric field in Fourier space.
-
-    Parameters
-    ----------
-    phi_k : numpy.ndarray, numba.complex128
-        3D array of the Potential.
-
-    kx_v : numpy.ndarray, numba.float64
-        2D array containing the values of kx.
-
-    ky_v : numpy.ndarray, numba.float64
-        2D array containing the values of ky.
-
-    kz_v : numpy.ndarray, numba.float64
-        3D array containing the values of kz.
-
-    Returns
-    -------
-    E_kx : numpy.ndarray, numba.complex128
-       Electric Field along kx-axis.
-
-    E_ky : numpy.ndarray, numba.complex128
-       Electric Field along ky-axis.
-
-    E_kz : numpy.ndarray, numba.complex128
-       Electric Field along kz-axis.
-
-    """
-
-    E_kx = -1j * kx_v * phi_k
-    E_ky = -1j * ky_v * phi_k
-    E_kz = -1j * kz_v * phi_k
-
-    return E_kx, E_ky, E_kz
-
-
-@jit(
-    float64[:, :](
-        float64[:, :, :],  # E_x_r
-        float64[:, :, :],  # E_y_r
-        float64[:, :, :],  # E_z_r
-        float64[:, :],  # mesh_pos
-        int64[:, :],  # mesh_points
-        float64[:],  # charges
-        float64[:],  # masses
-        int64[:],  # cao
-        int64[:],  # mesh_sz
-        float64[:],  # mid
-        int64[:],  # pshift
-    ),
-    nopython=True,
-)
-def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, charges, masses, cao, mesh_sz, mid, pshift):
-    """
-    Calculates the long range part of particles' accelerations.
-
-    Parameters
-    ----------
-    E_x_r : numpy.ndarray
-        Electric field along x-axis.
-
-    E_y_r : numpy.ndarray
-        Electric field along y-axis.
-
-    E_z_r : numpy.ndarray
-        Electric field along z-axis.
-
-    pos : numpy.ndarray
-        Particles' positions.
-
-    charges : numpy.ndarray
-        Particles' charges.
-
-    cao : int
-        Charge assignment order.
-
-    masses : numpy.ndarray
-        Particles' masses.
-
-
-    Returns
-    -------
-
-    acc : numpy.ndarray
-          Acceleration from Electric Field.
-
-    """
-    E_x_p = zeros_like(charges)
-    E_y_p = zeros_like(charges)
-    E_z_p = zeros_like(charges)
-
-    acc = zeros_like(mesh_pos)
-
-    for ipart in range(len(charges)):
-
-        ix = mesh_points[ipart, 0]
-        x = mesh_pos[ipart, 0] - (ix + mid[0])
-
-        iy = mesh_points[ipart, 1]
-        y = mesh_pos[ipart, 1] - (iy + mid[1])
-
-        iz = mesh_points[ipart, 2]
-        z = mesh_pos[ipart, 2] - (iz + mid[2])
-
-        wx = assgnmnt_func(cao[0], x)
-        wy = assgnmnt_func(cao[1], y)
-        wz = assgnmnt_func(cao[2], z)
-
-        izn = iz - pshift[2]  # min. index along z-axis
-
-        for g in range(cao[2]):
-            #
-            # if izn < 0:
-            #     r_g = izn + mesh_sz[2]
-            # elif izn > (mesh_sz[2] - 1):
-            #     r_g = izn - mesh_sz[2]
-            # else:
-            #     r_g = izn
-
-            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
-
-            iyn = iy - pshift[1]  # min. index along y-axis
-
-            for i in range(cao[1]):
-
-                # if iyn < 0:
-                #     r_i = iyn + mesh_sz[1]
-                # elif iyn > (mesh_sz[1] - 1):
-                #     r_i = iyn - mesh_sz[1]
-                # else:
-                #     r_i = iyn
-                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
-
-                ixn = ix - pshift[0]  # min. index along x-axis
-
-                for j in range(cao[0]):
-                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
-
-                    # if ixn < 0:
-                    #     r_j = ixn + mesh_sz[0]
-                    # elif ixn > (mesh_sz[0] - 1):
-                    #     r_j = ixn - mesh_sz[0]
-                    # else:
-                    #     r_j = ixn
-
-                    q_over_m = charges[ipart] / masses[ipart]
-                    E_x_p[ipart] += q_over_m * E_x_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
-                    E_y_p[ipart] += q_over_m * E_y_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
-                    E_z_p[ipart] += q_over_m * E_z_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
-
-                    ixn += 1
-
-                iyn += 1
-
-            izn += 1
-
-    acc[:, 0] = E_x_p
-    acc[:, 1] = E_y_p
-    acc[:, 2] = E_z_p
-
-    return acc
 
 
 # FFTW version
@@ -817,6 +882,7 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     E_y_r = E_y.real / mesh_volume
     E_z_r = E_z.real / mesh_volume
 
-    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, charges, masses, cao, mesh_sizes, mid, pshift)
+    q_over_m = charges / masses
+    acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_sizes, mid, pshift)
 
     return U_f, acc_f
