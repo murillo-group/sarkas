@@ -164,6 +164,7 @@ class Integrator:
         self.species_masses = params.species_masses.copy()
         self.species_temperatures = params.species_temperatures.copy()
         self.verbose = params.verbose
+        self.units_dict = params.units_dict
         # Enforce consistency
         if not self.boundary_conditions:
             self.boundary_conditions = params.boundary_conditions.lower()
@@ -1034,55 +1035,72 @@ class Integrator:
         """Print integrator and thermostat information in a user-friendly way."""
 
         if self.thermalization:
-            print("\nTHERMOSTAT: ")
-            print(f"Type: {self.thermostat_type}")
-            print(f"First thermostating timestep, i.e. thermalization_timestep = {self.thermalization_timestep}")
-            print(f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]")
-            print(f"Berendsen relaxation rate: {self.thermalization_rate:.3f} [1/timesteps] ")
-            print("Thermostating temperatures: ")
+            msg = (
+                f"\nTHERMOSTAT:\n"
+                f"Type: {self.thermostat_type}\n"
+                f"First thermostating timestep, i.e. thermalization_timestep = {self.thermalization_timestep}\n"
+                f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]\n"
+                f"Berendsen relaxation rate: {self.thermalization_rate:.3f} [1/timesteps]\n"
+                "Thermostating temperatures:\n"
+            )
             for i, (t, t_ev) in enumerate(zip(self.thermostate_temperatures, self.thermostate_temperatures_eV)):
-                print(f"Species ID {i}: T_eq = {t:.6e} [K] = {t_ev:.6e} [eV]")
+                msg += f"Species ID {i}: T_eq = {t:.6e} {self.units_dict['temperature']} = {t_ev:.6e} {self.units_dict['electron volt']}\n"
+        else:
+            msg = ""
 
-        print("\nINTEGRATOR: ")
-        print(f"Equilibration Integrator Type: {self.equilibration_type}")
+        integrator_msg = f"\nINTEGRATOR:\n" f"Equilibration Integrator Type: {self.equilibration_type}\n"
         if self.magnetized:
-            print(f"Magnetization Integrator Type: {self.magnetization_type}")
-        print(f"Production Integrator Type: {self.production_type}")
+            integrator_msg += f"Magnetization Integrator Type: {self.magnetization_type}\n"
+        integrator_msg += f"Production Integrator Type: {self.production_type}\n"
 
         wp_tot = norm(self.species_plasma_frequencies)
         wp_dt = wp_tot * self.dt
-
-        print(f"Time step = {self.dt:.6e} [s]")
-        print(f"Total plasma frequency = {wp_tot:.6e} [rad/s]")
-        print(f"w_p dt = {wp_dt:.4f} ~ 1/{int(1.0 / wp_dt)}")
-
+        time_msg = (
+            f"Time step = {self.dt:.6e} {self.units_dict['time']}\n"
+            f"Total plasma frequency = {wp_tot:.6e} [rad/s]\n"
+            f"w_p dt = {wp_dt:.4f} ~ 1/{int(1.0 / wp_dt)}\n"
+        )
+        integrator_msg += time_msg
         if self.potential_type == "qsp":
             wp_e = self.species_plasma_frequencies[0]
             wp_ions = norm(self.species_plasma_frequencies[1:])
-            print(f"e plasma frequency = {wp_e:.6e} [rad/s]")
-            print(f"total ion plasma frequency = {wp_ions:.6e} [rad/s]")
-            print(f"w_pe dt = {self.dt * wp_e:.4f} ~ 1/{int(1.0 / (self.dt * wp_e))}")
-            print(f"w_pi dt = {self.dt * wp_ions:.4f} ~ 1/{int(1.0 / (self.dt * wp_ions))}")
+            qsp_msg = (
+                f"e plasma frequency = {wp_e:.6e} {self.units_dict['frequency']}\n"
+                f"total ion plasma frequency = {wp_ions:.6e} {self.units_dict['frequency']}\n"
+                f"w_pe dt = {self.dt * wp_e:.4f} ~ 1/{int(1.0 / (self.dt * wp_e))}\n"
+                f"w_pi dt = {self.dt * wp_ions:.4f} ~ 1/{int(1.0 / (self.dt * wp_ions))}\n"
+            )
+            integrator_msg += qsp_msg
 
         elif self.potential_type == "lj":
-            print(f"The plasma frequency is defined as w_p = sqrt( epsilon / (sigma^2 * mass) )")
+            integrator_msg += f"The plasma frequency is defined as w_p = sqrt( epsilon / (sigma^2 * mass) )\n"
 
         if self.magnetized:
             high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
             low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
             if high_wc_dt > low_wc_dt:
-                print(f"Highest w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi")
-                print(f"Smallest w_c dt = {low_wc_dt:2.4f} = {low_wc_dt / pi:.4f} pi")
+                mag_msg = (
+                    f"Highest w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi\n"
+                    f"Smallest w_c dt = {low_wc_dt:2.4f} = {low_wc_dt / pi:.4f} pi\n"
+                )
             else:
-                print(f"w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi")
+                mag_msg = f"w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi\n"
+
+            integrator_msg += mag_msg
 
         if self.equilibration_type == "langevin" or self.production_type == "langevin":
-            print(f"langevin_gamma = {self.langevin_gamma:.4e}")
-            print(f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}")
-            print(f"langevin_gamma / wp = {self.langevin_gamma / wp_tot:.4e}")
             N = -log(0.001) / (self.langevin_gamma * self.dt)
-            print(f"exp( - gamma N dt) = 0.001 ==> N = {N:.4f}")
+            lang_msg = (
+                f"langevin_gamma = {self.langevin_gamma:.4e}\n"
+                f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}\n"
+                f"langevin_gamma / wp = {self.langevin_gamma / wp_tot:.4e}\n"
+                f"exp( - gamma N dt) = 0.001 ==> N = {N:.4f}"
+            )
+            integrator_msg += lang_msg
+
+        msg += integrator_msg
+        print(msg)
 
 
 @jit(void(float64[:, :], float64[:], float64[:], int64[:], float64), nopython=True)

@@ -257,7 +257,7 @@ class Species:
         Calculate the following quantum parameters:
         Dimensionless chemical potential, Fermi wavenumber, Fermi energy, Thomas-Fermi wavenumber.
 
-        This function work only for electrons. Other species might give non-sensical values.
+        This function work only for electrons. Other species might give nonsensical values.
 
         Parameters
         ----------
@@ -303,77 +303,89 @@ class Species:
             Unit system used in the simulation. Default = 'mks'.
 
         """
+        # Pre compute the units to be printed
+        if units == "cgs":
+            density_units = "[N/cc]" if self.dimensions == 3 else "[N/cm^2]"
+            weight_units = "[g]"
+            mass_dens_units = "[g/cc]" if self.dimensions == 3 else "[g/cm^2]"
+            charge_units = "[esu]"
+            energy_units = "[erg]"
+            length_units = "[cm]"
+            inv_length_units = "[1/cm]"
+        else:
+            density_units = "[N/m^3]" if self.dimensions == 3 else "[N/m^2]"
+            weight_units = "[kg]"
+            mass_dens_units = "[kg/cc]" if self.dimensions == 3 else "[kg/m^2]"
+            charge_units = "[C]"
+            energy_units = "[J]"
+            length_units = "[m]"
+            inv_length_units = "[1/m]"
 
+        # Assemble the entire message to be printed
         if self.name == "electron_background":
-            print("\nELECTRON BACKGROUND PROPERTIES:")
-            print(f"Number density: n_e = {self.number_density:.6e} ", end="")
-            print("[N/cc]" if units == "cgs" else "[N/m^3]")
-
-            print(f"Wigner-Seitz radius: a_e = {self.a_ws:.6e} ", end="")
-            print("[cm]" if units == "cgs" else "[m]")
-
-            print(f"Temperature: T_e = {self.temperature:.6e} [K] = {self.temperature_eV:.6e} [eV]")
-
-            print(f"de Broglie wavelength: lambda_deB = {self.deBroglie_wavelength:.6e} ", end="")
-            print("[cm]" if units == "cgs" else "[m]")
-
-            print(f"Thomas-Fermi length: lambda_TF = {self.ThomasFermi_wavelength:.6e} ", end="")
-            print("[cm]" if units == "cgs" else "[m]")
-
-            print(f"Fermi wave number: k_F = {self.Fermi_wavenumber:.6e} ", end="")
-            print("[1/cm]" if units == "cgs" else "[1/m]")
-
-            print(f"Fermi Energy: E_F = {self.Fermi_energy / self.kB / self.eV2K:.6e} [eV]")
-
-            print(f"Relativistic parameter: x_F = {self.relativistic_parameter:.6e}", end="")
             kf_xf = self.mass * self.c0**2 * (sqrt(1.0 + self.relativistic_parameter**2) - 1.0)
-            print(f" --> E_F = {(kf_xf / self.kB / self.eV2K):.6e} [eV]")
-
-            print(f"Degeneracy parameter: Theta = {self.degeneracy_parameter:.6e} ")
-            print(f"Coupling: r_s = {self.rs:.6f},  Gamma_e = {self.coupling:.6f}")
-            print(f"Warm Dense Matter Parameter: W = {self.wdm_parameter:.4e}")
             mu_EF = self.dimensionless_chemical_potential * self.kB * self.temperature / self.Fermi_energy
-            print(f"Chemical potential: mu = {self.dimensionless_chemical_potential:.4e} k_B T_e = {mu_EF:.4e} E_F")
 
             if self.cyclotron_frequency:
-                print(f"Electron cyclotron frequency: w_c = {self.cyclotron_frequency:.6e}")
-                print(f"Lowest Landau energy level: h w_c/2 = {0.5 * self.magnetic_energy:.6e}")
                 b_ef = self.magnetic_energy / self.Fermi_energy
                 b_t = self.magnetic_energy / (self.kB * self.temperature)
-                print(
-                    f"Electron magnetic energy gap: h w_c = {self.magnetic_energy:.6e} "
-                    f"= {b_ef:.4e} E_F = {b_t:.4e} k_B T_e"
+
+                elec_mag_msg = (
+                    f"Electron cyclotron frequency: w_c = {self.cyclotron_frequency:.6e}\n"
+                    f"Lowest Landau energy level: h w_c/2 = {0.5 * self.magnetic_energy:.6e}\n"
+                    f"Electron magnetic energy gap: h w_c = {self.magnetic_energy:.6e} = {b_ef:.4e} E_F = {b_t:.4e} k_B T_e\n"
                 )
 
-        else:
-            print(f"\tName: {self.name}")
-            print(f"\tNo. of particles = {self.num} ")
-            print(f"\tNumber density = {self.number_density:.6e} ", end="")
-            if self.dimensions == 3:
-                print("[N/cc]" if units == "cgs" else "[N/m^3]")
             else:
-                print("[N/cm^2]" if units == "cgs" else "[N/m^2]")
-            print(f"\tAtomic weight = {self.atomic_weight:.6e} [a.u.]")
-            print(f"\tMass = {self.mass:.6e} ", end="")
-            print("[g]" if units == "cgs" else "[kg]")
-            print(f"\tMass density = {self.mass_density:.6e} ", end="")
-            if self.dimensions == 3:
-                print("[g/cc]" if units == "cgs" else "[kg/m^3]")
-            else:
-                print("[g/cm^2]" if units == "cgs" else "[kg/m^2]")
-            print(f"\tCharge number/ionization degree = {self.Z:.4f} ")
-            print(f"\tCharge = {self.charge:.6e} ", end="")
-            print("[esu]" if units == "cgs" else "[C]")
-            print(f"\tTemperature = {self.temperature:.6e} [K] = {self.temperature_eV:.6e} [eV]")
-            if potential_type == "lj":
-                print(f"\tEpsilon = {self.epsilon:.6e} ", end="")
-                print("[erg]" if units == "cgs" else "[J]")
-                print(f"\tSigma = {self.sigma:.6e} ", end="")
-                print("[cm]" if units == "cgs" else "[m]")
+                elec_mag_msg = ""
 
-            print(f"\tDebye Length = {self.debye_length:.6e} ", end="")
-            print("[cm]" if units == "cgs" else "[m]")
-            print(f"\tPlasma Frequency = {self.plasma_frequency:.6e} [rad/s]")
+            msg = (
+                f"ELECTRON BACKGROUND PROPERTIES:\n"
+                f"Number density: n_e = {self.number_density:.6e} {density_units}\n"
+                f"Wigner-Seitz radius: a_e = {self.a_ws:.6e} {length_units}\n"
+                f"Temperature: T_e = {self.temperature:.6e} [K] = {self.temperature_eV:.6e} [eV]\n"
+                f"de Broglie wavelength: lambda_deB = {self.deBroglie_wavelength:.6e} {length_units}\n"
+                f"Thomas-Fermi length: lambda_TF = {self.ThomasFermi_wavelength:.6e}{length_units}\n"
+                f"Fermi wave number: k_F = {self.Fermi_wavenumber:.6e} {inv_length_units}\n"
+                f"Fermi Energy: E_F = {self.Fermi_energy / self.kB / self.eV2K:.6e} [eV]\n"
+                f"Relativistic parameter: x_F = {self.relativistic_parameter:.6e} --> E_F = {(kf_xf / self.kB / self.eV2K):.6e} [eV]\n"
+                f"Degeneracy parameter: Theta = {self.degeneracy_parameter:.6e}\n"
+                f"Coupling: r_s = {self.rs:.6f},  Gamma_e = {self.coupling:.6f}\n"
+                f"Warm Dense Matter parameter: W = {self.wdm_parameter:.4e}\n"
+                f"Chemical potential: mu = {self.dimensionless_chemical_potential:.4e} k_B T_e = {mu_EF:.4e} E_F\n"
+            )
+            msg += elec_mag_msg
+
+        else:
+            if potential_type == "lj":
+                pot_msg = (
+                    f"\tEpsilon = {self.epsilon:.6e} {energy_units}\n"
+                    f"\tSigma = {self.sigma:.6e} {length_units}\n"
+                    f"\tEquivalent Plasma frequency = {self.plasma_frequency: .6e} [rad/s]\n"
+                )
+            else:
+                pot_msg = (
+                    f"\tDebye length = {self.debye_length: .6e} {length_units}\n"
+                    f"\tPlasma frequency = {self.plasma_frequency: .6e} [rad/s]\n"
+                )
             if self.cyclotron_frequency:
-                print(f"\tCyclotron Frequency = {self.cyclotron_frequency:.6e} [rad/s]")
-                print(f"\tbeta_c = {self.cyclotron_frequency / self.plasma_frequency:.4e}")
+                mag_msg = (
+                    f"\tCyclotron Frequency = {self.cyclotron_frequency:.6e} [rad/s]\n"
+                    f"\tbeta_c = {self.cyclotron_frequency / self.plasma_frequency:.4e}"
+                )
+            else:
+                mag_msg = ""
+
+            msg = (
+                f"\tName: {self.name}\n"
+                f"\tNo. of particles = {self.num}\n"
+                f"\tNumber density = {self.number_density:.6e} {density_units}\n"
+                f"\tAtomic weight = {self.atomic_weight:.6e} [a.u.]\n"
+                f"\tMass = {self.mass:.6e} {weight_units}\n"
+                f"\tMass density = {self.mass_density:.6e} {mass_dens_units}\n"
+                f"\tCharge number/ionization degree = {self.Z:.4f}\n"
+                f"\tCharge = {self.charge:.6e} {charge_units}\n"
+                f"\tTemperature = {self.temperature:.6e} [K] = {self.temperature_eV:.6e} [eV]\n"
+            )
+            msg = msg + pot_msg + mag_msg
+        print(msg)

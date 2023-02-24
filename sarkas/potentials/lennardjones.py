@@ -164,8 +164,10 @@ def pretty_print_info(potential):
 
     """
 
-    print(f"epsilon_tot = {potential.epsilon_tot:.6e}")
-    print(f"sigma_avg = {potential.sigma_avg:.6e}")
+    print(f"epsilon_tot = {potential.epsilon_tot/potential.eV2J:.6e} [eV] = {potential.epsilon_tot:6e} ", end="")
+    print("[erg]" if potential.units == "cgs" else "[J]")
+    print(f"sigma_avg = {potential.sigma_avg/potential.a_ws:.6e} a_ws =  {potential.sigma_avg:6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
     rho = potential.sigma_avg**3 * potential.total_num_density
     tau = potential.kB * potential.T_desired / potential.epsilon_tot
     print(f"reduced density = {rho:.6e}")

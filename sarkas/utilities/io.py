@@ -597,12 +597,12 @@ class InputOutput:
 
         choices = ["header", "rdf", "ccf", "dsf", "ssf", "vd"]
         msg = (
-            "Observable not defined. \n "
-            "Please choose an observable from this list \n"
-            "'rdf' = Radial Distribution Function, \n"
-            "'ccf' = Current Correlation Function, \n"
-            "'dsf' = Dynamic Structure Function, \n"
-            "'ssf' = Static Structure Factor, \n"
+            "Observable not defined.\n"
+            "Please choose an observable from this list\n"
+            "'rdf' = Radial Distribution Function,\n"
+            "'ccf' = Current Correlation Function,\n"
+            "'dsf' = Dynamic Structure Function,\n"
+            "'ssf' = Static Structure Factor,\n"
             "'vd' = Velocity Distribution"
         )
         if observable is None:
@@ -624,11 +624,8 @@ class InputOutput:
         while repeat > 0:
             if observable == "header":
                 # Header of process
-                process_title = "{:^80}".format(self.process.capitalize())
-                print("\n\n")
-                print(*["*" for i in range(50)])
-                print(process_title)
-                print(*["*" for i in range(50)])
+                process_title = f"{self.process.capitalize():^80}"
+                print(f"{'':*^80}\n {process_title} \n{'':*^80}")
 
             elif observable == "rdf":
                 simulation.rdf.pretty_print()
@@ -640,9 +637,12 @@ class InputOutput:
                 simulation.ccf.pretty_print()
             elif observable == "vd":
                 simulation.vm.setup(simulation.parameters)
-                print("\nVelocity Moments:")
-                print("Maximum no. of moments = {}".format(simulation.vm.max_no_moment))
-                print("Maximum velocity moment = {}".format(int(2 * simulation.vm.max_no_moment)))
+                msg = (
+                    f"\nVelocity Moments:\n"
+                    f"Maximum no. of moments = {simulation.vm.max_no_moment}\n"
+                    f"Maximum velocity moment = {int(2 * simulation.vm.max_no_moment)}"
+                )
+                print(msg)
 
             repeat -= 1
 
@@ -664,7 +664,7 @@ class InputOutput:
 
         """
         warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.pot_pretty_print()",
+            "Deprecated feature. It will be removed in a future release. Use potential.pot_pretty_print()",
             category=DeprecationWarning,
         )
         simulation.potential.pot_pretty_print(simulation.potential)
@@ -679,60 +679,45 @@ class InputOutput:
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
-            print("\n\n{:=^70} \n".format(" Filesize Estimates "))
+            msg_h = " Filesize Estimates "
+            msg = f"\n\n{msg_h:=^70}\n"
 
             if self.equilibration_phase:
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 0])
-                print("\nEquilibration:\n")
-                print(
-                    "Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(
-                        int(size_GB), int(size_MB), int(size_KB), int(rem)
-                    )
+                msg += (
+                    f"\nEquilibration:\n"
+                    f"\tCheckpoint filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
                 )
 
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
-                print(
-                    "Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(
-                        int(size_GB), int(size_MB), int(size_KB), int(rem)
-                    )
-                )
+                msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
+
             if self.magnetized and self.electrostatic_equilibration:
-                print("\nMagnetization:\n")
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 0])
-                print(
-                    "Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(
-                        int(size_GB), int(size_MB), int(size_KB), int(rem)
-                    )
+                msg += (
+                    f"\nMagnetization:\n"
+                    f"\tCheckpoint filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
                 )
 
                 size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 1])
-                print(
-                    "Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(
-                        int(size_GB), int(size_MB), int(size_KB), int(rem)
-                    )
-                )
+                msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
 
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 0])
-            print("\nProduction:\n")
-            print(
-                "Checkpoint filesize: {} GB {} MB {} KB {} bytes".format(
-                    int(size_GB), int(size_MB), int(size_KB), int(rem)
-                )
+            msg += (
+                f"\nProduction:\n"
+                f"\tCheckpoint filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
             )
 
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 1])
-            print(
-                "Checkpoint folder size: {} GB {} MB {} KB {} bytes".format(
-                    int(size_GB), int(size_MB), int(size_KB), int(rem)
-                )
-            )
+            msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
 
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[:, 1].sum())
-            print(
-                "\nTotal minimum needed space: {} GB {} MB {} KB {} bytes".format(
-                    int(size_GB), int(size_MB), int(size_KB), int(rem)
-                )
+            msg += (
+                f"\nTotal minimum required space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
             )
+
+            print(msg)
+
             repeat -= 1
             sys.stdout = screen
 
@@ -854,7 +839,6 @@ class InputOutput:
         for fl in file_list:
             filename = join(self.processes_dir[indx], fl + ".pickle")
             with open(filename, "rb") as handle:
-
                 data = pickle.load(handle)
                 process.__dict__[fl] = copy(data)
 
@@ -1070,7 +1054,9 @@ class InputOutput:
                 print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
 
                 print(f"No. of species = {len(simulation.parameters.species_num)}")
-                for isp, sp in enumerate(simulation.species):
+                # This line below is to prevent printing electron background in the case of LJ potential
+                species_to_print = simulation.species[:-1] if simulation.potential.type == "lj" else simulation.species
+                for isp, sp in enumerate(species_to_print):
                     if sp.name != "electron_background":
                         print("Species ID: {}".format(isp))
                     sp.pretty_print(simulation.potential.type, simulation.parameters.units)

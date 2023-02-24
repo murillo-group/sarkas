@@ -222,8 +222,10 @@ def pretty_print_info(potential):
         Class handling potential form.
 
     """
-    print(f"screening type : {potential.screening_length_type}")
-    print(f"screening length = {potential.screening_length:.6e} ", end="")
-    print("[cm]" if potential.units == "cgs" else "[m]")
-    print(f"kappa = {potential.a_ws / potential.screening_length:.4f}")
-    print(f"Gamma_eff = {potential.coupling_constant:.2f}")
+    msg = (
+        f"screening type : {potential.screening_length_type}\n"
+        f"screening length = {potential.screening_length:.6e} {potential.units_dict['length']}\n"
+        f"kappa = {potential.a_ws / potential.screening_length:.4f}\n"
+        f"Gamma_eff = {potential.coupling_constant:.2f}"
+    )
+    print(msg)

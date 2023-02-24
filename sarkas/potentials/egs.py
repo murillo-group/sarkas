@@ -284,9 +284,7 @@ def pretty_print_info(potential):
         Class handling potential form.
 
     """
-    # print('electron temperature = {:1.4e} [K] = {:1.4e} eV'.format(
-    #     potential.electron_temperature,
-    #     potential.electron_temperature / potential.eV2K))
+    # Pre compute the units to be printed
     print(f"kappa = {potential.a_ws / potential.screening_length:.4f}")
     print(f"SGA Correction factor: lmbda = {potential.lmbda:.4f}")
     # print('lambda_TF = {:1.4e} '.format(potential.electron_TF_wavelength), end='')

@@ -347,31 +347,28 @@ class Process:
     def print_initial_state(self):
         """Print the initial energies of the system."""
 
-        self.io.write_to_logger("\n\n{:-^70} \n".format(" Initial Energies "))
-        msg = f"Initial temperature and kinetic energy of each species"
-        self.io.write_to_logger(msg)
+        init_eng = " Initial Energies "
+        msg = f"\n\n{init_eng:-^70}\n" f"Initial temperature and kinetic energy of each species\n"
 
-        units_msg = f"[erg]" if self.parameters.units == "cgs" else f"[J]"
         Kins, Temps = self.particles.kinetic_temperature()
         factor = self.parameters.J2erg if self.parameters.units == "mks" else 1.0 / self.parameters.J2erg
 
         for sp, kp, tp in zip(self.species, Kins, Temps):
             sp_msg = (
-                f"{sp.name} :\n\tTemperature = {tp:.6e} [K] = {tp*self.parameters.eV2K:.6e} [eV]"
-                f"\n\tKinetic Energy = {kp:.6e} {units_msg} = {kp*factor/self.parameters.eV2J:.6e} [eV]"
+                f"Species {sp.name} :\n"
+                f"\tTemperature = {tp:.6e} {self.parameters.units_dict['temperature']} = {tp * self.parameters.eV2K:.6e} {self.parameters.units_dict['electron volt']}\n"
+                f"\tKinetic Energy = {kp:.6e} {self.parameters.units_dict['energy']} = {kp * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
             )
-            self.io.write_to_logger(sp_msg)
+            msg += sp_msg
 
         tot_kin_e = Kins.sum()
         tot_e = tot_kin_e + self.particles.potential_energy
 
-        msg = f"Initial total kinetic energy = {tot_kin_e:.6e} {units_msg} = {tot_kin_e * factor / self.parameters.eV2J:.6e} [eV]"
-        self.io.write_to_logger(msg)
-
-        msg = f"Initial total potential energy = {self.particles.potential_energy:.6e} {units_msg} = {self.particles.potential_energy * factor  / self.parameters.eV2J:.6e} [eV]"
-        self.io.write_to_logger(msg)
-
-        msg = f"Initial total energy = {tot_e:.6e} {units_msg} = {tot_e * factor  / self.parameters.eV2J:.6e} [eV]"
+        msg += (
+            f"Initial total kinetic energy = {tot_kin_e:.6e} {self.parameters.units_dict['energy']} = {tot_kin_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+            f"Initial total potential energy = {self.particles.potential_energy:.6e} {self.parameters.units_dict['energy']} = {self.particles.potential_energy * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+            f"Initial total energy = {tot_e:.6e} {self.parameters.units_dict['energy']} = {tot_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+        )
         self.io.write_to_logger(msg)
 
     def setup(self, read_yaml: bool = False, other_inputs: dict = None):
@@ -1199,7 +1196,6 @@ class PreProcess(Process):
             self.pppm_approximation()
 
         if timing_study:
-
             self.timing_study_calculation()
             self.make_timing_plots()
             self.make_force_v_timing_plot()

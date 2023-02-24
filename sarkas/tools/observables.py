@@ -33,6 +33,7 @@ from numpy import (
     sqrt,
     trapz,
     unique,
+    unwrap,
     zeros,
 )
 from numpy.polynomial import hermite_e
@@ -813,11 +814,107 @@ class Observable:
 
         return axes_handle
 
+    def pretty_print_msg(self):
+        """Create the message with the basic information of every observable
+
+        Returns
+        -------
+        msg : str
+            Message to print.
+
+        """
+        name = " " + self.__long_name__ + " "
+        msg = (
+            f"\n\n{name:=^70}\n"
+            f"Data saved in: \n {self.filename_hdf}\n"
+            f"Data accessible via: self.ra_values, self.dataframe\n"
+        )
+
+        if self.acf_observable:
+            tot_time = self.dt * self.slice_steps
+            tau_wp = int(tot_time * self.total_plasma_frequency)
+            msg += (
+                f"No. of slices = {self.no_slices}\n"
+                f"No. dumps per slice = {int(self.slice_steps / self.dump_step)}\n"
+                f"Time interval of autocorrelation function = {tot_time:.4e} {self.units_dict['time']} ~ {tau_wp} w_p T\n"
+            )
+
+        if self.k_observable:
+            if self.__name__ == "ccf":
+                kt_file = f"v(k,t) data saved in: \n {self.vkt_hdf_file}\n"
+            else:
+                kt_file = f"n(k,t) data saved in: \n {self.nkt_hdf_file}\n"
+            k_msg = (
+                f"k wave vector information saved in:\n {self.k_file}\n"
+                f"{kt_file}"
+                f"Data saved in: \n {self.filename_hdf}\n"
+                f"Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe\n"
+                f"\nWave vector parameters:\n"
+                f"Smallest wave vector k_min = 2 pi / L = 3.9 / N^(1/3)\n"
+                f"k_min = {self.ka_values[0]:.4f} / a_ws = {self.ka_values[0] / self.a_ws:.4e} {self.units_dict['inverse length']}\n"
+                f"\nAngle averaging choice: {self.angle_averaging}\n"
+            )
+            if self.angle_averaging == "full":
+                nx, ny, nz = unwrap(self.max_aa_harmonics)
+                aa_k_msg = (
+                    f"\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {nx}, {ny}, {nz}\n"
+                    f"\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)\n"
+                    f"\tk_max = {self.max_aa_ka_value:.4f} / a_ws = {self.max_aa_ka_value / self.a_ws :1.4e} {self.units_dict['inverse length']}\n"
+                )
+
+            elif self.angle_averaging == "custom":
+                nx, ny, nz = unwrap(self.max_aa_harmonics)
+                knx, kny, knz = unwrap(self.max_k_harmonics)
+
+                aa_k_msg = (
+                    f"\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {nx}, {ny}, {nz}\n"
+                    f"\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)\n"
+                    f"\tAA k_max = {self.max_aa_ka_value:.4f} / a_ws = {self.max_aa_ka_value / self.a_ws :1.4e} {self.units_dict['inverse length']}\n"
+                    f"\tMaximum k harmonics = n_x, n_y, n_z = {knx}, {kny}, {knz}\n"
+                    f"\tLargest wave vector k_max = k_min * n_x\n"
+                    f"\tk_max = {self.max_ka_value:.4f} / a_ws = {self.max_ka_value / self.a_ws:.4e} {self.units_dict['inverse length']}\n"
+                )
+            elif self.angle_averaging == "principal_axis":
+                knx, kny, knz = unwrap(self.max_k_harmonics)
+
+                aa_k_msg = (
+                    f"\tMaximum k harmonics = n_x, n_y, n_z = {knx}, {kny}, {knz}\n"
+                    f"\tLargest wave vector k_max = k_min * n_x\n"
+                    f"\tk_max = {self.max_ka_value:.4f} / a_ws = {self.max_ka_value / self.a_ws:.4e} {self.units_dict['inverse length']}\n"
+                )
+
+            aa_k_msg += (
+                f"\nTotal number of k values to calculate = {len(self.k_list)}\n"
+                f"No. of unique ka values to calculate = {len(self.ka_values)}\n"
+            )
+
+            k_msg += aa_k_msg
+            if self.kw_observable:
+                kw_msg = (
+                    f"\nFrequency Space Parameters:\n"
+                    f"\tNo. of slices = {self.no_slices}\n"
+                    f"\tNo. dumps per slice = {self.slice_steps}\n"
+                    f"\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)\n"
+                    f"\tdw = {self.w_min / self.total_plasma_frequency:.4f} w_p = {self.w_min:.4e} {self.units_dict['frequency']}\n"
+                    f"\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)\n"
+                    f"\tw_max = {self.w_max / self.total_plasma_frequency:.4f} w_p = {self.w_max:.4e} {self.units_dict['frequency']}\n"
+                )
+                k_msg += kw_msg
+
+                msg += k_msg
+
+        return msg
+
+    def pretty_print(self):
+        """Print observable useful info."""
+        msg = self.pretty_print_msg()
+        print(msg)
+
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
         self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
         with open(self.filename_pickle, "rb") as pkl_data:
-            data = pickle_load()
+            data = pickle_load(pkl_data)
         self.from_dict(data.__dict__)
 
     def save_hdf(self):
@@ -1343,57 +1440,6 @@ class CurrentCorrelationFunction(Observable):
 
         self.save_hdf()
 
-    def pretty_print(self):
-        """Print current correlation function calculation parameters for help in choice of simulation parameters."""
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("k wavevector information saved in: \n", self.k_file)
-        print("v(k,t) data saved in: \n", self.vkt_hdf_file)
-        print("Data saved in: \n{}".format(self.filename_hdf))
-        print("Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies," " \n\t self.dataframe")
-        print("\nFrequency Space Parameters:")
-        print("\tNo. of slices = {}".format(self.no_slices))
-        print("\tNo. dumps per slice = {}".format(self.slice_steps))
-        print("\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)")
-        print("\tdw = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_min / self.total_plasma_frequency, self.w_min))
-        print("\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)")
-        print("\tw_max = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_max / self.total_plasma_frequency, self.w_max))
-
-        print("\n\nWavevector parameters:")
-        print("Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)")
-        print("k_min = {:.4f} / a_ws = {:.4e} ".format(self.ka_values[0], self.ka_values[0] / self.a_ws), end="")
-        print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-        print("\nAngle averaging choice: {}".format(self.angle_averaging))
-        if self.angle_averaging == "full":
-            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
-            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
-            print(
-                "\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == "custom":
-            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
-            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
-            print(
-                "\tAA k_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
-            print("\tLargest wavector k_max = k_min * n_x")
-            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == "principal_axis":
-            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
-            print("\tLargest wavector k_max = k_min * n_x")
-            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-        print("\nTotal number of k values to calculate = {}".format(len(self.k_list)))
-        print("No. of unique ka values to calculate = {}".format(len(self.ka_values)))
-
 
 class DiffusionFlux(Observable):
     """Diffusion Fluxes and their Auto-correlation functions.\n
@@ -1531,21 +1577,6 @@ class DiffusionFlux(Observable):
         tend = self.timer.current()
         self.time_stamp("Diffusion Flux and its ACF Calculation", self.timer.time_division(tend - t0))
 
-    def pretty_print(self):
-        """Print observable parameters for help in choice of simulation parameters."""
-
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("Data saved in: \n", self.filename_hdf)
-        print("Data accessible at: self.dataframe")
-
-        print("\nNo. of slices = {}".format(self.no_slices))
-        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
-        print(
-            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
-                self.dt * self.slice_steps, int(self.dt * self.slice_steps * self.total_plasma_frequency)
-            )
-        )
-
 
 class DynamicStructureFactor(Observable):
     """Dynamic Structure factor.
@@ -1649,59 +1680,6 @@ class DynamicStructureFactor(Observable):
         self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
 
         self.save_hdf()
-
-    def pretty_print(self):
-        """Print dynamic structure factor calculation parameters for help in choice of simulation parameters."""
-
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("k wavevector information saved in: \n", self.k_file)
-        print("n(k,t) data saved in: \n", self.nkt_hdf_file)
-        print("Data saved in: \n", self.filename_hdf)
-        print("Data accessible at: self.k_list, self.k_counts, self.ka_values, self.frequencies, self.dataframe")
-
-        print("\nFrequency Space Parameters:")
-        print("\tNo. of slices = {}".format(self.no_slices))
-        print("\tNo. dumps per slice = {}".format(self.slice_steps))
-        print("\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)")
-        print("\tdw = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_min / self.total_plasma_frequency, self.w_min))
-        print("\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)")
-        print("\tw_max = {:1.4f} w_p = {:1.4e} [rad/s]".format(self.w_max / self.total_plasma_frequency, self.w_max))
-
-        print("\n\nWavevector parameters:")
-        print("Smallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)")
-        print("k_min = {:.4f} / a_ws = {:.4e} ".format(self.ka_values[0], self.ka_values[0] / self.a_ws), end="")
-        print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-        print("\nAngle averaging choice: {}".format(self.angle_averaging))
-        if self.angle_averaging == "full":
-            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
-            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
-            print(
-                "\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == "custom":
-            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
-            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
-            print(
-                "\tAA k_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
-            print("\tLargest wavector k_max = k_min * n_x")
-            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == "principal_axis":
-            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
-            print("\tLargest wavector k_max = k_min * n_x")
-            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-        print("\nTotal number of k values to calculate = {}".format(len(self.k_list)))
-        print("No. of unique ka values to calculate = {}".format(len(self.ka_values)))
 
 
 class ElectricCurrent(Observable):
@@ -2214,21 +2192,6 @@ class PressureTensor(Observable):
 
         return sigma_zzzz, sigma_zzxx, sigma_xyxy
 
-    def pretty_print(self):
-        """Print observable parameters for help in choice of simulation parameters."""
-
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("Data saved in: \n", self.filename_hdf)
-        print("Data accessible at: self.dataframe")
-
-        print("\nNo. of slices = {}".format(self.no_slices))
-        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
-        print(
-            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
-                self.dt * self.slice_steps, int(self.dt * self.slice_steps * self.total_plasma_frequency)
-            )
-        )
-
 
 class RadialDistributionFunction(Observable):
     """
@@ -2515,17 +2478,13 @@ class RadialDistributionFunction(Observable):
 
     def pretty_print(self):
         """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
-
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("Data saved in: \n", self.filename_hdf)
-        print("Data accessible at: self.ra_values, self.dataframe")
-        print("\nNo. bins = {}".format(self.no_bins))
-        print("dr = {:1.4f} a_ws = {:1.4e} ".format(self.dr_rdf / self.a_ws, self.dr_rdf), end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(
-            "Maximum Distance (i.e. potential.rc)= {:1.4f} a_ws = {:1.4e} ".format(self.rc / self.a_ws, self.rc), end=""
+        msg = self.pretty_print_msg()
+        msg += (
+            f"No. bins = {self.no_bins}\n"
+            f"dr = {self.dr_rdf / self.a_ws:.4f} a_ws = {self.dr_rdf:.4e} {self.units_dict['length']}\n"
+            f"Maximum Distance (i.e. potential.rc)= {self.rc / self.a_ws:.4f} a_ws = {self.rc:.4e} {self.units_dict['length']}"
         )
-        print("[cm]" if self.units == "cgs" else "[m]")
+        print(msg)
 
 
 class StaticStructureFactor(Observable):
@@ -2620,49 +2579,6 @@ class StaticStructureFactor(Observable):
 
         tend = self.timer.current()
         self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
-
-    def pretty_print(self):
-        """Print static structure factor calculation parameters for help in choice of simulation parameters."""
-
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("k wavevector information saved in: \n", self.k_file)
-        print("n(k,t) Data saved in: \n", self.nkt_hdf_file)
-        print("Data saved in: \n", self.filename_hdf)
-        print("Data accessible at: self.k_list, self.k_counts, self.ka_values, self.dataframe")
-        print("\nSmallest wavevector k_min = 2 pi / L = 3.9 / N^(1/3)")
-        print("k_min = {:.4f} / a_ws = {:.4e} ".format(self.ka_values[0], self.ka_values[0] / self.a_ws), end="")
-        print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-        print("\nAngle averaging choice: {}".format(self.angle_averaging))
-        if self.angle_averaging == "full":
-            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
-            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
-            print(
-                "\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == "custom":
-            print("\tMaximum angle averaged k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_aa_harmonics))
-            print("\tLargest angle averaged k_max = k_min * sqrt( n_x^2 + n_y^2 + n_z^2)")
-            print(
-                "\tAA k_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_aa_ka_value, self.max_aa_ka_value / self.a_ws),
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
-            print("\tLargest wavector k_max = k_min * n_x")
-            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-        elif self.angle_averaging == "principal_axis":
-            print("\tMaximum k harmonics = n_x, n_y, n_z = {}, {}, {}".format(*self.max_k_harmonics))
-            print("\tLargest wavector k_max = k_min * n_x")
-            print("\tk_max = {:.4f} / a_ws = {:1.4e} ".format(self.max_ka_value, self.max_ka_value / self.a_ws), end="")
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
-
-        print("\nTotal number of k values to calculate = {}".format(len(self.k_list)))
-        print("No. of unique ka values to calculate = {}".format(len(self.ka_values)))
 
 
 class Thermodynamics(Observable):
@@ -3029,7 +2945,7 @@ class Thermodynamics(Observable):
                 to_append = [
                     f"Equilibration cycles = {eq_cycles}",
                     f"Potential: {process.potential.type}",
-                    f"  Eff Coupl Const = {process.parameters.coupling_constant*t_ratio:.2e}",
+                    f"  Eff Coupl Const = {process.parameters.coupling_constant * t_ratio:.2e}",
                     f"  Tot Force Error = {process.potential.force_error:.2e}",
                     f"Integrator: {integrator_type[self.phase]}",
                 ]
@@ -3164,22 +3080,6 @@ class VelocityAutoCorrelationFunction(Observable):
 
             self.dataframe_acf[sp_vacf_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
             self.dataframe_acf[sp_vacf_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
-
-    def pretty_print(self):
-        """Print observable parameters for help in choice of simulation parameters."""
-
-        print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("Data saved in: \n", self.filename_acf_hdf)
-        print("Data accessible at: self.dataframe_acf")
-
-        print("\nNo. of slices = {}".format(self.no_slices))
-        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
-
-        print(
-            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
-                self.dt * self.slice_steps, int(self.dt * self.slice_steps * self.total_plasma_frequency)
-            )
-        )
 
 
 class VelocityDistribution(Observable):
@@ -3611,8 +3511,8 @@ class VelocityDistribution(Observable):
             for i, sp in enumerate(self.species_names):
                 self.moments_hdf_dataframe[f"{sp}_X_Time"] = time
                 for m in range(self.max_no_moment):
-                    self.moments_dataframe[f"{sp} {m+1} moment"] = moments[i, :, 0, m]
-                    self.moments_hdf_dataframe[f"{sp}_X_{m+1} moment"] = moments[i, :, 0, m]
+                    self.moments_dataframe[f"{sp} {m + 1} moment"] = moments[i, :, 0, m]
+                    self.moments_hdf_dataframe[f"{sp}_X_{m + 1} moment"] = moments[i, :, 0, m]
                 for m in range(self.max_no_moment):
                     self.moments_dataframe[f"{sp} {m + 1} moment ratio"] = ratios[i, :, 0, m]
                     self.moments_hdf_dataframe[f"{sp}_X_{m + 1}-2 ratio"] = ratios[i, :, 0, m]

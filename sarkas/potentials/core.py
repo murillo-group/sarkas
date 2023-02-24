@@ -303,6 +303,7 @@ class Potential:
 
         self.measure = params.measure
         self.units = params.units
+        self.units_dict = params.units_dict
         self.dimensions = params.dimensions
         # Copy needed parameters
         self.box_lengths = params.box_lengths.copy()
@@ -348,44 +349,45 @@ class Potential:
     def method_pretty_print(self):
         """Print algorithm information."""
 
-        print("\nALGORITHM: ", self.method)
+        msg = f"\nALGORITHM: {self.method}\n"
         # PP section
         if self.method != "fmm":
-            print(f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} ", end="")
-            print("[cm]" if self.units == "cgs" else "[m]")
             pp_cells = (self.box_lengths / self.rc).astype(int)
-            print(f"No. of PP cells per dimension = {pp_cells}")
             ptcls_in_loop = int(self.total_num_density * (self.dimensions * self.rc) ** self.dimensions)
-            print(f"No. of particles in PP loop = {ptcls_in_loop}")
             dim_const = (self.dimensions + 1) / 3.0 * pi
             pp_neighbors = int(self.total_num_density * dim_const * self.rc**self.dimensions)
-            print(f"No. of PP neighbors per particle = {pp_neighbors}")
+
+            fmm_msg = (
+                f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} {self.units_dict['length']}\n"
+                f"No. of PP cells per dimension = {pp_cells}\n"
+                f"No. of particles in PP loop = {ptcls_in_loop}\n"
+                f"No. of PP neighbors per particle = {pp_neighbors}"
+            )
+
+            msg += fmm_msg
 
         if self.method == "pppm":
             # PM Section
-            print(f"Charge assignment orders: {self.pppm_cao}")
-            print(f"FFT aliases: {self.pppm_aliases}")
-            print(f"Mesh: {self.pppm_mesh}")
-            print(
-                f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} ",
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
             h_a = self.pppm_h_array / self.a_ws
-            print(f"Mesh width = {h_a[0]:.4f}, {h_a[1]:.4f}, {h_a[2]:.4f} a_ws")
-            print(
-                f"           = {self.pppm_h_array[0]:.4e}, {self.pppm_h_array[1]:.4e}, {self.pppm_h_array[2]:.4e} ",
-                end="",
-            )
-            print("[cm]" if self.units == "cgs" else "[m]")
             halpha = self.pppm_h_array * self.pppm_alpha_ewald
             inv_halpha = (1.0 / halpha).astype(int)
-            print(f"Mesh size * Ewald_parameter (h * alpha) = {halpha[0]:.4f}, {halpha[1]:.4f}, {halpha[2]:.4f} ")
-            print(f"                                        ~ 1/{inv_halpha[0]}, 1/{inv_halpha[1]}, 1/{inv_halpha[2]}")
-            print(f"PP Force Error = {self.pppm_pp_err:.6e}")
-            print(f"PM Force Error = {self.pppm_pm_err:.6e}")
 
-        print(f"Tot Force Error = {self.force_error:.6e}")
+            pppm_msg = (
+                f"Charge assignment orders: {self.pppm_cao}\n "
+                f"FFT aliases: {self.pppm_aliases}\n"
+                f"Mesh: {self.pppm_mesh}\n"
+                f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} {self.units_dict['inverse length']}\n"
+                f"Mesh width = {h_a[0]:.4f}, {h_a[1]:.4f}, {h_a[2]:.4f} a_ws\n"
+                f"           = {self.pppm_h_array[0]:.4e}, {self.pppm_h_array[1]:.4e}, {self.pppm_h_array[2]:.4e} {self.units_dict['length']}\n"
+                f"Mesh size * Ewald_parameter (h * alpha) = {halpha[0]:.4f}, {halpha[1]:.4f}, {halpha[2]:.4f}\n"
+                f"                                        ~ 1/{inv_halpha[0]}, 1/{inv_halpha[1]}, 1/{inv_halpha[2]}\n"
+                f"PP Force Error = {self.pppm_pp_err:.6e}\n"
+                f"PM Force Error = {self.pppm_pm_err:.6e}\n"
+                f"Tot Force Error = {self.force_error:.6e}\n"
+            )
+            msg += pppm_msg
+
+        print(msg)
 
     def method_setup(self):
         """Setup algorithm's specific parameters."""

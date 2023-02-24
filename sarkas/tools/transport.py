@@ -290,18 +290,17 @@ class TransportCoefficients:
         tc_name: str
             Name of Transport coefficient to calculate.
         """
-
-        print("Data saved in: \n", os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5"))
-        print(os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5"))
-        print("\nNo. of slices = {}".format(self.no_slices))
-        print("No. dumps per slice = {}".format(int(self.slice_steps / self.dump_step)))
-
-        print(
-            "Time interval of autocorrelation function = {:.4e} [s] ~ {} w_p T".format(
-                self.dt * self.slice_steps * self.dump_step,
-                int(self.dt * self.slice_steps * self.dump_step * self.total_plasma_frequency),
-            )
+        data_loc = os_path_join(self.saving_dir, tc_name + "_" + self.job_id + ".h5")
+        data_slices_loc = os_path_join(self.saving_dir, tc_name + "_slices_" + self.job_id + ".h5")
+        tau = self.dt * self.slice_steps * self.dump_step
+        tau_wp = int(self.dt * self.slice_steps * self.dump_step * self.total_plasma_frequency)
+        msg = (
+            f"Data saved in: \n {data_loc} \n {data_slices_loc} \n"
+            f"No. of slices = {self.no_slices}\n"
+            f"No. dumps per slice = {int(self.slice_steps / self.dump_step)}\n"
+            f"Time interval of autocorrelation function = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} w_p T"
         )
+        print(msg)
 
     def electrical_conductivity(self, observable, plot: bool = True, display_plot: bool = False):
         """
@@ -328,8 +327,8 @@ class TransportCoefficients:
             Flag for displaying the plot if using the IPython. Default = False.
 
         """
-
-        print("\n\n{:=^70} \n".format(" Electrical Conductivity "))
+        msg = " Electrical Conductivity "
+        print(f"\n\n{msg:=^70}\n")
         self.conductivity_df = DataFrame()
         self.conductivity_df_slices = DataFrame()
 
