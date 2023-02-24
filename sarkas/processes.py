@@ -642,7 +642,10 @@ class PreProcess(Process):
         pp_force_error = zeros((len(alphas), len(rcuts)))
         total_force_error = zeros((len(alphas), len(rcuts)))
 
-        potential_copy = self.potential.__deepcopy__()
+        # TODO: Fix this hack
+        potential_copy = self.potential.__copy__()
+        potential_copy.setup(self.parameters, self.species)
+        # potential_copy = self.potential.__deepcopy__()
         for ia, alpha in enumerate(alphas):
             for ir, rc in enumerate(rcuts):
                 potential_copy.rc = rc
