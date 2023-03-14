@@ -1,113 +1,157 @@
   
+
 <!DOCTYPE html>
 
-<html>
+
+<html lang="en" >
+
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <meta property="og:title" content="sarkas.potentials.tests.test_egs.test_egs_force" />
-  
 <meta property="og:type" content="website" />
-  
 <meta property="og:url" content="https://murillo-group.github.io/sarkas/api/potentials_subpckg/sarkas.potentials.tests.test_egs.test_egs_force.html" />
-  
 <meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
-  
+<meta property="og:image" content="https://murillo-group.github.io/sarkas/_images/social_previews/summary_api_potentials_subpckg_sarkas.potentials.tests.test_egs.test_egs_force_ba97a42e.png" />
+<meta property="og:image:alt" content="" />
 <meta property="twitter:card" content="summary">
 <meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
 <meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
-    <title>sarkas.potentials.tests.test_egs.test_egs_force &#8212; Sarkas 1.1.0 documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
-    
-  <link rel="stylesheet"
-    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+    <title>sarkas.potentials.tests.test_egs.test_egs_force &#8212; Sarkas 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
     <link rel="stylesheet" type="text/css" href="../../_static/my-style.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" href="../../_static/my-styles.css" type="text/css" />
-    
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/potentials_subpckg/sarkas.potentials.tests.test_egs.test_egs_force';</script>
     <script type="text/javascript" src="../../_static/language_data.js"></script>
   
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="sarkas.potentials.tests.test_force_pm" href="sarkas.potentials.tests.test_force_pm.html" />
     <link rel="prev" title="sarkas.potentials.tests.test_egs" href="sarkas.potentials.tests.test_egs.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay overlay-navbar" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<!-- Checkboxes to toggle the in-page toc -->
-<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
-<label class="overlay overlay-pagetoc" for="__page-toc">
-    <div class="visually-hidden">Toggle in-page Table of Contents</div>
-</label>
-<!-- Headers at the top -->
-<div class="announcement header-item noprint"></div>
-<div class="header header-item noprint"></div>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
-    
-    <div class="container-fluid" id="banner"></div>
-
-    
-
-    <div class="container-xl">
-      <div class="row">
-          
-<!-- Sidebar -->
-<div class="bd-sidebar noprint" id="site-navigation">
-    <div class="bd-sidebar__content">
-        <div class="bd-sidebar__top"><div class="navbar-brand-box">
-    <a class="navbar-brand text-wrap" href="../../index.html">
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
       
-        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+      <div class="bd-sidebar-primary bd-sidebar">
         
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    
+    
       
-      
-      <img src="../../_static/Sarkas_v1_for_dark_bg.svg" class="logo" alt="logo">
-      
-      
-    </a>
-</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item active">
+    
+    
+    <img src="../../_static/Sarkas_v1_for_dark_bg.svg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../_static/Sarkas_v1_for_dark_bg.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
@@ -116,1472 +160,480 @@
                 </a>
             </li>
         </ul>
-        <p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Documentation:
- </span>
-</p>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation:</span></p>
 <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="../../documentation/why_sarkas.html">
-   Why Sarkas
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../documentation/get_started.html">
-   Get Started
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../documentation/Tutorial_NB/Quickstart.html">
-     Quickstart
-    </a>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../../documentation/tutorial.html">
-     Tutorial
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-    <label for="toctree-checkbox-2">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../documentation/input_file.html">
-       Input File
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../documentation/Tutorial_NB/Pre_Simulation_Testing.html">
-       Pre Simulation Testing
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../documentation/Tutorial_NB/Simulation_Docs.html">
-       Running a Simulation
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../../documentation/Tutorial_NB/Post_Processing_Docs.html">
-       Data Analysis
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../documentation/features.html">
-   Available Features
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-  <label for="toctree-checkbox-3">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../documentation/Features_files/integrators.html">
-     Integrators
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../documentation/Features_files/Berendsen_NB/Berendsen_Thermostat.html">
-     Thermostats
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../documentation/Features_files/potentials.html">
-     Potentials
-    </a>
-   </li>
-  </ul>
- </li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/why_sarkas.html">Why Sarkas</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../documentation/get_started.html">Get Started</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../documentation/Tutorial_NB/Quickstart.html">Quickstart</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../documentation/tutorial.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../documentation/input_file.html">Input File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../documentation/Tutorial_NB/Pre_Simulation_Testing.html">Pre Simulation Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../documentation/Tutorial_NB/Simulation_Docs.html">Running a Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../documentation/Tutorial_NB/Post_Processing_Docs.html">Data Analysis</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Theory:
- </span>
-</p>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../documentation/features.html">Available Features</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../documentation/Features_files/integrators.html">Integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../documentation/Features_files/Berendsen_NB/Berendsen_Thermostat.html">Thermostats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../documentation/Features_files/potentials.html">Potentials</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Theory:</span></p>
 <ul class="nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../theory/theory.html">
-   Theoretical Background
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-  <label for="toctree-checkbox-4">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../theory/PPPM.html">
-     Particle-Particle Particle-Mesh Algorithm
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../theory/force_error.html">
-     Force Error
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../theory/coupling_constant.html">
-     Coupling Constant
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../theory/electron_properties.html">
-     Electron Properties
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../theory/references.html">
-     References
-    </a>
-   </li>
-  </ul>
- </li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../theory/theory.html">Theoretical Background</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/PPPM.html">Particle-Particle Particle-Mesh Algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/force_error.html">Force Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/coupling_constant.html">Coupling Constant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/electron_properties.html">Electron Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/references.html">References</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Code Dev:
- </span>
-</p>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
 <ul class="nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../code_development/code_dev.html">
-   Code Development
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../code_development/dev_setup.html">
-     Setup
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../code_development/dev_report_issues.html">
-     Reporting Issues
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../code_development/dev_docs.html">
-     Documentation
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../code_development/dev_contributing.html">
-     Contributing to Sarkas
-    </a>
-   </li>
-  </ul>
- </li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../code_development/code_dev.html">Code Development</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../code_development/dev_setup.html">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../code_development/dev_report_issues.html">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../code_development/dev_docs.html">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../code_development/dev_contributing.html">Contributing to Sarkas</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Simulations:
- </span>
-</p>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Simulations:</span></p>
 <ul class="nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../examples/examples.html">
-   Examples
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-  <label for="toctree-checkbox-6">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/OCP/OCP.html">
-     One Component Plasma (OCP)
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/BIM/H-He_Mixture.html">
-     H-He Mixture
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/QSP/QSP_Tutorial.html">
-     Quantum Statistical Potential Simulation
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/Magnetized_OCP/Magnetized_Plasma.html">
-     Magnetized Plasma
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">
-     Yukawa vs Egs potential
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/Moliere/Moliere_Simulation.html">
-     Moliere Potential
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/UNP/UCP_Experiment_Validation.html">
-     MD for Experiment Validation
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../examples/Ultrafast_EC/Ultrafast_EC_Validation.html">
-     Ultrafast electron cooling in an expanding ultracold plasma
-    </a>
-   </li>
-  </ul>
- </li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples/examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/OCP/OCP.html">One Component Plasma (OCP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/BIM/H-He_Mixture.html">H-He Mixture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/QSP/QSP_Tutorial.html">Quantum Statistical Potential Simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Magnetized_OCP/Magnetized_Plasma.html">Magnetized Plasma</a></li>
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">Yukawa vs Egs potential</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Moliere/Moliere_Simulation.html">Moliere Potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/UNP/UCP_Experiment_Validation.html">MD for Experiment Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../examples/Ultrafast_EC/Ultrafast_EC_Validation.html">Ultrafast electron cooling in an expanding ultracold plasma</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  API:
- </span>
-</p>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul class="current nav bd-sidenav">
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../api.html">
-   API reference
-  </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-  <label for="toctree-checkbox-7">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../core_pckg/sarkas.core.html">
-     sarkas.core
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-    <label for="toctree-checkbox-8">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../core_pckg/sarkas.core.Parameters.html">
-       sarkas.core.Parameters
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-      <label for="toctree-checkbox-9">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.__init__.html">
-         sarkas.core.Parameters.__init__
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_coupling_constant.html">
-         sarkas.core.Parameters.calc_coupling_constant
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_electron_properties.html">
-         sarkas.core.Parameters.calc_electron_properties
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_magnetic_parameters.html">
-         sarkas.core.Parameters.calc_magnetic_parameters
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_parameters.html">
-         sarkas.core.Parameters.calc_parameters
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.check_units.html">
-         sarkas.core.Parameters.check_units
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.create_species_arrays.html">
-         sarkas.core.Parameters.create_species_arrays
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.from_dict.html">
-         sarkas.core.Parameters.from_dict
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.pretty_print.html">
-         sarkas.core.Parameters.pretty_print
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.set_species_attributes.html">
-         sarkas.core.Parameters.set_species_attributes
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.setup.html">
-         sarkas.core.Parameters.setup
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.sim_box_setup.html">
-         sarkas.core.Parameters.sim_box_setup
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../core_pckg/sarkas.processes.html">
-     sarkas.processes
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
-    <label for="toctree-checkbox-10">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../core_pckg/sarkas.processes.PostProcess.html">
-       sarkas.processes.PostProcess
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.__init__.html">
-         sarkas.processes.PostProcess.__init__
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.common_parser.html">
-         sarkas.processes.PostProcess.common_parser
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.evolve_loop.html">
-         sarkas.processes.PostProcess.evolve_loop
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.initialization.html">
-         sarkas.processes.PostProcess.initialization
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.run.html">
-         sarkas.processes.PostProcess.run
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.setup.html">
-         sarkas.processes.PostProcess.setup
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.setup_from_simulation.html">
-         sarkas.processes.PostProcess.setup_from_simulation
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../core_pckg/sarkas.processes.PreProcess.html">
-       sarkas.processes.PreProcess
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-      <label for="toctree-checkbox-12">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.__init__.html">
-         sarkas.processes.PreProcess.__init__
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.analytical_approx_pppm.html">
-         sarkas.processes.PreProcess.analytical_approx_pppm
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.common_parser.html">
-         sarkas.processes.PreProcess.common_parser
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.evolve_loop.html">
-         sarkas.processes.PreProcess.evolve_loop
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.green_function_timer.html">
-         sarkas.processes.PreProcess.green_function_timer
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.initialization.html">
-         sarkas.processes.PreProcess.initialization
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_color_map.html">
-         sarkas.processes.PreProcess.make_color_map
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_fit_plot.html">
-         sarkas.processes.PreProcess.make_fit_plot
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_force_v_timing_plot.html">
-         sarkas.processes.PreProcess.make_force_v_timing_plot
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_lagrangian_plot.html">
-         sarkas.processes.PreProcess.make_lagrangian_plot
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_line_plot.html">
-         sarkas.processes.PreProcess.make_line_plot
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_pppm_color_map.html">
-         sarkas.processes.PreProcess.make_pppm_color_map
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_pppm_line_plot.html">
-         sarkas.processes.PreProcess.make_pppm_line_plot
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_timing_plots.html">
-         sarkas.processes.PreProcess.make_timing_plots
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.postproc_estimates.html">
-         sarkas.processes.PreProcess.postproc_estimates
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.pppm_approximation.html">
-         sarkas.processes.PreProcess.pppm_approximation
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.remove_preproc_dumps.html">
-         sarkas.processes.PreProcess.remove_preproc_dumps
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.run.html">
-         sarkas.processes.PreProcess.run
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.setup.html">
-         sarkas.processes.PreProcess.setup
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.time_acceleration.html">
-         sarkas.processes.PreProcess.time_acceleration
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.time_evolution_loop.html">
-         sarkas.processes.PreProcess.time_evolution_loop
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.time_n_space_estimates.html">
-         sarkas.processes.PreProcess.time_n_space_estimates
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.timing_study_calculation.html">
-         sarkas.processes.PreProcess.timing_study_calculation
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../core_pckg/sarkas.processes.Process.html">
-       sarkas.processes.Process
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-      <label for="toctree-checkbox-13">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.__init__.html">
-         sarkas.processes.Process.__init__
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.common_parser.html">
-         sarkas.processes.Process.common_parser
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.evolve_loop.html">
-         sarkas.processes.Process.evolve_loop
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.initialization.html">
-         sarkas.processes.Process.initialization
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.setup.html">
-         sarkas.processes.Process.setup
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../core_pckg/sarkas.processes.Simulation.html">
-       sarkas.processes.Simulation
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.__init__.html">
-         sarkas.processes.Simulation.__init__
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.check_restart.html">
-         sarkas.processes.Simulation.check_restart
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.common_parser.html">
-         sarkas.processes.Simulation.common_parser
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.equilibrate.html">
-         sarkas.processes.Simulation.equilibrate
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.evolve_loop.html">
-         sarkas.processes.Simulation.evolve_loop
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.initialization.html">
-         sarkas.processes.Simulation.initialization
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.magnetize.html">
-         sarkas.processes.Simulation.magnetize
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.produce.html">
-         sarkas.processes.Simulation.produce
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.run.html">
-         sarkas.processes.Simulation.run
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.setup.html">
-         sarkas.processes.Simulation.setup
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 current active has-children">
-    <a class="reference internal" href="sarkas.potentials.html">
-     sarkas.potentials
-    </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-    <label for="toctree-checkbox-15">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul class="current">
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.core.html">
-       sarkas.potentials.core
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.core.Potential.html">
-         sarkas.potentials.core.Potential
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.coulomb.html">
-       sarkas.potentials.coulomb
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
-      <label for="toctree-checkbox-17">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.coulomb.pretty_print_info.html">
-         sarkas.potentials.coulomb.pretty_print_info
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.coulomb.update_params.html">
-         sarkas.potentials.coulomb.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.egs.html">
-       sarkas.potentials.egs
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
-      <label for="toctree-checkbox-18">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.egs.pretty_print_info.html">
-         sarkas.potentials.egs.pretty_print_info
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.egs.update_params.html">
-         sarkas.potentials.egs.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="sarkas.potentials.force_pm.html">
-       sarkas.potentials.force_pm
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="sarkas.potentials.force_pp.html">
-       sarkas.potentials.force_pp
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.hs_yukawa.html">
-       sarkas.potentials.hs_yukawa
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
-      <label for="toctree-checkbox-19">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.hs_yukawa.pretty_print_info.html">
-         sarkas.potentials.hs_yukawa.pretty_print_info
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.hs_yukawa.update_params.html">
-         sarkas.potentials.hs_yukawa.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.lennardjones.html">
-       sarkas.potentials.lennardjones
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
-      <label for="toctree-checkbox-20">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.lennardjones.pretty_print_info.html">
-         sarkas.potentials.lennardjones.pretty_print_info
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.lennardjones.update_params.html">
-         sarkas.potentials.lennardjones.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.moliere.html">
-       sarkas.potentials.moliere
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/>
-      <label for="toctree-checkbox-21">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.moliere.update_params.html">
-         sarkas.potentials.moliere.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.qsp.html">
-       sarkas.potentials.qsp
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/>
-      <label for="toctree-checkbox-22">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.qsp.pretty_print_info.html">
-         sarkas.potentials.qsp.pretty_print_info
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.qsp.update_params.html">
-         sarkas.potentials.qsp.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 current active has-children">
-      <a class="reference internal" href="sarkas.potentials.tests.html">
-       sarkas.potentials.tests
-      </a>
-      <input checked="" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/>
-      <label for="toctree-checkbox-23">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul class="current">
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_coulomb.html">
-         sarkas.potentials.tests.test_coulomb
-        </a>
-       </li>
-       <li class="toctree-l4 current active">
-        <a class="reference internal" href="sarkas.potentials.tests.test_egs.html">
-         sarkas.potentials.tests.test_egs
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_force_pm.html">
-         sarkas.potentials.tests.test_force_pm
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_force_pp.html">
-         sarkas.potentials.tests.test_force_pp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_lennardjones.html">
-         sarkas.potentials.tests.test_lennardjones
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_moliere.html">
-         sarkas.potentials.tests.test_moliere
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_qsp.html">
-         sarkas.potentials.tests.test_qsp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.tests.test_yukawa.html">
-         sarkas.potentials.tests.test_yukawa
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="sarkas.potentials.yukawa.html">
-       sarkas.potentials.yukawa
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/>
-      <label for="toctree-checkbox-24">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.yukawa.pretty_print_info.html">
-         sarkas.potentials.yukawa.pretty_print_info
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="sarkas.potentials.yukawa.update_params.html">
-         sarkas.potentials.yukawa.update_params
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.html">
-     sarkas.time_evolution
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/>
-    <label for="toctree-checkbox-25">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.integrators.html">
-       sarkas.time_evolution.integrators
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/>
-      <label for="toctree-checkbox-26">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.integrators.Integrator.html">
-         sarkas.time_evolution.integrators.Integrator
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.thermostats.html">
-       sarkas.time_evolution.thermostats
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/>
-      <label for="toctree-checkbox-27">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.thermostats.Thermostat.html">
-         sarkas.time_evolution.thermostats.Thermostat
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../tools_subpckg/sarkas.tools.html">
-     sarkas.tools
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/>
-    <label for="toctree-checkbox-28">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.html">
-       sarkas.tools.observables
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/>
-      <label for="toctree-checkbox-29">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.arg_update_doc.html">
-         sarkas.tools.observables.arg_update_doc
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_Skw.html">
-         sarkas.tools.observables.calc_Skw
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_diff_flux_acf.html">
-         sarkas.tools.observables.calc_diff_flux_acf
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_moments.html">
-         sarkas.tools.observables.calc_moments
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_nkt.html">
-         sarkas.tools.observables.calc_nkt
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_pressure_tensor.html">
-         sarkas.tools.observables.calc_pressure_tensor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_vacf.html">
-         sarkas.tools.observables.calc_vacf
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_vkt.html">
-         sarkas.tools.observables.calc_vkt
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calculate_herm_coeff.html">
-         sarkas.tools.observables.calculate_herm_coeff
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.col_mapper.html">
-         sarkas.tools.observables.col_mapper
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.compute_doc.html">
-         sarkas.tools.observables.compute_doc
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.grad_expansion.html">
-         sarkas.tools.observables.grad_expansion
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.kspace_setup.html">
-         sarkas.tools.observables.kspace_setup
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.load_from_restart.html">
-         sarkas.tools.observables.load_from_restart
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.plot_labels.html">
-         sarkas.tools.observables.plot_labels
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.setup_doc.html">
-         sarkas.tools.observables.setup_doc
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.CurrentCorrelationFunction.html">
-         sarkas.tools.observables.CurrentCorrelationFunction
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.DiffusionFlux.html">
-         sarkas.tools.observables.DiffusionFlux
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.DynamicStructureFactor.html">
-         sarkas.tools.observables.DynamicStructureFactor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.ElectricCurrent.html">
-         sarkas.tools.observables.ElectricCurrent
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.Observable.html">
-         sarkas.tools.observables.Observable
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.PressureTensor.html">
-         sarkas.tools.observables.PressureTensor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.RadialDistributionFunction.html">
-         sarkas.tools.observables.RadialDistributionFunction
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.StaticStructureFactor.html">
-         sarkas.tools.observables.StaticStructureFactor
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.Thermodynamics.html">
-         sarkas.tools.observables.Thermodynamics
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.VelocityAutoCorrelationFunction.html">
-         sarkas.tools.observables.VelocityAutoCorrelationFunction
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.VelocityDistribution.html">
-         sarkas.tools.observables.VelocityDistribution
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../tools_subpckg/sarkas.tools.transport.html">
-       sarkas.tools.transport
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/>
-      <label for="toctree-checkbox-30">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../tools_subpckg/sarkas.tools.transport.TransportCoefficients.html">
-         sarkas.tools.transport.TransportCoefficients
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../util_subpckg/sarkas.utilities.html">
-     sarkas.utilities
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/>
-    <label for="toctree-checkbox-31">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.html">
-       sarkas.utilities.exceptions
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/>
-      <label for="toctree-checkbox-32">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.AlgorithmError.html">
-         sarkas.utilities.exceptions.AlgorithmError
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.AlgorithmWarning.html">
-         sarkas.utilities.exceptions.AlgorithmWarning
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.ParticlesError.html">
-         sarkas.utilities.exceptions.ParticlesError
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.ParticlesWarning.html">
-         sarkas.utilities.exceptions.ParticlesWarning
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.PhysicsWarning.html">
-         sarkas.utilities.exceptions.PhysicsWarning
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.SarkasError.html">
-         sarkas.utilities.exceptions.SarkasError
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.SarkasWarning.html">
-         sarkas.utilities.exceptions.SarkasWarning
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.TimerError.html">
-         sarkas.utilities.exceptions.TimerError
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.html">
-       sarkas.utilities.fdints
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/>
-      <label for="toctree-checkbox-33">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.fd_doc_hparams.html">
-         sarkas.utilities.fdints.fd_doc_hparams
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.fd_doc_iparams.html">
-         sarkas.utilities.fdints.fd_doc_iparams
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.fermidirac_integral.html">
-         sarkas.utilities.fdints.fermidirac_integral
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../util_subpckg/sarkas.utilities.io.html">
-       sarkas.utilities.io
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/>
-      <label for="toctree-checkbox-34">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.io.alpha_to_int.html">
-         sarkas.utilities.io.alpha_to_int
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.io.convert_bytes.html">
-         sarkas.utilities.io.convert_bytes
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.io.num_sort.html">
-         sarkas.utilities.io.num_sort
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.io.InputOutput.html">
-         sarkas.utilities.io.InputOutput
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.html">
-       sarkas.utilities.maths
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/>
-      <label for="toctree-checkbox-35">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.betamp.html">
-         sarkas.utilities.maths.betamp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.correlationfunction.html">
-         sarkas.utilities.maths.correlationfunction
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_analytic_lcl.html">
-         sarkas.utilities.maths.force_error_analytic_lcl
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_analytic_pp.html">
-         sarkas.utilities.maths.force_error_analytic_pp
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_approx_pm.html">
-         sarkas.utilities.maths.force_error_approx_pm
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_approx_pppm.html">
-         sarkas.utilities.maths.force_error_approx_pppm
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.yukawa_green_function.html">
-         sarkas.utilities.maths.yukawa_green_function
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../util_subpckg/sarkas.utilities.tests.html">
-       sarkas.utilities.tests
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/>
-      <label for="toctree-checkbox-36">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.tests.test_fdints.html">
-         sarkas.utilities.tests.test_fdints
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.tests.test_maths.html">
-         sarkas.utilities.tests.test_maths
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../util_subpckg/sarkas.utilities.timing.html">
-       sarkas.utilities.timing
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/>
-      <label for="toctree-checkbox-37">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../util_subpckg/sarkas.utilities.timing.SarkasTimer.html">
-         sarkas.utilities.timing.SarkasTimer
-        </a>
-       </li>
-      </ul>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../api.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../core_pckg/sarkas.core.html">sarkas.core</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../core_pckg/sarkas.core.Parameters.html">sarkas.core.Parameters</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.__init__.html">sarkas.core.Parameters.__init__</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_coupling_constant.html">sarkas.core.Parameters.calc_coupling_constant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_electron_properties.html">sarkas.core.Parameters.calc_electron_properties</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_magnetic_parameters.html">sarkas.core.Parameters.calc_magnetic_parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.calc_parameters.html">sarkas.core.Parameters.calc_parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.check_units.html">sarkas.core.Parameters.check_units</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.create_species_arrays.html">sarkas.core.Parameters.create_species_arrays</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.from_dict.html">sarkas.core.Parameters.from_dict</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.pretty_print.html">sarkas.core.Parameters.pretty_print</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.set_species_attributes.html">sarkas.core.Parameters.set_species_attributes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.setup.html">sarkas.core.Parameters.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Parameters_mthds/sarkas.core.Parameters.sim_box_setup.html">sarkas.core.Parameters.sim_box_setup</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Credits:
- </span>
-</p>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../core_pckg/sarkas.processes.html">sarkas.processes</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../core_pckg/sarkas.processes.PostProcess.html">sarkas.processes.PostProcess</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.__init__.html">sarkas.processes.PostProcess.__init__</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.common_parser.html">sarkas.processes.PostProcess.common_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.evolve_loop.html">sarkas.processes.PostProcess.evolve_loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.initialization.html">sarkas.processes.PostProcess.initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.run.html">sarkas.processes.PostProcess.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.setup.html">sarkas.processes.PostProcess.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PostProcess_mthds/sarkas.processes.PostProcess.setup_from_simulation.html">sarkas.processes.PostProcess.setup_from_simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../core_pckg/sarkas.processes.PreProcess.html">sarkas.processes.PreProcess</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.__init__.html">sarkas.processes.PreProcess.__init__</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.analytical_approx_pppm.html">sarkas.processes.PreProcess.analytical_approx_pppm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.common_parser.html">sarkas.processes.PreProcess.common_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.evolve_loop.html">sarkas.processes.PreProcess.evolve_loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.green_function_timer.html">sarkas.processes.PreProcess.green_function_timer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.initialization.html">sarkas.processes.PreProcess.initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_color_map.html">sarkas.processes.PreProcess.make_color_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_fit_plot.html">sarkas.processes.PreProcess.make_fit_plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_force_v_timing_plot.html">sarkas.processes.PreProcess.make_force_v_timing_plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_lagrangian_plot.html">sarkas.processes.PreProcess.make_lagrangian_plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_line_plot.html">sarkas.processes.PreProcess.make_line_plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_pppm_color_map.html">sarkas.processes.PreProcess.make_pppm_color_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_pppm_line_plot.html">sarkas.processes.PreProcess.make_pppm_line_plot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.make_timing_plots.html">sarkas.processes.PreProcess.make_timing_plots</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.postproc_estimates.html">sarkas.processes.PreProcess.postproc_estimates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.pppm_approximation.html">sarkas.processes.PreProcess.pppm_approximation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.remove_preproc_dumps.html">sarkas.processes.PreProcess.remove_preproc_dumps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.run.html">sarkas.processes.PreProcess.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.setup.html">sarkas.processes.PreProcess.setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.time_acceleration.html">sarkas.processes.PreProcess.time_acceleration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.time_evolution_loop.html">sarkas.processes.PreProcess.time_evolution_loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.time_n_space_estimates.html">sarkas.processes.PreProcess.time_n_space_estimates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/PreProcess_mthds/sarkas.processes.PreProcess.timing_study_calculation.html">sarkas.processes.PreProcess.timing_study_calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../core_pckg/sarkas.processes.Process.html">sarkas.processes.Process</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.__init__.html">sarkas.processes.Process.__init__</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.common_parser.html">sarkas.processes.Process.common_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.evolve_loop.html">sarkas.processes.Process.evolve_loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.initialization.html">sarkas.processes.Process.initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Process_mthds/sarkas.processes.Process.setup.html">sarkas.processes.Process.setup</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../core_pckg/sarkas.processes.Simulation.html">sarkas.processes.Simulation</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.__init__.html">sarkas.processes.Simulation.__init__</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.check_restart.html">sarkas.processes.Simulation.check_restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.common_parser.html">sarkas.processes.Simulation.common_parser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.equilibrate.html">sarkas.processes.Simulation.equilibrate</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.evolve_loop.html">sarkas.processes.Simulation.evolve_loop</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.initialization.html">sarkas.processes.Simulation.initialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.magnetize.html">sarkas.processes.Simulation.magnetize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.produce.html">sarkas.processes.Simulation.produce</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.run.html">sarkas.processes.Simulation.run</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../core_pckg/Simulation_mthds/sarkas.processes.Simulation.setup.html">sarkas.processes.Simulation.setup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="sarkas.potentials.html">sarkas.potentials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.core.html">sarkas.potentials.core</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.core.Potential.html">sarkas.potentials.core.Potential</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.coulomb.html">sarkas.potentials.coulomb</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.coulomb.pretty_print_info.html">sarkas.potentials.coulomb.pretty_print_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.coulomb.update_params.html">sarkas.potentials.coulomb.update_params</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.egs.html">sarkas.potentials.egs</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.egs.pretty_print_info.html">sarkas.potentials.egs.pretty_print_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.egs.update_params.html">sarkas.potentials.egs.update_params</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.force_pm.html">sarkas.potentials.force_pm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sarkas.potentials.force_pp.html">sarkas.potentials.force_pp</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.hs_yukawa.html">sarkas.potentials.hs_yukawa</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.hs_yukawa.pretty_print_info.html">sarkas.potentials.hs_yukawa.pretty_print_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.hs_yukawa.update_params.html">sarkas.potentials.hs_yukawa.update_params</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.lennardjones.html">sarkas.potentials.lennardjones</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.lennardjones.pretty_print_info.html">sarkas.potentials.lennardjones.pretty_print_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.lennardjones.update_params.html">sarkas.potentials.lennardjones.update_params</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.moliere.html">sarkas.potentials.moliere</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.moliere.update_params.html">sarkas.potentials.moliere.update_params</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.qsp.html">sarkas.potentials.qsp</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.qsp.pretty_print_info.html">sarkas.potentials.qsp.pretty_print_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.qsp.update_params.html">sarkas.potentials.qsp.update_params</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="sarkas.potentials.tests.html">sarkas.potentials.tests</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_coulomb.html">sarkas.potentials.tests.test_coulomb</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="sarkas.potentials.tests.test_egs.html">sarkas.potentials.tests.test_egs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_force_pm.html">sarkas.potentials.tests.test_force_pm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_force_pp.html">sarkas.potentials.tests.test_force_pp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_lennardjones.html">sarkas.potentials.tests.test_lennardjones</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_moliere.html">sarkas.potentials.tests.test_moliere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_qsp.html">sarkas.potentials.tests.test_qsp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.tests.test_yukawa.html">sarkas.potentials.tests.test_yukawa</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="sarkas.potentials.yukawa.html">sarkas.potentials.yukawa</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-24"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.yukawa.pretty_print_info.html">sarkas.potentials.yukawa.pretty_print_info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sarkas.potentials.yukawa.update_params.html">sarkas.potentials.yukawa.update_params</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.html">sarkas.time_evolution</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-25"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.integrators.html">sarkas.time_evolution.integrators</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-26"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.integrators.Integrator.html">sarkas.time_evolution.integrators.Integrator</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.thermostats.html">sarkas.time_evolution.thermostats</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-27"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../time_evolution_subpckg/sarkas.time_evolution.thermostats.Thermostat.html">sarkas.time_evolution.thermostats.Thermostat</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../tools_subpckg/sarkas.tools.html">sarkas.tools</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-28"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.html">sarkas.tools.observables</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-29"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.arg_update_doc.html">sarkas.tools.observables.arg_update_doc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_Skw.html">sarkas.tools.observables.calc_Skw</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_diff_flux_acf.html">sarkas.tools.observables.calc_diff_flux_acf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_moments.html">sarkas.tools.observables.calc_moments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_nkt.html">sarkas.tools.observables.calc_nkt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_pressure_tensor.html">sarkas.tools.observables.calc_pressure_tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_vacf.html">sarkas.tools.observables.calc_vacf</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calc_vkt.html">sarkas.tools.observables.calc_vkt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.calculate_herm_coeff.html">sarkas.tools.observables.calculate_herm_coeff</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.col_mapper.html">sarkas.tools.observables.col_mapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.compute_doc.html">sarkas.tools.observables.compute_doc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.grad_expansion.html">sarkas.tools.observables.grad_expansion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.kspace_setup.html">sarkas.tools.observables.kspace_setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.load_from_restart.html">sarkas.tools.observables.load_from_restart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.plot_labels.html">sarkas.tools.observables.plot_labels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.setup_doc.html">sarkas.tools.observables.setup_doc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.CurrentCorrelationFunction.html">sarkas.tools.observables.CurrentCorrelationFunction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.DiffusionFlux.html">sarkas.tools.observables.DiffusionFlux</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.DynamicStructureFactor.html">sarkas.tools.observables.DynamicStructureFactor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.ElectricCurrent.html">sarkas.tools.observables.ElectricCurrent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.Observable.html">sarkas.tools.observables.Observable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.PressureTensor.html">sarkas.tools.observables.PressureTensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.RadialDistributionFunction.html">sarkas.tools.observables.RadialDistributionFunction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.StaticStructureFactor.html">sarkas.tools.observables.StaticStructureFactor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.Thermodynamics.html">sarkas.tools.observables.Thermodynamics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.VelocityAutoCorrelationFunction.html">sarkas.tools.observables.VelocityAutoCorrelationFunction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.observables.VelocityDistribution.html">sarkas.tools.observables.VelocityDistribution</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../tools_subpckg/sarkas.tools.transport.html">sarkas.tools.transport</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-30"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../tools_subpckg/sarkas.tools.transport.TransportCoefficients.html">sarkas.tools.transport.TransportCoefficients</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.html">sarkas.utilities</a><input class="toctree-checkbox" id="toctree-checkbox-31" name="toctree-checkbox-31" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-31"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.html">sarkas.utilities.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-32" name="toctree-checkbox-32" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-32"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.AlgorithmError.html">sarkas.utilities.exceptions.AlgorithmError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.AlgorithmWarning.html">sarkas.utilities.exceptions.AlgorithmWarning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.ParticlesError.html">sarkas.utilities.exceptions.ParticlesError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.ParticlesWarning.html">sarkas.utilities.exceptions.ParticlesWarning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.PhysicsWarning.html">sarkas.utilities.exceptions.PhysicsWarning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.SarkasError.html">sarkas.utilities.exceptions.SarkasError</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.SarkasWarning.html">sarkas.utilities.exceptions.SarkasWarning</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.exceptions.TimerError.html">sarkas.utilities.exceptions.TimerError</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.html">sarkas.utilities.fdints</a><input class="toctree-checkbox" id="toctree-checkbox-33" name="toctree-checkbox-33" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-33"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.fd_doc_hparams.html">sarkas.utilities.fdints.fd_doc_hparams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.fd_doc_iparams.html">sarkas.utilities.fdints.fd_doc_iparams</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.fdints.fermidirac_integral.html">sarkas.utilities.fdints.fermidirac_integral</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.io.html">sarkas.utilities.io</a><input class="toctree-checkbox" id="toctree-checkbox-34" name="toctree-checkbox-34" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-34"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.io.alpha_to_int.html">sarkas.utilities.io.alpha_to_int</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.io.convert_bytes.html">sarkas.utilities.io.convert_bytes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.io.num_sort.html">sarkas.utilities.io.num_sort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.io.InputOutput.html">sarkas.utilities.io.InputOutput</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.html">sarkas.utilities.maths</a><input class="toctree-checkbox" id="toctree-checkbox-35" name="toctree-checkbox-35" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-35"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.betamp.html">sarkas.utilities.maths.betamp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.correlationfunction.html">sarkas.utilities.maths.correlationfunction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_analytic_lcl.html">sarkas.utilities.maths.force_error_analytic_lcl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_analytic_pp.html">sarkas.utilities.maths.force_error_analytic_pp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_approx_pm.html">sarkas.utilities.maths.force_error_approx_pm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.force_error_approx_pppm.html">sarkas.utilities.maths.force_error_approx_pppm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.maths.yukawa_green_function.html">sarkas.utilities.maths.yukawa_green_function</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.tests.html">sarkas.utilities.tests</a><input class="toctree-checkbox" id="toctree-checkbox-36" name="toctree-checkbox-36" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-36"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.tests.test_fdints.html">sarkas.utilities.tests.test_fdints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.tests.test_maths.html">sarkas.utilities.tests.test_maths</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../util_subpckg/sarkas.utilities.timing.html">sarkas.utilities.timing</a><input class="toctree-checkbox" id="toctree-checkbox-37" name="toctree-checkbox-37" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-37"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../util_subpckg/sarkas.utilities.timing.SarkasTimer.html">sarkas.utilities.timing.SarkasTimer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Credits:</span></p>
 <ul class="nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../credits/credits.html">
-   Credits
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/>
-  <label for="toctree-checkbox-38">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../credits/pub_research.html">
-     Publications
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../credits/team.html">
-     Dev Team
-    </a>
-   </li>
-  </ul>
- </li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../credits/credits.html">Credits</a><input class="toctree-checkbox" id="toctree-checkbox-38" name="toctree-checkbox-38" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-38"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../credits/pub_research.html">Publications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../credits/team.html">Dev Team</a></li>
+</ul>
+</li>
 </ul>
 
     </div>
 </nav></div>
-        <div class="bd-sidebar__bottom">
-             <!-- To handle the deprecated key -->
-            
-            <div class="navbar_extra_footer">
-            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
-            </div>
-            
-        </div>
     </div>
-    <div id="rtd-footer-container"></div>
-</div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
 
 
-          
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
 
-
-          
-<!-- A tiny helper pixel to detect if we've scrolled -->
 <div class="sbt-scroll-pixel-helper"></div>
-<!-- Main content -->
-<div class="col py-0 content-container">
-    
-    <div class="header-article row sticky-top noprint">
-        
 
-
-
-<div class="col py-1 d-flex header-article-main">
-    <div class="header-article__left">
-        
-        <label for="__navigation"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="right"
-title="Toggle navigation"
->
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
   
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-bars"></i>
-  </span>
-
-</label>
-
-        
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
     </div>
-    <div class="header-article__right">
-<button onclick="toggleFullScreen()"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="bottom"
-title="Fullscreen mode"
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/murillo-group/sarkas" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
-  <i class="fas fa-expand"></i>
-  </span>
-
-</button>
-<a href="https://github.com/murillo-group/sarkas/"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="bottom"
-title="Source repository"
->
-  
-
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
   <i class="fab fa-github"></i>
   </span>
 
 </a>
 
-<div class="menu-dropdown menu-dropdown-download-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Download this page">
-      <i class="fas fa-download"></i>
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
   </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="../../_sources/api/potentials_subpckg/sarkas.potentials.tests.test_egs.test_egs_force.rst"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Download source file"
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/api/potentials_subpckg/sarkas.potentials.tests.test_egs.test_egs_force.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="headerbtn__text-container">.rst</span>
+<span class="btn__text-container">.rst</span>
 </a>
-
-      </li>
+</li>
+      
+      
+      
       
       <li>
-        
-<button onclick="printPdf(this)"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="left"
-title="Print to PDF"
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
 >
   
 
-<span class="headerbtn__icon-container">
+<span class="btn__icon-container">
   <i class="fas fa-file-pdf"></i>
   </span>
-<span class="headerbtn__text-container">.pdf</span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
 </button>
 
-      </li>
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
       
-    </ul>
-  </div>
-</div>
-
     </div>
+  
 </div>
+</div>
+              
+              
 
-<!-- Table of contents -->
-<div class="col-md-3 bd-toc show noprint">
-</div>
-    </div>
-    <div class="article row">
-        <div class="col pl-md-3 pl-lg-5 content-container">
-            <!-- Table of contents that is only displayed when printing the page -->
-            <div id="jb-print-docs-body" class="onlyprint">
-                <h1>sarkas.potentials.tests.test_egs.test_egs_force</h1>
-                <!-- Table of contents -->
-                <div id="print-main-content">
-                    <div id="jb-print-toc">
-                        
-                    </div>
-                </div>
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>sarkas.potentials.tests.test_egs.test_egs_force</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Content </h2>
             </div>
-            <main id="main-content" role="main">
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sarkas.potentials.tests.test_egs.test_egs_force"><code class="docutils literal notranslate"><span class="pre">test_egs_force()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
                 
-              <div>
-                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
   <section id="sarkas-potentials-tests-test-egs-test-egs-force">
-<h1>sarkas.potentials.tests.test_egs.test_egs_force<a class="headerlink" href="#sarkas-potentials-tests-test-egs-test-egs-force" title="Permalink to this headline">#</a></h1>
+<h1>sarkas.potentials.tests.test_egs.test_egs_force<a class="headerlink" href="#sarkas-potentials-tests-test-egs-test-egs-force" title="Permalink to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.potentials.tests.test_egs.test_egs_force">
 <span class="sig-prename descclassname"><span class="pre">sarkas.potentials.tests.test_egs.</span></span><span class="sig-name descname"><span class="pre">test_egs_force</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/sarkas/potentials/tests/test_egs.html#test_egs_force"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.potentials.tests.test_egs.test_egs_force" title="Permalink to this definition">#</a></dt>
@@ -1591,52 +643,103 @@ title="Print to PDF"
 </section>
 
 
-              </div>
+                </article>
               
-            </main>
-            <footer class="footer-article noprint">
-                
-    <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="sarkas.potentials.tests.test_egs.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">sarkas.potentials.tests.test_egs</p>
-        </div>
+
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sarkas.potentials.tests.test_egs.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">sarkas.potentials.tests.test_egs</p>
+      </div>
     </a>
-    <a class='right-next' id="next-link" href="sarkas.potentials.tests.test_force_pm.html" title="next page">
-    <div class="prev-next-info">
+    <a class="right-next"
+       href="sarkas.potentials.tests.test_force_pm.html"
+       title="next page">
+      <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
         <p class="prev-next-title">sarkas.potentials.tests.test_force_pm</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
-            </footer>
-        </div>
-    </div>
-    <div class="footer-content row">
-        <footer class="col footer"><p>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Content
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sarkas.potentials.tests.test_egs.test_egs_force"><code class="docutils literal notranslate"><span class="pre">test_egs_force()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner">
+<div class="bd-footer-content__inner container">
   
-    By MurilloGroup<br/>
-  
-      &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Aug 22, 2022.<br/>
-</p>
-        </footer>
-    </div>
+  <div class="footer-item">
     
-</div>
+<p class="component-author">
+By MurilloGroup
+</p>
 
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2019-2022, MurilloGroup.
+      <br/>
+    
+  </p>
 
-      </div>
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Mar 14, 2023.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div></div>
+          </footer>
+        
+
+      </main>
     </div>
+  </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-
+  <script src="../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
  
+  <footer class="bd-footer">
+  </footer>
 
   <script type="text/javascript">
     jQuery(function () {
