@@ -73,7 +73,7 @@ that the environment is active. See figure below
 .. figure:: an_env_active.PNG
     :alt: Figure an_env_active.PNG not found
 
-Click on the arrow and select `Open in Terminal`. In Terminal you can install sarkas system wide via
+Click on the arrow and select ``Open in Terminal``. In Terminal you can install sarkas system wide via
 
 .. code-block:: bash
 
@@ -112,12 +112,37 @@ You can find their `section <https://fmm3d.readthedocs.io/en/latest/install.html
 Known Issues
 ============
 
+Pyfftw Runtime error
+--------------------
+
+The following error message could appear while running Sarkas for the first time
+
+ .. code-block:: python
+    
+    RuntimeError                              Traceback (most recent call last)
+    RuntimeError: Undefined plan with nthreads. This is a bug
+    Exception ignored in: 'pyfftw.pyfftw._fftw_plan_with_nthreads_null'
+    RuntimeError: Undefined plan with nthreads. This is a bug
+    ---------------------------------------------------------------------------
+
+Note that this won't stop the simulation and Sarkas will still be running. 
+The error message is due to a package conflict. It happens if the version of your ``pyfftw`` package is newer than ``0.12.0``. 
+A quick hack is to revert your ``pyfftw`` version to ``0.12.0`` via 
+
+.. code-block:: bash
+
+    $ pip install pyfftw==0.12.0
+
+
+Matplotlib style not found
+--------------------------
+
 Sarkas contains two matplotlib configuration files,
 `MSUstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/MSUstyle.mplstyle>`_
 and `PUBstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/PUBstyle.mplstyle>`_.
 However, they are not installed by default. Therefore, if you want to use our styles, you need to manually copy
 the mpl styles in the correct folder. Here is a sample python script for installing the mpl styles.
-Remember to point to the right STYLE_PATH.
+Remember to point to the right ``STYLE_PATH``.
 
 .. code-block:: python
 
