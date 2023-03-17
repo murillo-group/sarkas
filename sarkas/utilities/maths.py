@@ -158,18 +158,18 @@ def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
 
 def force_error_approx_pppm(potential):
     r"""
-     Calculates the force error, :math:`\Delta F_{\rm {pm}}, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
-     The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
+    Calculates the force error, :math:`\Delta F_{\rm pm}`, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
+    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.
 
-     Parameters
-     ----------
-     potential: :class:`sarkas.potentials.core.Potential`
-        Potential class with all the required information.
+    Parameters
+    ----------
+    potential: :class:`sarkas.potentials.core.Potential`
+       Potential class with all the required information.
 
-     Returns
-     -------
+    Returns
+    -------
     tot_force_error: float
-        Total force error given by the L2 norm of the PP and PM force errors.
+       Total force error given by the L2 norm of the PP and PM force errors.
 
     pppm_pm_err: float
         PM force error.
@@ -201,8 +201,8 @@ def force_error_approx_pppm(potential):
 
 def force_error_approx_pm(kappa: float, p: int, h: float, alpha: float):
     r"""
-    Calculates the PM part of the force error, :math:`\Delta F_{\rm {pm}},  for a given value of the PPPM parameters.
-    The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
+    Calculates the PM part of the force error, :math:`\Delta F_{\rm pm}`,  for a given value of the PPPM parameters.
+    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
