@@ -8,68 +8,74 @@ msgstr ""
 "Language: sv\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "By"
-msgstr "Förbi"
+msgid "Download this page"
+msgstr "Ladda ner den här sidan"
+
+msgid "Download notebook file"
+msgstr "Ladda ner anteckningsbokfilen"
+
+msgid "Open an issue"
+msgstr "Öppna ett problem"
 
 msgid "repository"
 msgstr "förvar"
 
-msgid "Fullscreen mode"
-msgstr "Fullskärmsläge"
+msgid "Theme by the"
+msgstr "Tema av"
 
 msgid "Contents"
 msgstr "Innehåll"
 
-msgid "Download source file"
-msgstr "Ladda ner källfil"
-
-msgid "Edit this page"
-msgstr "Redigera den här sidan"
+msgid "next page"
+msgstr "nästa sida"
 
 msgid "Last updated on"
 msgstr "Senast uppdaterad den"
 
-msgid "Print to PDF"
-msgstr "Skriv ut till PDF"
+msgid "Launch"
+msgstr "Lansera"
+
+msgid "Edit this page"
+msgstr "Redigera den här sidan"
+
+msgid "Source repository"
+msgstr "Källförvar"
+
+msgid "Download source file"
+msgstr "Ladda ner källfil"
+
+msgid "Sphinx Book Theme"
+msgstr "Sphinx boktema"
+
+msgid "Copyright"
+msgstr "upphovsrätt"
+
+msgid "Fullscreen mode"
+msgstr "Fullskärmsläge"
+
+msgid "Search the docs ..."
+msgstr "Sök i dokumenten ..."
 
 msgid "suggest edit"
 msgstr "föreslå redigering"
 
-msgid "Download this page"
-msgstr "Ladda ner den här sidan"
+msgid "Search this book..."
+msgstr "Sök i den här boken ..."
+
+msgid "By"
+msgstr "Förbi"
+
+msgid "open issue"
+msgstr "öppet problem"
+
+msgid "Print to PDF"
+msgstr "Skriv ut till PDF"
+
+msgid "previous page"
+msgstr "föregående sida"
 
 msgid "Toggle navigation"
 msgstr "Växla navigering"
 
 msgid "By the"
 msgstr "Vid"
-
-msgid "Sphinx Book Theme"
-msgstr "Sphinx boktema"
-
-msgid "previous page"
-msgstr "föregående sida"
-
-msgid "Source repository"
-msgstr "Källförvar"
-
-msgid "open issue"
-msgstr "öppet problem"
-
-msgid "Download notebook file"
-msgstr "Ladda ner anteckningsbokfilen"
-
-msgid "Copyright"
-msgstr "upphovsrätt"
-
-msgid "Theme by the"
-msgstr "Tema av"
-
-msgid "Open an issue"
-msgstr "Öppna ett problem"
-
-msgid "next page"
-msgstr "nästa sida"
-
-msgid "Launch"
-msgstr "Lansera"
