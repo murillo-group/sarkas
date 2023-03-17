@@ -14,7 +14,7 @@
   
 <meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
   
-<meta property="og:description" content="Ewald Sum: Long range forces are calculated using the Ewald method which consists in dividing the potential into a short and a long range part. Physically this is equivalent to adding and subtracti..." />
+<meta property="og:description" content="The Particle-Particle Particle-Mesh (PPPM or P3M) algorithm is a Fourier-based Ewald summation method formulated by Hockney and Eastwood in the late 1980s. Ewald Sum: The Ewald summation is a metho..." />
   
 <meta property="twitter:card" content="summary">
 <meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
@@ -55,6 +55,7 @@
     <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script type="text/javascript" src="../_static/language_data.js"></script>
@@ -1523,7 +1524,7 @@ title="Source repository"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="../_sources/theory/PPPM.rst"
+        <a href="../_sources/theory/PPPM.ipynb"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -1534,7 +1535,7 @@ title="Download source file"
 <span class="headerbtn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="headerbtn__text-container">.rst</span>
+<span class="headerbtn__text-container">.ipynb</span>
 </a>
 
       </li>
@@ -1583,18 +1584,35 @@ title="Print to PDF"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#ewald-sum">
+  <a class="reference internal nav-link" href="#Ewald-Sum">
    Ewald Sum
   </a>
   <ul class="visible nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#short-range-term">
+    <a class="reference internal nav-link" href="#Total-charge-density">
+     Total charge density
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Short-range-term">
      Short-range term
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#long-range-term">
+    <a class="reference internal nav-link" href="#Long-range-term">
      Long-range term
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Assigning-charges-onto-the-mesh">
+   Assigning charges onto the mesh
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Algorithm">
+     Algorithm
     </a>
    </li>
   </ul>
@@ -1619,18 +1637,35 @@ title="Print to PDF"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#ewald-sum">
+  <a class="reference internal nav-link" href="#Ewald-Sum">
    Ewald Sum
   </a>
   <ul class="visible nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#short-range-term">
+    <a class="reference internal nav-link" href="#Total-charge-density">
+     Total charge density
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Short-range-term">
      Short-range term
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#long-range-term">
+    <a class="reference internal nav-link" href="#Long-range-term">
      Long-range term
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Assigning-charges-onto-the-mesh">
+   Assigning charges onto the mesh
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Algorithm">
+     Algorithm
     </a>
    </li>
   </ul>
@@ -1645,42 +1680,303 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="particle-particle-particle-mesh-algorithm">
-<h1>Particle-Particle Particle-Mesh Algorithm<a class="headerlink" href="#particle-particle-particle-mesh-algorithm" title="Permalink to this headline">#</a></h1>
-<section id="ewald-sum">
-<h2>Ewald Sum<a class="headerlink" href="#ewald-sum" title="Permalink to this headline">#</a></h2>
-<p>Long range forces are calculated using the Ewald method which consists in dividing the potential into a short
-and a long range part. Physically this is equivalent to adding and subtracting a screening cloud around each charge.
-This screening cloud is usually chosen to be given by a Gaussian charged density distribution, but it need not be.
-The choice of a Gaussian is due to spherical symmetry.</p>
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Particle-Particle-Particle-Mesh-Algorithm">
+<h1>Particle-Particle Particle-Mesh Algorithm<a class="headerlink" href="#Particle-Particle-Particle-Mesh-Algorithm" title="Permalink to this headline">#</a></h1>
+<p>The Particle-Particle Particle-Mesh (PPPM or P3M) algorithm is a Fourier-based Ewald summation method formulated by Hockney and Eastwood in the late 1980s.</p>
+<section id="Ewald-Sum">
+<h2>Ewald Sum<a class="headerlink" href="#Ewald-Sum" title="Permalink to this headline">#</a></h2>
+<p>The Ewald summation is a method to compute the potential energy of long-range interaction in periodic systems. More details can be found in this Wikipedia <a class="reference external" href="https://en.wikipedia.org/wiki/Ewald_summation">article</a>. In the following we will concentrate on explaining how it is used in the context of Sarkas.</p>
+<p>Long range forces are calculated using the Ewald method which consists in dividing the potential into a short and a long range part. Physically this is equivalent to adding and subtracting a screening cloud around each charge. This screening cloud is usually chosen to be given by a Gaussian charged density distribution, but it need not be. The primary reason for choosing a Gaussian is its spherical symmetry. In the following we will calculate the charge density with its surrounding clouds and
+the corresponding energy density of each.</p>
+<section id="Total-charge-density">
+<h3>Total charge density<a class="headerlink" href="#Total-charge-density" title="Permalink to this headline">#</a></h3>
+<p>Consider a system of <span class="math notranslate nohighlight">\(N\)</span> randomly distributed charges whose distribution is given by</p>
+<div class="math notranslate nohighlight">
+\[\rho_N ( \mathbf r) = \sum_{i = 1}^{N} q_i \delta( \mathbf r - \mathbf r_i).\]</div>
+<p>At each point <span class="math notranslate nohighlight">\(\mathbf r_i\)</span> we add and substract a Gaussian screening cloud</p>
+<div class="math notranslate nohighlight">
+\[\rho_S (\mathbf r) = -\frac{q_i \alpha^{3/2}}{\pi} e^{-\alpha^2 (\mathbf r - \mathbf r_i)^2}.\]</div>
 <p>The total charge density at point <span class="math notranslate nohighlight">\(\mathbf r\)</span> is then</p>
 <div class="math notranslate nohighlight">
 \[\rho(\mathbf r) = \sum_{i}^N  \left \{ \left ( q_i\delta( \mathbf r - \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r - \mathbf r_i \right )^2 } \right ) + \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right \},\]</div>
-<p>where the first term is the charge density due to the real particles and the last two terms are a negative
-and positive screening cloud. The first two terms are in parenthesis to emphasizes the splitting into</p>
+<p>where, again, the first term is the charge density due to the real particles and the last two terms are the negative and positive screening clouds. The first two terms are in parenthesis to emphasizes the splitting into</p>
 <div class="math notranslate nohighlight">
 \[\rho(\mathbf r)  = \rho_{\mathcal R}(\mathbf r) + \rho_{\mathcal F}(\mathbf r)\]</div>
 <div class="math notranslate nohighlight">
 \[\rho_{\mathcal R} (\mathbf r) = \sum_{i}^N \left ( q_i\delta( \mathbf r- \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right ), \quad \rho_{\mathcal F}(\mathbf r) = \sum_{i}^N \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 }\]</div>
-<p>where <span class="math notranslate nohighlight">\(\rho_{\mathcal R}(\mathbf r)\)</span> indicates the charge density leading to the short range part of the potential
-and <span class="math notranslate nohighlight">\(\rho_{\mathcal F}(\mathbf r)\)</span> leading to the long range part.
-The subscripts <span class="math notranslate nohighlight">\(\mathcal R, \mathcal F\)</span> stand for Real and Fourier space indicating the way the calculation
-will be done.</p>
+<p>where <span class="math notranslate nohighlight">\(\rho_{\mathcal R}(\mathbf r)\)</span> indicates the charge density leading to the short range part of the potential and <span class="math notranslate nohighlight">\(\rho_{\mathcal F}(\mathbf r)\)</span> leading to the long range part. The subscripts <span class="math notranslate nohighlight">\(\mathcal R, \mathcal F\)</span> stand for Real and Fourier space indicating the way the calculation will be done.</p>
 <p>The potential at every point <span class="math notranslate nohighlight">\(\mathbf r\)</span> is calculated from Poisson’s equation</p>
 <div class="math notranslate nohighlight">
 \[-\nabla^2 \phi( \mathbf r) = 4\pi \rho_{\mathcal R} (\mathbf r) + 4\pi \rho_{\mathcal F}( \mathbf r).\]</div>
-<section id="short-range-term">
-<h3>Short-range term<a class="headerlink" href="#short-range-term" title="Permalink to this headline">#</a></h3>
+</section>
+<section id="Short-range-term">
+<h3>Short-range term<a class="headerlink" href="#Short-range-term" title="Permalink to this headline">#</a></h3>
 <p>The short range term is calculated in the usual way</p>
 <div class="math notranslate nohighlight">
 \[-\nabla^2 \phi_{\mathcal R}( \mathbf r) = 4\pi \sum_{i}^N  \left ( q_i\delta( \mathbf r- \mathbf r_i) - \frac{q_i\alpha^{3/2}}{\pi} e^{-\alpha^2 \left( \mathbf r- \mathbf r_i \right )^2 } \right ).\]</div>
-<p>The first term <span class="math notranslate nohighlight">\(\delta(\mathbf r - \mathbf r_i)\)</span> leads to the usual Coulomb potential (<span class="math notranslate nohighlight">\(\sim 1/r\)</span>) while
-the Gaussian leads to the error function</p>
+<p>The first term <span class="math notranslate nohighlight">\(\delta(\mathbf r - \mathbf r_i)\)</span> leads to the usual Coulomb potential (<span class="math notranslate nohighlight">\(\sim 1/r\)</span>) while the Gaussian leads to the error function</p>
 <div class="math notranslate nohighlight">
 \[\phi_{\mathcal R}( \mathbf r ) = \sum_i^N  \frac{q_i}{r} - \frac{q_i}{r}\text{erf} (\alpha r)  = \sum_i^N \frac{q_i}{r} \text{erfc}(\alpha r)\]</div>
+<p>(eq:phi_R)</p>
 </section>
-<section id="long-range-term">
-<h3>Long-range term<a class="headerlink" href="#long-range-term" title="Permalink to this headline">#</a></h3>
+<section id="Long-range-term">
+<h3>Long-range term<a class="headerlink" href="#Long-range-term" title="Permalink to this headline">#</a></h3>
 <p>The long range term is calculated in Fourier space</p>
 <div class="math notranslate nohighlight">
 \[k^2 \tilde\phi_{\mathcal F}(k) = 4\pi \tilde\rho_{\mathcal F}(k)\]</div>
@@ -1693,22 +1989,447 @@ the Gaussian leads to the error function</p>
 <p>and in real space</p>
 <div class="math notranslate nohighlight">
 \[\phi_{\mathcal R}( \mathbf r ) = \sum_{\mathbf k \neq 0} \tilde \phi_{\mathcal F}(\mathbf k)e^{i \mathbf k \cdot \mathbf r} = \frac{1}{V} \sum_{\mathbf k\neq 0} \sum_{i}^N v(k) e^{-k^2/(4\alpha^2)}q_i e^{i \mathbf k \cdot ( \mathbf r- \mathbf r_i) },\]</div>
-<p>where the <span class="math notranslate nohighlight">\(\mathbf k = 0\)</span> is removed from the sum because of the overall charge neutrality.
-The potential energy created by this long range part is</p>
+<p>(eq:U_R)</p>
+<p>where the <span class="math notranslate nohighlight">\(\mathbf k = 0\)</span> is removed from the sum because of the overall charge neutrality.</p>
+<p>The potential energy created by this long range part is</p>
 <div class="math notranslate nohighlight">
 \[U_{\mathcal F} = \frac {1}{2} \sum_i^N q_i \phi_{\mathcal F}(\mathbf r_i) = \frac{1}{2} \frac{1}{V} \sum_{i,j}^N q_i q_j \sum_{\mathbf k \neq 0 } v(k)  e^{-k^2/(4\alpha^2)}e^{i \mathbf k \cdot ( \mathbf r_i - \mathbf r_j) } = \frac{1}{2} \sum_{\mathbf k \neq 0} |\rho_0(\mathbf k)|^2 v(k) e^{-k^2/(4\alpha^2)},\]</div>
+<p>(eq:U_F)</p>
 <p>where I used the definition of the charge density</p>
 <div class="math notranslate nohighlight">
 \[\rho_0(\mathbf k) = \frac 1V \sum_i^N q_i e^{i \mathbf k \cdot \mathbf r_i}.\]</div>
-<p>However, in the above sum we are including the self-energy term, i.e. <span class="math notranslate nohighlight">\(\mathbf r_i = \mathbf r_j\)</span>. This term
-can be easily calculated and then removed from <span class="math notranslate nohighlight">\(U_{\mathcal F}\)</span></p>
+<p>However, in the above sum we are including the self-energy term, i.e. <span class="math notranslate nohighlight">\(\mathbf r_i = \mathbf r_j\)</span>. This term can be easily calculated and then removed from <span class="math notranslate nohighlight">\(U_{\mathcal F}\)</span></p>
 <div class="math notranslate nohighlight">
 \[\frac{\mathcal Q^2}{2V} \sum_{\mathbf k} \frac{4\pi}{k^2} e^{-k^2/(4\alpha^2)} \rightarrow \frac{\mathcal Q^2}{2V} \left ( \frac{L}{2\pi} \right )^3 \int dk (4\pi)^2 e^{-k^2/(4\alpha^2) }  = \mathcal Q^2 \frac{(4\pi)^2}{2V} \left ( \frac{L}{2\pi} \right )^3 \sqrt{\pi } \alpha = \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }\]</div>
-<p>where <span class="math notranslate nohighlight">\(\mathcal Q^2 = \sum_i^N q_i^2\)</span>, note that in the integral we have re-included <span class="math notranslate nohighlight">\(\mathbf k = 0\)</span>, but
-this is not a problem. Finally the long-range potential energy is</p>
+<p>where <span class="math notranslate nohighlight">\(\mathcal Q^2 = \sum_i^N q_i^2\)</span>, note that in the integral we have re-included <span class="math notranslate nohighlight">\(\mathbf k = 0\)</span>, but this is not a problem. Finally the long-range potential energy is</p>
 <div class="math notranslate nohighlight">
-\[U_{\mathcal L} = U_{\mathcal F} - \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }\]</div>
+\[U_{\mathcal L} = U_{\mathcal F} - \mathcal Q^2 \frac{\alpha}{\sqrt{\pi} }.\]</div>
+<p>(eq:phi_L)</p>
+<p>At to this point we have the analytical expression for our potential; {eq}<code class="docutils literal notranslate"><span class="pre">eq:U_R</span></code> and {eq}<code class="docutils literal notranslate"><span class="pre">eq:U_F</span></code>. However, computing the sum over <span class="math notranslate nohighlight">\(\mathbf k\)</span> in the equation for <span class="math notranslate nohighlight">\(U_{\mathcal F}\)</span> is still too slow and we don’t know what value of <span class="math notranslate nohighlight">\(\mathbf k\)</span> to end the sum.</p>
 </section>
+</section>
+<section id="Assigning-charges-onto-the-mesh">
+<h2>Assigning charges onto the mesh<a class="headerlink" href="#Assigning-charges-onto-the-mesh" title="Permalink to this headline">#</a></h2>
+<p>The idea of particle-mesh algorithms is to speed up the calculation of the reciprocal (space) potential <span class="math notranslate nohighlight">\(U_{\mathcal F}\)</span> by calculating it on a mesh. However, the particles are scattered at random points in space so we need to distribute them onto the mesh points. For simplicity, we assume the number of grid points <span class="math notranslate nohighlight">\(M\)</span> to be identical in all three directions <span class="math notranslate nohighlight">\(M = M_x = M_y = M_z\)</span>. Define the spacing between two grid points <span class="math notranslate nohighlight">\(h = L/M\)</span> and <span class="math notranslate nohighlight">\(\mathbb{M}\)</span> the set of all
+grid points:</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{M} = \left \{ \mathbf mh \; : \mathbf m \in \mathbb{Z}^3 \; \textrm{and} \; 0 \leq m_{x,y,z} &lt; M \right \}.\]</div>
+<p>The charge density of the mesh, <span class="math notranslate nohighlight">\(\rho_M(\mathbf r)\)</span>, is calculated by</p>
+<div class="math notranslate nohighlight">
+\[\rho_{M}(\mathbf r) = \int U_p(\mathbf r - \mathbf r') \rho(\mathbf r') d\mathbf r', \quad U_p(\mathbf r) = h^{-3} W_p(\mathbf r), \quad  \mathbf r \in \mathbb{M}\]</div>
+<p>where <span class="math notranslate nohighlight">\(W_p(\mathbf r)\)</span> is the charge assignment function of order <span class="math notranslate nohighlight">\(p \in \mathbb{N}^+\)</span>. In Sarkas we chose it to be a cardinal B-spline with a Fourier transform</p>
+<div class="math notranslate nohighlight">
+\[\tilde W_{p}(\mathbf k) = h^3 \left [ \frac{\sin(k_xh/2)}{k_x h/2} \frac{\sin(k_y h/2)}{k_y h/2} \frac{\sin(k_z h/2)}{k_z h/2} \right ]^p.\]</div>
+<p>Substituting the above into <span class="math notranslate nohighlight">\(\rho_M(\mathbf r)\)</span> we find</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{eqnarray}
+    \rho_M (\mathbf r) &amp; = &amp; \int d\mathbf r' h^{-3} W( \mathbf r - \mathbf r')\sum_{i} q_i \delta(\mathbf r' - \mathbf r_i), \\
+    &amp; = &amp; h^{-3} \sum_{i} q_i  W( \mathbf r - \mathbf r_i).
+\end{eqnarray}\end{split}\]</div>
+<p>except at the boundaries where the periodicity has to be properly taken into account.</p>
+<section id="Algorithm">
+<h3>Algorithm<a class="headerlink" href="#Algorithm" title="Permalink to this headline">#</a></h3>
+<p>The routine to deposit charges onto the grid is the following,</p>
+<ol class="arabic simple">
+<li><p>Assume the particle is at position <span class="math notranslate nohighlight">\(x_i\)</span>.</p></li>
+<li><p>Choose the charge assignment order <span class="math notranslate nohighlight">\(p\)</span>,</p></li>
+<li><p>Find the coordinate of the closest mesh point to the particle’s location, if <span class="math notranslate nohighlight">\(p\)</span> is odd. If <span class="math notranslate nohighlight">\(p\)</span> is even take the coordinate of the midpoint of between the two nearest mesh points. Denote this by <span class="math notranslate nohighlight">\(x_m\)</span></p></li>
+<li><p>Find the <span class="math notranslate nohighlight">\(p\)</span> mesh points that are closest to the particle, starting from the far left.</p></li>
+<li><p>The fraction of charge to be deposited on each point is given by <span class="math notranslate nohighlight">\(W_p(x_i - x_m)\)</span>.</p></li>
+</ol>
+<p>In the following I will show how to do this in the case of</p>
+<ol class="arabic simple">
+<li><p>two particles on a 1D mesh <a class="reference external" href="#example_1d">jump to it</a>,</p></li>
+<li><p>one particle on a 2D mesh, <a class="reference external" href="#example_2D">jump to it</a>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(N\)</span> particles on a 2D mesh using Sarkas functions, <a class="reference external" href="#example_N">jump to it</a></p></li>
+</ol>
+<p>### 1D Numerical example</p>
+<p>In the following we show a 1D example by calculating <span class="math notranslate nohighlight">\(W_p(x)\)</span> for two particles each with a different <span class="math notranslate nohighlight">\(p\)</span>. We position the particles near the edges to show the periodic boundary conditions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the usual stuff</span>
+<span class="o">%</span><span class="k">pylab</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;MSUstyle&quot;</span><span class="p">)</span>
+
+<span class="c1"># Random number generator</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">123456789</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sarkas.potentials.force_pm</span> <span class="kn">import</span> <span class="n">assgnmnt_func</span><span class="p">,</span> <span class="n">calc_charge_dens</span><span class="p">,</span> <span class="n">mesh_point_shift</span><span class="p">,</span> <span class="n">calc_mesh_coord</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using matplotlib backend: &lt;object object at 0x7faa4afb0c40&gt;
+Populating the interactive namespace from numpy and matplotlib
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_1</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="c1"># position of the particle</span>
+<span class="n">x_2</span> <span class="o">=</span> <span class="mf">8.3</span> <span class="c1"># position of the particle</span>
+<span class="n">N_mesh_points</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="c1"># Grid points</span>
+<span class="n">x_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N_mesh_points</span><span class="p">)</span>
+<span class="c1"># grid spacing, chosen to be 1</span>
+<span class="n">hx</span> <span class="o">=</span> <span class="n">x_mesh</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_mesh</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Plot the 1D grid and the particle</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">),</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Mesh points&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle 1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle 2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span> <span class="sa">r</span><span class="s2">&quot;$x/h$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 0, &#39;$x/h$&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_PPPM_4_1.png" src="../_images/theory_PPPM_4_1.png" />
+</div>
+</div>
+<p>The above plot shows the position of the two particles, represented by X’s, and the location of the mesh points, represented by black dots. Notice that we are rescaling everything by the distance between mesh points, <span class="math notranslate nohighlight">\(h\)</span>, which we choose to be = 1 for simplicity.</p>
+<p>The next code cell calculates the function <span class="math notranslate nohighlight">\(W(x)\)</span> which represents the amount of charge to be assigned to each mesh point. Particle 1 is distributed over three points while Particle 2 over four mesh points.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate the charge assignment function</span>
+
+<span class="c1"># Define the charge assignment order, p</span>
+<span class="n">cao1</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">cao2</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1"># Define x_m to be the coordinate of the particle&#39;s nearest mesh point (if cao is odd)</span>
+<span class="n">x_m1</span> <span class="o">=</span> <span class="n">rint</span><span class="p">(</span><span class="n">x_1</span><span class="o">/</span><span class="n">hx</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span><span class="p">(</span> <span class="n">cao1</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">x_m2</span> <span class="o">=</span> <span class="n">rint</span><span class="p">(</span><span class="n">x_2</span><span class="o">/</span><span class="n">hx</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span><span class="p">(</span> <span class="n">cao2</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="c1"># The above branchless programming is because int gives the integer value only and not the closest integer</span>
+
+<span class="c1"># Distance to the nearest mesh point for p odd</span>
+<span class="n">delta_x1</span> <span class="o">=</span> <span class="n">x_1</span><span class="o">/</span><span class="n">hx</span> <span class="o">-</span> <span class="n">x_m1</span>
+<span class="c1"># Distance to the midpoint between the two nearest mesh points</span>
+<span class="n">delta_x2</span> <span class="o">=</span> <span class="n">x_2</span><span class="o">/</span><span class="n">hx</span> <span class="o">-</span> <span class="n">x_m2</span> <span class="o">-</span> <span class="mf">0.5</span>
+
+<span class="c1"># W_3(x_1 - x_m1), W_5(x_2 - x_m2)</span>
+<span class="c1"># This returns an array of length = p.</span>
+<span class="c1"># Each element is the fraction of the charge on each of the p mesh points starting from the far left.</span>
+<span class="n">wx1</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao1</span><span class="p">,</span> <span class="n">delta_x1</span><span class="p">)</span>
+<span class="n">wx2</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao2</span><span class="p">,</span> <span class="n">delta_x2</span><span class="p">)</span>
+
+<span class="c1"># Create a long array to plot on the entire x range</span>
+<span class="n">full_wx1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">)</span> <span class="p">)</span>
+<span class="n">full_wx2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="c1"># Note that you need to shift to the left due to zero indexing</span>
+<span class="n">ixn</span> <span class="o">=</span> <span class="n">x_m1</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao1</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="c1"># Calculate the W(x) for the first particle</span>
+<span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao1</span><span class="p">):</span>
+    <span class="c1"># Check for BC</span>
+    <span class="k">if</span> <span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">N_mesh_points</span>
+
+    <span class="k">elif</span> <span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">N_mesh_points</span> <span class="o">-</span><span class="mi">1</span> <span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">-</span> <span class="n">N_mesh_points</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">ixn</span>
+
+    <span class="n">full_wx1</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">wx1</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1"># Note that you need to shift to the left due to zero indexing</span>
+<span class="n">ixn</span> <span class="o">=</span> <span class="n">x_m2</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao2</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Calculate the W(x) for the second particle</span>
+<span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao2</span><span class="p">):</span>
+    <span class="c1"># Check for BC</span>
+    <span class="k">if</span> <span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">N_mesh_points</span>
+    <span class="k">elif</span> <span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">N_mesh_points</span> <span class="o">-</span><span class="mi">1</span> <span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">-</span> <span class="n">N_mesh_points</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">ixn</span>
+
+    <span class="n">full_wx2</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">wx2</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">),</span> <span class="n">c</span> <span class="o">=</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Mesh points&quot;</span><span class="p">)</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>  <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle 1&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_m1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">get_facecolor</span><span class="p">(),</span> <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle 1 $x_</span><span class="si">{m1}</span><span class="s2">$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">,</span> <span class="n">full_wx1</span><span class="p">,</span> <span class="s1">&#39;--o&#39;</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">p1</span><span class="o">.</span><span class="n">get_facecolor</span><span class="p">(),</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$W_3(x_1 - x_</span><span class="si">{m1}</span><span class="s2">)$&quot;</span><span class="p">)</span>
+
+<span class="n">p2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>  <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle 2&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_m2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">p2</span><span class="o">.</span><span class="n">get_facecolor</span><span class="p">(),</span>  <span class="n">marker</span> <span class="o">=</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle 2 $x_</span><span class="si">{m2}</span><span class="s2">$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_mesh</span><span class="p">,</span> <span class="n">full_wx2</span><span class="p">,</span> <span class="s1">&#39;--o&#39;</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">p2</span><span class="o">.</span><span class="n">get_facecolor</span><span class="p">(),</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$W_4(x_2 - x_</span><span class="si">{m2}</span><span class="s2">)$&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$W_p(x)$&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$x/h$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_PPPM_7_0.png" src="../_images/theory_PPPM_7_0.png" />
+</div>
+</div>
+<p>As you can see the first (orange) particle is distributed on the three mesh points (9, 0, 1) while the second (green) particle onto the four mesh points (7, 8, 9, 0).</p>
+<p>### 2D Example</p>
+<p>The algorithm described above can be extended to 3D and it is what is contained in the function <a class="reference external" href="%60../api/potentials_subpckg/sarkas.potentials.force_pm#calc_charge_dens%60">calc_charge_dens</a>. In the following we will present an example with randomly distributed charges on a 2D plane for visualization.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate the charge assignment function</span>
+
+<span class="c1"># Define the charge assignment order, p</span>
+<span class="n">cao</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="mf">30.7</span><span class="p">,</span> <span class="mf">28.3</span>
+
+<span class="n">L</span> <span class="o">=</span> <span class="mi">64</span>
+<span class="n">Mx</span><span class="p">,</span> <span class="n">My</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span>
+<span class="n">hx</span><span class="p">,</span> <span class="n">hy</span> <span class="o">=</span> <span class="n">L</span><span class="o">/</span><span class="n">Mx</span><span class="p">,</span> <span class="n">L</span><span class="o">/</span><span class="n">My</span>
+
+<span class="n">x_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">Mx</span><span class="p">)</span>
+<span class="n">y_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">My</span><span class="p">)</span>
+<span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_ar</span><span class="p">,</span> <span class="n">y_ar</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+
+<span class="c1"># Define x_m to be the coordinate of the particle&#39;s nearest mesh point (if cao is odd)</span>
+<span class="n">x_m1</span> <span class="o">=</span> <span class="n">rint</span><span class="p">(</span><span class="n">x1</span><span class="o">/</span><span class="n">hx</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span><span class="p">(</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="n">y_m1</span> <span class="o">=</span> <span class="n">rint</span><span class="p">(</span><span class="n">y1</span><span class="o">/</span><span class="n">hy</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span><span class="p">(</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="c1"># The above branchless programming is because int gives the integer value only and not the closest integer</span>
+
+<span class="c1"># Distance to the nearest mesh point for p odd or midpoint for p even</span>
+<span class="n">delta_x</span> <span class="o">=</span> <span class="n">x1</span><span class="o">/</span><span class="n">hx</span> <span class="o">-</span> <span class="n">x_m1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span><span class="p">(</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">delta_y</span> <span class="o">=</span> <span class="n">y1</span><span class="o">/</span><span class="n">hy</span> <span class="o">-</span> <span class="n">y_m1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span><span class="p">(</span> <span class="n">cao</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># This returns an array of length = p.</span>
+<span class="c1"># Each element is the fraction of the charge on each of the p mesh points starting from the far left.</span>
+<span class="n">wx</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">delta_x</span><span class="p">)</span>
+<span class="n">wy</span> <span class="o">=</span> <span class="n">assgnmnt_func</span><span class="p">(</span><span class="n">cao</span><span class="p">,</span> <span class="n">delta_y</span><span class="p">)</span>
+
+<span class="c1"># Create a long array to plot on the entire x range</span>
+<span class="n">rho_2D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span> <span class="n">xgrid</span><span class="p">)</span>
+
+<span class="c1"># Note that you need to shift to the left due to zero indexing</span>
+<span class="n">ixn</span> <span class="o">=</span> <span class="n">x_m1</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">-</span> <span class="mi">1</span>  <span class="o">*</span> <span class="p">(</span><span class="n">cao</span> <span class="o">%</span><span class="k">2</span> == 0) )
+
+<span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+
+    <span class="c1"># Check for BC</span>
+    <span class="n">index_x</span> <span class="o">=</span> <span class="n">ixn</span> <span class="o">+</span> <span class="n">Mx</span> <span class="o">*</span> <span class="p">(</span><span class="n">ixn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">Mx</span><span class="o">*</span><span class="p">(</span> <span class="n">ixn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">Mx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+
+    <span class="c1"># Note that you need to shift to the left due to zero indexing</span>
+    <span class="n">iyn</span> <span class="o">=</span> <span class="n">y_m1</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">cao</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">-</span>  <span class="mi">1</span> <span class="o">*</span> <span class="p">(</span><span class="n">cao</span> <span class="o">%</span><span class="k">2</span> == 0) )
+
+    <span class="k">for</span> <span class="n">iy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cao</span><span class="p">):</span>
+        <span class="c1"># Check for BC</span>
+        <span class="n">index_y</span> <span class="o">=</span> <span class="n">iyn</span> <span class="o">+</span> <span class="n">My</span> <span class="o">*</span> <span class="p">(</span><span class="n">iyn</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">My</span><span class="o">*</span><span class="p">(</span> <span class="n">iyn</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">My</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">)</span>
+
+        <span class="n">rho_2D</span><span class="p">[</span><span class="n">index_x</span><span class="p">,</span> <span class="n">index_y</span><span class="p">]</span> <span class="o">+=</span> <span class="n">wx</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">*</span> <span class="n">wy</span><span class="p">[</span><span class="n">iy</span><span class="p">]</span>
+        <span class="n">iyn</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">ixn</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># I am getting a deprecation warning from matplotlib about the grid in pcolor.</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span><span class="n">category</span><span class="o">=</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">cbook</span><span class="o">.</span><span class="n">mplDeprecation</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">rho_2D</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.7</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\rho_M(x,y)$&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particle&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span> <span class="p">(</span><span class="n">x_m1</span> <span class="p">)</span><span class="o">*</span><span class="n">hx</span> <span class="p">,</span> <span class="p">(</span><span class="n">y_m1</span> <span class="p">)</span> <span class="o">*</span> <span class="n">hy</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;$(x_m, y_m)$&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Mx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">hx</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">My</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">j</span><span class="o">*</span> <span class="n">hy</span><span class="p">)</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$x$&quot;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$y$&quot;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_PPPM_11_0.png" src="../_images/theory_PPPM_11_0.png" />
+</div>
+</div>
+<p>Let’s make the above plot 3D</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.facecolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="s2">&quot;3d&quot;</span><span class="p">})</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">rho_2D</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">plasma</span><span class="p">)</span>
+<span class="c1"># Uncomment the following if you want to see images of the rho_m duplicated.</span>
+<span class="c1"># ax.plot_surface(xgrid - L, ygrid, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid - L, ygrid - L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid , ygrid - L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid , ygrid + L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid + L , ygrid + L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid + L , ygrid, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid + L , ygrid - L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid - L , ygrid + L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$x$&quot;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$y$&quot;</span><span class="p">,</span> <span class="n">zlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\rho_M(x,y)$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_PPPM_13_0.png" src="../_images/theory_PPPM_13_0.png" />
+</div>
+</div>
+<p>### 2D Example with N particles</p>
+<p>Let’s extend the above example to <span class="math notranslate nohighlight">\(N = 15\)</span> particles and use Sarkas’ functions instead.</p>
+<ol class="arabic simple">
+<li><p>The function <a class="reference external" href="%60../api/potentials_subpckg/sarkas.potentials.force_pm#mesh_point_shift%60">mesh_point_shift</a> calculates the shifts needed if the charge assignment order is even. It returns <code class="docutils literal notranslate"><span class="pre">mid</span></code> and <code class="docutils literal notranslate"><span class="pre">pshift</span></code>. <code class="docutils literal notranslate"><span class="pre">mid</span></code> can be either 0 or 0.5 and it is the equivalent of <code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">*</span> <span class="pre">(</span> <span class="pre">cao</span> <span class="pre">%</span> <span class="pre">2</span> <span class="pre">==</span> <span class="pre">0)</span></code> in the above examples. <code class="docutils literal notranslate"><span class="pre">pshift</span></code> is the shift in the index, equivalent to <code class="docutils literal notranslate"><span class="pre">int(cao/2</span> <span class="pre">-</span> <span class="pre">1</span> <span class="pre">*</span> <span class="pre">(cao%2</span> <span class="pre">==</span> <span class="pre">0))</span></code> in the definition of <code class="docutils literal notranslate"><span class="pre">ixn</span></code>.</p></li>
+<li><p>The function <a class="reference external" href="%60../api/potentials_subpckg/sarkas.potentials.force_pm#calc_mesh_coord%60">calc_mesh_coord</a> calculates the mesh coordinates of the particles (<code class="docutils literal notranslate"><span class="pre">mesh_pos</span></code>) and their corresponding indexes (<code class="docutils literal notranslate"><span class="pre">mesh_points</span></code>).</p></li>
+<li><p>The function <a class="reference external" href="%60../api/potentials_subpckg/sarkas.potentials.force_pm#calc_charge_dens%60">calc_charge_dens</a> calculates the final charge density <code class="docutils literal notranslate"><span class="pre">rho_m</span></code></p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of particles</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="c1"># Box length</span>
+<span class="n">L</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">N</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
+<span class="n">box_lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">L</span>
+<span class="n">box_lengths</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<span class="c1"># Charge assignment order</span>
+<span class="n">cao</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="c1"># Array of mesh points. Note in the case of 2D you still need to pass 1 for the z-mesh</span>
+<span class="n">Mx</span><span class="p">,</span> <span class="n">My</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span>
+<span class="n">mesh_sz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Mx</span><span class="p">,</span> <span class="n">My</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">x_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">Mx</span><span class="p">)</span>
+<span class="n">y_ar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">My</span><span class="p">)</span>
+<span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_ar</span><span class="p">,</span> <span class="n">y_ar</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+
+<span class="c1"># Spacings</span>
+<span class="n">h_array</span> <span class="o">=</span> <span class="n">box_lengths</span><span class="o">/</span><span class="n">mesh_sz</span>
+<span class="n">h_array</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="c1"># print(h_array)</span>
+
+<span class="c1"># Particles positions</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">L</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span> <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">pos</span><span class="p">[:,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># set the z-coord to 0</span>
+
+<span class="n">charges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span> <span class="n">N</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">float</span><span class="p">)</span>
+
+<span class="c1"># Calculate the shifts due to an even cao</span>
+<span class="n">mid</span><span class="p">,</span> <span class="n">pshift</span> <span class="o">=</span> <span class="n">mesh_point_shift</span><span class="p">(</span><span class="n">cao</span><span class="p">)</span>
+<span class="c1"># Calculates the mesh coordinates of the particles and the corresponding indexes</span>
+<span class="n">mesh_pos</span><span class="p">,</span> <span class="n">mesh_points</span> <span class="o">=</span> <span class="n">calc_mesh_coord</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">h_array</span><span class="p">,</span> <span class="n">cao</span><span class="p">)</span>
+<span class="c1"># Calculate the total charge density</span>
+<span class="n">rho_m</span> <span class="o">=</span> <span class="n">calc_charge_dens</span><span class="p">(</span><span class="n">mesh_pos</span><span class="p">,</span> <span class="n">mesh_points</span><span class="p">,</span> <span class="n">charges</span><span class="p">,</span> <span class="n">cao</span><span class="p">,</span> <span class="n">mesh_sz</span><span class="p">,</span> <span class="n">mid</span><span class="p">,</span> <span class="n">pshift</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<p>The first thing to note is the shape of the charge density; it is ( z_mesh, y_mesh, x_mesh). This is a legacy feature that has not been removed.</p>
+<p>Let’s plot the charge density</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">p1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">rho_m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">plasma</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\rho_M(x,y)$&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">pos</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Particles&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">i</span><span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mesh_sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">j</span><span class="o">*</span> <span class="n">h_array</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$x$&quot;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$y$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_PPPM_17_0.png" src="../_images/theory_PPPM_17_0.png" />
+</div>
+</div>
+<p>… and its 3D version</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.facecolor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="s2">&quot;3d&quot;</span><span class="p">})</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">xgrid</span><span class="p">,</span> <span class="n">ygrid</span><span class="p">,</span> <span class="n">rho_m</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">plasma</span><span class="p">)</span>
+<span class="c1"># Uncomment the following if you want to see images of the rho_m duplicated.</span>
+<span class="c1"># ax.plot_surface(xgrid - L, ygrid, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid - L, ygrid - L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid , ygrid - L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid , ygrid + L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid + L , ygrid + L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid + L , ygrid, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid + L , ygrid - L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="c1"># ax.plot_surface(xgrid - L , ygrid + L, rho_m[0].T, cmap = plt.cm.plasma)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$x$&quot;</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$y$&quot;</span><span class="p">,</span> <span class="n">zlabel</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;$\rho_M(x,y)$&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/theory_PPPM_19_0.png" src="../_images/theory_PPPM_19_0.png" />
+</div>
+</div>
+<p>At this point we need only Fourier transform <span class="math notranslate nohighlight">\(\rho_M(x,y,z)\)</span> and solve Poisson’s equation.</p>
+<script type="application/vnd.jupyter.widget-state+json">
+{"state": {}, "version_major": 2, "version_minor": 0}
+</script></section>
 </section>
 </section>
 

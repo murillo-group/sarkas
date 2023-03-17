@@ -222,7 +222,7 @@ Transport Coefficients
 
 .. code-block:: yaml
 
-    TransportCoefficientss:
+    TransportCoefficients:
         - Diffusion:
             no_slices: 4
 
