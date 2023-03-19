@@ -159,7 +159,7 @@ def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
 def force_error_approx_pppm(potential):
     r"""
     Calculates the force error, :math:`\Delta F_{\rm pm}`, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
-    The formula for :math:`\Delta F_{\rm pm}` can be found in :doc:`force_error`.
+    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
@@ -202,7 +202,7 @@ def force_error_approx_pppm(potential):
 def force_error_approx_pm(kappa: float, p: int, h: float, alpha: float):
     r"""
     Calculates the PM part of the force error, :math:`\Delta F_{\rm pm}`,  for a given value of the PPPM parameters.
-    The formula for :math:`\Delta F_{\rm pm}` can be found in :doc:`force_error`.
+    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
