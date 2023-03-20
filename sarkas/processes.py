@@ -593,28 +593,28 @@ class PreProcess(Process):
 
     def make_color_map(self, rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error):
         """
-         Plot a color map of the total force error approximation.
+        Plot a color map of the total force error approximation.
 
-         Parameters
-         ----------
-         rcuts: numpy.ndarray
-             Cut off distances.
+        Parameters
+        ----------
+        rcuts: numpy.ndarray
+            Cut off distances.
 
-         alphas: numpy.ndarray
-             Ewald parameters.
+        alphas: numpy.ndarray
+            Ewald parameters.
 
-         chosen_alpha: float
-             Chosen Ewald parameter.
+        chosen_alpha: float
+            Chosen Ewald parameter.
 
-         chosen_rcut: float
-             Chosen cut off radius.
+        chosen_rcut: float
+            Chosen cut off radius.
 
-         total_force_error: numpy.ndarray
-             Force error matrix.
+        total_force_error: numpy.ndarray
+            Force error matrix.
 
         Raises
         ------
-            : DeprecationWarning
+          DeprecationWarning
 
         """
         warn(
