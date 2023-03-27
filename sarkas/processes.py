@@ -459,22 +459,27 @@ class Process:
             self.io.copy_params(self.parameters)
             # Print parameters to log file
             if not exists(self.io.log_file):
+                # if the file exists do not print the file header
+                self.io.file_header()
                 self.io.simulation_summary(self)
+
+            self.io.datetime_stamp()
 
             # Initialize the Particles class attributes by reading the last step
             old_method = self.parameters.load_method
-            self.parameters.load_method = "prod_restart"
+            self.parameters.load_method = "production_restart"
             no_dumps = len(listdir(self.io.prod_dump_dir))
             last_step = self.parameters.prod_dump_step * (no_dumps - 1)
             if no_dumps == 0:
-                self.parameters.load_method = "eq_restart"
+                self.parameters.load_method = "equilibration_restart"
                 no_dumps = len(listdir(self.io.eq_dump_dir))
                 last_step = self.parameters.eq_dump_step * (no_dumps - 1)
             self.parameters.restart_step = last_step
             self.particles.setup(self.parameters, self.species)
             # Restore the original value for future use
             self.parameters.load_method = old_method
-
+            # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
+            self.parameters.log_file = self.io.log_file
             # Initialize the observable classes
             # for obs in self.observables_list:
             #     if obs in self.__dict__.keys():
@@ -520,55 +525,59 @@ class PostProcess(Process):
             for obs in self.observables_list:
                 # Check that the observable is actually there
                 if obs in self.__dict__.keys():
+
                     self.__dict__[obs].setup(self.parameters)
                     if obs == "therm":
                         self.therm.temp_energy_plot(self)
                     else:
-                        self.io.postprocess_info(self, write_to_file=True, observable=obs)
+                        # self.io.postprocess_info(self, observable=obs)
+                        msg = self.__dict__[obs].pretty_print_msg()
+                        self.io.write_to_logger(msg)
                         self.__dict__[obs].compute()
 
-                # Calculate transport coefficients
-                if hasattr(self, "transport_dict"):
-                    from .tools.transport import TransportCoefficients
+            # Calculate transport coefficients
+            if hasattr(self, "transport_dict"):
 
-                    tc = TransportCoefficients(self.parameters)
+                from .tools.transport import TransportCoefficients
 
-                    for coeff in self.transport_dict:
+                tc = TransportCoefficients(self.parameters)
 
-                        for key, coeff_kwargs in coeff.items():
+                for coeff in self.transport_dict:
 
-                            if key.lower() == "diffusion":
-                                # Calculate if not already
-                                if not self.vacf:
-                                    self.vacf = VelocityAutoCorrelationFunction()
-                                    self.vacf.setup(self.parameters)
-                                    # Use parse in case you calculated it already
-                                    self.vacf.parse()
+                    for key, coeff_kwargs in coeff.items():
 
-                                tc.diffusion(observable=self.vacf)
+                        if key.lower() == "diffusion":
+                            # Calculate if not already
+                            if not self.vacf:
+                                self.vacf = VelocityAutoCorrelationFunction()
+                                self.vacf.setup(self.parameters)
+                                # Use parse in case you calculated it already
+                                self.vacf.parse()
 
-                            elif key.lower() == "interdiffusion":
-                                if not self.diff_flux:
-                                    self.diff_flux = DiffusionFlux()
-                                    self.diff_flux.setup(self.parameters)
-                                    self.diff_flux.parse()
+                            tc.diffusion(observable=self.vacf)
 
-                                tc.interdiffusion(self.diff_flux)
+                        elif key.lower() == "interdiffusion":
+                            if not self.diff_flux:
+                                self.diff_flux = DiffusionFlux()
+                                self.diff_flux.setup(self.parameters)
+                                self.diff_flux.parse()
 
-                            elif key.lower() == "viscosity":
-                                if not self.p_tensor:
-                                    self.p_tensor = PressureTensor()
-                                    self.p_tensor.setup(self.parameters)
-                                    self.p_tensor.parse()
-                                tc.viscosity(self.p_tensor)
+                            tc.interdiffusion(self.diff_flux)
 
-                            elif key.lower() == "electricalconductivity":
-                                if not self.ec:
-                                    self.ec = ElectricCurrent()
-                                    self.ec.setup(self.parameters)
-                                    self.ec.parse()
+                        elif key.lower() == "viscosities":
+                            if not self.p_tensor:
+                                self.p_tensor = PressureTensor()
+                                self.p_tensor.setup(self.parameters)
+                                self.p_tensor.parse()
+                            tc.viscosity(self.p_tensor)
 
-                                tc.electrical_conductivity(self.ec)
+                        elif key.lower() == "electricalconductivity":
+                            if not self.ec:
+                                self.ec = ElectricCurrent()
+                                self.ec.setup(self.parameters)
+                                self.ec.parse()
+
+                            tc.electrical_conductivity(self.ec)
 
     def setup_from_simulation(self, simulation):
         """

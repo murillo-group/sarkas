@@ -181,7 +181,7 @@ class Species:
         self.eV2J = params.eV2J
         self.hbar = params.hbar
         self.c0 = params.c0
-
+        self.units_dict = params.units_dict
         self.dimensions = params.dimensions
         # Charged systems: Electrostatic constant  :math:`4 \\pi \\epsilon_0` [mks]
         # Neutral systems: :math:`1/n\\sigma^2`
@@ -361,16 +361,16 @@ class Species:
                 pot_msg = (
                     f"\tEpsilon = {self.epsilon:.6e} {energy_units}\n"
                     f"\tSigma = {self.sigma:.6e} {length_units}\n"
-                    f"\tEquivalent Plasma frequency = {self.plasma_frequency: .6e} [rad/s]\n"
+                    f"\tEquivalent Plasma frequency = {self.plasma_frequency: .6e} {self.units_dict['frequency']}\n"
                 )
             else:
                 pot_msg = (
                     f"\tDebye length = {self.debye_length: .6e} {length_units}\n"
-                    f"\tPlasma frequency = {self.plasma_frequency: .6e} [rad/s]\n"
+                    f"\tPlasma frequency = {self.plasma_frequency: .6e} {self.units_dict['frequency']}\n"
                 )
             if self.cyclotron_frequency:
                 mag_msg = (
-                    f"\tCyclotron Frequency = {self.cyclotron_frequency:.6e} [rad/s]\n"
+                    f"\tCyclotron Frequency = {self.cyclotron_frequency:.6e} {self.units_dict['frequency']}\n"
                     f"\tbeta_c = {self.cyclotron_frequency / self.plasma_frequency:.4e}"
                 )
             else:

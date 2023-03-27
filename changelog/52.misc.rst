@@ -1,5 +1,7 @@
 Added the calculation of rdf sum rules for qsp (deutsch only) potential
 alphabetized the modules of IO
 added a method for using multithreading to save data in the Process class
-added a method for saving potfit configureation files
+added a method for saving potfit configuration files
+added log file writing for observables and transport
+added timestamp to log files
 bug fixes

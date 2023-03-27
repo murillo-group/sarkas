@@ -2,6 +2,7 @@
 Module handling the I/O for an MD run.
 """
 import csv
+import datetime
 import pickle
 import re
 import sys
@@ -455,11 +456,27 @@ class InputOutput:
 
             f_xyz.close()
 
+    def datetime_stamp(self):
+        """Add a Date and Time stamp to the log file."""
+
+        if exists(self.log_file):
+            with open(self.log_file, "a+") as f_log:
+                # Add some space to better distinguish the new beginning
+                print(f"\n\n\n", file=f_log)
+
+        with open(self.log_file, "a+") as f_log:
+            ct = datetime.datetime.now()
+            print(f"{'':~^80}", file=f_log)
+            print(f"Date: {ct.year} - {ct.month} - {ct.day}", file=f_log)
+            print(f"Time: {ct.hour}:{ct.minute}:{ct.second}", file=f_log)
+            print(f"{'':~^80}", file=f_log)
+
     def file_header(self):
         """Create the log file and print the figlet if not a restart run."""
 
+        self.datetime_stamp()
         if not self.restart:
-            with open(self.log_file, "w+") as f_log:
+            with open(self.log_file, "a+") as f_log:
                 figlet_obj = Figlet(font="starwars")
                 print(figlet_obj.renderText("Sarkas"), file=f_log)
                 print("An open-source pure-Python molecular dynamics suite for non-ideal plasmas.", file=f_log)
@@ -577,80 +594,78 @@ class InputOutput:
         if not exists(self.postprocessing_dir):
             mkdir(self.postprocessing_dir)
 
-    def postprocess_info(self, simulation, write_to_file=False, observable=None):
+    def postprocess_info(self, simulation, observable=None):
         """
-        Print Post-processing info to file and/or screen in a reader-friendly format.
+        Print Post-processing info to file in a reader-friendly format.
 
         Parameters
         ----------
         simulation : :class:`sarkas.processes.PostProcess`
             PostProcess class.
 
-        write_to_file : bool
-            Flag for printing info also to file. Default= False.
-
         observable : str
             Observable whose info to print. Default = None.
             Choices = ['header','rdf', 'ccf', 'dsf', 'ssf', 'vm']
 
         """
-
-        choices = ["header", "rdf", "ccf", "dsf", "ssf", "vd"]
-        msg = (
-            "Observable not defined.\n"
-            "Please choose an observable from this list\n"
-            "'rdf' = Radial Distribution Function,\n"
-            "'ccf' = Current Correlation Function,\n"
-            "'dsf' = Dynamic Structure Function,\n"
-            "'ssf' = Static Structure Factor,\n"
-            "'vd' = Velocity Distribution"
-        )
-        if observable is None:
-            raise ValueError(msg)
-
-        if observable not in choices:
-            raise ValueError(msg)
-
-        if write_to_file:
-            screen = sys.stdout
-            f_log = open(self.log_file, "a+")
-            repeat = 2 if self.verbose else 1
-
-            # redirect printing to file
-            sys.stdout = f_log
-        else:
-            repeat = 1
-
-        while repeat > 0:
-            if observable == "header":
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"{'':*^80}\n {process_title} \n{'':*^80}")
-
-            elif observable == "rdf":
-                simulation.rdf.pretty_print()
-            elif observable == "ssf":
-                simulation.ssf.pretty_print()
-            elif observable == "dsf":
-                simulation.dsf.pretty_print()
-            elif observable == "ccf":
-                simulation.ccf.pretty_print()
-            elif observable == "vd":
-                simulation.vm.setup(simulation.parameters)
-                msg = (
-                    f"\nVelocity Moments:\n"
-                    f"Maximum no. of moments = {simulation.vm.max_no_moment}\n"
-                    f"Maximum velocity moment = {int(2 * simulation.vm.max_no_moment)}"
-                )
-                print(msg)
-
-            repeat -= 1
-
-            if write_to_file:
-                sys.stdout = screen
-
-        if write_to_file:
-            f_log.close()
+        pass
+        # choices = ["header", "rdf", "ccf", "dsf", "ssf", "vd", "vacf", "p_tensor", "ec", "diff_flux"]
+        # msg = (
+        #     "Observable not defined.\n"
+        #     "Please choose an observable from this list\n"
+        #     "'rdf' = Radial Distribution Function,\n"
+        #     "'ccf' = Current Correlation Function,\n"
+        #     "'dsf' = Dynamic Structure Function,\n"
+        #     "'ssf' = Static Structure Factor,\n"
+        #     "'vd' = Velocity Distribution\n",
+        #     "'vacf' = Velocity Auto Correlation Function\n"
+        #     "'ec' = Electric Current\n"
+        #     "'diff_flux' = Diffusion Flux\n"
+        #     "'p_tensor' = Pressure Tensor",
+        # )
+        # if observable is None:
+        #     raise ValueError(msg)
+        #
+        # if observable not in choices:
+        #     raise ValueError(msg)
+        #
+        # screen = sys.stdout
+        # f_log = open(self.log_file, "a+")
+        # # redirect printing to file
+        # sys.stdout = f_log
+        #
+        # if observable == "header":
+        #     # Header of process
+        #     process_title = f"{self.process.capitalize():^80}"
+        #     print(f"{'':*^80}\n {process_title} \n{'':*^80}")
+        #
+        # elif observable == "rdf":
+        #     msg = simulation.rdf.pretty_print_msg()
+        # elif observable == "ssf":
+        #     msg = simulation.ssf.pretty_print_msg()
+        # elif observable == "dsf":
+        #     msg = simulation.dsf.pretty_print_msg()
+        # elif observable == "ccf":
+        #     msg = simulation.ccf.pretty_print_msg()
+        # elif observable == "vacf":
+        #     msg = simulation.vacf.pretty_print_msg()
+        # elif observable == "p_tensor":
+        #     msg = simulation.p_tensor.pretty_print_msg()
+        # elif observable == "ec":
+        #     msg = simulation.ec.pretty_print_msg()
+        # elif observable == "diff_flux":
+        #     msg = simulation.diff_flux.pretty_print_msg()
+        # elif observable == "vd":
+        #     simulation.vm.setup(simulation.parameters)
+        #     msg = (
+        #         f"\nVelocity Moments:\n"
+        #         f"Maximum no. of moments = {simulation.vm.max_no_moment}\n"
+        #         f"Maximum velocity moment = {int(2 * simulation.vm.max_no_moment)}"
+        #     )
+        #
+        # print(msg)
+        # sys.stdout = screen
+        # f_log.close()
 
     @staticmethod
     def potential_info(simulation):
@@ -1007,21 +1022,32 @@ class InputOutput:
         while repeat > 0:
 
             if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
-                print("\n\n--------------------------- Production Restart -------------------------------------")
+                print(f"\n\n{' Production Restart ':~^80}")
+                ct = datetime.datetime.now()
+                print(f"Date: {ct.year} - {ct.month} - {ct.day}")
+                print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
                 self.time_info(simulation)
+
             elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
-                print("\n\n------------------------ Equilibration Restart ----------------------------------")
+                print(f"\n\n{' Equilibration Restart ':~^80}")
+                ct = datetime.datetime.now()
+                print(f"Date: {ct.year} - {ct.month} - {ct.day}")
+                print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
                 self.time_info(simulation)
+
             elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
-                print("\n\n------------------------ Magnetization Restart ----------------------------------")
+                print(f"\n\n{' Magnetization Restart ':~^80}")
+                ct = datetime.datetime.now()
+                print(f"Date: {ct.year} - {ct.month} - {ct.day}")
+                print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
                 self.time_info(simulation)
+
             elif self.process == "postprocessing":
                 # Header of process
-                process_title = "{:^80}".format(self.process.capitalize())
-                print("\n\n")
-                print(*["*" for i in range(50)])
+                process_title = f"{self.process.capitalize():^80}"
+                print(f"\n\n{'':*^80}")
                 print(process_title)
-                print(*["*" for i in range(50)])
+                print(f"{'':*^80}")
 
                 print(f"\nJob ID: {self.job_id}")
                 print(f"Job directory: {self.job_dir}")
@@ -1036,11 +1062,10 @@ class InputOutput:
             else:
 
                 # Header of process
-                process_title = "{:^80}".format(self.process.capitalize())
-                print("\n\n")
-                print(*["*" for i in range(50)])
+                process_title = f"{self.process.capitalize():^80}"
+                print(f"\n\n{'':*^80}")
                 print(process_title)
-                print(*["*" for i in range(50)])
+                print(f"{'':*^80}")
 
                 print(f"\nJob ID: {self.job_id}")
                 print(f"Job directory: {self.job_dir}")
@@ -1091,7 +1116,7 @@ class InputOutput:
 
         simulation.integrator.pretty_print()
 
-    def time_stamp(self, time_stamp, t):
+    def time_stamp(self, time_stamp: str, t: tuple):
         """
         Print out to screen elapsed times. If verbose output, print to file first and then to screen.
 
@@ -1100,8 +1125,8 @@ class InputOutput:
         time_stamp : str
             Array of time stamps.
 
-        t : float
-            Elapsed time.
+        t : tuple
+            Time in hrs, min, sec, msec, usec, nsec..
         """
         screen = sys.stdout
         f_log = open(self.log_file, "a+")
@@ -1115,7 +1140,6 @@ class InputOutput:
                 print("\n\n{:-^70} \n".format(" Initialization Times "))
             # elif "Production" in time_stamp:
             #     print("\n\n{:-^70} \n".format(" Phases Times "))
-
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print(f"\n{time_stamp} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
             else:
@@ -1170,20 +1194,10 @@ class InputOutput:
         f_log.close()
 
     def write_to_logger(self, message):
-
-        screen = sys.stdout
-        f_log = open(self.log_file, "a+")
-        repeat = 2 if self.verbose else 1
-        # redirect printing to file
-        sys.stdout = f_log
-
-        while repeat > 0:
-            print(message)
-
-            repeat -= 1
-            sys.stdout = screen
-
-        f_log.close()
+        """Append the message to log file."""
+        with open(self.log_file, "a+") as f_log:
+            # redirect printing to file
+            print(message, file=f_log)
 
 
 def alpha_to_int(text):

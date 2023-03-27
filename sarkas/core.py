@@ -560,7 +560,9 @@ class Parameters:
             self.units_dict["volume"] = "[m^3]" if self.dimensions == 3 else "[m^2]"
             self.units_dict["inverse length"] = "[1/m]"
             self.units_dict["magnetic field strength"] = "[Tesla]"
+
         self.units_dict["temperature"] = "[K]"
+        self.units_dict["Hertz"] = "[1/s]"
         self.units_dict["frequency"] = "[rad/s]"
         self.units_dict["time"] = "[s]"
         self.units_dict["electron volt"] = "[eV]"
@@ -704,9 +706,9 @@ class Parameters:
             phs_msg = (
                 f"\nRestart step: {restart_step}\n"
                 f"Total {phase} steps = {steps}\n"
-                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt)} w_p T_prod\n"
+                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
                 f"snapshot interval step = {dump_step}\n"
-                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4f} w_p T_snap\n"
+                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
                 f"Total number of snapshots = {int(steps / dump_step)}"
             )
 
@@ -724,9 +726,9 @@ class Parameters:
                     phs_msg += (
                         f"\n{phase.capitalize()}:\n"
                         f"\tNo. of {phase} steps = {steps}\n"
-                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt)} w_p T_eq\n"
+                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
                         f"\tsnapshot interval step = {dump_step}\n"
-                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4f} w_p T_snap\n"
+                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
                         f"\tTotal number of snapshots = {int(steps / dump_step)}"
                     )
 

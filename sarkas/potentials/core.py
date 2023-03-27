@@ -361,7 +361,7 @@ class Potential:
                 f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} {self.units_dict['length']}\n"
                 f"No. of PP cells per dimension = {pp_cells}\n"
                 f"No. of particles in PP loop = {ptcls_in_loop}\n"
-                f"No. of PP neighbors per particle = {pp_neighbors}"
+                f"No. of PP neighbors per particle = {pp_neighbors}\n"
             )
 
             msg += fmm_msg
@@ -383,9 +383,10 @@ class Potential:
                 f"                                        ~ 1/{inv_halpha[0]}, 1/{inv_halpha[1]}, 1/{inv_halpha[2]}\n"
                 f"PP Force Error = {self.pppm_pp_err:.6e}\n"
                 f"PM Force Error = {self.pppm_pm_err:.6e}\n"
-                f"Tot Force Error = {self.force_error:.6e}\n"
             )
             msg += pppm_msg
+
+        msg += f"Tot Force Error = {self.force_error:.6e}\n"
 
         print(msg)
 

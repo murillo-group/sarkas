@@ -1057,8 +1057,9 @@ class Integrator:
         wp_dt = wp_tot * self.dt
         time_msg = (
             f"Time step = {self.dt:.6e} {self.units_dict['time']}\n"
-            f"Total plasma frequency = {wp_tot:.6e} [rad/s]\n"
-            f"w_p dt = {wp_dt:.4f} ~ 1/{int(1.0 / wp_dt)}\n"
+            f"Total plasma frequency = {wp_tot:.6e} {self.units_dict['frequency']}\n"
+            f"w_p dt = {wp_dt:.4f} [rad] = {wp_dt/(2.0 * pi):.4f}\n"
+            f"Timesteps per plasma cycle = {int(2.0 * pi/wp_dt)} \n"
         )
         integrator_msg += time_msg
         if self.potential_type == "qsp":
@@ -1067,8 +1068,10 @@ class Integrator:
             qsp_msg = (
                 f"e plasma frequency = {wp_e:.6e} {self.units_dict['frequency']}\n"
                 f"total ion plasma frequency = {wp_ions:.6e} {self.units_dict['frequency']}\n"
-                f"w_pe dt = {self.dt * wp_e:.4f} ~ 1/{int(1.0 / (self.dt * wp_e))}\n"
-                f"w_pi dt = {self.dt * wp_ions:.4f} ~ 1/{int(1.0 / (self.dt * wp_ions))}\n"
+                f"w_pe dt = {self.dt * wp_e:.4f} [rad] = {self.dt * wp_e/(2.0*pi):.4f}\n"
+                f"Timesteps per e plasma cycle = {int(2.0 * pi / (self.dt * wp_e))}\n"
+                f"w_pi dt = {self.dt * wp_ions:.4f} [rad]  = {self.dt * wp_ions/(2.0*pi):.4f}\n"
+                f"Timesteps per i plasma cycle = {int(2.0 * pi / (self.dt * wp_ions))} \n"
             )
             integrator_msg += qsp_msg
 
@@ -1091,11 +1094,13 @@ class Integrator:
 
         if self.equilibration_type == "langevin" or self.production_type == "langevin":
             N = -log(0.001) / (self.langevin_gamma * self.dt)
+            Np = -log(0.001) / (self.langevin_gamma * 2.0 * pi / wp_tot)
             lang_msg = (
-                f"langevin_gamma = {self.langevin_gamma:.4e}\n"
+                f"langevin_gamma = {self.langevin_gamma:.4e} {self.units_dict['Hertz']}\n"
                 f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}\n"
-                f"langevin_gamma / wp = {self.langevin_gamma / wp_tot:.4e}\n"
-                f"exp( - gamma N dt) = 0.001 ==> N = {N:.4f}"
+                f"Timestep to decay to 0.001: exp( - gamma N dt) = 0.001 ==> N = {N:.2e}\n"
+                f"langevin_gamma * (2 pi / w_p) = {self.langevin_gamma * (2.0 * pi/ wp_tot):.4e}\n"
+                f"Plasma cycles to decay to 0.001: exp( - gamma N_p dt) = 0.001 ==> N_p = {Np:.2e}"
             )
             integrator_msg += lang_msg
 

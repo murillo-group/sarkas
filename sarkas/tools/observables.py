@@ -8,9 +8,11 @@ if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
 else:
     from tqdm import tqdm
 
+import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.stats as scp_stats
+import sys
 from matplotlib.gridspec import GridSpec
 from numba import njit
 from numpy import append as np_append
@@ -117,13 +119,34 @@ PREFIXES = {
 
 def compute_doc(func):
     func.__doc__ = """
-    Calculate the observable (and its autocorrelation function). See class doc for exact quantities. \n
+    Routine for computing the observable (and its autocorrelation function). See class doc for exact quantities.\n
     The data of each slice is saved in hierarchical dataframes,
     :py:attr:`~.dataframe_slices` (:py:attr:`~.dataframe_acf_slices`). \n
 
     The sliced averaged data is saved in other hierarchical dataframes,
     :py:attr:`~.dataframe` (:py:attr:`~.dataframe_acf_slices`).
+    """
+    return func
 
+
+def calc_slice_doc(func):
+    func.__doc__ = """
+    Calculate the observable (and its autocorrelation function) for each slice. See class doc for exact quantities.\n
+    The data of each slice is saved in hierarchical dataframes,
+    :py:attr:`~.dataframe_slices` (:py:attr:`~.dataframe_acf_slices`).\n
+    """
+    return func
+
+
+def avg_slice_doc(func):
+    func.__doc__ = """
+    Calculate the average and standard deviation of the observable (and its autocorrelation function) from the slices dataframe.
+    See class doc for exact quantities. \n
+    The data of each slice is saved in hierarchical dataframes,
+    :py:attr:`~.dataframe_slices` (:py:attr:`~.dataframe_acf_slices`). \n
+
+    The sliced averaged data is saved in other hierarchical dataframes,
+    :py:attr:`~.dataframe` (:py:attr:`~.dataframe_acf_slices`).
     """
     return func
 
@@ -155,6 +178,11 @@ def setup_doc(func):
 def arg_update_doc(func):
     func.__doc__ = """Update observable specific attributes and call :meth:`~.update_finish` to save info."""
     return func
+
+
+# TODO: Divide calculation of observable for each slice RDF, EC, CCF, DSF, SSF, DiffusionFlux. Look at VACF for example.
+# TODO: Divide calculation in case of multirun
+# TODO: Check Velocity Distribution class.
 
 
 class Observable:
@@ -491,6 +519,7 @@ class Observable:
             #          angle_averaging=self.angle_averaging)
 
     def create_dirs_filenames(self):
+
         # Saving Directory
         self.setup_multirun_dirs()
 
@@ -502,6 +531,9 @@ class Observable:
         self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
         if not os_path_exists(self.saving_dir):
             mkdir(self.saving_dir)
+
+        # Create the log file path
+        self.log_file = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_log_file.out")
 
         # Filenames and strings
         self.filename_hdf = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
@@ -518,6 +550,20 @@ class Observable:
             self.filename_hdf_acf_slices = os_path_join(
                 self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
             )
+
+    def datetime_stamp(self):
+        """Add a Date and Time stamp to log file."""
+        if os_path_exists(self.log_file):
+            with open(self.log_file, "a+") as f_log:
+                # Add some space to better distinguish the new beginning
+                print(f"\n\n\n", file=f_log)
+
+        with open(self.log_file, "a+") as f_log:
+            ct = datetime.datetime.now()
+            print(f"{'':~^80}", file=f_log)
+            print(f"Date: {ct.year} - {ct.month} - {ct.day}", file=f_log)
+            print(f"Time: {ct.hour}:{ct.minute}:{ct.second}", file=f_log)
+            print(f"{'':~^80}", file=f_log)
 
     def from_dict(self, input_dict: dict):
         """
@@ -767,10 +813,6 @@ class Observable:
 
         """
 
-        # Grab the data
-        # self.parse()
-        # Make a copy of the dataframe for plotting
-
         plot_dataframe = self.dataframe.copy()
 
         if scaling:
@@ -827,16 +869,24 @@ class Observable:
         msg = (
             f"\n\n{name:=^70}\n"
             f"Data saved in: \n {self.filename_hdf}\n"
-            f"Data accessible via: self.ra_values, self.dataframe\n"
+            f"Data accessible via: self.dataframe_slices, self.dataframe\n"
         )
-
+        if self.__name__ == "rdf":
+            msg += (
+                f"No. bins = {self.no_bins}\n"
+                f"dr = {self.dr_rdf / self.a_ws:.4f} a_ws = {self.dr_rdf:.4e} {self.units_dict['length']}\n"
+                f"Maximum Distance (i.e. potential.rc)= {self.rc / self.a_ws:.4f} a_ws = {self.rc:.4e} {self.units_dict['length']}"
+            )
         if self.acf_observable:
-            tot_time = self.dt * self.slice_steps
-            tau_wp = int(tot_time * self.total_plasma_frequency)
+            dtau = self.dt * self.dump_step
+            tau = dtau * self.slice_steps
+            t_wp = 2.0 * pi / self.total_plasma_frequency  # Plasma period
+            tau_wp = int(tau / t_wp)
             msg += (
                 f"No. of slices = {self.no_slices}\n"
                 f"No. dumps per slice = {int(self.slice_steps / self.dump_step)}\n"
-                f"Time interval of autocorrelation function = {tot_time:.4e} {self.units_dict['time']} ~ {tau_wp} w_p T\n"
+                f"Total time interval of autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n"
+                f"Time interval step: dtau = {dtau:.4e} ~ {dtau / t_wp:.4e} plasma period"
             )
 
         if self.k_observable:
@@ -906,9 +956,20 @@ class Observable:
         return msg
 
     def pretty_print(self):
-        """Print observable useful info."""
+        """Print observable useful info to log file and to screen if `self.verbose` is `True`."""
         msg = self.pretty_print_msg()
-        print(msg)
+        screen = sys.stdout
+        f_log = open(self.log_file, "a+")
+        repeat = 2 if self.verbose else 1
+
+        # redirect printing to file
+        sys.stdout = f_log
+        while repeat > 0:
+            print(msg)
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()
 
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
@@ -1181,7 +1242,8 @@ class Observable:
             self.dump_dirs_list = [self.dump_dir]
 
     def time_stamp(self, message: str, timing: tuple):
-        """Print to screen the elapsed time of the calculation.
+        """
+        Print out to screen elapsed times. If verbose output, print to file first and then to screen.
 
         Parameters
         ----------
@@ -1193,18 +1255,24 @@ class Observable:
 
         """
 
+        screen = sys.stdout
+        f_log = open(self.log_file, "a+")
+        repeat = 2 if self.verbose else 1
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
 
-        if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-            print_message = "\n{} Time: {} sec {} msec {} usec {} nsec".format(
-                message, int(t_sec), int(t_msec), int(t_usec), int(t_nsec)
-            )
+        # redirect printing to file
+        sys.stdout = f_log
+        while repeat > 0:
 
-        else:
-            print_message = "\n{} Time: {} hrs {} min {} sec".format(message, int(t_hrs), int(t_min), int(t_sec))
+            if t_hrs == 0 and t_min == 0 and t_sec <= 2:
+                print(f"\n{message} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
+            else:
+                print(f"\n{message} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
 
-        # logging.info(print_message)
-        print(print_message)
+            repeat -= 1
+            sys.stdout = screen
+
+        f_log.close()
 
     def update_finish(self):
         """Update the :py:attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
@@ -1244,6 +1312,10 @@ class Observable:
         if self.acf_observable:
             self.dataframe_acf = DataFrame()
             self.dataframe_acf_slices = DataFrame()
+
+        # Write log file
+        self.datetime_stamp()
+        self.pretty_print()
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1709,25 +1781,37 @@ class ElectricCurrent(Observable):
 
         # Initialize timer
         t0 = self.timer.current()
-        self.calculate_run_slices_data()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
         tend = self.timer.current()
         self.time_stamp("Electric Current Calculation", self.timer.time_division(tend - t0))
 
-    def calculate_run_slices_data(self):
+    def calc_slices_data(self):
 
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = zeros(self.slice_steps)
 
         # Loop over the slices of each run
-        for isl in range(self.no_slices):
-            print(f"\nCalculating electric current and its acf for slice {isl + 1}/{self.no_slices}.")
+        for isl in tqdm(
+            range(self.no_slices),
+            desc=f"\nCalculating {self.__long_name__} for slice ",
+            disable=not self.verbose,
+            position=0,
+        ):
             # Parse the particles from the dump files
             vel = zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
             # print("\nParsing particles' velocities.")
             for it, dump in enumerate(
-                tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
+                tqdm(
+                    range(start_slice, end_slice, self.dump_step),
+                    desc="Read in data",
+                    position=1,
+                    disable=not self.verbose,
+                    leave=False,
+                )
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
@@ -1776,10 +1860,6 @@ class ElectricCurrent(Observable):
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
-
-        self.average_slices_data()
-
-        self.save_hdf()
 
     def average_slices_data(self):
         """Average and std over the slices."""
@@ -1935,11 +2015,22 @@ class PressureTensor(Observable):
     @compute_doc
     def compute(self):
 
-        start_slice = 0
-        end_slice = self.slice_steps * self.dump_step
-        time = zeros(self.slice_steps)
-        # Initialize timer
         t0 = self.timer.current()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        self.time_stamp(self.__long_name__ + " and its ACF Calculation", self.timer.time_division(tend - t0))
+
+    @calc_slice_doc
+    def calc_slices_data(self):
+        # Precompute the number of columns in the dataframe and make the list of names
+        self.df_column_names()
+
+        if self.dimensions == 3:
+            dim_lbl = ["x", "y", "z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["x", "y"]
 
         # Dataframes' columns names
         pt_str_kin = "Pressure Tensor Kinetic"
@@ -1951,20 +2042,17 @@ class PressureTensor(Observable):
         pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
         pt_acf_str = "Pressure Tensor ACF"
 
-        if self.dimensions == 3:
-            dim_lbl = ["x", "y", "z"]
-        elif self.dimensions == 2:
-            dim_lbl = ["x", "y"]
-
-        # Pre compute the number of columns in the dataframe and make the list of names
-        self.df_column_names()
-
-        # Initialize timer
-        t0 = self.timer.current()
+        time = zeros(self.slice_steps)
 
         # Let's compute
-        for isl in range(self.no_slices):
-            print("\nCalculating stress tensor and the acfs for slice {}/{}.".format(isl + 1, self.no_slices))
+        start_slice_step = 0
+        end_slice_step = self.slice_steps * self.dump_step
+        for isl in tqdm(
+            range(self.no_slices),
+            desc=f"\nCalculating {self.__long_name__} for slice ",
+            disable=not self.verbose,
+            position=0,
+        ):
             # Parse the particles from the dump files
             pressure = zeros(self.slice_steps)
             pt_kin_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
@@ -1973,9 +2061,11 @@ class PressureTensor(Observable):
 
             for it, dump in enumerate(
                 tqdm(
-                    range(start_slice, end_slice, self.dump_step),
-                    desc="Calculating Pressure Tensor",
+                    range(start_slice_step, end_slice_step, self.dump_step),
+                    desc="Timestep",
+                    position=1,
                     disable=not self.verbose,
+                    leave=False,
                 )
             ):
                 datap = load_from_restart(self.dump_dir, dump)
@@ -2045,11 +2135,29 @@ class PressureTensor(Observable):
                                 pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
                             ] = C_ijkl
 
-            start_slice += self.slice_steps * self.dump_step
-            end_slice += self.slice_steps * self.dump_step
+            start_slice_step += self.slice_steps * self.dump_step
+            end_slice_step += self.slice_steps * self.dump_step
             # end of slice loop
 
-        # Average and std over the slices
+    @avg_slice_doc
+    def average_slices_data(self):
+        """Average and std over the slices"""
+
+        if self.dimensions == 3:
+            dim_lbl = ["x", "y", "z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["x", "y"]
+
+        # Dataframes' columns names
+        pt_str_kin = "Pressure Tensor Kinetic"
+        pt_str_pot = "Pressure Tensor Potential"
+        pt_str = "Pressure Tensor"
+        pt_acf_str_kin = "Pressure Tensor Kinetic ACF"
+        pt_acf_str_pot = "Pressure Tensor Potential ACF"
+        pt_acf_str_kinpot = "Pressure Tensor Kin-Pot ACF"
+        pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
+        pt_acf_str = "Pressure Tensor ACF"
+
         col_str = ["Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
         self.dataframe["Pressure_Mean"] = self.dataframe_slices[col_str].mean(axis=1)
         self.dataframe["Pressure_Std"] = self.dataframe_slices[col_str].std(axis=1)
@@ -2131,11 +2239,6 @@ class PressureTensor(Observable):
                         std_column = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
                         self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-
-        self.save_hdf()
-
-        tend = self.timer.current()
-        self.time_stamp("Stress Tensor and ACF Calculation", self.timer.time_division(tend - t0))
 
     def sum_rule(self, beta, rdf, potential):
         r"""
@@ -2277,7 +2380,7 @@ class RadialDistributionFunction(Observable):
 
         self.dataframe["Distance"] = r_values
         self.dataframe_slices["Distance"] = r_values
-        for isl in tqdm(range(self.no_slices), disable=not self.verbose):
+        for isl in tqdm(range(self.no_slices), desc="Calculating RDF for slice", disable=not self.verbose):
 
             # Grab the data from the dumps. The -1 is for '0'-indexing
             dump_no = (isl + 1) * (self.slice_steps - 1) * self.dump_step
@@ -2352,6 +2455,7 @@ class RadialDistributionFunction(Observable):
         hartrees = zeros((self.no_obs, 3))
 
         obs_indx = 0
+        # TODO:Make this calculation for each slice and/or run
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
                 h_r = self.dataframe[(f"{sp1_name}-{sp2_name} RDF", "Mean")].to_numpy() - 1.0
@@ -2476,15 +2580,12 @@ class RadialDistributionFunction(Observable):
 
         return hartrees, corrs
 
-    def pretty_print(self):
-        """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
-        msg = self.pretty_print_msg()
-        msg += (
-            f"No. bins = {self.no_bins}\n"
-            f"dr = {self.dr_rdf / self.a_ws:.4f} a_ws = {self.dr_rdf:.4e} {self.units_dict['length']}\n"
-            f"Maximum Distance (i.e. potential.rc)= {self.rc / self.a_ws:.4f} a_ws = {self.rc:.4e} {self.units_dict['length']}"
-        )
-        print(msg)
+    # def pretty_print(self):
+    #     """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
+    #     msg = self.pretty_print_msg()
+    #
+    #     print(msg)
+    #
 
 
 class StaticStructureFactor(Observable):
@@ -3023,22 +3124,32 @@ class VelocityAutoCorrelationFunction(Observable):
         self.average_slices_data()
         self.save_hdf()
         tend = self.timer.current()
-        self.time_stamp("VACF Calculation", self.timer.time_division(tend - t0))
+        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - t0))
 
+    @calc_slice_doc
     def calc_slices_data(self):
-        """Calculate the vacf for each slice and add the data to the acf_slices dataframe."""
-
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = zeros(self.slice_steps)
 
-        for isl in range(self.no_slices):
-            print(f"\nCalculating vacf for slice {isl + 1}/{self.no_slices}.")
+        for isl in tqdm(
+            range(self.no_slices),
+            desc=f"\nCalculating {self.__name__.swapcase()} for slice ",
+            disable=not self.verbose,
+            position=0,
+        ):
+
             # Parse the particles from the dump files
             vel = zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
             #
             for it, dump in enumerate(
-                tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
+                tqdm(
+                    range(start_slice, end_slice, self.dump_step),
+                    desc="Reading data",
+                    disable=not self.verbose,
+                    position=1,
+                    leave=False,
+                )
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
@@ -3052,7 +3163,7 @@ class VelocityAutoCorrelationFunction(Observable):
                 self.dataframe_acf_slices["Time"] = time
 
             # Return an array of shape( num_species, dim + 1, slice_steps)
-            vacf = calc_vacf(vel, self.species_num)
+            vacf = calc_vacf(vel, self.species_num, self.verbose)
 
             for i, sp1 in enumerate(self.species_names):
                 sp_vacf_str = f"{sp1} " + self.__name__.swapcase()
@@ -3064,6 +3175,7 @@ class VelocityAutoCorrelationFunction(Observable):
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
+    @avg_slice_doc
     def average_slices_data(self):
         """Average the data from all the slices and add it to the dataframe."""
 
@@ -4152,7 +4264,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
 
 
 # @jit Numba doesn't like Scipy
-def calc_vacf(vel, sp_num):
+def calc_vacf(vel, sp_num, verbose):
     """
     Calculate the velocity autocorrelation function of each species and in each direction.
 
@@ -4177,15 +4289,15 @@ def calc_vacf(vel, sp_num):
     vacf = zeros((len(sp_num), no_dim + 1, no_dumps))
 
     # Calculate the vacf of each species in each dimension
-    for d in range(no_dim):
+    for d in tqdm(range(no_dim), desc=f"Dimension", position=1, disable=not verbose, leave=False):
         sp_start = 0
         sp_end = 0
-        for sp, n_sp in enumerate(sp_num):
+        for sp, n_sp in enumerate(tqdm(sp_num, desc=f"Species", position=2, disable=not verbose, leave=False)):
             sp_end += n_sp
             # Temporary species vacf
             sp_vacf = zeros(no_dumps)
             # Calculate the vacf for each particle of species sp
-            for ptcl in range(sp_start, sp_end):
+            for ptcl in tqdm(range(sp_start, sp_end), desc="Particle", position=3, disable=not verbose, leave=False):
                 # Calculate the correlation function and add it to the array
                 ptcl_vacf = correlationfunction(vel[d, ptcl, :], vel[d, ptcl, :])
 
