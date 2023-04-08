@@ -140,8 +140,7 @@ html_theme_options = {
 html_static_path = ["_static"]
 html_css_files = [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
-    "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap",
-    "my-style.css",
+    "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap"
 ]
 
 # panels_add_fontawesome_latex = True
