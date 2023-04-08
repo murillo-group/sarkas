@@ -1586,22 +1586,21 @@ title="Print to PDF"
 <dl class="py method">
 <dt class="sig sig-object py" id="sarkas.processes.PreProcess.make_color_map">
 <span class="sig-prename descclassname"><span class="pre">PreProcess.</span></span><span class="sig-name descname"><span class="pre">make_color_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rcuts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alphas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chosen_rcut</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_force_error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/sarkas/processes.html#PreProcess.make_color_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.processes.PreProcess.make_color_map" title="Permalink to this definition">#</a></dt>
-<dd><blockquote>
-<div><p>Plot a color map of the total force error approximation.</p>
-<dl class="simple">
-<dt>rcuts: numpy.ndarray</dt><dd><p>Cut off distances.</p>
+<dd><p>Plot a color map of the total force error approximation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rcuts</strong> (<em>numpy.ndarray</em>) – Cut off distances.</p></li>
+<li><p><strong>alphas</strong> (<em>numpy.ndarray</em>) – Ewald parameters.</p></li>
+<li><p><strong>chosen_alpha</strong> (<em>float</em>) – Chosen Ewald parameter.</p></li>
+<li><p><strong>chosen_rcut</strong> (<em>float</em>) – Chosen cut off radius.</p></li>
+<li><p><strong>total_force_error</strong> (<em>numpy.ndarray</em>) – Force error matrix.</p></li>
+</ul>
 </dd>
-<dt>alphas: numpy.ndarray</dt><dd><p>Ewald parameters.</p>
-</dd>
-<dt>chosen_alpha: float</dt><dd><p>Chosen Ewald parameter.</p>
-</dd>
-<dt>chosen_rcut: float</dt><dd><p>Chosen cut off radius.</p>
-</dd>
-<dt>total_force_error: numpy.ndarray</dt><dd><p>Force error matrix.</p>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#DeprecationWarning" title="(in Python v3.11)"><strong>DeprecationWarning</strong></a> – </p>
 </dd>
 </dl>
-</div></blockquote>
-<p>:raises : DeprecationWarning:</p>
 </dd></dl>
 
 </section>

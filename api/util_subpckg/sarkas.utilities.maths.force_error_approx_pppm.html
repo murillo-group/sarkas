@@ -1588,20 +1588,19 @@ title="Print to PDF"
 <dl class="py function">
 <dt class="sig sig-object py" id="sarkas.utilities.maths.force_error_approx_pppm">
 <span class="sig-prename descclassname"><span class="pre">sarkas.utilities.maths.</span></span><span class="sig-name descname"><span class="pre">force_error_approx_pppm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potential</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/sarkas/utilities/maths.html#force_error_approx_pppm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sarkas.utilities.maths.force_error_approx_pppm" title="Permalink to this definition">#</a></dt>
-<dd><blockquote>
-<div><p>Calculates the force error, <span class="math notranslate nohighlight">\(\Delta F_{\rm {pm}}, for the PPPM algorithm using approximations given in :cite:\)</span>.
-The formula for <span class="math notranslate nohighlight">\(\Delta F_{\rm {pm}}\)</span> can be found in <span class="xref std std-ref">force_error</span>.</p>
-<dl class="simple">
-<dt>potential: <a class="reference internal" href="../potentials_subpckg/sarkas.potentials.core.Potential.html#sarkas.potentials.core.Potential" title="sarkas.potentials.core.Potential"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential</span></code></a></dt><dd><p>Potential class with all the required information.</p>
+<dd><p>Calculates the force error, <span class="math notranslate nohighlight">\(\Delta F_{\rm pm}\)</span>, for the PPPM algorithm using approximations given in <span id="id1">[<a class="reference internal" href="../../theory/references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>.
+The formula for <span class="math notranslate nohighlight">\(\Delta F_{\rm pm}\)</span> can be found in <a class="reference internal" href="../../theory/force_error.html#force-error"><span class="std std-ref">Force Error</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>potential</strong> (<a class="reference internal" href="../potentials_subpckg/sarkas.potentials.core.Potential.html#sarkas.potentials.core.Potential" title="sarkas.potentials.core.Potential"><code class="xref py py-class docutils literal notranslate"><span class="pre">sarkas.potentials.core.Potential</span></code></a>) – Potential class with all the required information.</p>
 </dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>tot_force_error: float</dt><dd><p>Total force error given by the L2 norm of the PP and PM force errors.</p>
-</dd>
-<dt>pppm_pm_err: float</dt><dd><p>PM force error.</p>
-</dd>
-<dt>pppm_pp_err: float</dt><dd><p>PM force error.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>tot_force_error</strong> (<em>float</em>) – Total force error given by the L2 norm of the PP and PM force errors.</p></li>
+<li><p><strong>pppm_pm_err</strong> (<em>float</em>) – PM force error.</p></li>
+<li><p><strong>pppm_pp_err</strong> (<em>float</em>) – PM force error.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>

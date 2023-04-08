@@ -1586,9 +1586,9 @@ title="Print to PDF"
               <div>
                 
   <section id="force-error">
-<h1>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">#</a></h1>
+<span id="id1"></span><h1>Force Error<a class="headerlink" href="#force-error" title="Permalink to this headline">#</a></h1>
 <p>The Force error is the error incurred when we cut the potential interaction after a certain distance. Following the works
-of <span id="id1">[<a class="reference internal" href="references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>, <a class="reference internal" href="references.html#id2" title="Jiri Kolafa and John W. Perram. Cutoff errors in the ewald summation formulae for point charge systems. Molecular Simulation, 9(5):351-368, 1992. doi:10.1080/08927029208049126.">Kolafa and Perram, 1992</a>, <a class="reference internal" href="references.html#id13" title="Harry A. Stern and Keith G. Calkins. On mesh-based ewald methods: optimal parameters for two differentiation schemes. The Journal of Chemical Physics, 128(21):214106, 2008. doi:10.1063/1.2932253.">Stern and Calkins, 2008</a>]</span> we define the total force error for our P3M algorithm as</p>
+of <span id="id2">[<a class="reference internal" href="references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>, <a class="reference internal" href="references.html#id2" title="Jiri Kolafa and John W. Perram. Cutoff errors in the ewald summation formulae for point charge systems. Molecular Simulation, 9(5):351-368, 1992. doi:10.1080/08927029208049126.">Kolafa and Perram, 1992</a>, <a class="reference internal" href="references.html#id13" title="Harry A. Stern and Keith G. Calkins. On mesh-based ewald methods: optimal parameters for two differentiation schemes. The Journal of Chemical Physics, 128(21):214106, 2008. doi:10.1063/1.2932253.">Stern and Calkins, 2008</a>]</span> we define the total force error for our P3M algorithm as</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}} = \sqrt{ \Delta F_{\mathcal R}^2 + \Delta F_{\mathcal F}^2 }\]</div>
 <p>where <span class="math notranslate nohighlight">\(\Delta F_{\mathcal R}\)</span> is the error obtained in the PP part of the force calculation and
@@ -1642,7 +1642,7 @@ the equation for <span class="math notranslate nohighlight">\(\Delta F_{\mathcal
 see in the second part of the output the time it takes to calculate <span class="math notranslate nohighlight">\(G_{\mathbf k}\)</span> is in the order of seconds,
 thus, a loop over several <span class="math notranslate nohighlight">\(\alpha\)</span> values would be very time consuming. Fortunately researchers
 have calculated an analytical approximation allowing for the exploration of the whole <span class="math notranslate nohighlight">\(r_c,\; \alpha\)</span> parameter
-space <span id="id2">[<a class="reference internal" href="references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>. The equations of this approximation are</p>
+space <span id="id3">[<a class="reference internal" href="references.html#id11" title="Gautham Dharuman, Liam G Stanton, James N Glosli, and Michael S Murillo. A generalized ewald decomposition for screened coulomb interactions. The Journal of chemical physics, 146(2):024112, 2017. doi:10.1063/1.4973842.">Dharuman <em>et al.</em>, 2017</a>]</span>. The equations of this approximation are</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\mathcal F}^{(\textrm{approx})} \simeq Q^2 \sqrt{\frac{N}{V}} A_{\mathcal F}^{1/2},\]</div>
 <div class="math notranslate nohighlight">
@@ -1650,7 +1650,7 @@ space <span id="id2">[<a class="reference internal" href="references.html#id11" 
                         \frac{2}{1 + 2(p + m)} \beta(p,m),\]</div>
 <div class="math notranslate nohighlight">
 \[\beta(p,m) = \int_0^{\infty} dk \; G_k^2 k^{2(p + m + 2)},\]</div>
-<p>where <span class="math notranslate nohighlight">\(h = L_x/M_x\)</span> and the coefficients <span class="math notranslate nohighlight">\(C_m^{(p)}\)</span> are listed in Table I of <span id="id3">[<a class="reference internal" href="references.html#id5" title="Markus Deserno and Christian Holm. How to mesh up ewald sums. ii. an accurate error estimate for the particle–particle–particle-mesh algorithm. The Journal of Chemical Physics, 109(18):7694-7701, 1998. doi:10.1063/1.477415.">Deserno and Holm, 1998</a>]</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(h = L_x/M_x\)</span> and the coefficients <span class="math notranslate nohighlight">\(C_m^{(p)}\)</span> are listed in Table I of <span id="id4">[<a class="reference internal" href="references.html#id5" title="Markus Deserno and Christian Holm. How to mesh up ewald sums. ii. an accurate error estimate for the particle–particle–particle-mesh algorithm. The Journal of Chemical Physics, 109(18):7694-7701, 1998. doi:10.1063/1.477415.">Deserno and Holm, 1998</a>]</span>.</p>
 <p>Finally, by calculating</p>
 <div class="math notranslate nohighlight">
 \[\Delta F_{\textrm{tot}}^{(\textrm{apprx})}( r_c, \alpha) = \sqrt{ \Delta F_{\mathcal R}^2 +

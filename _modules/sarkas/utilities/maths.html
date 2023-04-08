@@ -1682,18 +1682,18 @@ title="Source repository"
 
 <div class="viewcode-block" id="force_error_approx_pppm"><a class="viewcode-back" href="../../../api/util_subpckg/sarkas.utilities.maths.force_error_approx_pppm.html#sarkas.utilities.maths.force_error_approx_pppm">[docs]</a><span class="k">def</span> <span class="nf">force_error_approx_pppm</span><span class="p">(</span><span class="n">potential</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">     Calculates the force error, :math:`\Delta F_{\rm {pm}}, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.</span>
-<span class="sd">     The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.</span>
+<span class="sd">    Calculates the force error, :math:`\Delta F_{\rm pm}`, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.</span>
+<span class="sd">    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.</span>
 
-<span class="sd">     Parameters</span>
-<span class="sd">     ----------</span>
-<span class="sd">     potential: :class:`sarkas.potentials.core.Potential`</span>
-<span class="sd">        Potential class with all the required information.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    potential: :class:`sarkas.potentials.core.Potential`</span>
+<span class="sd">       Potential class with all the required information.</span>
 
-<span class="sd">     Returns</span>
-<span class="sd">     -------</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 <span class="sd">    tot_force_error: float</span>
-<span class="sd">        Total force error given by the L2 norm of the PP and PM force errors.</span>
+<span class="sd">       Total force error given by the L2 norm of the PP and PM force errors.</span>
 
 <span class="sd">    pppm_pm_err: float</span>
 <span class="sd">        PM force error.</span>
@@ -1725,8 +1725,8 @@ title="Source repository"
 
 <div class="viewcode-block" id="force_error_approx_pm"><a class="viewcode-back" href="../../../api/util_subpckg/sarkas.utilities.maths.force_error_approx_pm.html#sarkas.utilities.maths.force_error_approx_pm">[docs]</a><span class="k">def</span> <span class="nf">force_error_approx_pm</span><span class="p">(</span><span class="n">kappa</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculates the PM part of the force error, :math:`\Delta F_{\rm {pm}},  for a given value of the PPPM parameters.</span>
-<span class="sd">    The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.</span>
+<span class="sd">    Calculates the PM part of the force error, :math:`\Delta F_{\rm pm}`,  for a given value of the PPPM parameters.</span>
+<span class="sd">    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
