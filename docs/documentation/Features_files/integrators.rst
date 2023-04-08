@@ -3,6 +3,7 @@
 ===========
 Integrators
 ===========
+
 Sarkas aims to support a variety of time integrators both built-in and user defined.
 Currently the available ones are:
 
@@ -14,8 +15,8 @@ Currently the available ones are:
 - Cyclotronic
 
 The choice of integrator is provided in the input file and the method
-:doc:`type_setup() <../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.type_setup>`
-links the chosen integrator to the :doc:`update() <../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.update>` method which evolves
+:doc:`type_setup() <../../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.type_setup>`
+links the chosen integrator to the :doc:`update() <../../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.update>` method which evolves
 particles' positions, velocities, and accelerations in time.
 
 The Velocity Verlet algorithm is the most common integrator used in MD plasma codes.
@@ -24,6 +25,7 @@ Hamiltonian, it is fast and easy to implement.
 
 Phase Space Distribution
 ------------------------
+
 The state of the system is defined by the set of phase space coordinates
 :math:`\{ \mathbf r, \mathbf p \} = \{ \mathbf r_1, \mathbf r_2, \dots, \mathbf r_N , \mathbf p_1, \mathbf p_2, \dots, \mathbf p_N \}`
 where :math:`N` represents the number of particles. The system evolves in time according to the Hamiltonian
@@ -50,9 +52,12 @@ The solution of the Liouville equation is
 .. math::
     \mathcal f_N(\mathbf r, \mathbf p;t) =  e^{- i \mathcal L t } f_N(\mathbf r, \mathbf p;0)
 
+
 .. _vel_verlet:
+
 Velocity Verlet
 ---------------
+
 It can be shown that the Velocity Verlet corresponds to a second order splitting of the Liouville operator :math:`\mathcal L =  K +  V`
 
 .. math::
@@ -85,9 +90,12 @@ equations
 .. math::
     \mathbf r(t + \Delta t) = \mathbf r_0 + \Delta t \mathbf v(t), \quad \mathbf v(t + \Delta t) = \mathbf v_0 + \Delta t \mathbf a(t).
 
+
 .. _mag_vel_verlet:
+
 Magnetic Velocity Verlet
 ------------------------
+
 A generalization to include constant external magnetic fields leads to the Liouville operator
 :math:`e^{i \epsilon( K + V + L_B)}` where :cite:`Chin2008`
 
