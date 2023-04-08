@@ -20,7 +20,7 @@
   
 <meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
   
-<meta property="og:description" content="Documentation:: Why Sarkas, Get Started, Available Features. Theory:: Theoretical Background. Code Dev:: Code Development. Simulations:: Examples. API:: API reference. Credits:: Credits. Indices an..." />
+<meta property="og:description" content="card-img-top card-img-top User Friendly Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines of code. Run your simulation with 3 more lines. Calculate physics ..." />
   
 <meta property="twitter:card" content="summary">
 <meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
@@ -44,7 +44,6 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="_static/my-style.css" />
     <link rel="stylesheet" type="text/css" href="_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
     <link rel="stylesheet" href="_static/my-styles.css" type="text/css" />
     
@@ -258,13 +257,13 @@
 </ul>
 <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  Code Dev:
+  Contributing:
  </span>
 </p>
 <ul class="nav bd-sidenav">
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="code_development/code_dev.html">
-   Code Development
+  <a class="reference internal" href="contributing/contributing.html">
+   Contributing to Sarkas
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
   <label for="toctree-checkbox-5">
@@ -273,23 +272,23 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="code_development/dev_setup.html">
+    <a class="reference internal" href="contributing/dev_setup.html">
      Setup
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="code_development/dev_report_issues.html">
+    <a class="reference internal" href="contributing/dev_report_issues.html">
      Reporting Issues
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="code_development/dev_docs.html">
+    <a class="reference internal" href="contributing/dev_docs.html">
      Documentation
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="code_development/dev_contributing.html">
-     Contributing to Sarkas
+    <a class="reference internal" href="contributing/dev_example.html">
+     Example of a contribution
     </a>
    </li>
   </ul>
@@ -334,6 +333,11 @@
    <li class="toctree-l2">
     <a class="reference internal" href="examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">
      Yukawa vs Egs potential
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="examples/YOCP/YOCP_viscosity.html">
+     Viscosity Coefficients
     </a>
    </li>
    <li class="toctree-l2">
@@ -1608,80 +1612,125 @@ title="Print to PDF"
                <span class="float-none"></span>
          </div>
       </div>
-   </div>
-
-   <div class="row justify-content-center">
-      <div id="slideshow" class="carousel slide" data-ride="carousel">
-         <ol class="carousel-indicators">
-            <li data-target="#slideshow" data-slide-to="0" class="active"></li>
-            <li data-target="#slideshow" data-slide-to="1"></li>
-         </ol>
-         <div class="carousel-inner">
-            <div class="carousel-item active mw-50">
-               <img src="_static/codesnippet.png" alt="Code Snippet">
-            </div>
-            <div class="carousel-item mw-25">
-               <img src="_static/BYU.gif" alt="BYU">
-            </div>
-         </div>
-         <a class="carousel-control-prev" href="#slideshow" role="button" data-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-         </a>
-         <a class="carousel-control-next" href="#slideshow" role="button" data-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-         </a>
-      </div>
-   </div>
-
-   <div class="row">
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="far fa-smile fa-3x mb-3 text-muted"></i><br>User Friendly</h4>
-         <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines
-            of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-rocket fa-3x mb-3 text-muted"></i><br>Fast Pure Python</h4>
-         <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable
-         to that of compiled languages.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-flask fa-3x mb-3 text-muted"></i><br>Plasma Potentials</h4>
-         <p>Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only
-         MD code to support electrons as dynamical particles.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-database fa-3x mb-3 text-muted"></i><br>Data Science</h4>
-         <p>Sarkas has been developed for data science. You can run multiple simulations and store data with a simple for loop.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-chart-area fa-3x mb-3 text-muted"></i><br>Publications</h4>
-         <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get
-         publication-grade results in less time.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-cogs fa-3x mb-3 text-muted"></i><br>Highly Customizable</h4>
-         <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-users fa-3x mb-3 text-muted"></i><br>Collaborative Effort</h4>
-         <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging
-         open problems in plasma physics.</p>
-      </div>
-
-      <div class="text-center col-xs-12 col-sm-12 col-md-6">
-         <h4 class="text-center"><i class="fa fa-github fa-3x mb-3 text-muted"></i><br>Open Source</h4>
-         <p>Sarkas is released under the MIT License and maintained by the community on GitHub.</p>
-      </div>
-
-   </div><div class="sd-container-fluid sd-sphinx-override sd-mb-4 bg-light text-left docutils">
+   </div><div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 sd-g-1 sd-g-xs-1 sd-g-sm-1 sd-g-md-1 sd-g-lg-1 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<img alt="card-img-top" class="sd-card-img-top" src="_images/codesnippet.png" />
+<div class="sd-card-body docutils">
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<img alt="card-img-top" class="sd-card-img-top" src="_images/BYU.gif" />
+<div class="sd-card-body docutils">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-smile fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+User Friendly</div>
+<p class="sd-card-text">Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-rocket fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Fast Pure Python</div>
+<p class="sd-card-text">Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable to that of compiled languages.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-flask fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Plasma Potentials</div>
+<p class="sd-card-text">Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only MD code to support electrons as dynamical particles.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-database fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Data Science</div>
+<p class="sd-card-text">Sarkas has been developed for data science. You can run multiple simulations and store data with a simple for loop.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-chart-area fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Publications</div>
+<p class="sd-card-text">Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get publication-grade results in less time.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-cogs fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Highly Customizable</div>
+<p class="sd-card-text">Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-users fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Collaborative Effort</div>
+<p class="sd-card-text">Sarkas wants to be a common platform for the development of new algorithms to study the most challenging open problems in plasma physics.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-none border-0 docutils">
+<div class="sd-card-header sd-text-center sd-border-0 docutils">
+<p class="sd-card-text"><span class="fa fa-github fa-3x mb-3 text-muted"></span></p>
+</div>
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold sd-text-center sd-fs-4 docutils">
+Open Source</div>
+<p class="sd-card-text">Sarkas is released under the MIT License and maintained by the community on GitHub.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 bg-light text-left docutils">
 <div class="sd-row sd-row-cols-1 sd-row-cols-xs-1 sd-row-cols-sm-1 sd-row-cols-md-2 sd-row-cols-lg-2 bg-light border-0 docutils">
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
@@ -1701,9 +1750,9 @@ title="Print to PDF"
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Code Dev:</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contributing:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code_development/code_dev.html">Code Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/contributing.html">Contributing to Sarkas</a></li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -1783,36 +1832,7 @@ title="Print to PDF"
   <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 
  
-
-  <script type="text/javascript">
-    jQuery(function () {
-        SphinxRtdTheme.Navigation.enable(true);
-      })
-  </script>
-
-  <style>
-    /* Sidebar header (and topbar for mobile) */
-    /* .wy-side-nav-search,  */
-    .wy-nav-top {
-      background: #18453b;
-    }
-    /* Sidebar */
-    .wy-nav-side {
-      background: #535054;
-    }
-    .wy-menu-vertical p.caption {
-	  color: #fff;
-    }
-    .wy-menu-vertical a {
-      color: #eee;
-    }
-    .wy-menu-vertical a:hover {
-      background-color: #18453b;
-    }
-    /* .wy-nav-content {
-      max-width: 900px !important;
-    } */
-  </style>
-
+    
+  
   </body>
 </html>

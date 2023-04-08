@@ -1,6 +1,6 @@
-****************
-Code Development
-****************
+**********************
+Contributing to Sarkas
+**********************
 
 The following pages present a workflow for editing, adding your own features, and contributing to Sarkas.
 
@@ -10,7 +10,7 @@ The following pages present a workflow for editing, adding your own features, an
     dev_setup
     dev_report_issues
     dev_docs
-    dev_contributing
+    dev_example
 
 Imposter Syndrome Disclaimer
 ----------------------------
@@ -70,7 +70,7 @@ If not, do not worry - just pick an `issue <https://github.com/murillo-group/sar
 
 To contribute your code to Sarkas, you will need to make a `pull request <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests>`_
 from your fork of Sarkas repository. This development workflow using Git may look daunting at first, but it is not if
-you follow `this guide <dev_contributing>`_ that we have prepared for you.
+you follow `this guide <dev_example>`_ that we have prepared for you.
 
 When you make a pull request, please provide all the necessary information requested by prompts in the pull request body.
 Also, make sure that the code you are submitting always accounts for the following three:

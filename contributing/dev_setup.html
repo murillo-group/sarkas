@@ -6,20 +6,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Documentation" />
+<meta property="og:title" content="Setup" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://murillo-group.github.io/sarkas/code_development/dev_docs.html" />
+<meta property="og:url" content="https://murillo-group.github.io/sarkas/contributing/dev_setup.html" />
   
 <meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
   
-<meta property="og:description" content="High-quality and consistent documentation is very important for any coding project, but even more when distributing your project. A well written documentation allows new users to find out how to us..." />
+<meta property="og:description" content="In order to make changes to Sarkas you first need to download the source code from its GitHub repository. It is highly recommended to fork Sarkas repo for any code development. This is to ensure th..." />
   
 <meta property="twitter:card" content="summary">
 <meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
 <meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
-    <title>Documentation &#8212; Sarkas 1.1.0 documentation</title>
+    <title>Setup &#8212; Sarkas 1.1.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -38,7 +38,6 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
@@ -60,8 +59,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Contributing to Sarkas" href="dev_contributing.html" />
-    <link rel="prev" title="Reporting Issues" href="dev_report_issues.html" />
+    <link rel="next" title="Reporting Issues" href="dev_report_issues.html" />
+    <link rel="prev" title="Contributing to Sarkas" href="contributing.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -253,13 +252,13 @@
 </ul>
 <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  Code Dev:
+  Contributing:
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="code_dev.html">
-   Code Development
+  <a class="reference internal" href="contributing.html">
+   Contributing to Sarkas
   </a>
   <input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
   <label for="toctree-checkbox-5">
@@ -267,8 +266,8 @@
    </i>
   </label>
   <ul class="current">
-   <li class="toctree-l2">
-    <a class="reference internal" href="dev_setup.html">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
      Setup
     </a>
    </li>
@@ -277,14 +276,14 @@
      Reporting Issues
     </a>
    </li>
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
+   <li class="toctree-l2">
+    <a class="reference internal" href="dev_docs.html">
      Documentation
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="dev_contributing.html">
-     Contributing to Sarkas
+    <a class="reference internal" href="dev_example.html">
+     Example of a contribution
     </a>
    </li>
   </ul>
@@ -329,6 +328,11 @@
    <li class="toctree-l2">
     <a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">
      Yukawa vs Egs potential
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/YOCP/YOCP_viscosity.html">
+     Viscosity Coefficients
     </a>
    </li>
    <li class="toctree-l2">
@@ -1522,7 +1526,7 @@ title="Source repository"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="../_sources/code_development/dev_docs.rst"
+        <a href="../_sources/contributing/dev_setup.rst"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -1582,18 +1586,23 @@ title="Print to PDF"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#install-required-packages">
-   Install Required Packages
+  <a class="reference internal nav-link" href="#updating-your-repository">
+   Updating your repository
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#writing-documentation">
-   Writing Documentation
+  <a class="reference internal nav-link" href="#forking-and-cloning-sarkas-repository">
+   Forking and Cloning Sarkas repository
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#building-documentation">
-   Building Documentation
+  <a class="reference internal nav-link" href="#create-a-virtual-environment">
+   Create a virtual environment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#install-sarkas-in-development-mode">
+   Install Sarkas in development mode
   </a>
  </li>
 </ul>
@@ -1605,7 +1614,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Documentation</h1>
+                <h1>Setup</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -1616,18 +1625,23 @@ title="Print to PDF"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#install-required-packages">
-   Install Required Packages
+  <a class="reference internal nav-link" href="#updating-your-repository">
+   Updating your repository
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#writing-documentation">
-   Writing Documentation
+  <a class="reference internal nav-link" href="#forking-and-cloning-sarkas-repository">
+   Forking and Cloning Sarkas repository
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#building-documentation">
-   Building Documentation
+  <a class="reference internal nav-link" href="#create-a-virtual-environment">
+   Create a virtual environment
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#install-sarkas-in-development-mode">
+   Install Sarkas in development mode
   </a>
  </li>
 </ul>
@@ -1640,72 +1654,135 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="documentation">
-<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">#</a></h1>
-<p>High-quality and consistent documentation is very important for any coding project, but even more when distributing your
-project. A well written documentation allows new users to find out how to use Sarkas as well as helps developers (like you!)
-to understand the best practices.</p>
-<p>Sarkas uses the popular Python documentation generator <a class="reference external" href="https://www.sphinx-doc.org/&gt;">Sphinx</a>.
-Sphinx translates a set of plain text source files (often written in <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">reStructuredText</a>) to HTML files,
-automatically producing cross-references, indices, etc.
-If you haven’t worked with <a class="reference external" href="https://www.sphinx-doc.org/&gt;">Sphinx</a> before, you should first read their
-<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html">quickstart</a> guide.</p>
-<section id="install-required-packages">
-<h2>Install Required Packages<a class="headerlink" href="#install-required-packages" title="Permalink to this headline">#</a></h2>
-<p>Sarkas documentation build requires additional packages. Open a Teminal window and activate your sarkas environment</p>
+  <section id="setup">
+<h1>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">#</a></h1>
+<p>In order to make changes to Sarkas you first need to download the source code from its GitHub <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">repository</a>.
+It is highly recommended to fork Sarkas repo for any code development. This is to ensure that your code changes
+do not conflict with Sarkas master branch.</p>
+<p>If you already have a copy of the repository on your computer you can update it (as detailed below) or
+jump to the next section.</p>
+<section id="updating-your-repository">
+<h2>Updating your repository<a class="headerlink" href="#updating-your-repository" title="Permalink to this headline">#</a></h2>
+<p>The first thing to do is to update your local repository with the GitHub repo.
+Open a terminal (command prompt in Windows) and move to the directory where you stored your repository. Assuming you
+have your <code class="docutils literal notranslate"><span class="pre">git</span></code> all set up, run the command</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>pull
+</pre></div>
+</div>
+<p>This updates your repo files with the latest from the trunk.</p>
+<p>Alternatively you can download the zip file again and copy the extracted files into your local Sarkas repo.
+However, this might cause problem later on when push committing your changes.</p>
+</section>
+<section id="forking-and-cloning-sarkas-repository">
+<h2>Forking and Cloning Sarkas repository<a class="headerlink" href="#forking-and-cloning-sarkas-repository" title="Permalink to this headline">#</a></h2>
+<p>The instructions that follow are a copy of those found in the Github help <a class="reference external" href="https://docs.github.com/en/github/getting-started-with-github/fork-a-repo">fork</a> page. If you have problems cloning
+the repository please visit the <a class="reference external" href="https://docs.github.com/en/github/getting-started-with-github/fork-a-repo">fork</a> page.</p>
+<p>A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without
+affecting the original project.</p>
+<ol class="arabic">
+<li><p>Navigate to the main page of Sarkas’ <a class="reference external" href="https://github.com/murillo-group/sarkas-repo">repository</a></p></li>
+<li><p>In the top right corner of the page, under your account icon, click on <strong>Fork</strong>.</p></li>
+<li><p>Great you have successfully forked Sarkas repository. Now we need to clone it on your local computer.</p></li>
+<li><p>Navigate to your Github page and select your Sarkas repository</p></li>
+<li><p>Above the list of files, click on the green button <strong>Clone</strong></p></li>
+<li><p>At this point you can either</p>
+<blockquote>
+<div><ul class="simple">
+<li><ol class="loweralpha simple">
+<li><p>Click on <strong>Download ZIP</strong> and save it in the folder where you want to store your copy of Sarkas.</p></li>
+</ol>
+</li>
+<li><ol class="loweralpha simple" start="2">
+<li><p>Copy the link shown</p></li>
+</ol>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Depending on your choice above</p>
+<blockquote>
+<div><ul class="simple">
+<li><ol class="loweralpha simple">
+<li><p>Unzip the folder and enter the <code class="docutils literal notranslate"><span class="pre">sarkas-master</span></code> folder. Jump to point 8.</p></li>
+</ol>
+</li>
+<li><ol class="loweralpha simple" start="2">
+<li><p>Open a terminal window and <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the folder where you want to store your copy of Sarkas. Then type</p></li>
+</ol>
+</li>
+</ul>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/murillo-group/sarkas.git
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>At this point we need to create a virtual environment for you work</p></li>
+</ol>
+</section>
+<section id="create-a-virtual-environment">
+<h2>Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Permalink to this headline">#</a></h2>
+<p>It is good practice to create virtual environment for each of your programming projects. This way any changes made
+to Sarkas or any other code will remain in this environment and won’t affect your python packages.
+Below are instructions for creating the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> virtual environment.</p>
+<ol class="arabic">
+<li><p>Enter the unzipped folder <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> and open a terminal window (or command prompt in Windows).</p></li>
+<li><p>Check if you have <code class="docutils literal notranslate"><span class="pre">conda</span></code> installed</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>which<span class="w"> </span>conda
+</pre></div>
+</div>
+<p>This command will print the path of your <code class="docutils literal notranslate"><span class="pre">conda</span></code> binaries. If nothing is printed then you need to install it. Visit
+Anaconda.org and <a class="reference external" href="https://www.anaconda.com/products/individual">download</a> their Python 3.* installer.</p>
+</div></blockquote>
+</li>
+<li><p>Create your virtual environment via</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>sarkas_env.yaml
+</pre></div>
+</div>
+<p>This command will read the file (<code class="docutils literal notranslate"><span class="pre">-f</span></code> option) <code class="docutils literal notranslate"><span class="pre">sarkas_env.yaml</span></code> which contains all the necessary packages for
+running Sarkas. It will create the virtual environment <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> in the <code class="docutils literal notranslate"><span class="pre">envs</span></code> directory of your conda directory
+(the one printed above by the command <code class="docutils literal notranslate"><span class="pre">which</span></code>).</p>
+</div></blockquote>
+</li>
+<li><p>Once the enviroment has been created you can activate it by</p>
 <blockquote>
 <div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>sarkas
 </pre></div>
 </div>
-</div></blockquote>
-<p>Move into the <code class="docutils literal notranslate"><span class="pre">sarkas-master/docs/</span></code> directory, using <code class="docutils literal notranslate"><span class="pre">cd</span></code> commands, and type the following</p>
-<blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>--file<span class="w"> </span>requirements.txt<span class="w"> </span>-c<span class="w"> </span>conda-forge
+<p>and deactivate it by</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>deactivate
 </pre></div>
 </div>
 </div></blockquote>
-<p>The above command will install the packages listed in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> using the conda channel <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code>.
-If your changes require the installation of a new package please add to the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file.</p>
+</li>
+</ol>
 </section>
-<section id="writing-documentation">
-<h2>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">#</a></h2>
-<p>When making or adding changes to Sarkas source code an example <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebook and/or an <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file
-should be created to demonstrate how it works.
-A good example are the notebooks in the <a class="reference external" href="https://murillo-group.github.io/sarkas/tutorial/tutorial.html">tutorial page</a>.</p>
-<p>You will also need to add the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file and/or <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebook’s path in the relevant section in the
-<code class="docutils literal notranslate"><span class="pre">index.rst</span></code> file (you can find this in <code class="docutils literal notranslate"><span class="pre">sarkas-master/docs/</span></code>).</p>
-<p>Besides this, the functions and classes in your code must always contain <strong>docstrings</strong>.</p>
-<p>Sphinx uses these docstrings to auto-generate the <a class="reference external" href="https://murillo-group.github.io/sarkas/api/modules.html">API documentation</a>
-for the entire Sarkas package.</p>
+<section id="install-sarkas-in-development-mode">
+<h2>Install Sarkas in development mode<a class="headerlink" href="#install-sarkas-in-development-mode" title="Permalink to this headline">#</a></h2>
+<p>Once the environment has been activated you can install Sarkas in Development mode via</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Please make sure that you have correctly formatted the docstrings by checking how the corresponding module’s API looks
-once you build the documentation.</p>
+<p>Don’t forget the final dot <code class="docutils literal notranslate"><span class="pre">.</span></code> after <code class="docutils literal notranslate"><span class="pre">-e</span></code> as that is the location <code class="docutils literal notranslate"><span class="pre">pip</span></code> will look for a <code class="docutils literal notranslate"><span class="pre">setup.py</span></code></p>
 </div>
-</section>
-<section id="building-documentation">
-<h2>Building Documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">#</a></h2>
-<p>Once you have updated the documentation we can check our changes by building it locally on your machine. Here are the steps:</p>
-<p>Make sure to activate your <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> environment: open a terminal window and type</p>
+</div></blockquote>
+<p>The development mode is useful so that you don’t need to reinstall Sarkas everytime you change something in the source code.
+In more detail, <code class="docutils literal notranslate"><span class="pre">pip</span></code> will create a symlink to Sarkas’ files in this folder, instead of copying the source code
+in your python directory.</p>
+<p>For example: If you are using Anaconda the path to the directory will look something like this
+<code class="docutils literal notranslate"><span class="pre">path_to_directory/anaconda3/envs/sarkas/lib/python3.7/site-packages/</span></code>. In here you will find <code class="docutils literal notranslate"><span class="pre">sarkas.egg-link</span></code>
+if in development mode or <code class="docutils literal notranslate"><span class="pre">sarkas-0.1.0-py3.7.egg</span></code> if default installation. Note that the <code class="docutils literal notranslate"><span class="pre">0-1-0-py3.7</span></code>
+refers to Sarkas version and python version.</p>
+<p>To uninstall Sarkas you can run</p>
 <blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>sarkas
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>uninstall<span class="w"> </span>sarkas
 </pre></div>
 </div>
 </div></blockquote>
-<p>This is needed because when building the documentation you import the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> package, see the line <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">sarkas</span></code>  in the file <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>.</p>
-<p>Then run the following</p>
-<blockquote>
-<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
-</pre></div>
-</div>
-</div></blockquote>
-<p>The first command removes all the content in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>. This command is not necessary, but suggested
-so to avoid any conflicts.</p>
-<p>The second command updates the documentation with your changes and creates html files in the folder <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>.
-Fix any Error and/or Warning messages. You might need to run the command few times.
-You can ignore warnings about duplicate citations.</p>
-<p>Check the changes in the Documentation by opening any of the new/updated <code class="docutils literal notranslate"><span class="pre">.html</span></code> files using a browser. Note you need to look at the files in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> as these are the new/updated ones.</p>
-<p>Congratulations! The Documentation is up to date.</p>
 </section>
 </section>
 
@@ -1717,17 +1794,17 @@ You can ignore warnings about duplicate citations.</p>
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="dev_report_issues.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="contributing.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Reporting Issues</p>
+            <p class="prev-next-title">Contributing to Sarkas</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="dev_contributing.html" title="next page">
+    <a class='right-next' id="next-link" href="dev_report_issues.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contributing to Sarkas</p>
+        <p class="prev-next-title">Reporting Issues</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -1756,36 +1833,7 @@ You can ignore warnings about duplicate citations.</p>
   <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 
  
-
-  <script type="text/javascript">
-    jQuery(function () {
-        SphinxRtdTheme.Navigation.enable(true);
-      })
-  </script>
-
-  <style>
-    /* Sidebar header (and topbar for mobile) */
-    /* .wy-side-nav-search,  */
-    .wy-nav-top {
-      background: #18453b;
-    }
-    /* Sidebar */
-    .wy-nav-side {
-      background: #535054;
-    }
-    .wy-menu-vertical p.caption {
-	  color: #fff;
-    }
-    .wy-menu-vertical a {
-      color: #eee;
-    }
-    .wy-menu-vertical a:hover {
-      background-color: #18453b;
-    }
-    /* .wy-nav-content {
-      max-width: 900px !important;
-    } */
-  </style>
-
+    
+  
   </body>
 </html>

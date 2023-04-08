@@ -6,20 +6,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Code Development" />
+<meta property="og:title" content="Documentation" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://murillo-group.github.io/sarkas/code_development/code_dev.html" />
+<meta property="og:url" content="https://murillo-group.github.io/sarkas/contributing/dev_docs.html" />
   
 <meta property="og:site_name" content="SARKAS: Python MD code for plasma physics" />
   
-<meta property="og:description" content="The following pages present a workflow for editing, adding your own features, and contributing to Sarkas. Setup, Reporting Issues, Documentation, Contributing to Sarkas. Imposter Syndrome Disclaime..." />
+<meta property="og:description" content="High-quality and consistent documentation is very important for any coding project, but even more when distributing your project. A well written documentation allows new users to find out how to us..." />
   
 <meta property="twitter:card" content="summary">
 <meta property="twitter:title" content="SARKAS: Python MD code for plasma physics">
 <meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">
-    <title>Code Development &#8212; Sarkas 1.1.0 documentation</title>
+    <title>Documentation &#8212; Sarkas 1.1.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -38,7 +38,6 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" />
-    <link rel="stylesheet" type="text/css" href="../_static/my-style.css" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
     <link rel="stylesheet" href="../_static/my-styles.css" type="text/css" />
     
@@ -60,8 +59,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Setup" href="dev_setup.html" />
-    <link rel="prev" title="References" href="../theory/references.html" />
+    <link rel="next" title="Example of a contribution" href="dev_example.html" />
+    <link rel="prev" title="Reporting Issues" href="dev_report_issues.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -253,20 +252,20 @@
 </ul>
 <p aria-level="2" class="caption" role="heading">
  <span class="caption-text">
-  Code Dev:
+  Contributing:
  </span>
 </p>
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active has-children">
-  <a class="current reference internal" href="#">
-   Code Development
+  <a class="reference internal" href="contributing.html">
+   Contributing to Sarkas
   </a>
   <input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
   <label for="toctree-checkbox-5">
    <i class="fas fa-chevron-down">
    </i>
   </label>
-  <ul>
+  <ul class="current">
    <li class="toctree-l2">
     <a class="reference internal" href="dev_setup.html">
      Setup
@@ -277,14 +276,14 @@
      Reporting Issues
     </a>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="dev_docs.html">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
      Documentation
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="dev_contributing.html">
-     Contributing to Sarkas
+    <a class="reference internal" href="dev_example.html">
+     Example of a contribution
     </a>
    </li>
   </ul>
@@ -329,6 +328,11 @@
    <li class="toctree-l2">
     <a class="reference internal" href="../examples/Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential.html">
      Yukawa vs Egs potential
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../examples/YOCP/YOCP_viscosity.html">
+     Viscosity Coefficients
     </a>
    </li>
    <li class="toctree-l2">
@@ -1522,7 +1526,7 @@ title="Source repository"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="../_sources/code_development/code_dev.rst"
+        <a href="../_sources/contributing/dev_docs.rst"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -1582,33 +1586,18 @@ title="Print to PDF"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#imposter-syndrome-disclaimer">
-   Imposter Syndrome Disclaimer
+  <a class="reference internal nav-link" href="#install-required-packages">
+   Install Required Packages
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#how-can-i-contribute">
-   How can I contribute?
+  <a class="reference internal nav-link" href="#writing-documentation">
+   Writing Documentation
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#reporting-a-bug">
-   Reporting a Bug
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#editing-the-documentation">
-   Editing the Documentation
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#making-a-patch">
-   Making a Patch
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#spreading-the-word-of-mouth">
-   Spreading the word of mouth
+  <a class="reference internal nav-link" href="#building-documentation">
+   Building Documentation
   </a>
  </li>
 </ul>
@@ -1620,7 +1609,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Code Development</h1>
+                <h1>Documentation</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -1631,33 +1620,18 @@ title="Print to PDF"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#imposter-syndrome-disclaimer">
-   Imposter Syndrome Disclaimer
+  <a class="reference internal nav-link" href="#install-required-packages">
+   Install Required Packages
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#how-can-i-contribute">
-   How can I contribute?
+  <a class="reference internal nav-link" href="#writing-documentation">
+   Writing Documentation
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#reporting-a-bug">
-   Reporting a Bug
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#editing-the-documentation">
-   Editing the Documentation
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#making-a-patch">
-   Making a Patch
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#spreading-the-word-of-mouth">
-   Spreading the word of mouth
+  <a class="reference internal nav-link" href="#building-documentation">
+   Building Documentation
   </a>
  </li>
 </ul>
@@ -1670,76 +1644,72 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="code-development">
-<h1>Code Development<a class="headerlink" href="#code-development" title="Permalink to this headline">#</a></h1>
-<p>The following pages present a workflow for editing, adding your own features, and contributing to Sarkas.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dev_setup.html">Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dev_report_issues.html">Reporting Issues</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dev_docs.html">Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dev_contributing.html">Contributing to Sarkas</a></li>
-</ul>
+  <section id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">#</a></h1>
+<p>High-quality and consistent documentation is very important for any coding project, but even more when distributing your
+project. A well written documentation allows new users to find out how to use Sarkas as well as helps developers (like you!)
+to understand the best practices.</p>
+<p>Sarkas uses the popular Python documentation generator <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a>.
+Sphinx translates a set of plain text source files (often written in <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">reStructuredText</a>) to HTML files,
+automatically producing cross-references, indices, etc.
+If you haven’t worked with <a class="reference external" href="https://www.sphinx-doc.org/">Sphinx</a> before, you should first read their
+<a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/quickstart.html">quickstart</a> guide.</p>
+<section id="install-required-packages">
+<h2>Install Required Packages<a class="headerlink" href="#install-required-packages" title="Permalink to this headline">#</a></h2>
+<p>Sarkas documentation build requires additional packages. Open a Teminal window and activate your sarkas environment</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>sarkas
+</pre></div>
 </div>
-<section id="imposter-syndrome-disclaimer">
-<h2>Imposter Syndrome Disclaimer<a class="headerlink" href="#imposter-syndrome-disclaimer" title="Permalink to this headline">#</a></h2>
-<p><strong>We want your help. No really, we do.</strong></p>
-<p>There might be a little voice inside that tells you you are not ready; that you need to do one more tutorial, or learn another framework,
-or write a few more blog posts before you can help me with this project.</p>
-<p>We assure you, that is not the case.</p>
-<p>Sarkas has some clear “Contribution Guidelines” that you can read below in the following sections.</p>
-<p>The contribution guidelines outline the process that you will need to follow to get a patch merged. By making expectations and process explicit,
-we hope it will make it easier for you to contribute.</p>
-<p>And you do not just have to write code. You can help out by writing documentation, tests, or even by giving feedback about this work.
-(And yes, that includes giving feedback about the contribution guidelines.)</p>
-<p>(Thanks to <a class="reference external" href="https://github.com/adriennefriend/imposter-syndrome-disclaimer">Adrienne Lowe</a>  who came up with this disclaimer and yeah,
-made it OPEN for anyone to use!)</p>
+</div></blockquote>
+<p>Move into the <code class="docutils literal notranslate"><span class="pre">sarkas-master/docs/</span></code> directory, using <code class="docutils literal notranslate"><span class="pre">cd</span></code> commands, and type the following</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>--file<span class="w"> </span>requirements.txt<span class="w"> </span>-c<span class="w"> </span>conda-forge
+</pre></div>
+</div>
+</div></blockquote>
+<p>The above command will install the packages listed in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> using the conda channel <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code>.
+If your changes require the installation of a new package please add to the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file.</p>
 </section>
-<section id="how-can-i-contribute">
-<h2>How can I contribute?<a class="headerlink" href="#how-can-i-contribute" title="Permalink to this headline">#</a></h2>
-<p>There are multiple ways in which you can help us:</p>
-<ul class="simple">
-<li><p>Found a bug in Sarkas? Report it to us!</p></li>
-<li><p>Caught a typo in documentation or want to make it better to understand? Edit it!</p></li>
-<li><p>Know how to fix an issue or add a new feature? Make a patch!</p></li>
-<li><p>Love using Sarkas? Share it with others!</p></li>
-<li><p>Anything else we missed?</p></li>
-</ul>
+<section id="writing-documentation">
+<h2>Writing Documentation<a class="headerlink" href="#writing-documentation" title="Permalink to this headline">#</a></h2>
+<p>When making or adding changes to Sarkas source code an example <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebook and/or an <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file
+should be created to demonstrate how it works.
+A good example are the notebooks in the <a class="reference external" href="https://murillo-group.github.io/sarkas/documentation/tutorial.html">tutorial page</a>.</p>
+<p>You will also need to add the <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file and/or <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> notebook’s path in the relevant section in the
+<code class="docutils literal notranslate"><span class="pre">index.rst</span></code> file (you can find this in <code class="docutils literal notranslate"><span class="pre">sarkas-master/docs/</span></code>).</p>
+<p>Besides this, the functions and classes in your code must always contain <strong>docstrings</strong>.</p>
+<p>Sphinx uses these docstrings to auto-generate the <a class="reference external" href="https://murillo-group.github.io/sarkas/api/api.html">API documentation</a>
+for the entire Sarkas package.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please make sure that you have correctly formatted the docstrings by checking how the corresponding module’s API looks
+once you build the documentation.</p>
+</div>
 </section>
-<section id="reporting-a-bug">
-<h2>Reporting a Bug<a class="headerlink" href="#reporting-a-bug" title="Permalink to this headline">#</a></h2>
-<p>Sarkas is under constant development. There is no surprise that you may encounter something that does not work for your use case.
-Or maybe you have some suggestions about how can we improve some functionality. Feel free to share any of it with us by
-<a class="reference external" href="https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue">opening an issue</a> <a class="reference external" href="https://github.com/murillo-group/sarkas/issues">here</a>.</p>
-<p>Please make sure that you provide all the necessary information requested by prompts in the issue body - it will not only make our work easier but will also help you to communicate your problem better.</p>
-</section>
-<section id="editing-the-documentation">
-<h2>Editing the Documentation<a class="headerlink" href="#editing-the-documentation" title="Permalink to this headline">#</a></h2>
-<p>There is always a scope of improvement in documentation to add some missing information or to make it easier for reading.
-Here lies an opportunity for you. You can edit the documentation. This is stored in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory of Sarkas.</p>
-<p>After editing the file locally, build the docs as described in <a class="reference external" href="dev_docs">these instructions</a> and then you can submit
-your changes to us by making a patch as described in the next section.</p>
-</section>
-<section id="making-a-patch">
-<h2>Making a Patch<a class="headerlink" href="#making-a-patch" title="Permalink to this headline">#</a></h2>
-<p>If you have peeked in our codebase and realized how to fix a problem or if you know how to add a new feature, well done!
-If not, do not worry - just pick an <a class="reference external" href="https://github.com/murillo-group/sarkas/issues">issue</a> and get started to fix it.</p>
-<p>To contribute your code to Sarkas, you will need to make a <a class="reference external" href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests">pull request</a>
-from your fork of Sarkas repository. This development workflow using Git may look daunting at first, but it is not if
-you follow <a class="reference external" href="dev_contributing">this guide</a> that we have prepared for you.</p>
-<p>When you make a pull request, please provide all the necessary information requested by prompts in the pull request body.
-Also, make sure that the code you are submitting always accounts for the following three:</p>
-<ul class="simple">
-<li><p><strong>Maintaining code quality:</strong> Your code must follow the PEP8 style guide, should cover edge cases, etc.</p></li>
-<li><p><strong>Documenting the code:</strong> You must write docstrings in functions/classes, put a relevant example in Sarkas docs and make sure docs get built correctly.</p></li>
-<li><p><strong>Testing the code:</strong> There should be unit-tests for most of the functions/methods and they must pass our testing framework.</p></li>
-</ul>
-</section>
-<section id="spreading-the-word-of-mouth">
-<h2>Spreading the word of mouth<a class="headerlink" href="#spreading-the-word-of-mouth" title="Permalink to this headline">#</a></h2>
-<p>If you find Sarkas helpful, you can share it with your peers, colleagues, and anyone who can benefit from Sarkas.
-If you have used Sarkas in your research, please make sure to cite us.
-By telling other people about how we helped you, you will help us in turn, in extending our impact.</p>
+<section id="building-documentation">
+<h2>Building Documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline">#</a></h2>
+<p>Once you have updated the documentation we can check our changes by building it locally on your machine. Here are the steps:</p>
+<p>Make sure to activate your <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> environment: open a terminal window and type</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>sarkas
+</pre></div>
+</div>
+</div></blockquote>
+<p>This is needed because when building the documentation you import the <code class="docutils literal notranslate"><span class="pre">sarkas</span></code> package, see the line <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">sarkas</span></code>  in the file <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>.</p>
+<p>Then run the following</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>html
+</pre></div>
+</div>
+</div></blockquote>
+<p>The first command removes all the content in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>. This command is not necessary, but suggested
+so to avoid any conflicts.</p>
+<p>The second command updates the documentation with your changes and creates html files in the folder <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>.
+Fix any Error and/or Warning messages. You might need to run the command few times.
+You can ignore warnings about duplicate citations.</p>
+<p>Check the changes in the Documentation by opening any of the new/updated <code class="docutils literal notranslate"><span class="pre">.html</span></code> files using a browser. Note you need to look at the files in <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> as these are the new/updated ones.</p>
+<p>Congratulations! The Documentation is up to date.</p>
 </section>
 </section>
 
@@ -1751,17 +1721,17 @@ By telling other people about how we helped you, you will help us in turn, in ex
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="../theory/references.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="dev_report_issues.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">References</p>
+            <p class="prev-next-title">Reporting Issues</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="dev_setup.html" title="next page">
+    <a class='right-next' id="next-link" href="dev_example.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Setup</p>
+        <p class="prev-next-title">Example of a contribution</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -1790,36 +1760,7 @@ By telling other people about how we helped you, you will help us in turn, in ex
   <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 
  
-
-  <script type="text/javascript">
-    jQuery(function () {
-        SphinxRtdTheme.Navigation.enable(true);
-      })
-  </script>
-
-  <style>
-    /* Sidebar header (and topbar for mobile) */
-    /* .wy-side-nav-search,  */
-    .wy-nav-top {
-      background: #18453b;
-    }
-    /* Sidebar */
-    .wy-nav-side {
-      background: #535054;
-    }
-    .wy-menu-vertical p.caption {
-	  color: #fff;
-    }
-    .wy-menu-vertical a {
-      color: #eee;
-    }
-    .wy-menu-vertical a:hover {
-      background-color: #18453b;
-    }
-    /* .wy-nav-content {
-      max-width: 900px !important;
-    } */
-  </style>
-
+    
+  
   </body>
 </html>
