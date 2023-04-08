@@ -1,3 +1,5 @@
+.. _force_error:
+
 ===========
 Force Error
 ===========
