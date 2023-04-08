@@ -29,5 +29,6 @@ sarkas.utilities.tests
    :recursive:
 
    sarkas.utilities.tests.test_fdints
+   sarkas.utilities.tests.test_io
    sarkas.utilities.tests.test_maths
 
