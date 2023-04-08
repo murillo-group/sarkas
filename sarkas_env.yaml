@@ -28,13 +28,13 @@ dependencies:
 
   # Documentation
   - sphinx>=3.5
-  - sphinx-book-theme
-  - sphinx-design
-  - sphinxcontrib-bibtex
-  - sphinx-autodoc-typehints
-  - nbsphinx
-  - recommonmark
-  - sphinx-copybutton
+  - sphinx-book-theme==0.3.2
+  - sphinx-design==0.1.0
+  - sphinxcontrib-bibtex==2.4.2
+  - sphinx-autodoc-typehints==1.18.3
+  - nbsphinx==0.8.9
+  - recommonmark==0.7.1
+  - sphinx-copybutton==0.5.0
 
   # Style
   - isort
@@ -44,7 +44,7 @@ dependencies:
   - pytest
 
   - pip:
-      - sphinxext-opengraph
+      - sphinxext-opengraph==0.6.3
       - fmm3dpy
 
 

@@ -131,7 +131,7 @@ Examples
     QSP/QSP_Tutorial
     Magnetized_OCP/Magnetized_Plasma
     Yukawa_vs_EGS/Yukawa_vs_Exact-Gradient_Corrected_Potential
-    YOCP/YOCP
+    YOCP/YOCP_viscosity
     Moliere/Moliere_Simulation
     UNP/UCP_Experiment_Validation
     Ultrafast_EC/Ultrafast_EC_Validation
