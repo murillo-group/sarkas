@@ -175,9 +175,9 @@ SARKAS: Python MD code for plasma physics
 
       .. toctree::
          :maxdepth: 1
-         :caption: Code Dev:
+         :caption: Contributing:
 
-         code_development/code_dev
+         contributing/contributing
 
 
       .. toctree::

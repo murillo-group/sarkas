@@ -1,6 +1,7 @@
 *****
 Setup
 *****
+
 In order to make changes to Sarkas you first need to download the source code from its GitHub repository_.
 It is highly recommended to fork Sarkas repo for any code development. This is to ensure that your code changes
 do not conflict with Sarkas master branch.
@@ -27,6 +28,7 @@ However, this might cause problem later on when push committing your changes.
 
 Forking and Cloning Sarkas repository
 -------------------------------------
+
 The instructions that follow are a copy of those found in the Github help fork_ page. If you have problems cloning
 the repository please visit the fork_ page.
 
@@ -103,6 +105,7 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
 Install Sarkas in development mode
 ----------------------------------
+
 Once the environment has been activated you can install Sarkas in Development mode via
 
     .. code-block:: console

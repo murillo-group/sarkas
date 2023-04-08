@@ -8,5 +8,4 @@ functionalities are found, please file an issue on our official `GitHub
 <https://github.com/murillo-group/sarkas>`_ page.
 
 We encourage any interested user to actively contribute to the development of
-SARKAS. Please follow the guidelines outlined on our `Contributing
-to Sarkas <dev_contributing>`_ and get started.
+SARKAS. Please follow the guidelines outlined on our `Example of a contribution <dev_example>`_ and get started.

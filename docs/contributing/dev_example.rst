@@ -1,6 +1,6 @@
-**********************
-Contributing to Sarkas
-**********************
+*************************
+Example of a contribution
+*************************
 
 The first thing to do is to make sure your distribution is up to date. Type
 
