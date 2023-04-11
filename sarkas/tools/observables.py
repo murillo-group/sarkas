@@ -51,8 +51,10 @@ from scipy.linalg import norm
 from scipy.special import erfc, factorial
 from seaborn import histplot as sns_histplot
 
+from ..utilities.io import pretty_print
 from ..utilities.maths import correlationfunction
-from ..utilities.timing import SarkasTimer
+from ..utilities.misc import add_col_to_df
+from ..utilities.timing import datetime_stamp, SarkasTimer, time_stamp
 
 UNITS = [
     # MKS Units
@@ -124,7 +126,7 @@ def compute_doc(func):
     :py:attr:`~.dataframe_slices` (:py:attr:`~.dataframe_acf_slices`). \n
 
     The sliced averaged data is saved in other hierarchical dataframes,
-    :py:attr:`~.dataframe` (:py:attr:`~.dataframe_acf_slices`).
+    :py:attr:`~.dataframe` (:py:attr:`~.dataframe_acf`).
     """
     return func
 
@@ -180,7 +182,6 @@ def arg_update_doc(func):
     return func
 
 
-# TODO: Divide calculation of observable for each slice RDF, EC, CCF, DSF, SSF, DiffusionFlux. Look at VACF for example.
 # TODO: Divide calculation in case of multirun
 # TODO: Check Velocity Distribution class.
 
@@ -365,7 +366,126 @@ class Observable:
             max_aa_harmonics=self.max_aa_harmonics,
         )
 
-    def calc_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
+    def calc_nkt_slices_data(self):
+        """Calculate n(k,t) for each slice."""
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+        self.nkt_dataframe_slices = DataFrame()
+
+        for isl in tqdm(
+            range(self.no_slices),
+            desc="Calculating n(k,t) for slice ",
+            position=0,
+            disable=not self.verbose,
+            leave=True,
+        ):
+            nkt = calc_nkt(
+                self.dump_dir,
+                (start_slice, end_slice, self.slice_steps),
+                self.dump_step,
+                self.species_num,
+                self.k_list,
+                self.verbose,
+            )
+            start_slice += self.slice_steps * self.dump_step
+            end_slice += self.slice_steps * self.dump_step
+            # n(k,t).shape = [no_species, time, k vectors]
+
+            slc_column = "slice {}".format(isl + 1)
+            for isp, sp_name in enumerate(self.species_names):
+                df_columns = [
+                    slc_column + "_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                    for ik in range(len(self.k_harmonics))
+                ]
+                # df_columns = [time_column, *k_columns]
+                self.nkt_dataframe_slices = concat(
+                    [self.nkt_dataframe_slices, DataFrame(nkt[isp, :, :], columns=df_columns)], axis=1
+                )
+
+        # Example nkt_dataframe
+        # slices slice 1
+        # species H
+        # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
+        tuples = [tuple(c.split("_")) for c in self.nkt_dataframe_slices.columns]
+        self.nkt_dataframe_slices.columns = MultiIndex.from_tuples(tuples, names=["slices", "species", "harmonics"])
+
+    def calc_vkt_slices_data(self):
+        """Calculate v(k,t) for each slice."""
+
+        start_slice = 0
+        end_slice = self.slice_steps * self.dump_step
+
+        self.vkt_dataframe_slices = DataFrame()
+
+        for isl in tqdm(
+            range(self.no_slices),
+            desc="Calculating v(k,t) for slice ",
+            position=0,
+            disable=not self.verbose,
+            leave=True,
+        ):
+
+            vkt, vkt_i, vkt_j, vkt_k = calc_vkt(
+                self.dump_dir,
+                (start_slice, end_slice, self.slice_steps),
+                self.dump_step,
+                self.species_num,
+                self.k_list,
+                self.verbose,
+            )
+            start_slice += self.slice_steps * self.dump_step
+            end_slice += self.slice_steps * self.dump_step
+
+            slc_column = "slice {}".format(isl + 1)
+            for isp, sp_name in enumerate(self.species_names):
+                df_columns = [
+                    slc_column
+                    + "_Longitudinal_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                    for ik in range(len(self.k_harmonics))
+                ]
+                # df_columns = [time_column, *k_columns]
+                self.vkt_dataframe_slices = concat(
+                    [self.vkt_dataframe_slices, DataFrame(vkt[isp, :, :], columns=df_columns)], axis=1
+                )
+                df_columns = [
+                    slc_column
+                    + "_Transverse i_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                    for ik in range(len(self.k_harmonics))
+                ]
+                self.vkt_dataframe_slices = concat(
+                    [self.vkt_dataframe_slices, DataFrame(vkt_i[isp, :, :], columns=df_columns)], axis=1
+                )
+                df_columns = [
+                    slc_column
+                    + "_Transverse j_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                    for ik in range(len(self.k_harmonics))
+                ]
+                self.vkt_dataframe_slices = concat(
+                    [self.vkt_dataframe_slices, DataFrame(vkt_j[isp, :, :], columns=df_columns)], axis=1
+                )
+
+                df_columns = [
+                    slc_column
+                    + "_Transverse k_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
+                    for ik in range(len(self.k_harmonics))
+                ]
+                self.vkt_dataframe_slices = concat(
+                    [self.vkt_dataframe_slices, DataFrame(vkt_k[isp, :, :], columns=df_columns)], axis=1
+                )
+
+        # Example vkt_dataframe
+        # slices slice 1
+        # species H
+        # direction Longitudinal/Transverse
+        # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
+
+        # Full string: slice 1_Longitudinal_He_k = [1, 0, 0]
+        tuples = [tuple(c.split("_")) for c in self.vkt_dataframe_slices.columns]
+        self.vkt_dataframe_slices.columns = MultiIndex.from_tuples(
+            tuples, names=["slices", "species", "direction", "harmonics"]
+        )
+
+    def compute_kt_data(self, nkt_flag: bool = False, vkt_flag: bool = False):
         """Calculate Time dependent Fourier space quantities.
 
         Parameters
@@ -379,147 +499,24 @@ class Observable:
             Default = False.
 
         """
-        start_slice = 0
-        end_slice = self.slice_steps * self.dump_step
         if nkt_flag:
-            nkt_dataframe = DataFrame()
             tinit = self.timer.current()
-            for isl in range(self.no_slices):
-                print("\nCalculating n(k,t) for slice {}/{}.".format(isl + 1, self.no_slices))
-                nkt = calc_nkt(
-                    self.dump_dir,
-                    (start_slice, end_slice, self.slice_steps),
-                    self.dump_step,
-                    self.species_num,
-                    self.k_list,
-                    self.verbose,
-                )
-                start_slice += self.slice_steps * self.dump_step
-                end_slice += self.slice_steps * self.dump_step
-                # n(k,t).shape = [no_species, time, k vectors]
-
-                slc_column = "slice {}".format(isl + 1)
-                for isp, sp_name in enumerate(self.species_names):
-                    df_columns = [
-                        slc_column + "_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    # df_columns = [time_column, *k_columns]
-                    nkt_dataframe = concat([nkt_dataframe, DataFrame(nkt[isp, :, :], columns=df_columns)], axis=1)
-
-            tuples = [tuple(c.split("_")) for c in nkt_dataframe.columns]
-            nkt_dataframe.columns = MultiIndex.from_tuples(tuples, names=["slices", "species", "harmonics"])
-
-            # Sample nkt_dataframe
-            # slices slice 1
-            # species H
-            # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
-
-            # Save the data and append metadata
-            if os_path_exists(self.nkt_hdf_file):
-                os_remove(self.nkt_hdf_file)
-
-            hfile = HDFStore(self.nkt_hdf_file, mode="w")
-            hfile.put("nkt", nkt_dataframe)
-            # This metadata is needed to check if I need to recalculate
-            metadata = {
-                "no_slices": self.no_slices,
-                "max_k_harmonics": self.max_k_harmonics,
-                "angle_averaging": self.angle_averaging,
-            }
-
-            hfile.get_storer("nkt").attrs.metadata = metadata
-            hfile.close()
-
+            self.calc_nkt_slices_data()
+            self.save_kt_hdf(nkt_flag=True)
             tend = self.timer.current()
-            self.time_stamp("n(k,t) Calculation", self.timer.time_division(tend - tinit))
+            time_stamp(self.log_file, "n(k,t) Calculation", self.timer.time_division(tend - tinit), self.verbose)
 
         if vkt_flag:
-            vkt_dataframe = DataFrame()
             tinit = self.timer.current()
-            for isl in range(self.no_slices):
-                print(
-                    "\nCalculating longitudinal and transverse "
-                    "velocity fluctuations v(k,t) for slice {}/{}.".format(isl + 1, self.no_slices)
-                )
-                vkt, vkt_i, vkt_j, vkt_k = calc_vkt(
-                    self.dump_dir,
-                    (start_slice, end_slice, self.slice_steps),
-                    self.dump_step,
-                    self.species_num,
-                    self.k_list,
-                    self.verbose,
-                )
-                start_slice += self.slice_steps * self.dump_step
-                end_slice += self.slice_steps * self.dump_step
-
-                slc_column = "slice {}".format(isl + 1)
-                for isp, sp_name in enumerate(self.species_names):
-                    df_columns = [
-                        slc_column
-                        + "_Longitudinal_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    # df_columns = [time_column, *k_columns]
-                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt[isp, :, :], columns=df_columns)], axis=1)
-                    df_columns = [
-                        slc_column
-                        + "_Transverse i_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt_i[isp, :, :], columns=df_columns)], axis=1)
-                    df_columns = [
-                        slc_column
-                        + "_Transverse j_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt_j[isp, :, :], columns=df_columns)], axis=1)
-
-                    df_columns = [
-                        slc_column
-                        + "_Transverse k_{}_k = [{}, {}, {}]".format(sp_name, *self.k_harmonics[ik, :-2].astype(int))
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    vkt_dataframe = concat([vkt_dataframe, DataFrame(vkt_k[isp, :, :], columns=df_columns)], axis=1)
-
-            # Full string: slice 1_Longitudinal_He_k = [1, 0, 0]
-            tuples = [tuple(c.split("_")) for c in vkt_dataframe.columns]
-            vkt_dataframe.columns = MultiIndex.from_tuples(tuples, names=["slices", "species", "direction", "harmonics"])
-
-            # Sample nkt_dataframe
-            # slices slice 1
-            # species H
-            # direction Longitudinal/Transverse
-            # harmonics k = [0, 0, 1] | k = [0, 1, 0] | ...
-
-            if os_path_exists(self.vkt_hdf_file):
-                os_remove(self.vkt_hdf_file)
-            # Save the data and append metadata
-            hfile = HDFStore(self.vkt_hdf_file, mode="w")
-            hfile.put("vkt", vkt_dataframe)
-            # This metadata is needed to check if I need to recalculate
-            metadata = {
-                "no_slices": self.no_slices,
-                "max_k_harmonics": self.max_k_harmonics,
-                "angle_averaging": self.angle_averaging,
-            }
-
-            hfile.get_storer("vkt").attrs.metadata = metadata
-            hfile.close()
-
+            self.calc_vkt_slices_data()
+            self.save_kt_hdf(vkt_flag=True)
             tend = self.timer.current()
-            self.time_stamp("v(k,t) Calculation", self.timer.time_division(tend - tinit))
-
-            # savez(self.vkt_file + '_slice_' + str(isl) + '.npz',
-            #          longitudinal=vkt,
-            #          transverse_i=vkt_i,
-            #          transverse_j=vkt_j,
-            #          transverse_k=vkt_k,
-            #          max_harmonics=self.max_k_harmonics,
-            #          angle_averaging=self.angle_averaging)
+            time_stamp(self.log_file, "v(k,t) Calculation", self.timer.time_division(tend - tinit), self.verbose)
 
     def create_dirs_filenames(self):
-
+        """Create the directories and filenames where to save dataframes. It also creates a log file that can be accessed at
+        :py:attr:`~.log_file`. Finally, it initializes the dataframes used to store data.
+        """
         # Saving Directory
         self.setup_multirun_dirs()
 
@@ -533,37 +530,52 @@ class Observable:
             mkdir(self.saving_dir)
 
         # Create the log file path
-        self.log_file = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_log_file.out")
+        fname = self.__long_name__.replace(" ", "") + "_log_file.out"
+        self.log_file = os_path_join(self.saving_dir, fname)
 
         # Filenames and strings
-        self.filename_hdf = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5")
+        fname = self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5"
+        self.filename_hdf = os_path_join(self.saving_dir, fname)
 
-        self.filename_hdf_slices = os_path_join(
-            self.saving_dir, self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
-        )
+        fname = self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
+        self.filename_hdf_slices = os_path_join(self.saving_dir, fname)
+
+        if self.__name__ == "ccf":
+            fname = "Longitudinal_" + self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5"
+            self.filename_hdf_longitudinal = os_path_join(self.saving_dir, fname)
+
+            fname = "Longitudinal_" + self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
+            self.filename_hdf_longitudinal_slices = os_path_join(self.saving_dir, fname)
+
+            fname = "Transverse_" + self.__long_name__.replace(" ", "") + "_" + self.job_id + ".h5"
+            self.filename_hdf_transverse = os_path_join(self.saving_dir, fname)
+
+            fname = "Transverse_" + self.__long_name__.replace(" ", "") + "_slices_" + self.job_id + ".h5"
+            self.filename_hdf_transverse_slices = os_path_join(self.saving_dir, fname)
+
+            self.filename_hdf = {
+                "Longitudinal": self.filename_hdf_longitudinal,
+                "Transverse": self.filename_hdf_transverse,
+            }
+
+            self.filename_hdf_slices = {
+                "Longitudinal": self.filename_hdf_longitudinal_slices,
+                "Transverse": self.filename_hdf_transverse_slices,
+            }
 
         if self.acf_observable:
-            self.filename_hdf_acf = os_path_join(
-                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + ".h5"
-            )
+            fname = self.__long_name__.replace(" ", "") + "ACF_" + self.job_id + ".h5"
+            self.filename_hdf_acf = os_path_join(self.saving_dir, fname)
 
-            self.filename_hdf_acf_slices = os_path_join(
-                self.saving_dir, self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
-            )
+            fname = self.__long_name__.replace(" ", "") + "ACF_slices_" + self.job_id + ".h5"
+            self.filename_hdf_acf_slices = os_path_join(self.saving_dir, fname)
 
-    def datetime_stamp(self):
-        """Add a Date and Time stamp to log file."""
-        if os_path_exists(self.log_file):
-            with open(self.log_file, "a+") as f_log:
-                # Add some space to better distinguish the new beginning
-                print(f"\n\n\n", file=f_log)
-
-        with open(self.log_file, "a+") as f_log:
-            ct = datetime.datetime.now()
-            print(f"{'':~^80}", file=f_log)
-            print(f"Date: {ct.year} - {ct.month} - {ct.day}", file=f_log)
-            print(f"Time: {ct.hour}:{ct.minute}:{ct.second}", file=f_log)
-            print(f"{'':~^80}", file=f_log)
+        if self.k_observable:
+            # Create paths for files
+            self.k_space_dir = os_path_join(self.postprocessing_dir, "k_space_data")
+            self.k_file = os_path_join(self.k_space_dir, "k_arrays.npz")
+            self.nkt_hdf_file = os_path_join(self.k_space_dir, "nkt.h5")
+            self.vkt_hdf_file = os_path_join(self.k_space_dir, "vkt.h5")
 
     def from_dict(self, input_dict: dict):
         """
@@ -744,11 +756,11 @@ class Observable:
                         # Check for the correct max harmonics
                         comp = self.max_k_harmonics == metadata["max_k_harmonics"]
                         if not comp.all():
-                            self.calc_kt_data(nkt_flag=True)
+                            self.compute_kt_data(nkt_flag=True)
                     else:
-                        self.calc_kt_data(nkt_flag=True)
+                        self.compute_kt_data(nkt_flag=True)
                 else:
-                    self.calc_kt_data(nkt_flag=True)
+                    self.compute_kt_data(nkt_flag=True)
 
                 # elif metadata['max_k_harmonics']
                 #
@@ -756,12 +768,12 @@ class Observable:
                 #
                 #     comp = self.max_k_harmonics == nkt_data["max_harmonics"]
                 #     if not comp.all():
-                #         self.calc_kt_data(nkt_flag=True)
+                #         self.compute_kt_data(nkt_flag=True)
                 # else:
-                #     self.calc_kt_data(nkt_flag=True)
+                #     self.compute_kt_data(nkt_flag=True)
 
             except OSError:
-                self.calc_kt_data(nkt_flag=True)
+                self.compute_kt_data(nkt_flag=True)
 
         if vkt_flag:
 
@@ -776,14 +788,14 @@ class Observable:
                         # Check for the correct max harmonics
                         comp = self.max_k_harmonics == metadata["max_k_harmonics"]
                         if not comp.all():
-                            self.calc_kt_data(vkt_flag=True)
+                            self.compute_kt_data(vkt_flag=True)
                     else:
-                        self.calc_kt_data(vkt_flag=True)
+                        self.compute_kt_data(vkt_flag=True)
                 else:
-                    self.calc_kt_data(vkt_flag=True)
+                    self.compute_kt_data(vkt_flag=True)
 
             except OSError:
-                self.calc_kt_data(vkt_flag=True)
+                self.compute_kt_data(vkt_flag=True)
 
     def plot(self, scaling: tuple = None, acf: bool = False, figname: str = None, show: bool = False, **kwargs):
         """
@@ -866,17 +878,27 @@ class Observable:
 
         """
         name = " " + self.__long_name__ + " "
-        msg = (
-            f"\n\n{name:=^70}\n"
-            f"Data saved in: \n {self.filename_hdf}\n"
-            f"Data accessible via: self.dataframe_slices, self.dataframe\n"
-        )
+        if self.__name__ == "ccf":
+            msg = (
+                f"\n\n{name:=^70}\n"
+                f"Data saved in: \n {self.filename_hdf}\n"
+                f"Data accessible via: self.dataframe_longitudinal_slices, self.dataframe_longitudinal\n"
+                f"\t\tself.dataframe_transverse_slices, self.dataframe_transverse"
+            )
+        else:
+            msg = (
+                f"\n\n{name:=^70}\n"
+                f"Data saved in: \n {self.filename_hdf}\n"
+                f"Data accessible via: self.dataframe_slices, self.dataframe\n"
+            )
+
         if self.__name__ == "rdf":
             msg += (
                 f"No. bins = {self.no_bins}\n"
                 f"dr = {self.dr_rdf / self.a_ws:.4f} a_ws = {self.dr_rdf:.4e} {self.units_dict['length']}\n"
                 f"Maximum Distance (i.e. potential.rc)= {self.rc / self.a_ws:.4f} a_ws = {self.rc:.4e} {self.units_dict['length']}"
             )
+
         if self.acf_observable:
             dtau = self.dt * self.dump_step
             tau = dtau * self.slice_steps
@@ -884,7 +906,7 @@ class Observable:
             tau_wp = int(tau / t_wp)
             msg += (
                 f"No. of slices = {self.no_slices}\n"
-                f"No. dumps per slice = {int(self.slice_steps / self.dump_step)}\n"
+                f"No. dumps per slice = {int(self.slice_steps)}\n"
                 f"Total time interval of autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n"
                 f"Time interval step: dtau = {dtau:.4e} ~ {dtau / t_wp:.4e} plasma period"
             )
@@ -944,9 +966,9 @@ class Observable:
                     f"\nFrequency Space Parameters:\n"
                     f"\tNo. of slices = {self.no_slices}\n"
                     f"\tNo. dumps per slice = {self.slice_steps}\n"
-                    f"\tFrequency step dw = 2 pi (no_slices * prod_dump_step)/(production_steps * dt)\n"
+                    f"\tFrequency step dw = 2 pi /(slice_steps * dump_step * dt)\n"
                     f"\tdw = {self.w_min / self.total_plasma_frequency:.4f} w_p = {self.w_min:.4e} {self.units_dict['frequency']}\n"
-                    f"\tMaximum Frequency w_max = 2 pi /(prod_dump_step * dt)\n"
+                    f"\tMaximum Frequency w_max = pi /(dump_step * dt)\n"
                     f"\tw_max = {self.w_max / self.total_plasma_frequency:.4f} w_p = {self.w_max:.4e} {self.units_dict['frequency']}\n"
                 )
                 k_msg += kw_msg
@@ -954,22 +976,6 @@ class Observable:
                 msg += k_msg
 
         return msg
-
-    def pretty_print(self):
-        """Print observable useful info to log file and to screen if `self.verbose` is `True`."""
-        msg = self.pretty_print_msg()
-        screen = sys.stdout
-        f_log = open(self.log_file, "a+")
-        repeat = 2 if self.verbose else 1
-
-        # redirect printing to file
-        sys.stdout = f_log
-        while repeat > 0:
-            print(msg)
-            repeat -= 1
-            sys.stdout = screen
-
-        f_log.close()
 
     def read_pickle(self):
         """Read the observable's info from the pickle file."""
@@ -1028,6 +1034,54 @@ class Observable:
                 os_remove(self.filename_hdf_acf_slices)
             self.dataframe_acf_slices.to_hdf(self.filename_hdf_acf_slices, mode="w", key=self.__name__)
 
+    def save_kt_hdf(self, nkt_flag: bool = False, vkt_flag: bool = False):
+        """
+        Save the :math:`n(\\mathbf{k},t)` and/or :math:`\mathbf{v}(\\mathbf{k},t)` data of each slice to disk. \n
+        The data is contained in :py:attr:~.nkt_dataframe_slices and :py:attr:~.vkt_dataframe_slices respectively.\n
+        Each dataframe is stored as a HDF5 file to disk. The location of the data is at :py:attr:~.nkt_hdf_file and :py:attr:~.vkt_hdf_file.
+
+        Parameters
+        ----------
+        nkt_flag: bool
+            Flag for saving :math:`n(\\mathbf{k},t)` data. Default is False.
+
+        vkt_flag : bool
+            Flag for saving :math:`\\mathbf{v} (\\mathbf{k},t)` data. Default is False.
+
+        """
+        if nkt_flag:
+            # Save the data and append metadata
+            if os_path_exists(self.nkt_hdf_file):
+                os_remove(self.nkt_hdf_file)
+
+            hfile = HDFStore(self.nkt_hdf_file, mode="w")
+            hfile.put("nkt", self.nkt_dataframe_slices)
+            # This metadata is needed to check if I need to recalculate
+            metadata = {
+                "no_slices": self.no_slices,
+                "max_k_harmonics": self.max_k_harmonics,
+                "angle_averaging": self.angle_averaging,
+            }
+
+            hfile.get_storer("nkt").attrs.metadata = metadata
+            hfile.close()
+
+        if vkt_flag:
+            if os_path_exists(self.vkt_hdf_file):
+                os_remove(self.vkt_hdf_file)
+            # Save the data and append metadata
+            hfile = HDFStore(self.vkt_hdf_file, mode="w")
+            hfile.put("vkt", self.vkt_dataframe_slices)
+            # This metadata is needed to check if I need to recalculate
+            metadata = {
+                "no_slices": self.no_slices,
+                "max_k_harmonics": self.max_k_harmonics,
+                "angle_averaging": self.angle_averaging,
+            }
+
+            hfile.get_storer("vkt").attrs.metadata = metadata
+            hfile.close()
+
     def save_pickle(self):
         """Save the observable's info into a pickle file."""
         self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
@@ -1076,7 +1130,7 @@ class Observable:
             self.dimensional_average = dimensional_average
 
         if runs:
-            self.runs = 1
+            self.runs = runs
 
         # The dict update could overwrite the names
         name = self.__name__
@@ -1104,7 +1158,9 @@ class Observable:
 
                 # Convert max_k_harmonics to a numpy array. YAML reads in a list.
                 if not isinstance(self.max_k_harmonics, ndarray):
-                    self.max_k_harmonics = array(self.max_k_harmonics)
+                    self.max_k_harmonics = array([self.max_k_harmonics for i in range(3)])
+                    if self.dimensions < 3:
+                        self.max_k_harmonics[2] = 0
 
                 # Calculate max_aa_harmonics based on the choice of angle averaging and inputs
                 if self.angle_averaging == "full":
@@ -1114,7 +1170,11 @@ class Observable:
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
                         nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
-                        self.max_aa_harmonics = array([nx, nx, nx])
+                        ny = int(self.max_aa_ka_value * self.box_lengths[1] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        nz = int(self.max_aa_ka_value * self.box_lengths[2] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        self.max_aa_harmonics = array([nx, ny, nz])
+                        if self.dimensions < 3:
+                            self.max_aa_harmonics[2] = 0
                     # else max_aa_harmonics is user defined
                 elif self.angle_averaging == "principal_axis":
                     self.max_aa_harmonics = array([0, 0, 0])
@@ -1129,22 +1189,33 @@ class Observable:
                     # The maximum value is calculated assuming that max nx = max ny = max nz
                     # ka_max = 2pi a/L sqrt( nx^2 + ny^2 + nz^2) = 2pi a/L nx sqrt(3)
                     nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
-                    self.max_k_harmonics = array([nx, nx, nx])
-                    self.max_aa_harmonics = array([nx, nx, nx])
+                    ny = int(self.max_ka_value * self.box_lengths[1] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                    nz = int(self.max_ka_value * self.box_lengths[2] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                    self.max_k_harmonics = array([nx, ny, nz])
+                    self.max_aa_harmonics = array([nx, ny, nz])
+                    if self.dimensions < 3:
+                        self.max_aa_harmonics[2] = 0
+                        self.max_k_harmonics[2] = 0
 
                 elif self.angle_averaging == "custom":
                     # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
                     nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
-                    self.max_k_harmonics = array([nx, nx, nx])
+                    ny = int(self.max_ka_value * self.box_lengths[1] / (2.0 * pi * self.a_ws))
+                    nz = int(self.max_ka_value * self.box_lengths[2] / (2.0 * pi * self.a_ws))
+                    self.max_k_harmonics = array([nx, ny, nz])
                     # Check if the user has defined the max_aa_harmonics
                     if self.max_aa_ka_value:
                         nx = int(self.max_aa_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws * sqrt(3.0)))
-                        self.max_aa_harmonics = array([nx, nx, nx])
+                        ny = int(self.max_aa_ka_value * self.box_lengths[1] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        nz = int(self.max_aa_ka_value * self.box_lengths[2] / (2.0 * pi * self.a_ws * sqrt(3.0)))
+                        self.max_aa_harmonics = array([nx, ny, nz])
                     # else max_aa_harmonics is user defined
                 elif self.angle_averaging == "principal_axis":
                     # ka_max = 2pi a/L sqrt( nx^2 + 0 + 0) = 2pi a/L nx
                     nx = int(self.max_ka_value * self.box_lengths[0] / (2.0 * pi * self.a_ws))
-                    self.max_k_harmonics = array([nx, nx, nx])
+                    ny = int(self.max_ka_value * self.box_lengths[1] / (2.0 * pi * self.a_ws))
+                    nz = int(self.max_ka_value * self.box_lengths[2] / (2.0 * pi * self.a_ws))
+                    self.max_k_harmonics = array([nx, ny, nz])
                     self.max_aa_harmonics = array([0, 0, 0])
 
             # Calculate the maximum ka value based on user's choice of angle_averaging
@@ -1160,12 +1231,6 @@ class Observable:
             elif self.angle_averaging == "custom":
                 self.max_aa_ka_value = 2.0 * pi * self.a_ws * norm(self.max_aa_harmonics / self.box_lengths)
                 self.max_ka_value = 2.0 * pi * self.a_ws * self.max_k_harmonics[0] / self.box_lengths[0]
-
-            # Create paths for files
-            self.k_space_dir = os_path_join(self.postprocessing_dir, "k_space_data")
-            self.k_file = os_path_join(self.k_space_dir, "k_arrays.npz")
-            self.nkt_hdf_file = os_path_join(self.k_space_dir, "nkt.h5")
-            self.vkt_hdf_file = os_path_join(self.k_space_dir, "vkt.h5")
 
         # Get the number of independent observables if multi-species
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
@@ -1241,39 +1306,6 @@ class Observable:
         else:
             self.dump_dirs_list = [self.dump_dir]
 
-    def time_stamp(self, message: str, timing: tuple):
-        """
-        Print out to screen elapsed times. If verbose output, print to file first and then to screen.
-
-        Parameters
-        ----------
-        message : str
-            Message to print.
-
-        timing : tuple
-            Time in hrs, min, sec, msec, usec, nsec.
-
-        """
-
-        screen = sys.stdout
-        f_log = open(self.log_file, "a+")
-        repeat = 2 if self.verbose else 1
-        t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
-
-        # redirect printing to file
-        sys.stdout = f_log
-        while repeat > 0:
-
-            if t_hrs == 0 and t_min == 0 and t_sec <= 2:
-                print(f"\n{message} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
-            else:
-                print(f"\n{message} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
-
-            repeat -= 1
-            sys.stdout = screen
-
-        f_log.close()
-
     def update_finish(self):
         """Update the :py:attr:`~.slice_steps`, CCF's and DSF's attributes, and save pickle file with observable's info.
 
@@ -1282,6 +1314,8 @@ class Observable:
         The information is saved without the dataframe(s).
 
         """
+        self.create_dirs_filenames()
+
         # Needed if no_slices has been passed
         self.slice_steps = (
             int(self.no_steps / self.dump_step / self.no_slices)
@@ -1297,25 +1331,31 @@ class Observable:
             # This is a hack and we need to find a faster way to do it
             dt_r = self.dt * self.dump_step
 
-            self.w_min = 2.0 * pi / (self.slice_steps * self.dt * self.dump_step)
+            self.w_min = 2.0 * pi / (self.slice_steps * dt_r)
             self.w_max = pi / dt_r  # Half because fft calculates negative and positive frequencies
-            self.frequencies = 2.0 * pi * fftfreq(self.slice_steps, self.dt * self.dump_step)
+            self.frequencies = 2.0 * pi * fftfreq(self.slice_steps, dt_r)
             self.frequencies = fftshift(self.frequencies)
 
-        self.create_dirs_filenames()
         self.save_pickle()
 
         # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
         self.dataframe = DataFrame()
         self.dataframe_slices = DataFrame()
 
+        if self.__name__ == "ccf":
+            self.dataframe_longitudinal = DataFrame()
+            self.dataframe_longitudinal_slices = DataFrame()
+            self.dataframe_transverse = DataFrame()
+            self.dataframe_transverse_slices = DataFrame()
+
         if self.acf_observable:
             self.dataframe_acf = DataFrame()
             self.dataframe_acf_slices = DataFrame()
 
         # Write log file
-        self.datetime_stamp()
-        self.pretty_print()
+        datetime_stamp(self.log_file)
+        msg = self.pretty_print_msg()
+        pretty_print(msg, self.log_file, self.verbose)
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1369,53 +1409,136 @@ class CurrentCorrelationFunction(Observable):
         self.k_observable = True
         self.kw_observable = True
 
-    @setup_doc
-    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+    @avg_slice_doc
+    def average_slices_data(self, longitudinal: bool = False, transverse: bool = False):
 
-        super().setup_init(params, phase=phase, no_slices=no_slices)
+        # Now the actual dataframe
+        if longitudinal:
+            self.dataframe_longitudinal[" _ _Frequencies"] = self.frequencies
+        if transverse:
+            self.dataframe_transverse[" _ _Frequencies"] = self.frequencies
 
-        self.update_args(**kwargs)
+        # Take the mean and std and store them into the dataframe to return
+        for sp1, sp1_name in enumerate(self.species_names):
+            for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
+                comp_name = f"{sp1_name}-{sp2_name}"
+                # Get the k_harmonics columns over which to average
+                ka_columns_mean = [
+                    comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)
+                ]
 
-    @arg_update_doc
-    def update_args(self, **kwargs):
+                # Std
+                ka_columns_std = [
+                    comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)
+                ]
+                if longitudinal:
+                    # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
+                    df_mean = self.dataframe_longitudinal_slices[comp_name].groupby(level=1, axis="columns").mean()
+                    df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns_mean), axis=1)
 
-        # Update the attribute with the passed arguments
-        self.__dict__.update(kwargs.copy())
-        self.update_finish()
+                    df_std = self.dataframe_longitudinal_slices[comp_name].groupby(level=1, axis="columns").std()
+                    df_std = df_std.rename(col_mapper(df_std.columns, ka_columns_std), axis=1)
 
-    @compute_doc
-    def compute(self):
+                    self.dataframe_longitudinal = concat([self.dataframe_longitudinal, df_mean, df_std], axis=1)
+
+                if transverse:
+                    # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
+                    tdf_mean = self.dataframe_transverse_slices[comp_name].groupby(level=1, axis="columns").mean()
+                    tdf_mean = tdf_mean.rename(col_mapper(tdf_mean.columns, ka_columns_mean), axis=1)
+                    # Std
+                    tdf_std = self.dataframe_transverse_slices[comp_name].groupby(level=1, axis="columns").std()
+                    tdf_std = tdf_std.rename(col_mapper(tdf_std.columns, ka_columns_std), axis=1)
+
+                    self.dataframe_transverse = concat([self.dataframe_transverse, tdf_mean, tdf_std], axis=1)
+
+    @calc_slice_doc
+    def calc_longitudinal_data(self):
 
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
-
-        tinit = self.timer.current()
-
         vkt_df = read_hdf(self.vkt_hdf_file, mode="r", key="vkt")
+        # Add frequencies
+        self.dataframe_longitudinal_slices[" _ _ _Frequencies"] = self.frequencies
         # Containers
         vkt = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
-        vkt_i = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
-        vkt_j = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
-        vkt_k = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
-
-        for isl in range(self.no_slices):
+        for isl in tqdm(range(self.no_slices), desc="Calculating longitudinal CCF for slice", disable=not self.verbose):
 
             # Put data in the container to pass
             for sp, sp_name in enumerate(self.species_names):
-                vkt[sp] = array(vkt_df["slice {}".format(isl + 1)]["Longitudinal"][sp_name])
-                vkt_i[sp] = array(vkt_df["slice {}".format(isl + 1)]["Transverse i"][sp_name])
-                vkt_j[sp] = array(vkt_df["slice {}".format(isl + 1)]["Transverse j"][sp_name])
-                vkt_k[sp] = array(vkt_df["slice {}".format(isl + 1)]["Transverse k"][sp_name])
+                vkt[sp] = array(vkt_df[f"slice {isl + 1}"]["Longitudinal"][sp_name])
 
             # Calculate Lkw and Tkw
             Lkw = calc_Skw(vkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
-            Tkw_i = calc_Skw(vkt_i, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
-            Tkw_j = calc_Skw(vkt_j, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
-            Tkw_k = calc_Skw(vkt_k, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
 
-            Tkw = (Tkw_i + Tkw_j + Tkw_k) / 3.0
+            # Create the dataframe's column names
+            slc_column = f"slice {isl + 1}"
+            ka_columns = ["ka = {:.6f}".format(ka) for ka in self.ka_values]
 
-            # Lkw_tot += Lkw / self.no_slices
-            # Tkw_tot += Tkw / self.no_slices
+            # Save the full Lkw into a Dataframe
+            sp_indx = 0
+            for i, sp1 in enumerate(self.species_names):
+                for j, sp2 in enumerate(self.species_names[i:]):
+
+                    # Create the list of column names
+                    # Final string : Longitudinal_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
+                    column_names = []
+                    col_sp_slc = f"{sp1}-{sp2}_" + slc_column
+                    for ik in range(len(self.k_harmonics)):
+                        ka_value = ka_columns[int(self.k_harmonics[ik, -1])]
+                        col_name = col_sp_slc + f"_{ka_value}"
+                        k_harm_col = f"_k = ["
+                        for d in range(self.dimensions):
+                            k_harm_col += f"{self.k_harmonics[ik, d].astype(int)}, "
+
+                        # The above loop added ", " at the end. I don't want it
+                        k_harm_col = k_harm_col[:-2] + f"]"
+                        col_name += k_harm_col
+                        column_names.append(col_name)
+
+                    self.dataframe_longitudinal_slices = concat(
+                        [self.dataframe_longitudinal_slices, DataFrame(Lkw[sp_indx, :, :].T, columns=column_names)],
+                        axis=1,
+                    )
+                    sp_indx += 1
+
+        # Create the MultiIndex
+        tuples = [tuple(c.split("_")) for c in self.dataframe_longitudinal_slices.columns]
+        self.dataframe_longitudinal_slices.columns = MultiIndex.from_tuples(
+            tuples, names=["species", "slices", "ka_value", "k_harmonics"]
+        )
+
+    @calc_slice_doc
+    def calc_transverse_data(self):
+
+        self.parse_kt_data(nkt_flag=False, vkt_flag=True)
+
+        # Add frequencies
+        self.dataframe_transverse_slices[" _ _ _Frequencies"] = self.frequencies
+        vkt_df = read_hdf(self.vkt_hdf_file, mode="r", key="vkt")
+
+        # Containers
+        vkt_d = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
+        # number of independent observables
+        no_skw = int(len(self.species_num) * (len(self.species_num) + 1) / 2)
+        Tkw = zeros((no_skw, len(self.k_list), self.slice_steps))
+
+        for isl in tqdm(
+            range(self.no_slices), desc="Calculating transverse CCF for slice", position=0, disable=not self.verbose
+        ):
+
+            for d, dim in tqdm(
+                zip(range(self.dimensions), ["i", "j", "k"]),
+                desc="Dimension",
+                position=1,
+                disable=not self.verbose,
+                leave=False,
+            ):
+                # Put data in the container to pass
+                for sp, sp_name in enumerate(self.species_names):
+                    vkt_d[sp] = array(vkt_df[f"slice {isl + 1}"][f"Transverse {dim}"][sp_name])
+                    Tkw_d = calc_Skw(vkt_d, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
+
+                    Tkw += Tkw_d / self.dimensions
+
             # Create the dataframe's column names
             slc_column = "slice {}".format(isl + 1)
             ka_columns = ["ka = {:.6f}".format(ka) for ik, ka in enumerate(self.ka_values)]
@@ -1424,93 +1547,172 @@ class CurrentCorrelationFunction(Observable):
             sp_indx = 0
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
-                    columns = [
-                        "Longitudinal_{}-{}_".format(sp1, sp2)
-                        + slc_column
-                        + "_{}_k = [{}, {}, {}]".format(
-                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int)
-                        )
-                        # Final string : Longitudinal_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    self.dataframe_slices = concat(
-                        [self.dataframe_slices, DataFrame(Lkw[sp_indx, :, :].T, columns=columns)], axis=1
-                    )
 
-                    columns = [
-                        "Transverse_{}-{}_".format(sp1, sp2)
-                        + slc_column
-                        + "_{}_k = [{}, {}, {}]".format(
-                            ka_columns[int(self.k_harmonics[ik, -1])], *self.k_harmonics[ik, :-2].astype(int)
-                        )
-                        # Final string : Transverse_H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
-                        for ik in range(len(self.k_harmonics))
-                    ]
-                    self.dataframe_slices = concat(
-                        [self.dataframe_slices, DataFrame(Tkw[sp_indx, :, :].T, columns=columns)], axis=1
+                    # Create the list of column names
+                    # Final string : H-He_slice 1_ka = 0.123456_k = [0, 0, 1]
+                    column_names = []
+                    col_sp_slc = f"{sp1}-{sp2}_" + slc_column
+                    for ik in range(len(self.k_harmonics)):
+                        ka_value = ka_columns[int(self.k_harmonics[ik, -1])]
+                        col_name = col_sp_slc + f"_{ka_value}"
+                        k_harm_col = f"_k = ["
+                        for d in range(self.dimensions):
+                            k_harm_col += f"{self.k_harmonics[ik, d].astype(int)}, "
+
+                        # The above loop added ", " at the end. I don't want it
+                        k_harm_col = k_harm_col[:-2] + f"]"
+                        col_name += k_harm_col
+                        column_names.append(col_name)
+
+                    self.dataframe_transverse_slices = concat(
+                        [self.dataframe_transverse_slices, DataFrame(Tkw[sp_indx, :, :].T, columns=column_names)], axis=1
                     )
 
                     sp_indx += 1
 
         # Create the MultiIndex
-        tuples = [tuple(c.split("_")) for c in self.dataframe_slices.columns]
-        self.dataframe_slices.columns = MultiIndex.from_tuples(
-            tuples, names=["direction", "species", "slices", "ka_value", "k_harmonics"]
+        tuples = [tuple(c.split("_")) for c in self.dataframe_transverse_slices.columns]
+        self.dataframe_transverse_slices.columns = MultiIndex.from_tuples(
+            tuples, names=["species", "slices", "ka_value", "k_harmonics"]
         )
-        # Now the actual dataframe
-        self.dataframe[" _ _ _ _Frequencies"] = self.frequencies
-        # Take the mean and std and store them into the dataframe to return
-        for sp1, sp1_name in enumerate(self.species_names):
-            for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
-                comp_name = "{}-{}".format(sp1_name, sp2_name)
-                ### LONGITUDINAL
-                # Rename the columns with values of ka
-                ka_columns = [
-                    "Longitudinal_" + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
-                    for ik, ka in enumerate(self.ka_values)
-                ]
 
-                # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
-                df_mean = self.dataframe_slices["Longitudinal"][comp_name].mean(level=1, axis="columns")
-                df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
-                # Std
-                ka_columns = [
-                    "Longitudinal_" + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
-                    for ik, ka in enumerate(self.ka_values)
-                ]
-                df_std = self.dataframe_slices["Longitudinal"][comp_name].std(level=1, axis="columns")
-                df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
+    def compute(self, longitudinal: bool = False, transverse: bool = False):
+        """
+        Routine for computing the current correlation function. See class doc for exact quantities.\n
+        The data of each slice is saved in hierarchical dataframes,
+        :py:attr:`~.dataframe_longitudinal_slices` or :py:attr:`~.dataframe_transverse_slices`. \n
+        The sliced averaged data is saved in other hierarchical dataframes,
+        :py:attr:`~.dataframe_longitudinal` :py:attr:`~.dataframe_transverse`.
 
-                self.dataframe = concat([self.dataframe, df_mean, df_std], axis=1)
+        Parameters
+        ----------
+        longitudinal : bool
+            Flag for calculating the longitudinal CCF. Default = False.
 
-                ### Transverse
-                # Rename the columns with values of ka
-                ka_columns = [
-                    "Transverse_" + comp_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka)
-                    for ik, ka in enumerate(self.ka_values)
-                ]
+        transverse : bool
+            Flag for calculating the transverse CCF. Default = False.
 
-                # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
-                tdf_mean = self.dataframe_slices["Transverse"][comp_name].mean(level=1, axis="columns")
-                tdf_mean = tdf_mean.rename(col_mapper(tdf_mean.columns, ka_columns), axis=1)
-                # Std
-                ka_columns = [
-                    "Transverse_" + comp_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka)
-                    for ik, ka in enumerate(self.ka_values)
-                ]
-                tdf_std = self.dataframe_slices["Transverse"][comp_name].std(level=1, axis="columns")
-                tdf_std = tdf_std.rename(col_mapper(tdf_std.columns, ka_columns), axis=1)
+        """
 
-                self.dataframe = concat([self.dataframe, tdf_mean, tdf_std], axis=1)
+        t0 = self.timer.current()
+        if longitudinal:
+            self.calc_longitudinal_data()
+        if transverse:
+            self.calc_transverse_data()
 
-        # Create the MultiIndex columns:
-        # Longitudinal_H-He_Mean_Frequencies | ka = 0.123456
-        # Longitudinal_H-He_Std_ka = 0.123456
-
+        self.average_slices_data(longitudinal, transverse)
+        self.save_hdf(longitudinal, transverse)
         tend = self.timer.current()
-        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
+        time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
 
-        self.save_hdf()
+    def parse(self, longitudinal: bool = False, transverse: bool = False):
+
+        if longitudinal:
+            try:
+                self.dataframe_longitudinal = read_hdf(self.filename_hdf_longitudinal, mode="r", index_col=False)
+
+                k_data = load(self.k_file)
+                self.k_list = k_data["k_list"]
+                self.k_counts = k_data["k_counts"]
+                self.ka_values = k_data["ka_values"]
+
+            except FileNotFoundError:
+                msg = f"\nFile {self.filename_hdf_longitudinal} not found!\nComputing longitudinal ccf ..."
+                pretty_print(msg, self.log_file, self.verbose)
+                self.compute(longitudinal=longitudinal)
+
+        elif transverse:
+
+            try:
+                self.dataframe_transverse = read_hdf(self.filename_hdf_transverse, mode="r", index_col=False)
+
+                k_data = load(self.k_file)
+                self.k_list = k_data["k_list"]
+                self.k_counts = k_data["k_counts"]
+                self.ka_values = k_data["ka_values"]
+
+            except FileNotFoundError:
+                msg = f"\nFile {self.filename_hdf_transverse} not found!\nComputing transverse ccf ..."
+                pretty_print(msg, self.log_file, self.verbose)
+                self.compute(longitudinal=False, transverse=True)
+        else:
+            msg = (
+                "Direction not define. Call the method with either option set to true."
+                "\nlongitudinal = True/False, transverse = True/False"
+            )
+            pretty_print(msg, self.log_file, self.verbose)
+
+    @setup_doc
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+
+        super().setup_init(params, phase=phase, no_slices=no_slices)
+
+        self.update_args(**kwargs)
+
+    def save_hdf(self, longitudinal: bool = False, transverse: bool = False):
+
+        # Create the columns for the HDF df
+        if longitudinal:
+            if not isinstance(self.dataframe_longitudinal_slices.columns, MultiIndex):
+                self.dataframe_longitudinal_slices.columns = MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_longitudinal_slices.columns]
+                )
+
+            if not isinstance(self.dataframe_longitudinal.columns, MultiIndex):
+                self.dataframe_longitudinal.columns = MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_longitudinal.columns]
+                )
+
+            # Sort the index for speed
+            # see https://stackoverflow.com/questions/54307300/what-causes-indexing-past-lexsort-depth-warning-in-pandas
+            self.dataframe_longitudinal = self.dataframe_longitudinal.sort_index()
+            self.dataframe_longitudinal_slices = self.dataframe_longitudinal_slices.sort_index()
+
+            # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
+            # Save the data.
+
+            if os_path_exists(self.filename_hdf_longitudinal_slices):
+                os_remove(self.filename_hdf_longitudinal_slices)
+            self.dataframe_longitudinal_slices.to_hdf(self.filename_hdf_longitudinal_slices, mode="w", key=self.__name__)
+
+            if os_path_exists(self.filename_hdf_longitudinal):
+                os_remove(self.filename_hdf_longitudinal)
+            self.dataframe_longitudinal.to_hdf(self.filename_hdf_longitudinal, mode="w", key=self.__name__)
+
+        # Create the columns for the HDF df
+        if transverse:
+            if not isinstance(self.dataframe_transverse_slices.columns, MultiIndex):
+                self.dataframe_transverse_slices.columns = MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_transverse_slices.columns]
+                )
+
+            if not isinstance(self.dataframe_transverse.columns, MultiIndex):
+                self.dataframe_transverse.columns = MultiIndex.from_tuples(
+                    [tuple(c.split("_")) for c in self.dataframe_transverse.columns]
+                )
+
+            # Sort the index for speed
+            # see https://stackoverflow.com/questions/54307300/what-causes-indexing-past-lexsort-depth-warning-in-pandas
+            self.dataframe_transverse = self.dataframe_transverse.sort_index()
+            self.dataframe_transverse_slices = self.dataframe_transverse_slices.sort_index()
+
+            # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
+            # Save the data.
+
+            if os_path_exists(self.filename_hdf_transverse_slices):
+                os_remove(self.filename_hdf_transverse_slices)
+            self.dataframe_transverse_slices.to_hdf(self.filename_hdf_transverse_slices, mode="w", key=self.__name__)
+
+            if os_path_exists(self.filename_hdf_transverse):
+                os_remove(self.filename_hdf_transverse)
+            self.dataframe_transverse.to_hdf(self.filename_hdf_transverse, mode="w", key=self.__name__)
+
+    @arg_update_doc
+    def update_args(self, **kwargs):
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
 
 class DiffusionFlux(Observable):
@@ -1560,23 +1762,43 @@ class DiffusionFlux(Observable):
     @compute_doc
     def compute(self):
 
+        t0 = self.timer.current()
+        # for run_idx, run_id in enumerate(self.runs):
+        #     self.dump_dir = self.dump_dirs_list[run_idx]
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
+
+    @calc_slice_doc
+    def calc_slices_data(self):
+
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
         time = zeros(self.slice_steps)
-        # Initialize timer
-        t0 = self.timer.current()
 
         df_str = "Diffusion Flux"
         df_acf_str = "Diffusion Flux ACF"
 
-        for isl in range(self.no_slices):
-            print("\nCalculating diffusion flux and its acf for slice {}/{}.".format(isl + 1, self.no_slices))
+        for isl in tqdm(
+            range(self.no_slices),
+            desc=f"\nCalculating {df_str} for slice ",
+            disable=not self.verbose,
+            position=0,
+        ):
+
             # Parse the particles from the dump files
             vel = zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
             #
-            # print("\nParsing particles' velocities.")
             for it, dump in enumerate(
-                tqdm(range(start_slice, end_slice, self.dump_step), desc="Read in data", disable=not self.verbose)
+                tqdm(
+                    range(start_slice, end_slice, self.dump_step),
+                    desc="Reading data",
+                    disable=not self.verbose,
+                    position=1,
+                    leave=False,
+                )
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
@@ -1599,55 +1821,63 @@ class DiffusionFlux(Observable):
 
             # # Store the data
             for i, flux in enumerate(diff_fluxes):
-                self.dataframe_slices[df_str + " {}_X_slice {}".format(i, isl)] = flux[0, :]
-                self.dataframe_slices[df_str + " {}_Y_slice {}".format(i, isl)] = flux[1, :]
-                self.dataframe_slices[df_str + " {}_Z_slice {}".format(i, isl)] = flux[2, :]
+                for d, dim in zip(range(self.dimensions), ["X", "Y", "Z"]):
+                    col_name = df_str + f" {i}_{dim}_slice {isl}"
+                    col_data = flux[d, :]
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             for i, flux_acf in enumerate(df_acf):
-                self.dataframe_acf_slices[df_acf_str + " {}_X_slice {}".format(i, isl)] = flux_acf[0, :]
-                self.dataframe_acf_slices[df_acf_str + " {}_Y_slice {}".format(i, isl)] = flux_acf[1, :]
-                self.dataframe_acf_slices[df_acf_str + " {}_Z_slice {}".format(i, isl)] = flux_acf[2, :]
-                self.dataframe_acf_slices[df_acf_str + " {}_Total_slice {}".format(i, isl)] = flux_acf[3, :]
+                for d, dim in zip(range(self.dimensions), ["X", "Y", "Z"]):
+                    col_name = df_acf_str + f" {i}_{dim}_slice {isl}"
+                    col_data = flux_acf[d, :]
+                    self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+
+                col_name = df_acf_str + f" {i}_Total_slice {isl}"
+                col_data = flux_acf[-1, :]
+                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
+    @avg_slice_doc
+    def average_slices_date(self):
+
+        df_str = "Diffusion Flux"
+        df_acf_str = "Diffusion Flux ACF"
         # Average and std over the slices
         for i in range(self.no_fluxes):
-            xcol_str = [df_str + " {}_X_slice {}".format(i, isl) for isl in range(self.no_slices)]
-            ycol_str = [df_str + " {}_Y_slice {}".format(i, isl) for isl in range(self.no_slices)]
-            zcol_str = [df_str + " {}_Z_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            for d, dim in zip(range(self.dimensions), ["X", "Y", "Z"]):
+                dim_col_str = [df_str + f" {i}_{dim}_slice {isl}" for isl in range(self.no_slices)]
 
-            self.dataframe[df_str + " {}_X_Mean".format(i)] = self.dataframe_slices[xcol_str].mean(axis=1)
-            self.dataframe[df_str + " {}_X_Std".format(i)] = self.dataframe_slices[xcol_str].std(axis=1)
-            self.dataframe[df_str + " {}_Y_Mean".format(i)] = self.dataframe_slices[ycol_str].mean(axis=1)
-            self.dataframe[df_str + " {}_Y_Std".format(i)] = self.dataframe_slices[ycol_str].std(axis=1)
-            self.dataframe[df_str + " {}_Z_Mean".format(i)] = self.dataframe_slices[zcol_str].mean(axis=1)
-            self.dataframe[df_str + " {}_Z_Std".format(i)] = self.dataframe_slices[zcol_str].std(axis=1)
+                col_name = df_str + f" {i}_{dim}_Mean"
+                col_data = self.dataframe_slices[dim_col_str].mean(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                col_name = df_str + f" {i}_{dim}_Std"
+                col_data = self.dataframe_slices[dim_col_str].std(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
         # Average and std over the slices
         for i in range(self.no_fluxes_acf):
-            xcol_str = [df_acf_str + " {}_X_slice {}".format(i, isl) for isl in range(self.no_slices)]
-            ycol_str = [df_acf_str + " {}_Y_slice {}".format(i, isl) for isl in range(self.no_slices)]
-            zcol_str = [df_acf_str + " {}_Z_slice {}".format(i, isl) for isl in range(self.no_slices)]
-            tot_col_str = [df_acf_str + " {}_Total_slice {}".format(i, isl) for isl in range(self.no_slices)]
+            for d, dim in zip(range(self.dimensions), ["X", "Y", "Z"]):
+                dim_col_str = [df_acf_str + f" {i}_{dim}_slice {isl}" for isl in range(self.no_slices)]
+                col_name = df_acf_str + f" {i}_{dim}_Mean"
+                col_data = self.dataframe_acf_slices[dim_col_str].mean(axis=1).values
+                self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
-            self.dataframe_acf[df_acf_str + " {}_X_Mean".format(i)] = self.dataframe_acf_slices[xcol_str].mean(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_X_Std".format(i)] = self.dataframe_acf_slices[xcol_str].std(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Y_Mean".format(i)] = self.dataframe_acf_slices[ycol_str].mean(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Y_Std".format(i)] = self.dataframe_acf_slices[ycol_str].std(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Z_Mean".format(i)] = self.dataframe_acf_slices[zcol_str].mean(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Z_Std".format(i)] = self.dataframe_acf_slices[zcol_str].std(axis=1)
-            self.dataframe_acf[df_acf_str + " {}_Total_Mean".format(i)] = self.dataframe_acf_slices[tot_col_str].mean(
-                axis=1
-            )
-            self.dataframe_acf[df_acf_str + " {}_Total_Std".format(i)] = self.dataframe_acf_slices[tot_col_str].std(
-                axis=1
-            )
+                col_name = df_acf_str + f" {i}_{dim}_Std"
+                col_data = self.dataframe_acf_slices[dim_col_str].std(axis=1).values
+                self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
-        self.save_hdf()
-        tend = self.timer.current()
-        self.time_stamp("Diffusion Flux and its ACF Calculation", self.timer.time_division(tend - t0))
+            tot_col_str = [df_acf_str + f" {i}_Total_slice {isl}" for isl in range(self.no_slices)]
+            # Average
+            col_name = df_acf_str + f" {i}_Total_Mean"
+            col_data = self.dataframe_acf_slices[tot_col_str].mean(axis=1).values
+            self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+            # STD
+            col_name = df_acf_str + f" {i}_Total_Std"
+            col_data = self.dataframe_acf_slices[tot_col_str].std(axis=1).values
+            self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
 
 class DynamicStructureFactor(Observable):
@@ -1689,12 +1919,23 @@ class DynamicStructureFactor(Observable):
     @compute_doc
     def compute(self):
 
+        t0 = self.timer.current()
+        # for run_idx, run_id in enumerate(self.runs):
+        #     self.dump_dir = self.dump_dirs_list[run_idx]
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
+
+    @calc_slice_doc
+    def calc_slices_data(self):
+
         # Parse nkt otherwise calculate it
         self.parse_kt_data(nkt_flag=True)
 
-        tinit = self.timer.current()
         nkt_df = read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
-        for isl in range(0, self.no_slices):
+        for isl in tqdm(range(self.no_slices), desc="Calculating DSF for slice", disable=not self.verbose):
             # Initialize container
             nkt = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
             for sp, sp_name in enumerate(self.species_names):
@@ -1704,8 +1945,8 @@ class DynamicStructureFactor(Observable):
             Skw_all = calc_Skw(nkt, self.k_list, self.species_num, self.slice_steps, self.dt, self.dump_step)
 
             # Create the dataframe's column names
-            slc_column = "slice {}".format(isl + 1)
-            ka_columns = ["ka = {:.8f}".format(ka) for ik, ka in enumerate(self.ka_values)]
+            slc_column = f"slice {isl + 1}"
+            ka_columns = [f"ka = {ka:.8f}" for ik, ka in enumerate(self.ka_values)]
             # Save the full Skw into a Dataframe
             sp_indx = 0
             for i, sp1 in enumerate(self.species_names):
@@ -1729,29 +1970,26 @@ class DynamicStructureFactor(Observable):
             tuples, names=["species", "slices", "k_index", "k_harmonics"]
         )
 
+    @avg_slice_doc
+    def average_slices_data(self):
+
         # Now for the actual df
         self.dataframe[" _ _Frequencies"] = self.frequencies
 
         # Take the mean and std and store them into the dataframe to return
         for sp1, sp1_name in enumerate(self.species_names):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
-                skw_name = "{}-{}".format(sp1_name, sp2_name)
+                skw_name = f"{sp1_name}-{sp2_name}"
                 # Rename the columns with values of ka
-                ka_columns = [skw_name + "_Mean_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
+                ka_columns = [skw_name + f"_Mean_ka{ik + 1} = {ka:.4f}" for ik, ka in enumerate(self.ka_values)]
                 # Mean: level = 1 corresponds to averaging all the k harmonics with the same magnitude
-                df_mean = self.dataframe_slices[skw_name].mean(level=1, axis="columns")
+                df_mean = self.dataframe_slices[skw_name].groupby(level=1, axis=1).mean()
                 df_mean = df_mean.rename(col_mapper(df_mean.columns, ka_columns), axis=1)
                 # Std
-                ka_columns = [skw_name + "_Std_ka{} = {:.4f}".format(ik + 1, ka) for ik, ka in enumerate(self.ka_values)]
-                df_std = self.dataframe_slices[skw_name].std(level=1, axis="columns")
+                ka_columns = [skw_name + f"_Std_ka{ik + 1} = {ka:.4f}" for ik, ka in enumerate(self.ka_values)]
+                df_std = self.dataframe_slices[skw_name].groupby(level=1, axis=1).std()
                 df_std = df_std.rename(col_mapper(df_std.columns, ka_columns), axis=1)
-
                 self.dataframe = concat([self.dataframe, df_mean, df_std], axis=1)
-
-        tend = self.timer.current()
-        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
-
-        self.save_hdf()
 
 
 class ElectricCurrent(Observable):
@@ -1785,7 +2023,7 @@ class ElectricCurrent(Observable):
         self.average_slices_data()
         self.save_hdf()
         tend = self.timer.current()
-        self.time_stamp("Electric Current Calculation", self.timer.time_division(tend - t0))
+        time_stamp(self.log_file, "Electric Current Calculation", self.timer.time_division(tend - t0), self.verbose)
 
     def calc_slices_data(self):
 
@@ -1833,30 +2071,38 @@ class ElectricCurrent(Observable):
                 sp_tot_acf = zeros(total_current.shape[1])
                 for d in range(self.dimensions):
                     dl = self.dim_labels[d]
-
-                    self.dataframe_slices[sp_col_str + f"_{dl}_slice {isl}"] = species_current[i, d, :]
+                    col_name = sp_col_str + f"_{dl}_slice {isl}"
+                    col_data = species_current[i, d, :]
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
                     # Calculate ACF
-                    sp_acf_dim = correlationfunction(species_current[i, d, :], species_current[i, d, :])
-                    self.dataframe_acf_slices[sp_col_str_acf + f"_{dl}_slice {isl}"] = sp_acf_dim
+                    col_data = correlationfunction(species_current[i, d, :], species_current[i, d, :])
+                    col_name = sp_col_str_acf + f"_{dl}_slice {isl}"
+                    self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
-                    sp_tot_acf += sp_acf_dim
+                    sp_tot_acf += col_data
 
                 # Store ACF
-                self.dataframe_acf_slices[sp_col_str_acf + f"_Total_slice {isl}"] = sp_tot_acf
+                col_name = sp_col_str_acf + f"_Total_slice {isl}"
+                col_data = sp_tot_acf
+                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
             # Total current and its ACF
             tot_acf = zeros(total_current.shape[1])
             for d in range(self.dimensions):
                 dl = self.dim_labels[d]
-                col_str = self.__long_name__ + f"_{dl}_slice {isl}"
-                col_str_acf = self.__long_name__ + f" ACF_{dl}_slice {isl}"
-                self.dataframe_slices[col_str] = total_current[d, :]
-                # Calculate ACF
-                tot_acf_dim = correlationfunction(total_current[d, :], total_current[d, :])
-                tot_acf += tot_acf_dim
-                self.dataframe_acf_slices[col_str_acf] = tot_acf_dim
+                col_name = self.__long_name__ + f"_{dl}_slice {isl}"
+                col_data = total_current[d, :]
+                self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-            self.dataframe_acf_slices[self.__long_name__ + f" ACF_Total_slice {isl}"] = tot_acf
+                # Calculate ACF
+                col_data = correlationfunction(total_current[d, :], total_current[d, :])
+                col_name = self.__long_name__ + f" ACF_{dl}_slice {isl}"
+                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+                tot_acf += col_data
+
+            col_data = tot_acf
+            col_name = self.__long_name__ + f" ACF_Total_slice {isl}"
+            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
@@ -1872,18 +2118,34 @@ class ElectricCurrent(Observable):
             for d in range(self.dimensions):
                 dl = self.dim_labels[d]
                 dim_col_str = [col_str + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
-                self.dataframe[col_str + f"_{dl}_Mean"] = self.dataframe_slices[dim_col_str].mean(axis=1)
-                self.dataframe[col_str + f"_{dl}_Std"] = self.dataframe_slices[dim_col_str].std(axis=1)
+
+                col_data = self.dataframe_slices[dim_col_str].mean(axis=1).values
+                col_name = col_str + f"_{dl}_Mean"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                col_data = self.dataframe_slices[dim_col_str].std(axis=1).values
+                col_name = col_str + f"_{dl}_Std"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
                 # ACF averages
                 dim_col_str_acf = [col_str_acf + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
+                col_data = self.dataframe_acf_slices[dim_col_str_acf].mean(axis=1).values
+                col_name = col_str_acf + f"_{dl}_Mean"
+                self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
-                self.dataframe_acf[col_str_acf + f"_{dl}_Mean"] = self.dataframe_acf_slices[dim_col_str_acf].mean(axis=1)
-                self.dataframe_acf[col_str_acf + f"_{dl}_Std"] = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1)
+                col_data = self.dataframe_acf_slices[dim_col_str_acf].Std(axis=1).values
+                col_name = col_str_acf + f"_{dl}_Std"
+                self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
             tot_col_str = [col_str_acf + f"_Total_slice {isl}" for isl in range(self.no_slices)]
-            self.dataframe_acf[col_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
-            self.dataframe_acf[col_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
+
+            col_data = self.dataframe_acf_slices[tot_col_str].mean(axis=1).values
+            col_name = col_str + "_Total_Mean"
+            self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+
+            col_data = self.dataframe_acf_slices[tot_col_str].std(axis=1).values
+            col_name = col_str + "_Total_Std"
+            self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
         # Average and std over the slices
         # Total Current data
@@ -1902,8 +2164,14 @@ class ElectricCurrent(Observable):
 
         # Total ACF
         tot_col_str = [self.__long_name__ + f" ACF_Total_slice {isl}" for isl in range(self.no_slices)]
-        self.dataframe_acf[self.__long_name__ + f" ACF_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
-        self.dataframe_acf[self.__long_name__ + f" ACF_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
+
+        col_data = self.dataframe_acf_slices[tot_col_str].mean(axis=1).values
+        col_name = self.__long_name__ + f" ACF_Total_Mean"
+        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+
+        col_data = self.dataframe_acf_slices[tot_col_str].std(axis=1).values
+        col_name = self.__long_name__ + f" ACF_Total_Std"
+        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
 
 class PressureTensor(Observable):
@@ -2020,12 +2288,17 @@ class PressureTensor(Observable):
         self.average_slices_data()
         self.save_hdf()
         tend = self.timer.current()
-        self.time_stamp(self.__long_name__ + " and its ACF Calculation", self.timer.time_division(tend - t0))
+        time_stamp(
+            self.log_file,
+            self.__long_name__ + " and its ACF Calculation",
+            self.timer.time_division(tend - t0),
+            self.verbose,
+        )
 
     @calc_slice_doc
     def calc_slices_data(self):
         # Precompute the number of columns in the dataframe and make the list of names
-        self.df_column_names()
+        # self.df_column_names()
 
         if self.dimensions == 3:
             dim_lbl = ["x", "y", "z"]
@@ -2081,14 +2354,20 @@ class PressureTensor(Observable):
                 self.dataframe_slices["Time"] = time.copy()
                 self.dataframe_acf_slices["Time"] = time.copy()
 
-            self.dataframe_slices["Pressure_slice {}".format(isl)] = pressure
-            self.dataframe_acf_slices["Pressure ACF_slice {}".format(isl)] = correlationfunction(pressure, pressure)
+            col_data = pressure
+            col_name = f"Pressure_slice {isl}"
+            self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+            col_name = f"Pressure ACF_slice {isl}"
+            col_data = correlationfunction(pressure, pressure)
+            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+
             # This is needed for the bulk viscosity
             delta_pressure = pressure - pressure.mean()
-            self.dataframe_slices["Delta Pressure_slice {}".format(isl)] = delta_pressure
-            self.dataframe_acf_slices["Delta Pressure ACF_slice {}".format(isl)] = correlationfunction(
-                delta_pressure, delta_pressure
-            )
+            col_name = f"Delta Pressure_slice {isl}"
+            self.dataframe_slices = add_col_to_df(self.dataframe_slices, delta_pressure, col_name)
+            col_name = f"Delta Pressure ACF_slice {isl}"
+            col_data = correlationfunction(delta_pressure, delta_pressure)
+            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
             for i, ax1 in enumerate(dim_lbl):
                 pt_temp[i, i, :] -= pressure.mean()
@@ -2097,9 +2376,18 @@ class PressureTensor(Observable):
             # Pressure, Stress Tensor, All
             for i, ax1 in enumerate(dim_lbl):
                 for j, ax2 in enumerate(dim_lbl):
-                    self.dataframe_slices[pt_str_kin + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_kin_temp[i, j, :]
-                    self.dataframe_slices[pt_str_pot + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_pot_temp[i, j, :]
-                    self.dataframe_slices[pt_str + " {}{}_slice {}".format(ax1, ax2, isl)] = pt_temp[i, j, :]
+                    slc_str = f" {ax1}{ax2}_slice {isl}"
+                    col_name = pt_str_kin + slc_str
+                    col_data = pt_kin_temp[i, j, :]
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+                    col_name = pt_str_pot + slc_str
+                    col_data = pt_pot_temp[i, j, :]
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+                    col_name = pt_str + slc_str
+                    col_data = pt_temp[i, j, :]
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             # Calculate the ACF of the thermal fluctuations of the pressure tensor elements
             # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
@@ -2114,26 +2402,31 @@ class PressureTensor(Observable):
 
                             C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
 
+                            slc_str = f" {ax1}{ax2}{ax3}{ax4}_slice {isl}"
                             # Kinetic
-                            self.dataframe_acf_slices[
-                                pt_acf_str_kin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            ] = C_ijkl_kin
+                            col_name = pt_acf_str_kin + slc_str
+                            col_data = C_ijkl_kin
+                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+
                             # Potential
-                            self.dataframe_acf_slices[
-                                pt_acf_str_pot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            ] = C_ijkl_pot
+                            col_name = pt_acf_str_pot + slc_str
+                            col_data = C_ijkl_pot
+                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+
                             # Kin-Pot
-                            self.dataframe_acf_slices[
-                                pt_acf_str_kinpot + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            ] = C_ijkl_kinpot
+                            col_name = pt_acf_str_kinpot + slc_str
+                            col_data = C_ijkl_kinpot
+                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+
                             # Pot-Kin
-                            self.dataframe_acf_slices[
-                                pt_acf_str_potkin + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            ] = C_ijkl_potkin
+                            col_name = pt_acf_str_potkin + slc_str
+                            col_data = C_ijkl_potkin
+                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+
                             # Total
-                            self.dataframe_acf_slices[
-                                pt_acf_str + " {}{}{}{}_slice {}".format(ax1, ax2, ax3, ax4, isl)
-                            ] = C_ijkl
+                            col_name = pt_acf_str + slc_str
+                            col_data = C_ijkl
+                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
             start_slice_step += self.slice_steps * self.dump_step
             end_slice_step += self.slice_steps * self.dump_step
@@ -2337,6 +2630,16 @@ class RadialDistributionFunction(Observable):
     @compute_doc
     def compute(self):
 
+        t0 = self.timer.current()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        self.save_pickle()
+        tend = self.timer.current()
+        time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
+
+    def calc_slices_data(self):
+
         # initialize temporary arrays
         r_values = zeros(self.no_bins)
         bin_vol = zeros(self.no_bins)
@@ -2355,7 +2658,6 @@ class RadialDistributionFunction(Observable):
         self.no_bins = datap["rdf_hist"].shape[0]
         self.dr_rdf = self.rc / self.no_bins
 
-        t0 = self.timer.current()
         # No. of pairs per volume
         for i, sp1 in enumerate(self.species_num):
             pair_density[i, i] = sp1 * (sp1 - 1) / self.box_volume
@@ -2378,31 +2680,48 @@ class RadialDistributionFunction(Observable):
         # Save the ra values for simplicity
         self.ra_values = r_values / self.a_ws
 
-        self.dataframe["Distance"] = r_values
-        self.dataframe_slices["Distance"] = r_values
+        self.dataframe["Interparticle_Distance"] = r_values
+        self.dataframe_slices["Interparticle_Distance"] = r_values
+
+        dump_init = 0
+
         for isl in tqdm(range(self.no_slices), desc="Calculating RDF for slice", disable=not self.verbose):
 
             # Grab the data from the dumps. The -1 is for '0'-indexing
-            dump_no = (isl + 1) * (self.slice_steps - 1) * self.dump_step
-            datap = load_from_restart(self.dump_dir, int(dump_no))
+            dump_end = (isl + 1) * (self.slice_steps - 1) * self.dump_step
+
+            data_init = load_from_restart(self.dump_dir, int(dump_init))
+            data_end = load_from_restart(self.dump_dir, int(dump_end))
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:], i):
                     denom_const = pair_density[i, j] * self.slice_steps * self.dump_step
-                    col_str = "{}-{} RDF_slice {}".format(sp1, sp2, isl)
-                    self.dataframe_slices[col_str] = (
-                        (datap["rdf_hist"][:, i, j] + datap["rdf_hist"][:, j, i]) / denom_const / bin_vol
-                    )
+                    # Each slice should be considered as an independent system.
+                    # The RDF is calculated from the difference between the last dump of the slice and the initial dump
+                    # of the slice
+                    rdf_hist_init = data_init["rdf_hist"][:, i, j] + data_init["rdf_hist"][:, j, i]
+                    rdf_hist_end = data_end["rdf_hist"][:, i, j] + data_end["rdf_hist"][:, j, i]
+                    rdf_hist_slc = rdf_hist_end - rdf_hist_init
+
+                    col_name = f"{sp1}-{sp2} RDF_slice {isl}"
+                    col_data = rdf_hist_slc / denom_const / bin_vol
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+            dump_init = dump_end
+
+    @avg_slice_doc
+    def average_slices_data(self):
 
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:], i):
-                col_str = ["{}-{} RDF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
-                self.dataframe["{}-{} RDF_Mean".format(sp1, sp2)] = self.dataframe_slices[col_str].mean(axis=1)
-                self.dataframe["{}-{} RDF_Std".format(sp1, sp2)] = self.dataframe_slices[col_str].std(axis=1)
+                col_str = [f"{sp1}-{sp2} RDF_slice {isl}" for isl in range(self.no_slices)]
 
-        self.save_hdf()
-        self.save_pickle()
-        tend = self.timer.current()
-        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - t0))
+                col_name = f"{sp1}-{sp2} RDF_Mean"
+                col_data = self.dataframe_slices[col_str].mean(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                col_name = f"{sp1}-{sp2} RDF_Std"
+                col_data = self.dataframe_slices[col_str].std(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
     def compute_sum_rule_integrals(self, potential):
         """
@@ -2440,7 +2759,7 @@ class RadialDistributionFunction(Observable):
             Shape = ( :py:attr:`sarkas.tools.observables.Observable.no_obs`, 3).
 
         """
-        r = self.dataframe["Distance"].iloc[:, 0].to_numpy().copy()
+        r = self.dataframe[("Interparticle", "Distance")].to_numpy().copy()
 
         dims = self.dimensions
         dim_const = 2.0 ** (dims - 2) * pi
@@ -2580,13 +2899,6 @@ class RadialDistributionFunction(Observable):
 
         return hartrees, corrs
 
-    # def pretty_print(self):
-    #     """Print radial distribution function calculation parameters for help in choice of simulation parameters."""
-    #     msg = self.pretty_print_msg()
-    #
-    #     print(msg)
-    #
-
 
 class StaticStructureFactor(Observable):
     """
@@ -2642,22 +2954,32 @@ class StaticStructureFactor(Observable):
     @compute_doc
     def compute(self):
 
+        tinit = self.timer.current()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        time_stamp(
+            self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit), self.verbose
+        )
+
+    @calc_slice_doc
+    def calc_slices_data(self):
+
         self.parse_kt_data(nkt_flag=True)
         no_dumps_calculated = self.slice_steps * self.no_slices
         Sk_avg = zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
 
-        print("\nCalculating S(k) ...")
         k_column = "Inverse Wavelength"
         self.dataframe_slices[k_column] = self.k_values
         self.dataframe[k_column] = self.k_values
 
-        tinit = self.timer.current()
         nkt_df = read_hdf(self.nkt_hdf_file, mode="r", key="nkt")
-        for isl in tqdm(range(self.no_slices)):
+        for isl in tqdm(range(self.no_slices), desc="Calculating SSF for slice", disable=not self.verbose):
             # Initialize container
             nkt = zeros((self.num_species, self.slice_steps, len(self.k_list)), dtype=complex128)
             for sp, sp_name in enumerate(self.species_names):
-                nkt[sp] = array(nkt_df["slice {}".format(isl + 1)][sp_name])
+                nkt[sp] = array(nkt_df[f"slice {isl + 1}"][sp_name])
 
             init = isl * self.slice_steps
             fin = (isl + 1) * self.slice_steps
@@ -2665,21 +2987,24 @@ class StaticStructureFactor(Observable):
             sp_indx = 0
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
-                    column = "{}-{} SSF_slice {}".format(sp1, sp2, isl)
-                    self.dataframe_slices[column] = Sk_avg[sp_indx, :, init:fin].mean(axis=-1)
+                    col_name = f"{sp1}-{sp2} SSF_slice {isl}"
+                    col_data = Sk_avg[sp_indx, :, init:fin].mean(axis=-1).values
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
                     sp_indx += 1
+
+    @avg_slice_doc
+    def average_slices_data(self):
 
         for i, sp1 in enumerate(self.species_names):
             for j, sp2 in enumerate(self.species_names[i:]):
-                column = ["{}-{} SSF_slice {}".format(sp1, sp2, isl) for isl in range(self.no_slices)]
+                column = [f"{sp1}-{sp2} SSF_slice {isl}" for isl in range(self.no_slices)]
+                col_name = f"{sp1}-{sp2} SSF_Mean"
+                col_data = self.dataframe_slices[column].mean(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
-                self.dataframe["{}-{} SSF_Mean".format(sp1, sp2)] = self.dataframe_slices[column].mean(axis=1)
-                self.dataframe["{}-{} SSF_Std".format(sp1, sp2)] = self.dataframe_slices[column].std(axis=1)
-
-        self.save_hdf()
-
-        tend = self.timer.current()
-        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit))
+                col_name = f"{sp1}-{sp2} SSF_Std"
+                col_data = self.dataframe_slices[column].std(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
 
 class Thermodynamics(Observable):
@@ -3120,11 +3445,13 @@ class VelocityAutoCorrelationFunction(Observable):
     def compute(self):
 
         t0 = self.timer.current()
+        # for run_idx, run_id in enumerate(self.runs):
+        #     self.dump_dir = self.dump_dirs_list[run_idx]
         self.calc_slices_data()
         self.average_slices_data()
         self.save_hdf()
         tend = self.timer.current()
-        self.time_stamp(self.__long_name__ + " Calculation", self.timer.time_division(tend - t0))
+        time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
 
     @calc_slice_doc
     def calc_slices_data(self):
@@ -3168,9 +3495,13 @@ class VelocityAutoCorrelationFunction(Observable):
             for i, sp1 in enumerate(self.species_names):
                 sp_vacf_str = f"{sp1} " + self.__name__.swapcase()
                 for d in range(self.dimensions):
-                    self.dataframe_acf_slices[sp_vacf_str + f"_{self.dim_labels[d]}_slice {isl}"] = vacf[i, d, :]
+                    col_name = sp_vacf_str + f"_{self.dim_labels[d]}_slice {isl}"
+                    col_data = vacf[i, d, :]
+                    self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
-                self.dataframe_acf_slices[sp_vacf_str + f"_Total_slice {isl}"] = vacf[i, -1, :]
+                col_name = sp_vacf_str + f"_Total_slice {isl}"
+                col_data = vacf[i, -1, :]
+                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
@@ -3189,11 +3520,16 @@ class VelocityAutoCorrelationFunction(Observable):
                 self.dataframe_acf[sp_vacf_str + f"_{dl}_Std"] = self.dataframe_acf_slices[dcol_str].std(axis=1)
 
             tot_col_str = [sp_vacf_str + f"_Total_slice {isl}" for isl in range(self.no_slices)]
+            col_name = sp_vacf_str + "_Total_Mean"
+            col_data = self.dataframe_acf_slices[tot_col_str].mean(axis=1).values
+            self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
-            self.dataframe_acf[sp_vacf_str + "_Total_Mean"] = self.dataframe_acf_slices[tot_col_str].mean(axis=1)
-            self.dataframe_acf[sp_vacf_str + "_Total_Std"] = self.dataframe_acf_slices[tot_col_str].std(axis=1)
+            col_name = sp_vacf_str + "_Total_Std"
+            col_data = self.dataframe_acf_slices[tot_col_str].std(axis=1).values
+            self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
 
+# TODO: Review and fix this class
 class VelocityDistribution(Observable):
     """
     Moments of the velocity distributions defined as
@@ -3586,7 +3922,9 @@ class VelocityDistribution(Observable):
         self.hierarchical_dataframe.to_hdf(self.filename_hdf, key=self.__name__, encoding="utf-8")
 
         tend = self.timer.current()
-        self.time_stamp("Velocity distribution calculation", self.timer.time_division(tend - tinit))
+        time_stamp(
+            self.log_file, "Velocity distribution calculation", self.timer.time_division(tend - tinit), self.verbose
+        )
 
     def compute_moments(self, parse_data: bool = False, vel_raw: ndarray = None, time: ndarray = None):
         """Calculate and save moments of the distribution.
@@ -3616,7 +3954,7 @@ class VelocityDistribution(Observable):
         tinit = self.timer.current()
         moments, ratios = calc_moments(vel_raw, self.max_no_moment, self.species_index_start)
         tend = self.timer.current()
-        self.time_stamp("Velocity moments calculation", self.timer.time_division(tend - tinit))
+        time_stamp(self.log_file, "Velocity moments calculation", self.timer.time_division(tend - tinit), self.verbose)
 
         # Save the dataframe
         if self.dimensional_average:
@@ -3755,7 +4093,7 @@ class VelocityDistribution(Observable):
         # Save the df in the hierarchical df with a new key/group
         self.hermite_hdf_dataframe.to_hdf(self.filename_hdf, mode="a", key="hermite_coefficients", encoding="utf-8")
 
-        self.time_stamp("Hermite expansion calculation", self.timer.time_division(tend - tinit))
+        time_stamp(self.log_file, "Hermite expansion calculation", self.timer.time_division(tend - tinit), self.verbose)
 
     def pretty_print(self):
         """Print information in a user-friendly way."""
@@ -4079,7 +4417,9 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
 
     # Read particles' position for times in the slice
     nkt = zeros((len(species_np), slices[2], len(k_list)), dtype=complex128)
-    for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
+    for it, dump in enumerate(
+        tqdm(range(slices[0], slices[1], dump_step), desc="Timestep", position=1, disable=not verbose, leave=False)
+    ):
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
         sp_start = 0
@@ -4432,7 +4772,10 @@ def calc_vkt(fldr, slices, dump_step, species_np, k_list, verbose):
     vkt_perp_i = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
     vkt_perp_j = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
     vkt_perp_k = zeros((len(species_np), no_dumps, len(k_list)), dtype=complex128)
-    for it, dump in enumerate(tqdm(range(slices[0], slices[1], dump_step), disable=not verbose)):
+    for it, dump in enumerate(
+        tqdm(range(slices[0], slices[1], dump_step), desc="Timestep", position=1, disable=not verbose, leave=False)
+    ):
+
         data = load_from_restart(fldr, dump)
         pos = data["pos"]
         vel = data["vel"]

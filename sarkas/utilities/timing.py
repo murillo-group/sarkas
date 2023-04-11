@@ -1,8 +1,11 @@
 """
 Module for handling the timing in a MD run.
 """
+import datetime
+import sys
 import time
 from dataclasses import dataclass, field
+from os.path import exists as os_path_exists
 from typing import Optional
 
 from .exceptions import TimerError
@@ -71,3 +74,66 @@ class SarkasTimer:
         t_nsec, _ = divmod(rem_us, 1)
 
         return [t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec]
+
+
+def datetime_stamp(log_file):
+    """Add a Date and Time stamp to log file. If the file exists it appends three paragraph so that it is easier to see
+    the new line.
+
+    Parameters
+    ----------
+    log_file : str
+        Path to file on which date time stamp should be appended to.
+
+    """
+
+    if os_path_exists(log_file):
+        with open(log_file, "a+") as f_log:
+            # Add some space to better distinguish the new beginning
+            print(f"\n\n\n", file=f_log)
+
+    with open(log_file, "a+") as f_log:
+        ct = datetime.datetime.now()
+        print(f"{'':~^80}", file=f_log)
+        print(f"Date: {ct.year} - {ct.month} - {ct.day}", file=f_log)
+        print(f"Time: {ct.hour}:{ct.minute}:{ct.second}", file=f_log)
+        print(f"{'':~^80}\n", file=f_log)
+
+
+def time_stamp(log_file: str, message: str, timing: tuple, print_to_screen: bool = False):
+    """
+    Print out to screen elapsed times. If verbose output, print to file first and then to screen.
+
+    Parameters
+    ----------
+    log_file : str
+        Path to file on which date time stamp should be appended to.
+
+    message : str
+        Message to print.
+
+    timing : tuple
+        Time in hrs, min, sec, msec, usec, nsec.
+
+    print_to_screen : bool
+        Flag for printing the message to screen. Default is False.
+    """
+
+    screen = sys.stdout
+    f_log = open(log_file, "a+")
+    repeat = 2 if print_to_screen else 1
+    t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = timing
+
+    # redirect printing to file
+    sys.stdout = f_log
+    while repeat > 0:
+
+        if t_hrs == 0 and t_min == 0 and t_sec <= 2:
+            print(f"\n{message} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
+        else:
+            print(f"\n{message} Time: {int(t_hrs)} hrs {int(t_min)} min {int(t_sec)} sec")
+
+        repeat -= 1
+        sys.stdout = screen
+
+    f_log.close()

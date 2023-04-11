@@ -173,6 +173,6 @@ def pretty_print_info(potential):
 
     if potential.method != "fmm":
         fmm_msg = f"Short-range cutoff radius: a_rs = {potential.a_rs:.6e} {potential.units_dict['length']}"
-    msg = f"Effective coupling constant: Gamma_eff = {potential.coupling_constant:.2f}"
+    msg = f"Effective coupling constant: Gamma_eff = {potential.coupling_constant:.2f}\n"
 
     print(msg + fmm_msg)

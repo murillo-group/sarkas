@@ -9,17 +9,18 @@ if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
 else:
     from tqdm import tqdm
 
-import datetime
 import sys
 from matplotlib.pyplot import subplots
 from numpy import array, column_stack, pi
 from os import mkdir as os_mkdir
+from os import remove as os_remove
 from os.path import exists as os_path_exists
 from os.path import join as os_path_join
-from pandas import concat, DataFrame, MultiIndex, read_hdf, Series
+from pandas import DataFrame, MultiIndex, read_hdf
 
 from ..utilities.maths import fast_integral_loop
-from ..utilities.timing import SarkasTimer
+from ..utilities.misc import add_col_to_df
+from ..utilities.timing import datetime_stamp, SarkasTimer
 
 # Sarkas Modules
 from .observables import plot_labels, Thermodynamics
@@ -99,35 +100,6 @@ class TransportCoefficients:
         disp += ")"
         return disp
 
-    @staticmethod
-    def add_to_df(df, data, column_name):
-        """Routine to add a column of data to a dataframe.
-
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            Dataframe to which data has to be added.
-
-        data: numpy.ndarray
-            Data to be added.
-
-        column_name: str
-            Name of the column to be added.
-
-        Returns
-        -------
-        _ : pandas.DataFrame
-            Original `df` concatenated with the `data`.
-
-        Note
-        ----
-            It creates a `pandas.Series` from `data` using `df.index`. Then it uses `concat` to add the column.
-
-        """
-        col_data = Series(data, index=df.index)
-
-        return concat([df, col_data.rename(column_name)], axis=1)
-
     def compute_init(self, observable, coeff_name: str = None):
         """
         Initialize the dataframes where to store the data.
@@ -143,7 +115,7 @@ class TransportCoefficients:
         """
         # Write Log File
         self.log_file = os_path_join(self.saving_dir, self.tc_dict[coeff_name]["df_fname"] + "_logfile.out")
-        self.datetime_stamp()
+        datetime_stamp(self.log_file)
 
         self.get_acf_data(observable)
 
@@ -191,21 +163,6 @@ class TransportCoefficients:
         self.saving_dir = os_path_join(saving_dir, self.phase.capitalize())
         if not os_path_exists(self.saving_dir):
             os_mkdir(self.saving_dir)
-
-    def datetime_stamp(self):
-        """Add a Date and Time stamp to log file."""
-
-        if os_path_exists(self.log_file):
-            with open(self.log_file, "a+") as f_log:
-                # Add some space to better distinguish the new beginning
-                print(f"\n\n\n", file=f_log)
-
-        with open(self.log_file, "a+") as f_log:
-            ct = datetime.datetime.now()
-            print(f"{'':~^80}", file=f_log)
-            print(f"Date: {ct.year} - {ct.month} - {ct.day}", file=f_log)
-            print(f"Time: {ct.hour}:{ct.minute}:{ct.second}", file=f_log)
-            print(f"{'':~^80}\n", file=f_log)
 
     def diffusion(self, observable, plot: bool = True, display_plot: bool = False):
         """
@@ -260,11 +217,11 @@ class TransportCoefficients:
                 # Mean
                 col_data = self.diffusion_df_slices[col_str].mean(axis=1).values
                 col_name = f"{sp} Diffusion_Mean"
-                self.diffusion_df = self.add_to_df(self.diffusion_df, col_data, col_name)
+                self.diffusion_df = add_col_to_df(self.diffusion_df, col_data, col_name)
                 # Std
                 col_data = self.diffusion_df_slices[col_str].std(axis=1).values
                 col_name = f"{sp} Diffusion_Std"
-                self.diffusion_df = self.add_to_df(self.diffusion_df, col_data, col_name)
+                self.diffusion_df = add_col_to_df(self.diffusion_df, col_data, col_name)
 
         else:
             # Loop over time slices
@@ -280,7 +237,7 @@ class TransportCoefficients:
 
                     col_data = fast_integral_loop(time=self.time_array, integrand=integrand_par)
                     col_name = f"{sp} Diffusion_Parallel_slice {isl}"
-                    self.diffusion_df_slices = self.add_to_df(self.diffusion_df_slices, col_data, col_name)
+                    self.diffusion_df_slices = add_col_to_df(self.diffusion_df_slices, col_data, col_name)
 
                     # Perpendicular
                     x_vacf_str = (sp_vacf_str, "X", f"slice {isl}")
@@ -292,7 +249,7 @@ class TransportCoefficients:
                     )
                     col_data = fast_integral_loop(time=self.time_array, integrand=integrand_perp)
                     col_name = f"{sp} Diffusion_Perpendicular_slice {isl}"
-                    self.diffusion_df_slices = self.add_to_df(self.diffusion_df_slices, col_data, col_name)
+                    self.diffusion_df_slices = add_col_to_df(self.diffusion_df_slices, col_data, col_name)
 
             # Add the average and std of perp and par VACF to its dataframe
             for isp, sp in enumerate(observable.species_names):
@@ -324,20 +281,20 @@ class TransportCoefficients:
                 # Mean
                 col_data = self.diffusion_df_slices[par_col_str].mean(axis=1).values
                 col_name = sp_diff_str + "_Parallel_Mean"
-                self.diffusion_df = self.add_to_df(self.diffusion_df, col_data, col_name)
+                self.diffusion_df = add_col_to_df(self.diffusion_df, col_data, col_name)
                 # Std
                 col_data = self.diffusion_df_slices[par_col_str].std(axis=1).values
                 col_name = sp_diff_str + "_Parallel_Std"
-                self.diffusion_df = self.add_to_df(self.diffusion_df, col_data, col_name)
+                self.diffusion_df = add_col_to_df(self.diffusion_df, col_data, col_name)
 
                 # Mean
                 col_data = self.diffusion_df_slices[perp_col_str].mean(axis=1).values
                 col_name = sp_diff_str + "_Perpendicular_Mean"
-                self.diffusion_df = self.add_to_df(self.diffusion_df, col_data, col_name)
+                self.diffusion_df = add_col_to_df(self.diffusion_df, col_data, col_name)
                 # Std
                 col_data = self.diffusion_df_slices[perp_col_str].std(axis=1).values
                 col_name = sp_diff_str + "_Perpendicular_Std"
-                self.diffusion_df = self.add_to_df(self.diffusion_df, col_data, col_name)
+                self.diffusion_df = add_col_to_df(self.diffusion_df, col_data, col_name)
 
             # Save the updated dataframe
             observable.save_hdf()
@@ -458,17 +415,17 @@ class TransportCoefficients:
                 integrand = array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
                 col_name = sigma_str + "_slice {}".format(isl)
                 col_data = const * fast_integral_loop(self.time_array, integrand)
-                self.conductivity_df_slices = self.add_to_df(self.conductivity_df_slices, col_data, col_name)
+                self.conductivity_df_slices = add_col_to_df(self.conductivity_df_slices, col_data, col_name)
 
             col_str = [sigma_str + "_slice {}".format(isl) for isl in range(observable.no_slices)]
             # Mean
             col_data = self.conductivity_df_slices[col_str].mean(axis=1).values
             col_name = sigma_str + "_Mean"
-            self.conductivity_df = self.add_to_df(self.conductivity_df, col_data, col_name)
+            self.conductivity_df = add_col_to_df(self.conductivity_df, col_data, col_name)
             # Std
             col_data = self.conductivity_df_slices[col_str].std(axis=1).values
             col_name = sigma_str + "_Std"
-            self.conductivity_df = self.add_to_df(self.conductivity_df, col_data, col_name)
+            self.conductivity_df = add_col_to_df(self.conductivity_df, col_data, col_name)
 
         else:
 
@@ -478,7 +435,7 @@ class TransportCoefficients:
                 integrand = observable.dataframe_acf_slices[par_str].to_numpy()
                 col_data = const * fast_integral_loop(self.time_array, integrand)
                 col_name = sigma_str + f"_Parallel_slice {isl}"
-                self.conductivity_df_slices = self.add_to_df(self.conductivity_df_slices, col_data, col_name)
+                self.conductivity_df_slices = add_col_to_df(self.conductivity_df_slices, col_data, col_name)
 
                 # Perpendicular
                 x_col_str = (jc_str, "X", f"slice {isl}")
@@ -489,7 +446,7 @@ class TransportCoefficients:
                 )
                 col_name = sigma_str + f"_Perpendicular_slice {isl}"
                 col_data = const * fast_integral_loop(self.time_array, perp_integrand)
-                self.conductivity_df_slices = self.add_to_df(self.conductivity_df_slices, col_data, col_name)
+                self.conductivity_df_slices = add_col_to_df(self.conductivity_df_slices, col_data, col_name)
 
             par_col_str = [(jc_str, "Z", f"slice {isl}") for isl in range(self.no_slices)]
             observable.dataframe_acf[(jc_str, "Parallel", "Mean")] = observable.dataframe_acf_slices[par_col_str].mean(
@@ -516,22 +473,22 @@ class TransportCoefficients:
             # Mean
             col_data = self.conductivity_df_slices[col_str].mean(axis=1).values
             col_name = sigma_str + "_Parallel_Mean"
-            self.conductivity_df = self.add_to_df(self.conductivity_df, col_data, col_name)
+            self.conductivity_df = add_col_to_df(self.conductivity_df, col_data, col_name)
             # Std
             col_data = self.conductivity_df_slices[col_str].std(axis=1).values
             col_name = sigma_str + "_Parallel_Std"
-            self.conductivity_df = self.add_to_df(self.conductivity_df, col_data, col_name)
+            self.conductivity_df = add_col_to_df(self.conductivity_df, col_data, col_name)
 
             # Perpendicular
             col_str = [sigma_str + f"_Perpendicular_slice {isl}" for isl in range(observable.no_slices)]
             # Mean
             col_data = sigma_str + "_Perpendicular_Mean"
             col_name = self.conductivity_df_slices[col_str].mean(axis=1).values
-            self.conductivity_df = self.add_to_df(self.conductivity_df, col_data, col_name)
+            self.conductivity_df = add_col_to_df(self.conductivity_df, col_data, col_name)
             # Std
             col_data = sigma_str + "_Perpendicular_Std"
             col_name = self.conductivity_df_slices[col_str].std(axis=1).values
-            self.conductivity_df = self.add_to_df(self.conductivity_df, col_data, col_name)
+            self.conductivity_df = add_col_to_df(self.conductivity_df, col_data, col_name)
 
             # Endif magnetized.
         # Time stamp
@@ -641,7 +598,7 @@ class TransportCoefficients:
 
                 col_data = const * fast_integral_loop(time=self.time_array, integrand=integrand)
                 col_name = id_str + f" {ij}_slice {isl}"
-                self.interdiffusion_df_slices = self.add_to_df(observable, col_data, col_name)
+                self.interdiffusion_df_slices = add_col_to_df(observable, col_data, col_name)
 
         # Average and Std of slices
         for ij in range(no_fluxes_acf):
@@ -649,11 +606,11 @@ class TransportCoefficients:
             # Mean
             col_data = self.interdiffusion_df_slices[col_str].mean(axis=1).values
             col_name = id_str + f" {ij}_Mean"
-            self.interdiffusion_df = self.add_to_df(observable, col_data, col_name)
+            self.interdiffusion_df = add_col_to_df(observable, col_data, col_name)
             # Mean
             col_data = self.interdiffusion_df_slices[col_str].std(axis=1).values
             col_name = id_str + f" {ij}_Std"
-            self.interdiffusion_df = self.add_to_df(observable, col_data, col_name)
+            self.interdiffusion_df = add_col_to_df(observable, col_data, col_name)
 
         # Save
         self.interdiffusion_df, self.interdiffusion_df_slices = self.save_hdf(
@@ -892,7 +849,7 @@ class TransportCoefficients:
             f"\n\n{tc_name:=^70}\n"
             f"Data saved in: \n {data_loc} \n {data_slices_loc} \n"
             f"No. of slices = {self.no_slices}\n"
-            f"No. dumps per slice = {int(self.slice_steps / self.dump_step)}\n"
+            f"No. dumps per slice = {int(self.slice_steps)}\n"
             f"Total time interval of autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n"
             f"Time interval step: dtau = {dtau:.4e} ~ {dtau / t_wp:.4e} plasma period"
         )
@@ -938,21 +895,30 @@ class TransportCoefficients:
 
         df_slices.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in df_slices.columns])
         df_slices = df_slices.sort_index()
+
+        df_slices_fname = os_path_join(
+            self.saving_dir, self.tc_dict[tc_name]["df_fname"] + "_slices_" + self.job_id + ".h5"
+        )
+
+        # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.
+        # Save the data.
+        if os_path_exists(df_slices_fname):
+            os_remove(df_slices_fname)
         df_slices.to_hdf(
-            os_path_join(self.saving_dir, self.tc_dict[tc_name]["df_fname"] + "_slices_" + self.job_id + ".h5"),
+            df_slices_fname,
             mode="w",
             key=tc_name,
             index=False,
         )
 
+        df_fname = os_path_join(self.saving_dir, self.tc_dict[tc_name]["df_fname"] + "_" + self.job_id + ".h5")
+        # Save the data.
+        if os_path_exists(df_fname):
+            os_remove(df_fname)
+
         df.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in df.columns])
         df = df.sort_index()
-        df.to_hdf(
-            os_path_join(self.saving_dir, self.tc_dict[tc_name]["df_fname"] + "_" + self.job_id + ".h5"),
-            mode="w",
-            key=tc_name,
-            index=False,
-        )
+        df.to_hdf(df_fname, mode="w", key=tc_name, index=False)
 
         return df, df_slices
 
@@ -1064,7 +1030,7 @@ class TransportCoefficients:
 
             col_name = f"Bulk Viscosity_slice {isl}"
             col_data = const * fast_integral_loop(self.time_array, integrand)
-            self.viscosity_df_slices = self.add_to_df(self.viscosity_df_slices, col_data, col_name)
+            self.viscosity_df_slices = add_col_to_df(self.viscosity_df_slices, col_data, col_name)
 
             # Calculate the Shear Viscosity Elements
             for _, ax1 in enumerate(dim_lbl):
@@ -1074,7 +1040,7 @@ class TransportCoefficients:
                         integrand = observable.dataframe_acf_slices[pt_str_temp].to_numpy()
                         col_name = eta_str + f" {ax1}{ax2}_slice {isl}".format(ax1, ax2, isl)
                         col_data = const * fast_integral_loop(self.time_array, integrand)
-                        self.viscosity_df_slices = self.add_to_df(self.viscosity_df_slices, col_data, col_name)
+                        self.viscosity_df_slices = add_col_to_df(self.viscosity_df_slices, col_data, col_name)
 
             start_steps += observable.slice_steps
 
@@ -1083,11 +1049,11 @@ class TransportCoefficients:
 
         col_name = "Bulk Viscosity_Mean"
         col_data = self.viscosity_df_slices[col_str].mean(axis=1).values
-        self.viscosity_df = self.add_to_df(self.viscosity_df, col_data, col_name)
+        self.viscosity_df = add_col_to_df(self.viscosity_df, col_data, col_name)
 
         col_name = "Bulk Viscosity_Std"
         col_data = self.viscosity_df_slices[col_str].std(axis=1).values
-        self.viscosity_df = self.add_to_df(self.viscosity_df, col_data, col_name)
+        self.viscosity_df = add_col_to_df(self.viscosity_df, col_data, col_name)
 
         for _, ax1 in enumerate(dim_lbl):
             for _, ax2 in enumerate(dim_lbl):
@@ -1095,20 +1061,20 @@ class TransportCoefficients:
                     col_str = [eta_str + f" {ax1}{ax2}_slice {isl}" for isl in range(observable.no_slices)]
                     col_name = eta_str + f" {ax1}{ax2}_Mean"
                     col_data = self.viscosity_df_slices[col_str].mean(axis=1).values
-                    self.viscosity_df = self.add_to_df(self.viscosity_df, col_data, col_name)
+                    self.viscosity_df = add_col_to_df(self.viscosity_df, col_data, col_name)
 
                     col_name = eta_str + f" {ax1}{ax2}_Std"
                     col_data = self.viscosity_df_slices[col_str].std(axis=1).values
-                    self.viscosity_df = self.add_to_df(self.viscosity_df, col_data, col_name)
+                    self.viscosity_df = add_col_to_df(self.viscosity_df, col_data, col_name)
 
         list_coord = ["xy", "xz", "yx", "yz", "zx", "zy"]
         col_str = [eta_str + f" {coord}_Mean" for coord in list_coord]
         # Mean
         col_data = self.viscosity_df[col_str].mean(axis=1).values
-        self.viscosity_df = self.add_to_df(self.viscosity_df, col_data, "Shear Viscosity_Mean")
+        self.viscosity_df = add_col_to_df(self.viscosity_df, col_data, "Shear Viscosity_Mean")
         # Std
         col_data = self.viscosity_df[col_str].std(axis=1).values
-        self.viscosity_df = self.add_to_df(self.viscosity_df, col_data, "Shear Viscosity_Std")
+        self.viscosity_df = add_col_to_df(self.viscosity_df, col_data, "Shear Viscosity_Std")
 
         # Time stamp
         tend = self.timer.current()

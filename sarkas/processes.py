@@ -53,7 +53,7 @@ from .tools.observables import (
 )
 
 # Sarkas modules
-from .utilities.io import InputOutput
+from .utilities.io import InputOutput, pretty_print
 from .utilities.maths import force_error_analytic_pp, force_error_approx_pppm
 from .utilities.timing import SarkasTimer
 
@@ -1083,27 +1083,33 @@ class PreProcess(Process):
     def postproc_estimates(self):
 
         # POST- PROCESSING
-        self.io.postprocess_info(self, write_to_file=True, observable="header")
+        self.io.postprocess_info(self, observable="header")
+        # Header of process
+        process_title = f"{'PostProcessing':^80}"
+        msg = f"{'':*^80}\n {process_title} \n{'':*^80}"
+        pretty_print(msg, self.parameters.log_file, self.parameters.verbose)
 
         if hasattr(self, "rdf"):
             self.rdf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="rdf")
+            msg += self.rdf.pretty_print_msg()
 
         if hasattr(self, "ssf"):
             self.ssf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="ssf")
+            msg += self.ssf.pretty_print_msg()
 
         if hasattr(self, "dsf"):
             self.dsf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="dsf")
+            msg += self.dsf.pretty_print_msg()
 
         if hasattr(self, "ccf"):
             self.ccf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="ccf")
+            msg += self.ccf.pretty_print_msg()
 
         if hasattr(self, "vm"):
             self.ccf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="vm")
+            msg += self.vm.pretty_print_msg()
+
+        pretty_print(msg, self.parameters.log_file, self.parameters.verbose)
 
     def pppm_approximation(self):
         """

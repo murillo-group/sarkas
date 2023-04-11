@@ -595,6 +595,7 @@ class InputOutput:
             mkdir(self.postprocessing_dir)
 
     def postprocess_info(self, simulation, observable=None):
+        pass
         """
         Print Post-processing info to file in a reader-friendly format.
 
@@ -608,7 +609,6 @@ class InputOutput:
             Choices = ['header','rdf', 'ccf', 'dsf', 'ssf', 'vm']
 
         """
-        pass
         # choices = ["header", "rdf", "ccf", "dsf", "ssf", "vd", "vacf", "p_tensor", "ec", "diff_flux"]
         # msg = (
         #     "Observable not defined.\n"
@@ -638,7 +638,7 @@ class InputOutput:
         #     # Header of process
         #     process_title = f"{self.process.capitalize():^80}"
         #     print(f"{'':*^80}\n {process_title} \n{'':*^80}")
-        #
+
         # elif observable == "rdf":
         #     msg = simulation.rdf.pretty_print_msg()
         # elif observable == "ssf":
@@ -1261,3 +1261,20 @@ def convert_bytes(tot_bytes):
     KB, rem = divmod(rem, 1024)
 
     return [GB, MB, KB, rem]
+
+
+def pretty_print(msg, log_file, print_to_screen: bool = False):
+    """Print observable useful info to log file and to screen if `self.verbose` is `True`."""
+
+    screen = sys.stdout
+    f_log = open(log_file, "a+")
+    repeat = 2 if print_to_screen else 1
+
+    # redirect printing to file
+    sys.stdout = f_log
+    while repeat > 0:
+        print(msg)
+        repeat -= 1
+        sys.stdout = screen
+
+    f_log.close()

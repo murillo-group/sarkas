@@ -546,7 +546,7 @@ class Particles:
 
         return K, T
 
-    def lattice(self, perturb):
+    def lattice(self, perturb: float = 0.05):
         """
         Place particles in a simple cubic lattice with a slight perturbation ranging
         from 0 to 0.5 times the lattice spacing.
@@ -554,13 +554,14 @@ class Particles:
         Parameters
         ----------
         perturb : float
-            Value of perturbation, p, such that 0 <= p <= 1.
+            Value of perturbation, p, such that 0 <= p <= 0.5. Default = 0.05
 
         """
 
         # Check if perturbation is below maximum allowed. If not, default to maximum perturbation.
-        if perturb > 1:
-            warn("Random perturbation must not exceed 1. Setting perturb = 1.", category=ParticlesWarning)
+        if perturb > 0.5:
+            warn("Random perturbation must not exceed 0.5. Setting perturb = 0.5", category=ParticlesWarning)
+            perturb = 0.5
 
         if self.lattice_type == "simple_cubic":
             # Determining number of particles per side of simple cubic lattice
