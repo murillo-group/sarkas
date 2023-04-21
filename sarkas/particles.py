@@ -597,6 +597,47 @@ class Particles:
             self.pos[:, 1] = Y.ravel() + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
             self.pos[:, 2] = Z.ravel() + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
 
+        elif self.lattice_type == "bcc":
+            # Determining number of particles per side of simple cubic lattice
+            part_per_side = int(0.5 * self.total_num_ptcls) ** (
+                1.0 / 3.0
+            )  # Number of particles per side of cubic lattice
+
+            # Check if total number of particles is a perfect cube, if not, place more than the requested amount
+            if round(part_per_side) ** 3 != int(0.5 * self.total_num_ptcls):
+                part_per_side = rint((0.5 * self.total_num_ptcls) ** (1.0 / 3.0))
+                raise ParticlesError(
+                    f"N = {self.total_num_ptcls} cannot be placed in a bcc lattice. "
+                    f"Use {int(2.0*part_per_side ** 3)} particles instead."
+                )
+
+            dx_lattice = self.pbox_lengths[0] / (0.5 * self.total_num_ptcls) ** (1.0 / 3.0)  # Lattice spacing
+            dy_lattice = self.pbox_lengths[1] / (0.5 * self.total_num_ptcls) ** (1.0 / 3.0)  # Lattice spacing
+            dz_lattice = self.pbox_lengths[2] / (0.5 * self.total_num_ptcls) ** (1.0 / 3.0)  # Lattice spacing
+
+            # Create x, y, and z position arrays
+            x = arange(0, self.pbox_lengths[0], dx_lattice) + 0.5 * dx_lattice
+            y = arange(0, self.pbox_lengths[1], dy_lattice) + 0.5 * dy_lattice
+            z = arange(0, self.pbox_lengths[2], dz_lattice) + 0.5 * dz_lattice
+
+            # Create a lattice with appropriate x, y, and z values based on arange
+            X, Y, Z = meshgrid(x, y, z)
+
+            # Perturb lattice
+            X += self.rnd_gen.uniform(-0.5, 0.5, X.shape) * perturb * dx_lattice
+            Y += self.rnd_gen.uniform(-0.5, 0.5, Y.shape) * perturb * dy_lattice
+            Z += self.rnd_gen.uniform(-0.5, 0.5, Z.shape) * perturb * dz_lattice
+
+            half_Np = int(self.total_num_ptcls / 2)
+            # Flatten the meshgrid values for plotting and computation
+            self.pos[:half_Np, 0] = X.ravel() + self.box_lengths[0] / 2 - self.pbox_lengths[0] / 2
+            self.pos[:half_Np, 1] = Y.ravel() + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
+            self.pos[:half_Np, 2] = Z.ravel() + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
+
+            self.pos[half_Np:, 0] = X.ravel() + 0.5 * dx_lattice + self.box_lengths[0] / 2 - self.pbox_lengths[0] / 2
+            self.pos[half_Np:, 1] = Y.ravel() + 0.5 * dy_lattice + self.box_lengths[1] / 2 - self.pbox_lengths[1] / 2
+            self.pos[half_Np:, 2] = Z.ravel() + 0.5 * dz_lattice + self.box_lengths[2] / 2 - self.pbox_lengths[2] / 2
+
         elif self.lattice_type in ["square", "tetragonal_2D"]:
             # Determining number of particles per side of simple cubic lattice
             part_per_side = rint(sqrt(self.total_num_ptcls))  # Number of particles per side of a square lattice
