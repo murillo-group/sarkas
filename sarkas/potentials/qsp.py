@@ -140,9 +140,6 @@ def update_params(potential, species):
             if sp1.name == "e" or sp2.name == "e":
                 # Use electron temperature in e-e and e-i interactions
                 lambda_deB = sqrt(deBroglie_const / (reduced * species[0].temperature))
-            else:
-                # Use ion temperature in i-i interactions only
-                lambda_deB = sqrt(deBroglie_const / (reduced * total_ion_temperature))
 
                 # Pauli term only for e-e interaction
                 if sp1.name == sp2.name:  # e-e
@@ -153,6 +150,10 @@ def update_params(potential, species):
                     else:
                         potential.matrix[2, i, j] = -potential.kB * sp1.temperature
                         potential.matrix[3, i, j] = TWOPI / (lambda_deB**2)
+
+            else:
+                # Use ion temperature in i-i interactions only
+                lambda_deB = sqrt(deBroglie_const / (reduced * total_ion_temperature))
 
             potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
             potential.matrix[1, i, j] = TWOPI / lambda_deB

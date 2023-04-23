@@ -373,7 +373,7 @@ class Potential:
             inv_halpha = (1.0 / halpha).astype(int)
 
             pppm_msg = (
-                f"Charge assignment orders: {self.pppm_cao}\n "
+                f"Charge assignment orders: {self.pppm_cao}\n"
                 f"FFT aliases: {self.pppm_aliases}\n"
                 f"Mesh: {self.pppm_mesh}\n"
                 f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} {self.units_dict['inverse length']}\n"
@@ -613,11 +613,11 @@ class Potential:
             ptcls.rdf_hist,
         )
 
-        if self.type != "lj":
-            # Mie Energy of charged systems
-            # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
-            dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
+        # if self.type != "lj":
+        #     # Mie Energy of charged systems
+        #     # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
+        #     dipole = ptcls.charges @ ptcls.pos
+        #     ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_brute(self, ptcls):
         """
@@ -640,11 +640,11 @@ class Potential:
             self.measure,
             ptcls.rdf_hist,
         )
-        if self.type != "lj":
-            # Mie Energy of charged systems
-            # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
-            dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
+        # if self.type != "lj":
+        #     # Mie Energy of charged systems
+        #     # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
+        #     dipole = ptcls.charges @ ptcls.pos
+        #     ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_pm(self, ptcls):
         """Calculate the pm part of the potential and acceleration.

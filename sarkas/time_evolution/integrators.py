@@ -1058,7 +1058,7 @@ class Integrator:
         time_msg = (
             f"Time step = {self.dt:.6e} {self.units_dict['time']}\n"
             f"Total plasma frequency = {wp_tot:.6e} {self.units_dict['frequency']}\n"
-            f"w_p dt = {wp_dt:.4f} [rad] = {wp_dt/(2.0 * pi):.4f}\n"
+            f"w_p dt = {wp_dt:.4e} [rad] = {wp_dt/(2.0 * pi):.4e}\n"
             f"Timesteps per plasma cycle = {int(2.0 * pi/wp_dt)} \n"
         )
         integrator_msg += time_msg
@@ -1068,9 +1068,9 @@ class Integrator:
             qsp_msg = (
                 f"e plasma frequency = {wp_e:.6e} {self.units_dict['frequency']}\n"
                 f"total ion plasma frequency = {wp_ions:.6e} {self.units_dict['frequency']}\n"
-                f"w_pe dt = {self.dt * wp_e:.4f} [rad] = {self.dt * wp_e/(2.0*pi):.4f}\n"
+                f"w_pe dt = {self.dt * wp_e:.4e} [rad] = {self.dt * wp_e/(2.0*pi):.4e}\n"
                 f"Timesteps per e plasma cycle = {int(2.0 * pi / (self.dt * wp_e))}\n"
-                f"w_pi dt = {self.dt * wp_ions:.4f} [rad]  = {self.dt * wp_ions/(2.0*pi):.4f}\n"
+                f"w_pi dt = {self.dt * wp_ions:.4e} [rad]  = {self.dt * wp_ions/(2.0*pi):.4e}\n"
                 f"Timesteps per i plasma cycle = {int(2.0 * pi / (self.dt * wp_ions))} \n"
             )
             integrator_msg += qsp_msg

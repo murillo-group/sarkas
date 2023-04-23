@@ -2133,7 +2133,7 @@ class ElectricCurrent(Observable):
                 col_name = col_str_acf + f"_{dl}_Mean"
                 self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
-                col_data = self.dataframe_acf_slices[dim_col_str_acf].Std(axis=1).values
+                col_data = self.dataframe_acf_slices[dim_col_str_acf].std(axis=1).values
                 col_name = col_str_acf + f"_{dl}_Std"
                 self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
@@ -3066,19 +3066,19 @@ class Thermodynamics(Observable):
 
         .. math::
 
-            U_{AB}^{\\rm hartree} =  2 \\pi \\frac{N_iN_j}{V} \\int_0^\\infty dr \\, \\phi_{AB}(r) r^2 dr,
+            U_{AB}^{\\rm hartree} =  2 \\pi \\frac{N_AN_B}{V} \\int_0^\\infty dr \\, \\phi_{AB}(r) r^2 dr,
 
         .. math::
 
-            U_{AB}^{\\rm corr} =  2 \\pi \\frac{N_iN_j}{V} \\int_0^\\infty dr \\, \\phi_{AB}(r) h(r) r^2 dr,
+            U_{AB}^{\\rm corr} =  2 \\pi \\frac{N_AN_B}{V} \\int_0^\\infty dr \\, \\phi_{AB}(r) h(r) r^2 dr,
 
         .. math::
 
-            P_{AB}^{\\rm hartree} =  - \\frac{2 \\pi}{3} \\frac{N_iN_j}{V^2} \\int_0^\\infty dr \\, \\frac{d\\phi_{AB}(r)}{dr} r^3 dr,
+            P_{AB}^{\\rm hartree} =  - \\frac{2 \\pi}{3} \\frac{N_AN_B}{V^2} \\int_0^\\infty dr \\, \\frac{d\\phi_{AB}(r)}{dr} r^3 dr,
 
         .. math::
 
-            P_{AB}^{\\rm corr} =  - \\frac{2 \\pi}{3} \\frac{N_iN_j}{V^2} \\int_0^\\infty dr \\, \\frac{d\\phi_{AB}(r)}{dr} h(r) r^3 dr,
+            P_{AB}^{\\rm corr} =  - \\frac{2 \\pi}{3} \\frac{N_AN_B}{V^2} \\int_0^\\infty dr \\, \\frac{d\\phi_{AB}(r)}{dr} h(r) r^3 dr,
 
 
         Parameters

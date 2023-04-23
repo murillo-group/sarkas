@@ -291,7 +291,7 @@ class Process:
 
         self.threads_ls.clear()
 
-    def initialization(self) -> None:
+    def initialization(self):
         """Initialize all classes."""
 
         # initialize the directories and filenames
@@ -920,8 +920,8 @@ class PreProcess(Process):
         # else:
         #     minv = total_force_error.min()
         # total_force_error[total_force_error == 0.0] = minv
-        CS = ax.contourf(a_mesh, r_mesh, total_force_error, norm=LogNorm())
-        CS2 = ax.contour(CS, colors="w")
+        CS = ax.pcolormesh(a_mesh, r_mesh, total_force_error, shading="auto", norm=LogNorm())
+        CS2 = ax.contour(a_mesh, r_mesh, total_force_error, levels=10, colors="w", norm=LogNorm())
         ax.clabel(CS2, fmt="%1.0e", colors="w")
         ax.scatter(chosen_alpha, chosen_rcut, s=200, c="k")
         if rcuts[-1] * self.parameters.a_ws > 0.5 * self.parameters.box_lengths.min():
