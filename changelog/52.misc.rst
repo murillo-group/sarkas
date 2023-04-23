@@ -4,4 +4,6 @@ added a method for using multithreading to save data in the Process class
 added a method for saving potfit configuration files
 added log file writing for observables and transport
 added timestamp to log files
+removed mie energy calculation
+improved the colormap of make_pppm_color_map in PreProcess
 bug fixes
