@@ -130,26 +130,26 @@ class TransportCoefficients:
             if coeff_name == self.tc_names[0]:
                 self.conductivity_df = DataFrame()
                 self.conductivity_df_slices = DataFrame()
-                self.conductivity_df["Time"] = self.time_array.copy()
-                self.conductivity_df_slices["Time"] = self.time_array.copy()
+                self.conductivity_df["Integration_Interval"] = self.time_array.copy()
+                self.conductivity_df_slices["Integration_Interval"] = self.time_array.copy()
 
             elif coeff_name == self.tc_names[1]:
                 self.diffusion_df = DataFrame()
                 self.diffusion_df_slices = DataFrame()
-                self.diffusion_df["Time"] = self.time_array.copy()
-                self.diffusion_df_slices["Time"] = self.time_array.copy()
+                self.diffusion_df["Integration_Interval"] = self.time_array.copy()
+                self.diffusion_df_slices["Integration_Interval"] = self.time_array.copy()
 
             elif coeff_name == self.tc_names[2]:
                 self.interdiffusion_df = DataFrame()
                 self.interdiffusion_df_slices = DataFrame()
-                self.interdiffusion_df["Time"] = self.time_array.copy()
-                self.interdiffusion_df_slices["Time"] = self.time_array.copy()
+                self.interdiffusion_df["Integration_Interval"] = self.time_array.copy()
+                self.interdiffusion_df_slices["Integration_Interval"] = self.time_array.copy()
 
             elif coeff_name == self.tc_names[3]:
                 self.viscosity_df = DataFrame()
                 self.viscosity_df_slices = DataFrame()
-                self.viscosity_df["Time"] = self.time_array.copy()
-                self.viscosity_df_slices["Time"] = self.time_array.copy()
+                self.viscosity_df["Integration_Interval"] = self.time_array.copy()
+                self.viscosity_df_slices["Integration_Interval"] = self.time_array.copy()
         else:
             raise ValueError("Wrong tc_name. Please choose amongst ", self.tc_names)
 

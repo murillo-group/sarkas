@@ -671,8 +671,9 @@ class Potential:
         )
         # Ewald Self-energy
         U_long += self.QFactor * self.pppm_alpha_ewald / sqrt(pi)
+
         # Neutrality condition
-        U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
+        # U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
 
         ptcls.potential_energy += U_long
 

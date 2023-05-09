@@ -1607,7 +1607,7 @@ class CurrentCorrelationFunction(Observable):
 
     def parse(self, longitudinal: bool = False, transverse: bool = False):
 
-        if longitudinal:
+        if longitudinal and not transverse:
             try:
                 self.dataframe_longitudinal = read_hdf(self.filename_hdf_longitudinal, mode="r", index_col=False)
 
@@ -1621,7 +1621,7 @@ class CurrentCorrelationFunction(Observable):
                 pretty_print(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=longitudinal)
 
-        elif transverse:
+        elif transverse and not longitudinal:
 
             try:
                 self.dataframe_transverse = read_hdf(self.filename_hdf_transverse, mode="r", index_col=False)
@@ -1635,9 +1635,26 @@ class CurrentCorrelationFunction(Observable):
                 msg = f"\nFile {self.filename_hdf_transverse} not found!\nComputing transverse ccf ..."
                 pretty_print(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=False, transverse=True)
+
+        elif longitudinal and transverse:
+
+            try:
+                self.dataframe_longitudinal = read_hdf(self.filename_hdf_longitudinal, mode="r", index_col=False)
+                self.dataframe_transverse = read_hdf(self.filename_hdf_transverse, mode="r", index_col=False)
+
+                k_data = load(self.k_file)
+                self.k_list = k_data["k_list"]
+                self.k_counts = k_data["k_counts"]
+                self.ka_values = k_data["ka_values"]
+
+            except FileNotFoundError:
+                msg = f"\nFile {self.filename_hdf_longitudinal} or {self.filename_hdf_transverse} not found!\nComputing all ccf ..."
+                pretty_print(msg, self.log_file, self.verbose)
+                self.compute(longitudinal=True, transverse=True)
+
         else:
             msg = (
-                "Direction not define. Call the method with either option set to true."
+                "Direction not defined. Call the method with either option set to true."
                 "\nlongitudinal = True/False, transverse = True/False"
             )
             pretty_print(msg, self.log_file, self.verbose)
@@ -1886,7 +1903,7 @@ class DynamicStructureFactor(Observable):
     The species dependent DSF :math:`S_{AB}(k,\\omega)` is calculated from
 
     .. math::
-        S_{AB }(k,\\omega) = \\int_0^\\infty dt \\,
+        S_{AB}(k,\\omega) = \\int_0^\\infty dt \\,
         \\left \\langle | n_{A}( \\mathbf k, t)n_{B}( -\\mathbf k, t) \\right \\rangle e^{i \\omega t},
 
     where the microscopic density of species :math:`A` with number of particles :math:`N_{A}` is given by
@@ -2907,7 +2924,7 @@ class StaticStructureFactor(Observable):
     The species dependent SSF :math:`S_{AB}(\\mathbf k)` is calculated from
 
     .. math::
-        S_{AB }(\\mathbf k) = \\int_0^\\infty dt \\,
+        S_{AB}(\\mathbf k) = \\int_0^\\infty dt \\,
         \\left \\langle | n_{A}( \\mathbf k, t)n_{B}( -\\mathbf k, t) \\right \\rangle,
 
     where the microscopic density of species :math:`A` with number of particles :math:`N_{A}` is given by
@@ -2970,7 +2987,7 @@ class StaticStructureFactor(Observable):
         no_dumps_calculated = self.slice_steps * self.no_slices
         Sk_avg = zeros((self.no_obs, len(self.k_counts), no_dumps_calculated))
 
-        k_column = "Inverse Wavelength"
+        k_column = "Wavenumber_k"
         self.dataframe_slices[k_column] = self.k_values
         self.dataframe[k_column] = self.k_values
 
@@ -2988,7 +3005,7 @@ class StaticStructureFactor(Observable):
             for i, sp1 in enumerate(self.species_names):
                 for j, sp2 in enumerate(self.species_names[i:]):
                     col_name = f"{sp1}-{sp2} SSF_slice {isl}"
-                    col_data = Sk_avg[sp_indx, :, init:fin].mean(axis=-1).values
+                    col_data = Sk_avg[sp_indx, :, init:fin].mean(axis=-1)
                     self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
                     sp_indx += 1
 
@@ -3222,7 +3239,7 @@ class Thermodynamics(Observable):
 
         else:
 
-            gs = GridSpec(4, 8)
+            gs = GridSpec(3, 8)
 
             Info_plot = fig.add_subplot(gs[0:4, 0:2])
             # Temperature plots
@@ -3233,6 +3250,7 @@ class Thermodynamics(Observable):
             E_delta_plot = fig.add_subplot(gs[0, 5:7])
             E_main_plot = fig.add_subplot(gs[1:4, 5:7])
             E_hist_plot = fig.add_subplot(gs[1:4, 7])
+
         # Grab the current rcParams so that I can restore it later
         current_rcParams = plt.rcParams.copy()
         # Update rcParams with the necessary values
@@ -3277,27 +3295,33 @@ class Thermodynamics(Observable):
         # The Temperature fluctuations in an NVT ensemble are
         # < delta T^2> = T_desired^2 *( 2 /(Np * Dims))
         T_std = T_desired * sqrt(2.0 / (process.parameters.total_num_ptcls * process.parameters.dimensions))
-
         T_dist = scp_stats.norm(loc=T_desired, scale=T_std)
         # Histogram plot
         sns_histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
         T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[], ylim=T_main_plot.get_ylim())
         T_hist_plot.plot(T_dist.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1])
-
-        # ------------------------------------------- Total Energy -------------------------------------------#
-        # Calculate Energy plot's labels and multipliers
-        time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
-            self.dataframe["Time"], self.dataframe["Total Energy"], "Time", "Energy", self.units
-        )
         if self.phase == "equilibration":
             T_main_plot.set(ylim=(T_desired * 0.85, T_desired * 1.15))
             T_hist_plot.set(ylim=(T_desired * 0.85, T_desired * 1.15))
-        Energy = energy_mul * self.dataframe["Total Energy"]
+
+        # ------------------------------------------- Total Energy -------------------------------------------#
+        # Calculate Energy plot's labels and multipliers
+        factor = process.parameters.J2erg if process.parameters.units == "mks" else 1.0 / process.parameters.J2erg
+
+        Energy = self.dataframe["Total Energy"] * factor / process.parameters.eV2J  # Energy in [eV]
+        time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
+            self.dataframe["Time"], Energy, "Time", "ElectronVolt", self.units
+        )
+        Energy *= energy_mul
         # Total Energy moving average
         E_cumavg = Energy.expanding().mean()
         # Total Energy Deviation and its moving average
         Delta_E = (Energy - Energy.iloc[0]) * 100 / Energy.iloc[0]
         Delta_E_cum_avg = Delta_E.expanding().mean()
+        # Deviation Plot
+        E_delta_plot.plot(time, Delta_E, alpha=0.5)
+        E_delta_plot.plot(time, Delta_E_cum_avg, alpha=0.8)
+        E_delta_plot.set(xticks=[], ylabel=r"Deviation [%]")
 
         # Energy main plot
         E_main_plot.plot(time, Energy, alpha=0.7)
@@ -3306,17 +3330,13 @@ class Thermodynamics(Observable):
         E_main_plot.legend(loc="best")
         E_main_plot.set(ylabel="Total Energy" + energy_lbl, xlabel="Time" + time_lbl)
 
-        # Deviation Plot
-        E_delta_plot.plot(time, Delta_E, alpha=0.5)
-        E_delta_plot.plot(time, Delta_E_cum_avg, alpha=0.8)
-        E_delta_plot.set(xticks=[], ylabel=r"Deviation [%]")
+        # Histogram plot
 
         # (Failed) Attempt to calculate the theoretical Energy distribution
         # In an NVT ensemble Energy fluctuation are given by sigma(E) = sqrt( k_B T^2 C_v)
         # where C_v is the isothermal heat capacity
         # Since this requires a lot of prior calculation I skip it and just make a Gaussian
         E_dist = scp_stats.norm(loc=Energy.mean(), scale=Energy.std())
-        # Histogram plot
         sns_histplot(y=Energy, bins="auto", stat="density", alpha=0.75, legend="False", ax=E_hist_plot)
         # Grab the second color since the first is used for histplot
         E_hist_plot.plot(E_dist.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
@@ -3348,6 +3368,9 @@ class Thermodynamics(Observable):
 
             y_coord -= 0.25
             delta_t = dt_mul * process.integrator.dt
+            # Plasma Period
+            t_wp = 2.0 * pi / process.parameters.total_plasma_frequency
+            # Print some info to the left
             if info_list is None:
                 integrator_type = {
                     "equilibration": process.integrator.equilibration_type,
@@ -3361,17 +3384,16 @@ class Thermodynamics(Observable):
                     info_list.append(f"Thermostat: {process.integrator.thermostat_type}")
                     info_list.append(f"  Berendsen rate = {process.integrator.thermalization_rate:.2f}")
 
-                eq_cycles = int(
-                    process.parameters.equilibration_steps
-                    * process.integrator.dt
-                    * process.parameters.total_plasma_frequency
-                )
+                eq_cycles = int(process.parameters.equilibration_steps * process.integrator.dt / t_wp)
                 # calculate the actual coupling constant
                 t_ratio = self.T_desired / self.dataframe["Temperature"].mean()
+                coupling_constant = (
+                    self.dataframe["Potential Energy"].mean() / self.dataframe["Total Kinetic Energy"].mean()
+                )
                 to_append = [
                     f"Equilibration cycles = {eq_cycles}",
                     f"Potential: {process.potential.type}",
-                    f"  Eff Coupl Const = {process.parameters.coupling_constant * t_ratio:.2e}",
+                    f"  Eff Coupl Const = {coupling_constant:.2e}",
                     f"  Tot Force Error = {process.potential.force_error:.2e}",
                     f"Integrator: {integrator_type[self.phase]}",
                 ]
@@ -3379,14 +3401,11 @@ class Thermodynamics(Observable):
                 if integrator_type[self.phase] == "langevin":
                     info_list.append(f"langevin gamma = {process.integrator.langevin_gamma:.4e}")
 
-                prod_cycles = int(
-                    process.parameters.production_steps
-                    * process.integrator.dt
-                    * process.parameters.total_plasma_frequency
-                )
+                prod_cycles = int(process.parameters.production_steps * process.integrator.dt / t_wp)
 
                 to_append = [
-                    f"  $\Delta t$ = {delta_t:.2f} {dt_lbl}",
+                    r"  Plasma period $\tau_{\omega_p}$ = " + f"{t_wp*dt_mul:.2f} {dt_lbl}",
+                    f"  $\Delta t$ = {delta_t:.2f} {dt_lbl} = {delta_t/t_wp/dt_mul:.2e}" + r"$\tau_{\omega_p}$",
                     # "Step interval = {}".format(self.dump_step),
                     # "Step interval time = {:.2f} {}".format(self.dump_step * delta_t, dt_lbl),
                     f"Completed steps = {completed_steps}",
@@ -3418,6 +3437,54 @@ class Thermodynamics(Observable):
 
         # Restore the previous rcParams
         plt.rcParams = current_rcParams
+
+    def gamma_plot(self, phase: str = None, figname: str = None, show: bool = False):
+
+        if phase:
+            phase = phase.lower()
+            self.parse(phase)
+        else:
+            self.parse()
+
+        Gamma = self.dataframe["Potential Energy"] / self.dataframe["Total Kinetic Energy"]
+        Gamma_T = self.dataframe["Potential Energy"] * self.beta / self.total_num_ptcls
+        Gamma_a = self.coupling_constant * self.T_desired / (self.dataframe["Temperature"])
+        time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
+            self.dataframe["Time"], self.dataframe["Potential Energy"], "Time", "ElectronVolt", self.units
+        )
+
+        time = self.dataframe["Time"] * time_mul
+
+        fig, ax = plt.subplots(1, 3, figsize=(24, 7))
+        ax[0].plot(time, Gamma)
+        ax[0].plot(time, Gamma.expanding().mean(), alpha=0.8, label="Moving Average")
+        # ax.axhline(self.coupling_constant, c = 'r', ls = '--', alpha = 0.7, label = r"Original $\Gamma$")
+        ax[0].legend()
+        ax[0].set(ylabel=r"$\Gamma = \frac{\langle U \rangle}{\langle K \rangle}$", xlabel=f"Time {time_lbl}")
+
+        ax[1].plot(time, Gamma_T)
+        ax[1].plot(time, Gamma_T.expanding().mean(), alpha=0.8, label="Moving Average")
+        # ax.axhline(self.coupling_constant, c = 'r', ls = '--', alpha = 0.7, label = r"Original $\Gamma$")
+        ax[1].legend()
+        ax[1].set(ylabel=r"$\Gamma_T = \frac{\langle U \rangle}{k_B T}$", xlabel=f"Time {time_lbl}")
+
+        ax[2].plot(time, Gamma_a)
+        ax[2].plot(time, Gamma_a.expanding().mean(), alpha=0.8, label="Moving Average")
+        ax[2].axhline(self.coupling_constant, c="r", ls="--", alpha=0.7, label=r"Original $\Gamma$")
+        ax[2].legend()
+        ax[2].set(
+            ylabel=r"$\Gamma_a = \frac{Q^2}{4\pi \epsilon_0 a_{ws} } \frac{1}{\langle k_B T \rangle }$",
+            xlabel=f"Time {time_lbl}",
+        )
+
+        # Saving
+        if figname:
+            fig.savefig(os_path_join(self.saving_dir, figname + "_" + self.job_id + ".png"))
+        else:
+            fig.savefig(os_path_join(self.saving_dir, "Plot_Gamma_" + self.job_id + ".png"))
+
+        if show:
+            fig.show()
 
 
 class VelocityAutoCorrelationFunction(Observable):
