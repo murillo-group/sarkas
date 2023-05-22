@@ -589,6 +589,15 @@ class Potential:
             self.pot_update_params = update_params
             update_params(self)
 
+        elif self.type == "fitted":
+
+            from .fitted_pot import pretty_print_info, update_params
+
+            self.screening_length_type = "thomas-fermi"
+            self.calc_screening_length(species)
+            self.pot_update_params = update_params
+            update_params(self)
+
         self.pot_pretty_print = pretty_print_info
 
     def update_linked_list(self, ptcls):

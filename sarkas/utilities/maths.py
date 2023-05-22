@@ -418,6 +418,8 @@ def force_error_analytic_lcl(
         force_error_tmp /= exponent
         force_error = sqrt(force_error_tmp)
 
+    elif potential_type == "fitted":
+        force_error = sqrt(TWOPI * potential_matrix[1, 0, 0]) * exp(-cutoff_length * potential_matrix[1, 0, 0])
     # Renormalize
     force_error *= rescaling_const
 
