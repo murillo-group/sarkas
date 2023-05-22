@@ -670,7 +670,7 @@ class TransportCoefficients:
         """
         coeff_name = coeff_name.lower()
 
-        if coeff_name in self.coeff_names:
+        if coeff_name in self.tc_names:
             # Copy relevant info
             self.phase = observable.phase
             self.no_slices = observable.no_slices

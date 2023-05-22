@@ -825,32 +825,26 @@ class Observable:
 
         """
 
-        plot_dataframe = self.dataframe.copy()
-
-        if scaling:
-            if isinstance(scaling, tuple):
-                plot_dataframe.iloc[:, 0] /= scaling[0]
-                plot_dataframe[kwargs["y"]] /= scaling[1]
-            else:
-                plot_dataframe.iloc[:, 0] /= scaling
-
-        # Autocorrelation function renormalization
         if acf:
             plot_dataframe = self.dataframe_acf.copy()
+            # Autocorrelation function renormalization
             for i, col in enumerate(plot_dataframe.columns[1:], 1):
                 plot_dataframe[col] /= plot_dataframe[col].iloc[0]
             kwargs["logx"] = True
             # kwargs['xlabel'] = 'Time difference'
 
-        # if self.__class__.__name__ == 'StaticStructureFactor':
-        #     errorbars = plot_dataframe.copy()
-        #     for i, col in enumerate(self.dataframe.columns):
-        #         if col[-8:] == 'Errorbar':
-        #             errorbars.drop(col, axis=1, inplace=True)
-        #             errorbars.rename({col: col[:-9]}, axis=1, inplace=True)
-        #             plot_dataframe.drop(col, axis=1, inplace=True)
-        #     kwargs['yerr'] = errorbars
-        #
+        else:
+            plot_dataframe = self.dataframe.copy()
+        # This is needed because I don't know a priori what the first column name is
+
+        first_col_name = plot_dataframe.columns[0]
+
+        if scaling:
+            if isinstance(scaling, tuple):
+                plot_dataframe[first_col_name] /= scaling[0]
+                plot_dataframe[kwargs["y"]] /= scaling[1]
+            else:
+                plot_dataframe[first_col_name] /= scaling
 
         axes_handle = plot_dataframe.plot(x=plot_dataframe.columns[0], **kwargs)
 
@@ -2776,7 +2770,8 @@ class RadialDistributionFunction(Observable):
             Shape = ( :py:attr:`sarkas.tools.observables.Observable.no_obs`, 3).
 
         """
-        r = self.dataframe[("Interparticle", "Distance")].to_numpy().copy()
+
+        r = self.dataframe[self.dataframe.columns[0]].to_numpy().copy()
 
         dims = self.dimensions
         dim_const = 2.0 ** (dims - 2) * pi

@@ -6,4 +6,5 @@ added log file writing for observables and transport
 added timestamp to log files
 removed mie energy calculation
 improved the colormap of make_pppm_color_map in PreProcess
+fixed a bug that prevented using the plot method in VACF observable.
 bug fixes

@@ -465,25 +465,26 @@ class Process:
 
             self.io.datetime_stamp()
 
-            # Initialize the Particles class attributes by reading the last step
-            old_method = self.parameters.load_method
-            self.parameters.load_method = "production_restart"
-            no_dumps = len(listdir(self.io.prod_dump_dir))
-            last_step = self.parameters.prod_dump_step * (no_dumps - 1)
-            if no_dumps == 0:
-                self.parameters.load_method = "equilibration_restart"
-                no_dumps = len(listdir(self.io.eq_dump_dir))
-                last_step = self.parameters.eq_dump_step * (no_dumps - 1)
-            self.parameters.restart_step = last_step
-            self.particles.setup(self.parameters, self.species)
-            # Restore the original value for future use
-            self.parameters.load_method = old_method
-            # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
-            self.parameters.log_file = self.io.log_file
-            # Initialize the observable classes
-            # for obs in self.observables_list:
-            #     if obs in self.__dict__.keys():
-            #         self.__dict__[obs].setup(self.parameters)
+            if self.grab_last_step:
+                # Initialize the Particles class attributes by reading the last step
+                old_method = self.parameters.load_method
+                self.parameters.load_method = "production_restart"
+                no_dumps = len(listdir(self.io.prod_dump_dir))
+                last_step = self.parameters.prod_dump_step * (no_dumps - 1)
+                if no_dumps == 0:
+                    self.parameters.load_method = "equilibration_restart"
+                    no_dumps = len(listdir(self.io.eq_dump_dir))
+                    last_step = self.parameters.eq_dump_step * (no_dumps - 1)
+                self.parameters.restart_step = last_step
+                self.particles.setup(self.parameters, self.species)
+                # Restore the original value for future use
+                self.parameters.load_method = old_method
+                # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
+                self.parameters.log_file = self.io.log_file
+                # Initialize the observable classes
+                # for obs in self.observables_list:
+                #     if obs in self.__dict__.keys():
+                #         self.__dict__[obs].setup(self.parameters)
 
         else:
             self.initialization()
@@ -503,8 +504,11 @@ class PostProcess(Process):
 
     """
 
-    def __init__(self, input_file: str = None):
+    def __init__(self, input_file: str = None, grab_last_step: bool = False):
+
         self.__name__ = "postprocessing"
+        self.grab_last_step = grab_last_step
+
         super().__init__(input_file)
 
     def run(self):
@@ -663,34 +667,6 @@ class PreProcess(Process):
                 total_force_error[ia, ir] = tot_err
                 pm_force_error[ia] = pm_err
                 pp_force_error[ia, ir] = pp_err
-
-        # for ia, alpha in enumerate(alphas):
-        #     somma = 0.0
-        #     for m in arange(p):
-        #         expp = 2 * (m + p)
-        #         somma += Cmp[m] * (2.0 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.0) ** expp
-        #     # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
-        #     pm_force_error[ia] = sqrt(3.0 * somma) / (2.0 * pi)
-        # # eq.(35)
-        # pm_force_error *= sqrt(self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume)
-        # # Calculate the analytic PP error and the total force error
-        # if self.potential.type == "qsp":
-        #     for (ir, rc) in enumerate(rcuts):
-        #         pp_force_error[:, ir] = sqrt(2.0 * pi * kappa) * exp(-rc * kappa)
-        #         pp_force_error[:, ir] *=
-        #         for (ia, alfa) in enumerate(alphas):
-        #             # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-        #             total_force_error[ia, ir] = sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
-        # else:
-        #     for (ir, rc) in enumerate(rcuts):
-        #         for (ia, alfa) in enumerate(alphas):
-        #             # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
-        #             pp_force_error[ia, ir] = 2.0 * exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / sqrt(rc)
-        #             pp_force_error[ia, ir] *= sqrt(
-        #                 self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
-        #             )
-        #             # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-        #             total_force_error[ia, ir] = sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
 
         return (
             total_force_error,
@@ -857,12 +833,27 @@ class PreProcess(Process):
         # Plot the results
         fig_path = self.pppm_plots_dir
 
-        fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
+        fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(19, 7))
         linestyles = [(0, (5, 10)), "dashed", "solid", "dashdot", (0, (3, 10, 1, 10))]
         indexes = [30, 40, 50, 60, 70]
         for lns, i in zip(linestyles, indexes):
-            ax[0].plot(rcuts, total_force_error[i, :], ls=lns, label=r"$\alpha a_{ws} = " + "{:.2f}$".format(alphas[i]))
-            ax[1].plot(alphas, total_force_error[:, i], ls=lns, label=r"$r_c = {:.2f}".format(rcuts[i]) + " a_{ws}$")
+            min_rc = rcuts[total_force_error[i, :].argmin()]
+            rc_lbl = (
+                r"$\alpha a_{ws} = "
+                + "{:.2f}$".format(alphas[i])
+                + r" min @ $r_c = "
+                + "{:.2f}".format(min_rc)
+                + r" a_{\rm ws}$"
+            )
+            ax[0].plot(rcuts, total_force_error[i, :], ls=lns, label=rc_lbl)
+            min_a = alphas[total_force_error[:, i].argmin()]
+            a_lbl = (
+                r"$r_c = {:.2f}".format(rcuts[i])
+                + " a_{ws}$"
+                + r" min @ $\alpha_{\rm min} a_{ws} = "
+                + "{:.2f}$".format(min_a)
+            )
+            ax[1].plot(alphas, total_force_error[:, i], ls=lns, label=a_lbl)
 
         ax[0].set(ylabel=r"$\Delta F^{approx}_{tot}$", xlabel=r"$r_c/a_{ws}$", yscale="log")
         ax[1].set(xlabel=r"$\alpha \; a_{ws}$", yscale="log")
@@ -1111,16 +1102,19 @@ class PreProcess(Process):
 
         pretty_print(msg, self.parameters.log_file, self.parameters.verbose)
 
+    def make_pppm_plots_dir(self):
+        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+
+        if not exists(self.pppm_plots_dir):
+            mkdir(self.pppm_plots_dir)
+
     def pppm_approximation(self):
         """
         Calculate the force error for a PPPM simulation using analytical approximations.\n
         Plot the force error in the parameter space.
         """
 
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
-
-        if not exists(self.pppm_plots_dir):
-            mkdir(self.pppm_plots_dir)
+        self.make_pppm_plots_dir()
 
         # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
         total_force_error, pp_force_error, pm_force_error, rcuts, alphas = self.analytical_approx_pppm()
@@ -1144,7 +1138,8 @@ class PreProcess(Process):
         # Line Plot
         self.make_pppm_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
 
-        print(f"\nFigures can be found in {self.pppm_plots_dir}")
+        msg = f"\nFigures can be found in {self.pppm_plots_dir}"
+        self.io.write_to_logger(msg)
 
     def remove_preproc_dumps(self):
         # Delete the energy files created during the estimation runs
