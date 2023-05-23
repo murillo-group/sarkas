@@ -69,9 +69,13 @@ def update_params(potential):
     # Use Yukawa force error formula with the smallest screening length.
     # This overestimates the Force error, but it doesn't matter.
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
-    potential.force_error = force_error_analytic_lcl(
-        potential.type, potential.rc, potential.matrix[:, :, :], sqrt(3.0 * potential.a_ws / (4.0 * pi))
-    )
+
+    _, f_rc = fit_force(potential.rc, potential.matrix[:, 0, 0])
+    _, f_2a = fit_force(2.0 * potential.a_ws, potential.matrix[:, 0, 0])
+    potential.force_error = f_rc / f_2a
+    # force_error_analytic_lcl(
+    #    potential.type, potential.rc, potential.matrix[:, :, :], sqrt(3.0 * potential.a_ws / (4.0 * pi))
+    # )
 
 
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)

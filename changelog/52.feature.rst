@@ -1,2 +1,3 @@
 Slice averaging for all observables and transport coefficients
 Added bcc lattice configuration
+Added a fit potential module
