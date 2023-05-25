@@ -420,37 +420,9 @@ class Particles:
         """
         Initialize particles' positions based on the load method.
         """
-        # Particles Position Initialization
-        if self.load_method in [
-            "equilibration_restart",
-            "eq_restart",
-            "magnetization_restart",
-            "mag_restart",
-            "production_restart",
-            "prod_restart",
-        ]:
-            # checks
-            if self.restart_step is None:
-                raise AttributeError("Restart step not defined." "Please define Parameters.restart_step.")
-
-            if type(self.restart_step) is not int:
-                self.restart_step = int(self.restart_step)
-
-            if self.load_method[:2] == "eq":
-                self.load_from_restart("equilibration", self.restart_step)
-            elif self.load_method[:2] == "pr":
-                self.load_from_restart("production", self.restart_step)
-            elif self.load_method[:2] == "ma":
-                self.load_from_restart("magnetization", self.restart_step)
-
-        elif self.load_method == "file":
-            # check
-            if not hasattr(self, "particles_input_file"):
-                raise AttributeError("Input file not defined." "Please define Parameters.particles_input_file.")
-            self.load_from_file(self.particles_input_file)
 
         # position distribution.
-        elif self.load_method == "lattice":
+        if self.load_method == "lattice":
             self.lattice(self.load_perturb)
 
         elif self.load_method == "random_reject":
@@ -753,7 +725,48 @@ class Particles:
         self.vel[:, 1] = pv_data[:, 4]
         self.vel[:, 2] = pv_data[:, 5]
 
+    def load_from_npz(self, file_name):
+        """
+        Load particles' data from an .npz data file.
+
+        Parameters
+        ----------
+        file_name : str
+            Path to file.
+
+        """
+        # file_name = join(self.eq_dump_dir, "checkpoint_" + str(it) + ".npz")
+        data = np_load(file_name, allow_pickle=True)
+        if not data["pos"].shape[0] == self.total_num_ptcls:
+            msg = (
+                f"Number of particles is not same between input file and particles data file. \n "
+                f"Input file: N = {self.total_num_ptcls}, particles data file: N = {data['pos'].shape[0]}"
+            )
+            raise ParticlesError(msg)
+
+        self.id = data["id"]
+        self.names = data["names"]
+        self.pos = data["pos"]
+        self.vel = data["vel"]
+        self.acc = data["acc"]
+
     def load_from_restart(self, phase, it):
+        """
+        Initialize particles' data from a checkpoint of a previous run.
+
+        Raises
+        ------
+            : DeprecationWarning
+        """
+
+        warn(
+            "Deprecated feature. It will be removed in a future release. \n" "Use load_from_checkpoint. ",
+            category=DeprecationWarning,
+        )
+
+        self.load_from_checkpoint(phase, it)
+
+    def load_from_checkpoint(self, phase, it):
         """
         Load particles' data from a checkpoint of a previous run
 
@@ -978,9 +991,42 @@ class Particles:
         self.copy_params(params)
         self.initialize_arrays()
         self.update_attributes(species)
-        self.initialize_positions()
-        self.initialize_velocities(species)
-        self.initialize_accelerations()
+        # Particles Position Initialization
+        if self.load_method in [
+            "equilibration_restart",
+            "eq_restart",
+            "magnetization_restart",
+            "mag_restart",
+            "production_restart",
+            "prod_restart",
+        ]:
+            # checks
+            if self.restart_step is None:
+                raise AttributeError("Restart step not defined." "Please define Parameters.restart_step.")
+
+            if type(self.restart_step) is not int:
+                self.restart_step = int(self.restart_step)
+
+            if self.load_method[:2] == "eq":
+                self.load_from_restart("equilibration", self.restart_step)
+            elif self.load_method[:2] == "pr":
+                self.load_from_restart("production", self.restart_step)
+            elif self.load_method[:2] == "ma":
+                self.load_from_restart("magnetization", self.restart_step)
+
+        elif self.load_method == "file":
+            # check
+            if not hasattr(self, "particles_input_file"):
+                raise AttributeError("Input file not defined." "Please define Parameters.particles_input_file.")
+
+            if self.particles_input_file[-3:] == "npz":
+                self.load_from_npz(self.particles_input_file)
+            else:
+                self.load_from_file(self.particles_input_file)
+        else:
+            self.initialize_positions()
+            self.initialize_velocities(species)
+            self.initialize_accelerations()
 
     def uniform_no_reject(self, mins, maxs):
         """

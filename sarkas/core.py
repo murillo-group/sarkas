@@ -216,7 +216,7 @@ class Parameters:
         Strings of the units used in the simulation.
     """
 
-    def __init__(self, dic: dict = None) -> None:
+    def __init__(self, dic: dict = None):
 
         self.particles_input_file = None
         self.load_perturb = 0.0
@@ -514,7 +514,7 @@ class Parameters:
             sp.beta_c = sp.cyclotron_frequency / sp.plasma_frequency
             self.species_cyclotron_frequencies[i] = sp.cyclotron_frequency
 
-    def check_units(self) -> None:
+    def check_units(self):
         """Adjust default physical constants for cgs unit system and check for LJ potential."""
         # Physical constants
         if self.units == "cgs":

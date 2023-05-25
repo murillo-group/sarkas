@@ -1,3 +1,5 @@
 Slice averaging for all observables and transport coefficients
 Added bcc lattice configuration
 Added a fit potential module
+Added functions to calculate the first and second derivatives of the potential. It is used in the calculation of sum rules.
+Improved the force error calculation for short-range potentials only

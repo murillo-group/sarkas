@@ -2777,10 +2777,7 @@ class RadialDistributionFunction(Observable):
         dim_const = 2.0 ** (dims - 2) * pi
 
         if r[0] == 0.0:
-            r[0] = r[1]
-
-        r2 = r * r
-        r3 = r2 * r
+            r[0] = 1e-40
 
         corrs = zeros((self.no_obs, 3))
         hartrees = zeros((self.no_obs, 3))
@@ -2791,110 +2788,113 @@ class RadialDistributionFunction(Observable):
             for sp2, sp2_name in enumerate(self.species_names[sp1:], sp1):
                 h_r = self.dataframe[(f"{sp1_name}-{sp2_name} RDF", "Mean")].to_numpy() - 1.0
 
-                if potential.type == "coulomb":
-                    u_r = potential.matrix[0, sp1, sp2] / r
-                    dv_dr = -u_r / r
-                    d2v_dr2 = u_r / r - dv_dr / r
-                    # Check for finiteness of first element when r[0] = 0.0
-                    if not isfinite(dv_dr[0]):
-                        dv_dr[0] = dv_dr[1]
-                        d2v_dr2[0] = d2v_dr2[1]
+                # if potential.type == "coulomb":
+                #     u_r = potential.matrix[0, sp1, sp2] / r
+                #     dv_dr = -u_r / r
+                #     d2v_dr2 = u_r / r - dv_dr / r
+                #     # Check for finiteness of first element when r[0] = 0.0
+                #     if not isfinite(dv_dr[0]):
+                #         dv_dr[0] = dv_dr[1]
+                #         d2v_dr2[0] = d2v_dr2[1]
 
-                elif potential.type == "yukawa":
-                    kappa = potential.matrix[1, sp1, sp2]
-                    u_r = potential.matrix[0, sp1, sp2] * exp(-kappa * r) / r
-                    dv_dr = -(1.0 + kappa * r) * u_r / r
+                # elif potential.type == "yukawa":
+                #     kappa = potential.matrix[1, sp1, sp2]
+                #     u_r = potential.matrix[0, sp1, sp2] * exp(-kappa * r) / r
+                #     dv_dr = -(1.0 + kappa * r) * u_r / r
 
-                    d2v_dr2 = -u_r / r - (1.0 + kappa * r) ** 2 * u_r / r2 + (1.0 + kappa * r) * u_r / r2
+                #     d2v_dr2 = -u_r / r - (1.0 + kappa * r) ** 2 * u_r / r2 + (1.0 + kappa * r) * u_r / r2
 
-                    # Check for finiteness of first element when r[0] = 0.0
-                    if not isfinite(dv_dr[0]):
-                        dv_dr[0] = dv_dr[1]
-                        d2v_dr2[0] = d2v_dr2[1]
+                #     # Check for finiteness of first element when r[0] = 0.0
+                #     if not isfinite(dv_dr[0]):
+                #         dv_dr[0] = dv_dr[1]
+                #         d2v_dr2[0] = d2v_dr2[1]
 
-                elif potential.type == "qsp":
+                # elif potential.type == "qsp":
 
-                    A = potential.matrix[0, sp1, sp2]  # qi*qj/4*pi*eps0
-                    C = potential.matrix[1, sp1, sp2]  # 2pi/deBroglie
-                    D = potential.matrix[2, sp1, sp2]  # e-e Pauli term factor
-                    F = potential.matrix[3, sp1, sp2]  # e-e Pauli term exponent term
+                #     A = potential.matrix[0, sp1, sp2]  # qi*qj/4*pi*eps0
+                #     C = potential.matrix[1, sp1, sp2]  # 2pi/deBroglie
+                #     D = potential.matrix[2, sp1, sp2]  # e-e Pauli term factor
+                #     F = potential.matrix[3, sp1, sp2]  # e-e Pauli term exponent term
 
-                    # Pauli term. Note that D = 0 if Pauli is false
-                    u_r_pauli = D * log(1.0 - 0.5 * exp(-F * r2))
-                    dvdr_pauli = r * F / (exp(F * r2) - 0.5)
-                    d2v_dr2_pauli = -2.0 * F * (exp(F * r2) * (4 * F * r2 - 2) + 1) / (2.0 * exp(F * r2) - 1.0) ** 2
+                #     # Pauli term. Note that D = 0 if Pauli is false
+                #     u_r_pauli = D * log(1.0 - 0.5 * exp(-F * r2))
+                #     dvdr_pauli = r * F / (exp(F * r2) - 0.5)
+                #     d2v_dr2_pauli = -2.0 * F * (exp(F * r2) * (4 * F * r2 - 2) + 1) / (2.0 * exp(F * r2) - 1.0) ** 2
 
-                    if potential.qsp_type == "kelbg":
-                        # Diffraction potential and force term
-                        C2 = C * C
-                        # potential
-                        u_r_diff = A * C * sqrt(pi) * r * erfc(C * r / sqrt(pi))
-                        u_r_diff_1 = -A * exp(-C2 * r2 / pi) / r
-                        # Force
-                        dvdr_diff = -2.0 * A * C2 * exp(-C2 * r2 / pi) / pi  # erfc derivative
-                        dvdr_diff_1 = -u_r_diff_1 * (1.0 / r + 2.0 * C2 * r / pi)  # exp(r)/r derivative
-                        #
-                        d2v_dr2_diff = dvdr_diff * (-2.0 * C2 * r / pi)
-                        d2v_dr2_diff_1 = (
-                            u_r_diff_1 * (1.0 / r2 - 2.0 * C2 / pi) + (1.0 / r + 2.0 * C2 * r / pi) * dvdr_diff_1
-                        )
+                #     if potential.qsp_type == "kelbg":
+                #         # Diffraction potential and force term
+                #         C2 = C * C
+                #         # potential
+                #         u_r_diff = A * C * sqrt(pi) * r * erfc(C * r / sqrt(pi))
+                #         u_r_diff_1 = -A * exp(-C2 * r2 / pi) / r
+                #         # Force
+                #         dvdr_diff = -2.0 * A * C2 * exp(-C2 * r2 / pi) / pi  # erfc derivative
+                #         dvdr_diff_1 = -u_r_diff_1 * (1.0 / r + 2.0 * C2 * r / pi)  # exp(r)/r derivative
+                #         #
+                #         d2v_dr2_diff = dvdr_diff * (-2.0 * C2 * r / pi)
+                #         d2v_dr2_diff_1 = (
+                #             u_r_diff_1 * (1.0 / r2 - 2.0 * C2 / pi) + (1.0 / r + 2.0 * C2 * r / pi) * dvdr_diff_1
+                #         )
 
-                        u_r_diff += u_r_diff_1
-                        dvdr_diff += dvdr_diff_1
-                        d2v_dr2_diff += d2v_dr2_diff_1
+                #         u_r_diff += u_r_diff_1
+                #         dvdr_diff += dvdr_diff_1
+                #         d2v_dr2_diff += d2v_dr2_diff_1
 
-                    elif potential.qsp_type == "deutsch":
-                        # Diffraction potential and force term
-                        u_r_diff = -A * exp(-C * r) / r
-                        dvdr_diff = -u_r_diff * (1.0 / r + C)  # 1/r derivative
-                        d2v_dr2_diff = u_r_diff / r2 + dvdr_diff * (1.0 / r + C)
+                #     elif potential.qsp_type == "deutsch":
+                #         # Diffraction potential and force term
+                #         u_r_diff = -A * exp(-C * r) / r
+                #         dvdr_diff = -u_r_diff * (1.0 / r + C)  # 1/r derivative
+                #         d2v_dr2_diff = u_r_diff / r2 + dvdr_diff * (1.0 / r + C)
 
-                    elif potential.qsp_type == "hansen":
+                #     elif potential.qsp_type == "hansen":
 
-                        # Diffraction potential and force term
-                        u_r_diff = -A * exp(-C * r) / r
-                        dvdr_diff = -u_r_diff * (1.0 / r + C)  # 1/r derivative
-                        d2v_dr2_diff = u_r_diff / r2 + dvdr_diff * (1.0 / r + C)
+                #         # Diffraction potential and force term
+                #         u_r_diff = -A * exp(-C * r) / r
+                #         dvdr_diff = -u_r_diff * (1.0 / r + C)  # 1/r derivative
+                #         d2v_dr2_diff = u_r_diff / r2 + dvdr_diff * (1.0 / r + C)
 
-                        # Pauli potential and force terms
-                        u_r_pauli = D * exp(-F * r2)
-                        dvdr_pauli = 2.0 * F * r * u_r_pauli
-                        d2v_dr2_pauli = 2.0 * F * u_r_pauli + dvdr_pauli * 2.0 * F * r
+                #         # Pauli potential and force terms
+                #         u_r_pauli = D * exp(-F * r2)
+                #         dvdr_pauli = 2.0 * F * r * u_r_pauli
+                #         d2v_dr2_pauli = 2.0 * F * u_r_pauli + dvdr_pauli * 2.0 * F * r
 
-                    # Coulomb part
-                    u_r_coul = A / r
-                    dvdr_coul = -A / r2
-                    d2v_dr2_coul = 2.0 * A / r3
+                #     # Coulomb part
+                #     u_r_coul = A / r
+                #     dvdr_coul = -A / r2
+                #     d2v_dr2_coul = 2.0 * A / r3
 
-                    u_r = u_r_coul + u_r_diff + u_r_pauli
-                    dv_dr = dvdr_coul + dvdr_diff + dvdr_pauli
-                    d2v_dr2 = d2v_dr2_coul + d2v_dr2_diff + d2v_dr2_pauli
+                #     u_r = u_r_coul + u_r_diff + u_r_pauli
+                #     dv_dr = dvdr_coul + dvdr_diff + dvdr_pauli
+                #     d2v_dr2 = d2v_dr2_coul + d2v_dr2_diff + d2v_dr2_pauli
 
-                elif potential.type == "lj":
-                    epsilon = potential.matrix[0, sp1, sp2]
-                    sigma = potential.matrix[1, sp1, sp2]
-                    s_over_r = sigma / r
-                    s_over_r_high = s_over_r ** potential.matrix[2, sp1, sp2]
-                    s_over_r_low = s_over_r ** potential.matrix[3, sp1, sp2]
+                # elif potential.type == "lj":
+                #     epsilon = potential.matrix[0, sp1, sp2]
+                #     sigma = potential.matrix[1, sp1, sp2]
+                #     s_over_r = sigma / r
+                #     s_over_r_high = s_over_r ** potential.matrix[2, sp1, sp2]
+                #     s_over_r_low = s_over_r ** potential.matrix[3, sp1, sp2]
 
-                    u_r = epsilon * (s_over_r_high - s_over_r_low)
-                    dv_dr = (
-                        -epsilon
-                        * (potential.matrix[2, sp1, sp2] * s_over_r_high - potential.matrix[3, sp1, sp2] * s_over_r_low)
-                        / r
-                    )
+                #     u_r = epsilon * (s_over_r_high - s_over_r_low)
+                #     dv_dr = (
+                #         -epsilon
+                #         * (potential.matrix[2, sp1, sp2] * s_over_r_high - potential.matrix[3, sp1, sp2] * s_over_r_low)
+                #         / r
+                #     )
 
-                    d2v_dr2 = (
-                        epsilon
-                        * (
-                            potential.matrix[2, sp1, sp2] * (potential.matrix[2, sp1, sp2] + 1) * s_over_r_high
-                            - potential.matrix[3, sp1, sp2] * (potential.matrix[3, sp1, sp2] + 1) * s_over_r_low
-                        )
-                        / r2
-                    )
+                #     d2v_dr2 = (
+                #         epsilon
+                #         * (
+                #             potential.matrix[2, sp1, sp2] * (potential.matrix[2, sp1, sp2] + 1) * s_over_r_high
+                #             - potential.matrix[3, sp1, sp2] * (potential.matrix[3, sp1, sp2] + 1) * s_over_r_low
+                #         )
+                #         / r2
+                #     )
 
-                else:
-                    raise ValueError("Unknown potential")
+                # elif potential.type == "fitted":
+
+                # else:
+                #     raise ValueError("Unknown potential")
+                u_r, dv_dr, d2v_dr2 = potential.potential_derivatives(r, potential.matrix[:, sp1, sp2])
 
                 densities = self.species_num_dens[sp1] * self.species_num_dens[sp2]
 

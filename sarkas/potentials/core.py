@@ -171,10 +171,13 @@ class Potential:
         params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
+        Raises
+        ------
+        _ : DeprecationWarning
         """
 
         warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release. \n"
+            "Deprecated feature. It will be removed in a future release. \n"
             "Use parameters.calc_electron_properties(species). You need to pass the species list.",
             category=DeprecationWarning,
         )
@@ -333,7 +336,7 @@ class Potential:
         if self.type == "lj":
             self.species_lj_sigmas = params.species_lj_sigmas.copy()
 
-    def from_dict(self, input_dict: dict) -> None:
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 
@@ -508,7 +511,7 @@ class Potential:
         self.pot_pretty_print(potential=self)
         self.method_pretty_print()
 
-    def setup(self, params, species) -> None:
+    def setup(self, params, species):
         """Set up the potential class.
 
         Parameters
@@ -555,7 +558,7 @@ class Potential:
             self.calc_screening_length(species)
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "lj":
             # Lennard-Jones potential

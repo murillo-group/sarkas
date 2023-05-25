@@ -1231,7 +1231,7 @@ class PreProcess(Process):
 
         if self.potential.linked_list_on:
             self.pp_acc_time = zeros(loops)
-            for i in range(loops):
+            for i in trange(loops, desc="PP acceleration timer", disable=not self.parameters.verbose):
                 self.timer.start()
                 self.potential.update_linked_list(self.particles)
                 self.pp_acc_time[i] = self.timer.stop()
@@ -1244,7 +1244,7 @@ class PreProcess(Process):
         # PM acceleration
         if self.potential.pppm_on:
             self.pm_acc_time = zeros(loops)
-            for i in range(loops):
+            for i in trange(loops, desc="PM acceleration timer", disable=not self.parameters.verbose):
                 self.timer.start()
                 self.potential.update_pm(self.particles)
                 self.pm_acc_time[i] = self.timer.stop()
@@ -1394,7 +1394,8 @@ class PreProcess(Process):
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
 
-        print("\n\n{:=^70} \n".format(" Timing Study "))
+        msg = "\n\n{:=^70} \n".format(" Timing Study ")
+        self.io.write_to_logger(msg)
 
         self.input_rc = self.potential.rc
         self.input_mesh = self.potential.pppm_mesh.copy()
@@ -1428,7 +1429,10 @@ class PreProcess(Process):
                 self.potential.pppm_cao = cao * array([1, 1, 1], dtype=int)
 
                 # Update the potential matrix since alpha has changed
-                self.potential.pot_update_params(self.potential)
+                if self.potential.type == "qsp":
+                    self.potential.pot_update_params(self.potential, self.species)
+                else:
+                    self.potential.pot_update_params(self.potential, self.species)
                 # The Green's function depends on alpha, Mesh and cao. It also updates the pppm_pm_err
                 green_time = self.green_function_timer()
 
@@ -1515,10 +1519,11 @@ class PreProcess(Process):
         self.potential.pppm_cao = self.input_cao.copy()
         self.potential.setup(self.parameters, self.species)
 
-        print(
+        msg = (
             f"\nThe force error and computation times can be found in a dataframe at PreProcess.dataframe "
             f"and the corresponding csv file is saved in {csv_location}"
         )
+        self.io.write_to_logger(msg)
 
         # pm_popt = zeros((len(self.pm_caos), 2))
         # for ic, cao in enumerate(self.pm_caos):

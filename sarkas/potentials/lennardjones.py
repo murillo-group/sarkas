@@ -59,6 +59,123 @@ from numpy import array, pi, sqrt, zeros
 from ..utilities.maths import force_error_analytic_lcl
 
 
+@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
+def lj_force(r_in, pot_matrix):
+    """
+    Numba'd function to calculate the PP force between particles using Lennard-Jones Potential.
+
+    Parameters
+    ----------
+    r_in : float
+        Particles' distance.
+
+    pot_matrix : numpy.ndarray
+        LJ potential parameters. \n
+        Shape = (5, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
+
+    Returns
+    -------
+    u_r : float
+        Potential.
+
+    f_r : float
+        Force.
+
+    Examples
+    --------
+    >>> pot_const = 4.0 * 1.656e-21 # 4*epsilon in [J] (mks units)
+    >>> sigma = 3.4e-10   # [m] (mks units)
+    >>> high_pow, low_pow = 12., 6.
+    >>> short_cutoff = 0.0001 * sigma
+    >>> pot_mat = array([pot_const, sigma, high_pow, low_pow, short_cutoff])
+    >>> r = 15.0 * sigma  # particles' distance in [m]
+    >>> lj_force(r, pot_mat)
+    (-5.815308131440668e-28, -6.841538377536503e-19)
+
+    """
+
+    rs = pot_matrix[4]
+    # Branchless programming
+    r = r_in * (r_in >= rs) + rs * (r_in < rs)
+
+    epsilon = pot_matrix[0]
+    sigma = pot_matrix[1]
+    s_over_r = sigma / r
+    s_over_r_high = s_over_r ** pot_matrix[2]
+    s_over_r_low = s_over_r ** pot_matrix[3]
+
+    u_r = epsilon * (s_over_r_high - s_over_r_low)
+    f_r = epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
+
+    return u_r, f_r
+
+
+def potential_derivatives(r, pot_matrix):
+    """Calculate the first and second derivatives of the potential.
+
+    Parameters
+    ----------
+    r_in : float
+        Distance between two particles.
+
+    pot_matrix : numpy.ndarray
+        It contains potential dependent variables.
+
+    Returns
+    -------
+    u_r : float, numpy.ndarray
+        Potential value.
+
+    dv_dr : float, numpy.ndarray
+        First derivative of the potential.
+
+    d2v_dr2 : float, numpy.ndarray
+        Second derivative of the potential.
+
+
+    """
+
+    epsilon = pot_matrix[0]
+    sigma = pot_matrix[1]
+    s_over_r = sigma / r
+    s_over_r_high = s_over_r ** pot_matrix[2]
+    s_over_r_low = s_over_r ** pot_matrix[3]
+
+    r2 = r * r
+
+    u_r = epsilon * (s_over_r_high - s_over_r_low)
+    dv_dr = -epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
+
+    d2v_dr2 = (
+        epsilon
+        * (pot_matrix[2] * (pot_matrix[2] + 1) * s_over_r_high - pot_matrix[3] * (pot_matrix[3] + 1) * s_over_r_low)
+        / r2
+    )
+
+    return u_r, dv_dr, d2v_dr2
+
+
+def pretty_print_info(potential):
+    """
+    Print potential specific parameters in a user-friendly way.
+
+    Parameters
+    ----------
+    potential : :class:`sarkas.potentials.core.Potential`
+        Class handling potential form.
+
+    """
+
+    print(f"epsilon_tot = {potential.epsilon_tot/potential.eV2J:.6e} [eV] = {potential.epsilon_tot:6e} ", end="")
+    print("[erg]" if potential.units == "cgs" else "[J]")
+    print(f"sigma_avg = {potential.sigma_avg/potential.a_ws:.6e} a_ws =  {potential.sigma_avg:6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
+    rho = potential.sigma_avg**3 * potential.total_num_density
+    tau = potential.kB * potential.T_desired / potential.epsilon_tot
+    print(f"reduced density = {rho:.6e}")
+    print(f"reduced temperature = {tau:.6e}")
+
+
 def update_params(potential):
     """
     Assign potential dependent simulation's parameters.
@@ -100,75 +217,3 @@ def update_params(potential):
     potential.force_error = force_error_analytic_lcl(
         potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
     )
-
-
-@jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
-def lj_force(r_in, pot_matrix):
-    """
-    Numba'd function to calculate the PP force between particles using Lennard-Jones Potential.
-
-    Parameters
-    ----------
-    r_in : float
-        Particles' distance.
-
-    pot_matrix : numpy.ndarray
-        LJ potential parameters. \n
-        Shape = (5, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`)
-
-    Returns
-    -------
-    U : float
-        Potential.
-
-    force : float
-        Force.
-
-    Examples
-    --------
-    >>> pot_const = 4.0 * 1.656e-21 # 4*epsilon in [J] (mks units)
-    >>> sigma = 3.4e-10   # [m] (mks units)
-    >>> high_pow, low_pow = 12., 6.
-    >>> short_cutoff = 0.0001 * sigma
-    >>> pot_mat = array([pot_const, sigma, high_pow, low_pow, short_cutoff])
-    >>> r = 15.0 * sigma  # particles' distance in [m]
-    >>> lj_force(r, pot_mat)
-    (-5.815308131440668e-28, -6.841538377536503e-19)
-
-    """
-
-    rs = pot_matrix[4]
-    # Branchless programming
-    r = r_in * (r_in >= rs) + rs * (r_in < rs)
-
-    epsilon = pot_matrix[0]
-    sigma = pot_matrix[1]
-    s_over_r = sigma / r
-    s_over_r_high = s_over_r ** pot_matrix[2]
-    s_over_r_low = s_over_r ** pot_matrix[3]
-
-    U = epsilon * (s_over_r_high - s_over_r_low)
-    force = epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
-
-    return U, force
-
-
-def pretty_print_info(potential):
-    """
-    Print potential specific parameters in a user-friendly way.
-
-    Parameters
-    ----------
-    potential : :class:`sarkas.potentials.core.Potential`
-        Class handling potential form.
-
-    """
-
-    print(f"epsilon_tot = {potential.epsilon_tot/potential.eV2J:.6e} [eV] = {potential.epsilon_tot:6e} ", end="")
-    print("[erg]" if potential.units == "cgs" else "[J]")
-    print(f"sigma_avg = {potential.sigma_avg/potential.a_ws:.6e} a_ws =  {potential.sigma_avg:6e} ", end="")
-    print("[cm]" if potential.units == "cgs" else "[m]")
-    rho = potential.sigma_avg**3 * potential.total_num_density
-    tau = potential.kB * potential.T_desired / potential.epsilon_tot
-    print(f"reduced density = {rho:.6e}")
-    print(f"reduced temperature = {tau:.6e}")
