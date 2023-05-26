@@ -2463,38 +2463,73 @@ class PressureTensor(Observable):
         pt_acf_str = "Pressure Tensor ACF"
 
         col_str = ["Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
-        self.dataframe["Pressure_Mean"] = self.dataframe_slices[col_str].mean(axis=1)
-        self.dataframe["Pressure_Std"] = self.dataframe_slices[col_str].std(axis=1)
-
-        col_str = ["Pressure ACF_slice {}".format(isl) for isl in range(self.no_slices)]
-        self.dataframe_acf["Pressure ACF_Mean"] = self.dataframe_acf_slices[col_str].mean(axis=1)
-        self.dataframe_acf["Pressure ACF_Std"] = self.dataframe_acf_slices[col_str].std(axis=1)
+        col_name = "Pressure_Mean"
+        col_data = self.dataframe_slices[col_str].mean(axis=1).values
+        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+        col_name = "Pressure_Std"
+        col_data = self.dataframe_slices[col_str].std(axis=1).values
+        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
         col_str = ["Delta Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
-        self.dataframe["Delta Pressure_Mean"] = self.dataframe_slices[col_str].mean(axis=1)
-        self.dataframe["Delta Pressure_Std"] = self.dataframe_slices[col_str].std(axis=1)
-
-        col_str = ["Delta Pressure ACF_slice {}".format(isl) for isl in range(self.no_slices)]
-        self.dataframe_acf["Delta Pressure ACF_Mean"] = self.dataframe_acf_slices[col_str].mean(axis=1)
-        self.dataframe_acf["Delta Pressure ACF_Std"] = self.dataframe_acf_slices[col_str].std(axis=1)
+        col_name = "Delta Pressure_Mean"
+        col_data = self.dataframe_slices[col_str].mean(axis=1).values
+        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+        col_name = "Delta Pressure_Std"
+        col_data = self.dataframe_slices[col_str].std(axis=1).values
+        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+        
+        # Pressure ACF Mean and Std
+        col_str = [f"Pressure ACF_slice {isl}" for isl in range(self.no_slices)]
+        col_name = "Pressure ACF_Mean"
+        col_data = self.dataframe_acf_slices[col_str].mean(axis=1).values
+        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+        col_name = "Pressure ACF_Std"
+        col_data = self.dataframe_acf_slices[col_str].std(axis=1).values
+        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+        # Delta Pressure ACF Mean and Std
+        col_str = [f"Delta Pressure ACF_slice {isl}" for isl in range(self.no_slices)]
+        col_name = "Delta Pressure ACF_Mean"
+        col_data = self.dataframe_acf_slices[col_str].mean(axis=1).values
+        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+        col_name = "Delta Pressure ACF_Std"
+        col_data = self.dataframe_acf_slices[col_str].std(axis=1).values
+        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 # Kinetic Terms
                 ij_col_str = [pt_str_kin + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
-                self.dataframe[pt_str_kin + f" {ax1}{ax2}_Mean"] = self.dataframe_slices[ij_col_str].mean(axis=1)
-                self.dataframe[pt_str_kin + f" {ax1}{ax2}_Std"] = self.dataframe_slices[ij_col_str].std(axis=1)
-
+                # Mean
+                col_name = pt_str_kin + f" {ax1}{ax2}_Mean"
+                col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                # Std
+                col_name = pt_str_kin + f" {ax1}{ax2}_Std"
+                col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                
                 # Potential Terms
                 ij_col_str = [pt_str_pot + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
-                self.dataframe[pt_str_pot + f" {ax1}{ax2}_Mean"] = self.dataframe_slices[ij_col_str].mean(axis=1)
-                self.dataframe[pt_str_pot + f" {ax1}{ax2}_Std"] = self.dataframe_slices[ij_col_str].std(axis=1)
-
+                # Mean
+                col_name = pt_str_pot + f" {ax1}{ax2}_Mean"
+                col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data,col_name)
+                # Std
+                col_name = pt_str_pot + f" {ax1}{ax2}_Std"
+                col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data,col_name)
+                
                 # Full
                 ij_col_str = [pt_str + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
-                self.dataframe[pt_str + f" {ax1}{ax2}_Mean"] = self.dataframe_slices[ij_col_str].mean(axis=1)
-                self.dataframe[pt_str + f" {ax1}{ax2}_Std"] = self.dataframe_slices[ij_col_str].std(axis=1)
-
+                # Mean
+                col_name = pt_str + f" {ax1}{ax2}_Mean"
+                col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                # Std
+                col_name = pt_str + f" {ax1}{ax2}_Std"
+                col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)   
+        
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 for k, ax3 in enumerate(dim_lbl):
@@ -2503,46 +2538,66 @@ class PressureTensor(Observable):
                         ij_col_acf_str = [
                             pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Mean"
-                        std_column = pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Std"
-                        self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
-                        self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+                        # Mean
+                        col_name = pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                        # Std
+                        col_name = pt_acf_str_kin + f" {ax1}{ax2}{ax3}{ax4}_Std"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
                         # Potential Terms
                         ij_col_acf_str = [
                             pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Mean"
-                        std_column = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Std"
-                        self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
-                        self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
-
+                        # Mean
+                        col_name = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                        # Std
+                        col_name = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Std"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                        
                         # Kinetic-Potential Terms
                         ij_col_acf_str = [
                             pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Mean"
-                        std_column = pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Std"
-                        self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
-                        self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+                        # Mean
+                        col_name = pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                        # Std
+                        col_name = pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_Std"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
                         # Potential-Kinetic Terms
                         ij_col_acf_str = [
                             pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Mean"
-                        std_column = pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Std"
-                        self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
-                        self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+                        # Mean
+                        col_name = pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                        # Std
+                        col_name = pt_acf_str_potkin + f" {ax1}{ax2}{ax3}{ax4}_Std"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
                         # Full
                         ij_col_acf_str = [
                             pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
-                        mean_column = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Mean"
-                        std_column = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Std"
-                        self.dataframe_acf[mean_column] = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1)
-                        self.dataframe_acf[std_column] = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1)
+                        # Mean
+                        col_name = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                        # Std
+                        col_name = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Std"
+                        col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
+                        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
     def sum_rule(self, beta, rdf, potential):
         r"""
