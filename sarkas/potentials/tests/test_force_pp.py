@@ -168,6 +168,6 @@ def test_create_head_list_arrays_hex_2d():
 
     head, ls_array = create_head_list_arrays(pos, cell_lengths, cells)
 
-    assert isclose(head, array([4, 6, 7, 8, 13, 15, 16, 18, 19]))
+    assert isclose(head, array([4, 6, 7, 8, 13, 15, 16, 18, 19])).all()
 
-    assert isclose(ls_array, array([-50, -50, 1, -50, 0, 2, 5, 3, -50, -50, 9, -50, -50, 10, -50, 11, 12, 14, 17, -50]))
+    assert isclose(ls_array, array([-50, -50, 1, -50, 0, 2, 5, 3, -50, -50, 9, -50, -50, 10, -50, 11, 12, 14, 17, -50])).all()
