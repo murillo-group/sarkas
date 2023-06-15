@@ -70,6 +70,7 @@ BASE_DEPENDENCIES = [
     "notebook",
     "matplotlib",
     "seaborn",
+    "fmm3dpy"
 ]
 
 # Get some values from the setup.cfg
