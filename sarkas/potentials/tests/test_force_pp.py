@@ -157,8 +157,8 @@ def test_create_head_list_arrays_3d():
     assert head.dtype == dtype("int64")
     assert ls_array.dtype == dtype("int64")
 
-    assert (head == head_true).all()
-    assert (ls_array == ls_array_true).all()
+    assert isclose(head, head_true).all()
+    assert isclose(ls_array, ls_array_true).all()
 
 def test_create_head_list_arrays_hex_2d():
     pos, box_lengths = create_hexagonal_lattice(4, 5, 0.1)
