@@ -17,6 +17,7 @@ from scipy.constants import epsilon_0
 
 from ..force_pm import assgnmnt_func, create_k_arrays, force_optimized_green_function
 
+from pytest import mark
 
 def test_create_k_arrays():
     N = 1000
@@ -130,32 +131,18 @@ def test_fogf():
 
     assert isclose(G_k, G_k_t).all()
 
-
-def test_assignment_function():
+@mark.parametrize("cao,delta_x,expected_wx,expected_wx_sum",[
+    (3,0.3,array([0.02, 0.66, 0.32]),1),
+    (3,0.89,array([0.07605, -0.0421, 0.96605]),1), # I should not get any negative numbers from W(x), if I do it means that I am not choosing the closest point (or midpoint)
+    (4,0.1,array([0.01066667, 0.41466667, 0.53866667, 0.036]),1),
+    ],ids=["cao-3,delta_x-0.3","cao-3,delta_x-0.89","cao-4,delta_x-0.1"])
+def test_assignment_function(cao,delta_x,expected_wx,expected_wx_sum):
     # Check that it returns the correct values
-    cao = 3
-    delta_x = 0.3
     wx = assgnmnt_func(cao, delta_x)
 
-    assert isclose(wx, array([0.02, 0.66, 0.32])).all()
+    assert isclose(wx, expected_wx).all()
     # The sum of W(x) should be 1
-    assert wx.sum() == 1
-
-    # I should not get any negative numbers from W(x).
-    # If I do it means that I am not choosing the closest point (or midpoint)
-    delta_x = 0.89
-    wx = assgnmnt_func(cao, delta_x)
-    assert isclose(wx, array([0.07605, -0.0421, 0.96605])).all()
-    # Note that the sum of the above is still 1.0.
-
-    # Check that it returns the correct values
-    cao = 4
-    delta_x = 0.1
-    wx = assgnmnt_func(cao, delta_x)
-
-    assert isclose(wx, array([0.01066667, 0.41466667, 0.53866667, 0.036])).all()
-    # The sum of W(x) should be 1
-    assert wx.sum() == 1
+    assert wx.sum() == expected_wx_sum
 
 
 def test_calc_charge_dens():
