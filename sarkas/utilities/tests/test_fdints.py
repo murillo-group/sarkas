@@ -66,123 +66,120 @@ ORDERS = array(
     ]
 )
 
-
-def test_invfd1h():
-    """Test the calculation of eta."""
-
-    # Values taken from Tutorial Notebooks
-    ne = 1.62e32  # [N/m^3]
-    lambda_deB = 1.957093e-11  # [m]
-    u = lambda_deB**3 * ne * sqrt(pi) / 4.0
-    eta = invfd1h(u)
-
-    assert isclose(eta, -0.28604631569655325)
-
-
-def test_fdm9h():
-
-    results = array(
-        [
-            7.240015921650838e-03,
-            -2.442145618002432e-02,
-            1.647586588274429e-02,
-            1.029804636049462e-03,
-            -4.060975578007697e-04,
-            -2.508232176525567e-05,
-            -1.990373968491516e-06,
-            -1.720097159754510e-07,
-        ]
+## see documentation at https://docs.pytest.org/en/stable/example/parametrize.html#parametrizing-test-methods-through-per-class-configuration
+## Note: there can only be classes with params and ids in this file.
+def pytest_generate_tests(metafunc):
+    # called once per each test function
+    funcarglist = metafunc.cls.params[metafunc.function.__name__]
+    funcidslist = metafunc.cls.ids[metafunc.function.__name__]
+    argnames = sorted(funcarglist[0])
+    metafunc.parametrize(
+        argnames, [[funcargs[name] for name in argnames] for funcargs in funcarglist],
+        ids=funcidslist
     )
 
-    for eta, rs in zip(ETAS, results):
-        fd = fdm9h(eta)
-        assert isclose(fd, rs)
+
+class TestInverseFDH:
+    params={
+        "test_invfd1h": [{"ne":1.62e32, "lambda_deB":1.957093e-11, "expected": -0.28604631569655325}]
+    }
+    ids = {
+        "test_invfd1h" : ["some name idk"]
+    }
+    def test_invfd1h(self,ne,lambda_deB,expected):
+        """Test the calculation of eta."""
+        u = lambda_deB**3 * ne * sqrt(pi) / 4.0
+        eta = invfd1h(u)
+        assert isclose(eta,expected)
 
 
-def test_fdm7h():
-
-    results = array(
+fdmh_results = {
+    1: array(
         [
-            -3.545676388861523e-02,
-            -2.657136470551858e-02,
-            9.517508954351293e-02,
-            -1.294450181808404e-02,
-            -3.613853399968076e-03,
-            -4.935123501719669e-04,
-            -8.248542579808003e-05,
-            -1.440219364000877e-05,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fdm7h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fdm5h():
-
-    results = array(
+          8.525970123326887e-02,
+          5.211503831079912e-01,
+          1.820411357146962e00,
+          3.591334824651103e00,
+          5.432873628864860e00,
+          7.731513057173728e00,
+          1.094942130440661e01,
+          1.549016158518217e01,
+        ]),
+    3: array(
         [
-            1.024984312340880e-01,
-            3.492797177355019e-01,
-            2.502420253443888e-02,
-            -1.233961959341110e-01,
-            -3.760442897358426e-02,
-            -1.182183957963569e-02,
-            -4.085597149537218e-03,
-            -1.436908659724343e-03,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fdm5h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fdm3h():
-
-    results = array(
+          -1.647804107730068e-01,
+          -8.394844152932343e-01,
+          -1.580053773447138e00,
+          -1.176280028545422e00,
+          -7.505784586840675e-01,
+          -5.193758746338315e-01,
+          -3.656546825930124e-01,
+          -2.582876225442183e-01,
+        ]),
+    5: array(
         [
-            -1.647804107730068e-01,
-            -8.394844152932343e-01,
-            -1.580053773447138e00,
-            -1.176280028545422e00,
-            -7.505784586840675e-01,
-            -5.193758746338315e-01,
-            -3.656546825930124e-01,
-            -2.582876225442183e-01,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fdm3h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fdm1h():
-
-    results = array(
+          1.024984312340880e-01,
+          3.492797177355019e-01,
+          2.502420253443888e-02,
+          -1.233961959341110e-01,
+          -3.760442897358426e-02,
+          -1.182183957963569e-02,
+          -4.085597149537218e-03,
+          -1.436908659724343e-03,
+        ]),
+    7: array(
         [
-            8.525970123326887e-02,
-            5.211503831079912e-01,
-            1.820411357146962e00,
-            3.591334824651103e00,
-            5.432873628864860e00,
-            7.731513057173728e00,
-            1.094942130440661e01,
-            1.549016158518217e01,
-        ]
-    )
+          -3.545676388861523e-02,
+          -2.657136470551858e-02,
+          9.517508954351293e-02,
+          -1.294450181808404e-02,
+          -3.613853399968076e-03,
+          -4.935123501719669e-04,
+          -8.248542579808003e-05,
+          -1.440219364000877e-05,
+        ]),
+    9: array(
+        [
+          7.240015921650838e-03,
+          -2.442145618002432e-02,
+          1.647586588274429e-02,
+          1.029804636049462e-03,
+          -4.060975578007697e-04,
+          -2.508232176525567e-05,
+          -1.990373968491516e-06,
+          -1.720097159754510e-07,
+        ])
+}
 
-    for eta, rs in zip(ETAS, results):
+class TestFDMH:
+    params = {
+        f"test_fdm{i}h": [{"eta":eta, "expected": rs} for eta, rs in zip(ETAS, fdmh_results[i])] for i in range(1,10,2)
+    }
+    ids = {func : [str(eta) for eta in ETAS] for func in params}
+
+    def test_fdm1h(self,eta,expected):
         fd = fdm1h(eta)
-        assert isclose(fd, rs)
+        assert isclose(fd, expected)
+
+    def test_fdm3h(self,eta,expected):
+        fd = fdm3h(eta)
+        assert isclose(fd, expected)
+
+    def test_fdm5h(self,eta,expected):
+        fd = fdm5h(eta)
+        assert isclose(fd, expected)
+
+    def test_fdm7h(self,eta,expected):
+        fd = fdm7h(eta)
+        assert isclose(fd, expected)
+
+    def test_fdm9h(self,eta,expected):
+        fd = fdm9h(eta)
+        assert isclose(fd, expected)
 
 
-def test_fd0h():
-
-    results = array(
-        [
+fdh_results = {
+    0: array([
             4.858735157374205e-02,
             3.132616875182229e-01,
             1.313261687518223e00,
@@ -191,18 +188,8 @@ def test_fd0h():
             1.500000030590227e01,
             3.000000000000009e01,
             6.000000000000000e01,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd0h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd1h():
-
-    results = array(
-        [
+        ]),
+    1: array([
             4.336636755041557e-02,
             2.905008961699176e-01,
             1.396375280666564e00,
@@ -211,18 +198,8 @@ def test_fd1h():
             3.894304660093270e01,
             1.096948183372665e02,
             3.099448732700438e02,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd1h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd2h():
-
-    results = array(
-        [
+        ]),
+    2: array([
             4.918072033882423e-02,
             3.386479964034522e-01,
             1.806286070444774e00,
@@ -231,18 +208,8 @@ def test_fd2h():
             1.141449337609459e02,
             4.516449340668481e02,
             1.801644934066848e03,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd2h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd3h():
-
-    results = array(
-        [
+        ]),
+    3: array([
             6.561173880637544e-02,
             4.608488062901017e-01,
             2.661682624732004e00,
@@ -251,18 +218,8 @@ def test_fd3h():
             3.581122477085265e02,
             1.985311377746038e03,
             1.117330291388515e04,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd3h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd4h():
-
-    results = array(
-        [
+        ]),
+    4: array([
             9.896340290959225e-02,
             7.051297585956156e-01,
             4.328331225625401e00,
@@ -271,18 +228,8 @@ def test_fd4h():
             1.174348022617251e03,
             9.098696044010894e03,
             7.219739208802179e04,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd4h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd5h():
-
-    results = array(
-        [
+        ]),
+    5: array([
             1.647403937322051e-01,
             1.185968175443467e00,
             7.626535355005596e00,
@@ -291,18 +238,8 @@ def test_fd5h():
             3.974487881941656e03,
             4.292925758509993e04,
             4.799485008429281e05,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd5h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd6h():
-
-    results = array(
-        [
+        ]),
+    6: array([
             2.978018784709205e-01,
             2.159839661017986e00,
             1.438935649349364e01,
@@ -311,18 +248,8 @@ def test_fd6h():
             1.377794488724111e04,
             2.069526863744442e05,
             3.257776652315915e06,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd6h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd7h():
-
-    results = array(
-        [
+        ]),
+    7: array([
             5.778455375087482e-01,
             4.213264071926359e00,
             2.883131841599375e01,
@@ -331,18 +258,8 @@ def test_fd7h():
             4.868423690758540e04,
             1.014417201742514e06,
             2.246912083856067e07,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd7h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd8h():
-
-    results = array(
-        [
+        ]),
+    8: array([
             1.193042623617263e00,
             8.732138288905944e00,
             6.096945037216665e01,
@@ -351,18 +268,8 @@ def test_fd8h():
             1.747634735470307e05,
             5.039016606494085e06,
             1.569439504883058e08,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd8h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd9h():
-
-    results = array(
-        [
+        ]),
+    9: array([
             2.603141667351258e00,
             1.910506806522883e01,
             1.354192084601931e02,
@@ -371,18 +278,8 @@ def test_fd9h():
             6.358400491901155e05,
             2.530631914465860e07,
             1.107558362743446e09,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd9h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd10h():
-
-    results = array(
-        [
+        ]),
+    10: array([
             5.969820680488160e00,
             4.389948426765305e01,
             3.146680541843087e02,
@@ -391,18 +288,8 @@ def test_fd10h():
             2.340617854292586e06,
             1.282644990485829e08,
             7.883001082246370e09,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd10h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd11h():
-
-    results = array(
-        [
+        ]),
+    11: array([
             1.432510773316834e01,
             1.054873701421355e02,
             7.624071301487685e02,
@@ -411,18 +298,8 @@ def test_fd11h():
             8.706355279385276e06,
             6.552423229390368e08,
             5.651215902520975e10,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd11h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd12h():
-
-    results = array(
-        [
+        ]),
+    12: array([
             3.583278660538172e01,
             2.641275790125708e02,
             1.920621491104163e03,
@@ -431,18 +308,8 @@ def test_fd12h():
             3.269159748061942e07,
             3.370296449774471e09,
             4.076323551443539e11,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd12h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd13h():
-
-    results = array(
-        [
+        ]),
+    13: array([
             9.313870302507033e01,
             6.870205993243595e02,
             5.017993045210247e03,
@@ -451,18 +318,8 @@ def test_fd13h():
             1.238219532435030e08,
             1.744018597946511e10,
             2.956078846984141e12,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd13h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd14h():
-
-    results = array(
-        [
+        ]),
+    14: array([
             2.508781184723398e02,
             1.851484886980967e03,
             1.356711459868958e04,
@@ -471,18 +328,8 @@ def test_fd14h():
             4.727830603631850e08,
             9.073325961350024e10,
             2.153759508773864e13,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd14h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd15h():
-
-    results = array(
-        [
+        ]),
+    15: array([
             6.986360585012507e02,
             5.157783274159222e03,
             3.788356128997377e04,
@@ -491,18 +338,8 @@ def test_fd15h():
             1.818973214398967e09,
             4.743320667852189e11,
             1.575715160529580e14,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd15h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd16h():
-
-    results = array(
-        [
+        ]),
+    16: array([
             2.007219646720646e03,
             1.482234071460382e04,
             1.090540532961069e05,
@@ -511,18 +348,8 @@ def test_fd16h():
             7.049084121468240e09,
             2.490622378495212e12,
             1.157079836302754e15,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd16h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd17h():
-
-    results = array(
-        [
+        ]),
+    17: array([
             5.938814014650166e03,
             4.386311784955336e04,
             3.231138561347001e05,
@@ -531,18 +358,8 @@ def test_fd17h():
             2.750798130249417e10,
             1.313056860664467e13,
             8.524941900028644e15,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd17h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd18h():
-
-    results = array(
-        [
+        ]),
+    18: array([
             1.806585371781600e04,
             1.334484320310655e05,
             9.839000912153142e05,
@@ -551,18 +368,8 @@ def test_fd18h():
             1.080715538012005e11,
             6.948254776893934e13,
             6.299767361155796e16,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd18h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd19h():
-
-    results = array(
-        [
+        ]),
+    19: array([
             5.642067020436533e04,
             4.168044535669152e05,
             3.074986313749142e06,
@@ -571,18 +378,8 @@ def test_fd19h():
             4.273879330919564e11,
             3.689532972232714e14,
             4.668155109009914e17,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd19h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd20h():
-
-    results = array(
-        [
+        ]),
+    20: array([
             1.806629241770091e05,
             1.334722123421517e06,
             9.851381090333600e06,
@@ -591,18 +388,8 @@ def test_fd20h():
             1.701154132363905e12,
             1.965505543248569e15,
             3.467790683237043e18,
-        ]
-    )
-
-    for eta, rs in zip(ETAS, results):
-        fd = fd20h(eta)
-        assert isclose(fd, rs)
-
-
-def test_fd21h():
-
-    results = array(
-        [
+        ]),
+    21: array([
             5.924272114982210e05,
             4.376998997938984e06,
             3.231634166275790e07,
@@ -611,48 +398,142 @@ def test_fd21h():
             6.814687278457835e12,
             1.050272666569349e16,
             2.582022264434903e19,
-        ]
-    )
+        ])
+}
 
-    for eta, rs in zip(ETAS, results):
+class TestFDH:
+    params = {
+        f"test_fd{i}h": [{"eta":eta, "expected": rs} for eta, rs in zip(ETAS, fdh_results[i])] for i in range(0,22)
+    }
+    ids = {func : [str(eta) for eta in ETAS] for func in params}
+
+    def test_fd0h(self,eta,expected):
+        fd = fd0h(eta)
+        assert isclose(fd, expected)
+
+    def test_fd1h(self,eta,expected):
+        fd = fd1h(eta)
+        assert isclose(fd, expected)
+    
+    def test_fd2h(self,eta,expected):
+        fd = fd2h(eta)
+        assert isclose(fd, expected)
+
+    def test_fd3h(self,eta,expected):
+        fd = fd3h(eta)
+        assert isclose(fd, expected)
+    
+    def test_fd4h(self,eta,expected):
+        fd = fd4h(eta)
+        assert isclose(fd, expected)
+
+    def test_fd5h(self,eta,expected):
+        fd = fd5h(eta)
+        assert isclose(fd, expected)
+    
+    def test_fd6h(self,eta,expected):
+        fd = fd6h(eta)
+        assert isclose(fd, expected)
+
+    def test_fd7h(self,eta,expected):
+        fd = fd7h(eta)
+        assert isclose(fd, expected)
+    
+    def test_fd8h(self,eta,expected):
+        fd = fd8h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd9h(self,eta,expected):
+        fd = fd9h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd10h(self,eta,expected):
+        fd = fd10h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd11h(self,eta,expected):
+        fd = fd11h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd12h(self,eta,expected):
+        fd = fd12h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd13h(self,eta,expected):
+        fd = fd13h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd14h(self,eta,expected):
+        fd = fd14h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd15h(self,eta,expected):
+        fd = fd15h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd16h(self,eta,expected):
+        fd = fd16h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd17h(self,eta,expected):
+        fd = fd17h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd18h(self,eta,expected):
+        fd = fd18h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd19h(self,eta,expected):
+        fd = fd19h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd20h(self,eta,expected):
+        fd = fd20h(eta)
+        assert isclose(fd, expected)
+        
+    def test_fd21h(self,eta,expected):
         fd = fd21h(eta)
-        assert isclose(fd, rs)
+        assert isclose(fd, expected)
 
 
-def test_fermidirac_integral():
+fermidirac_results = array(
+    [
+        7.240015921650838e-03,
+        -3.545676388861523e-02,
+        1.024984312340880e-01,
+        -1.647804107730068e-01,
+        8.525970123326887e-02,
+        4.858735157374205e-02,
+        4.336636755041557e-02,
+        4.918072033882423e-02,
+        6.561173880637544e-02,
+        9.896340290959225e-02,
+        1.647403937322051e-01,
+        2.978018784709205e-01,
+        5.778455375087482e-01,
+        1.193042623617263e00,
+        2.603141667351258e00,
+        5.969820680488160e00,
+        1.432510773316834e01,
+        3.583278660538172e01,
+        9.313870302507033e01,
+        2.508781184723398e02,
+        6.986360585012507e02,
+        2.007219646720646e03,
+        5.938814014650166e03,
+        1.806585371781600e04,
+        5.642067020436533e04,
+        1.806629241770091e05,
+        5.924272114982210e05,
+    ]
+)
 
-    results = array(
-        [
-            7.240015921650838e-03,
-            -3.545676388861523e-02,
-            1.024984312340880e-01,
-            -1.647804107730068e-01,
-            8.525970123326887e-02,
-            4.858735157374205e-02,
-            4.336636755041557e-02,
-            4.918072033882423e-02,
-            6.561173880637544e-02,
-            9.896340290959225e-02,
-            1.647403937322051e-01,
-            2.978018784709205e-01,
-            5.778455375087482e-01,
-            1.193042623617263e00,
-            2.603141667351258e00,
-            5.969820680488160e00,
-            1.432510773316834e01,
-            3.583278660538172e01,
-            9.313870302507033e01,
-            2.508781184723398e02,
-            6.986360585012507e02,
-            2.007219646720646e03,
-            5.938814014650166e03,
-            1.806585371781600e04,
-            5.642067020436533e04,
-            1.806629241770091e05,
-            5.924272114982210e05,
-        ]
-    )
-
-    for ord, res in zip(ORDERS, results):
+class TestFermiDiracIntegral:
+    params = {
+        "test_fermidirac_integral": [{"ord":order, "expected": rs} for order, rs in zip(ORDERS, fermidirac_results)]
+    }
+    ids = {func : [str(order) for order in ORDERS] for func in params}
+    
+    def test_fermidirac_integral(self,ord,expected):
         fd = fermidirac_integral(p=ord, eta=ETAS[0])
-        isclose(fd, res)
+        assert isclose(fd, expected)
