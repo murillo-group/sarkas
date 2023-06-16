@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: windows-latest #[ubuntu-latest, macos-latest]
         python-version: ['3.7', '3.8']
 
     steps:
@@ -21,7 +21,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install wheel pickle5
+        python -m pip install wheel pickle5 pyfiglet
         python -m pip install tox tox-gh-actions
     - name: Test with tox
       run: tox
