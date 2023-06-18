@@ -248,8 +248,8 @@ def particles_interaction_loop(
 
     Returns
     -------
-    U_s_r : float
-        Short-ranged component of the potential energy of the system.
+    ptcl_pot_energy : numpy.ndarray
+        Short-ranged component of the potential energy of each particle. Shape = `tot_num_ptcls`.
 
     acc_s_r : numpy.ndarray
         Short-ranged component of the acceleration for the particles.
@@ -274,7 +274,7 @@ def particles_interaction_loop(
     # Virial term for the viscosity calculation
     virial = zeros((3, 3, pos.shape[0]))
     # Initialize
-    U_s_r = 0.0  # Short-ranges potential energy accumulator
+    ptcl_pot_energy = zeros(pos.shape[0])  # Short-ranges potential energy of each particle
     # Pair distribution function
 
     rdf_nbins = rdf_hist.shape[0]
@@ -404,7 +404,9 @@ def particles_interaction_loop(
                                             # Compute the short-ranged force
                                             pot, fr = force(r, p_matrix)
                                             fr /= r
-                                            U_s_r += pot
+                                            # Need to add the same pot to each particle pair. Will divide by 2 in the end
+                                            ptcl_pot_energy[i] += pot
+                                            ptcl_pot_energy[j] += pot
 
                                             # Update the acceleration for i particles in each dimension
 
@@ -434,7 +436,7 @@ def particles_interaction_loop(
                                 # Check if head particle interacts with other cells
                                 i = ls_array[i]
     # print(neighbors)
-    return U_s_r, acc_s_r, virial
+    return ptcl_pot_energy, acc_s_r, virial
 
 
 @jit(Tuple((int64[:], float64[:]))(float64[:], float64), nopython=True)

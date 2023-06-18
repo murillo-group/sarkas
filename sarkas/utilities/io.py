@@ -231,6 +231,7 @@ class InputOutput:
                 pos=ptcls.pos,
                 vel=ptcls.vel,
                 acc=ptcls.acc,
+                pot_energies=ptcls.particle_potential_energy,
                 cntr=ptcls.pbc_cntr,
                 rdf_hist=ptcls.rdf_hist,
                 virial=ptcls.virial,
@@ -249,6 +250,7 @@ class InputOutput:
                 pos=ptcls.pos,
                 vel=ptcls.vel,
                 acc=ptcls.acc,
+                pot_energies=ptcls.particle_potential_energy,
                 virial=ptcls.virial,
                 time=tme,
             )
@@ -265,6 +267,7 @@ class InputOutput:
                 pos=ptcls.pos,
                 vel=ptcls.vel,
                 acc=ptcls.acc,
+                pot_energies=ptcls.particle_potential_energy,
                 virial=ptcls.virial,
                 time=tme,
             )
@@ -273,19 +276,21 @@ class InputOutput:
 
         kinetic_energies, temperatures = ptcls.kinetic_temperature()
         potential_energies = ptcls.potential_energies()
+        tot_pot = ptcls.potential_energy()
+        tot_kin = kinetic_energies.sum()
         # Save Energy data
         data = {
             "Time": it * self.dt,
-            "Total Energy": kinetic_energies.sum() + ptcls.potential_energy,
-            "Total Kinetic Energy": kinetic_energies.sum(),
-            "Potential Energy": ptcls.potential_energy,
+            "Total Energy": tot_kin + tot_pot,
+            "Total Kinetic Energy": tot_kin,
+            "Total Potential Energy": tot_pot,
             "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
         }
         if len(temperatures) > 1:
-            for sp, kin in enumerate(kinetic_energies):
+            for sp, (temp, kin, pot) in enumerate(zip(temperatures, kinetic_energies, potential_energies)):
                 data[f"{self.species_names[sp]} Kinetic Energy"] = kin
-                data[f"{self.species_names[sp]} Potential Energy"] = potential_energies[sp]
-                data[f"{self.species_names[sp]} Temperature"] = temperatures[sp]
+                data[f"{self.species_names[sp]} Potential Energy"] = pot
+                data[f"{self.species_names[sp]} Temperature"] = temp
 
         with open(energy_file, "a") as f:
             w = csv.writer(f)
@@ -684,7 +689,7 @@ class InputOutput:
         )
         simulation.potential.pot_pretty_print(simulation.potential)
 
-    def preprocess_sizing(self, sizes):
+    def directory_size_report(self, sizes, process):
         """Print the estimated file sizes."""
 
         screen = sys.stdout
@@ -693,8 +698,9 @@ class InputOutput:
 
         # redirect printing to file
         sys.stdout = f_log
+        msg_h = " Filesize Estimates "
+
         while repeat > 0:
-            msg_h = " Filesize Estimates "
             msg = f"\n\n{msg_h:=^70}\n"
 
             if self.equilibration_phase:
@@ -727,9 +733,10 @@ class InputOutput:
             msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
 
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[:, 1].sum())
-            msg += (
-                f"\nTotal minimum required space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
-            )
+            if process == "preprocessing":
+                msg += f"\nTotal minimum required space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
+            else:
+                msg += f"\nTotal occupied space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
 
             print(msg)
 

@@ -81,8 +81,9 @@ class Particles:
     dimensions : int
         Number of non-zero dimensions. Default = 3.
 
-    potential_energy : float
-        Instantaneous value of the potential energy.
+    particle_potential_energy : float
+        Instantaneous value of the potential energy of each particle. Note that the total potential energy requires the multiplication of the array's sum by 0.5 to avoid double counting.\n
+        For example: `N` = 3, `particle_potential_energy[0] = U_12 + U_13` and `particle_potential_energy[1] = U_21 + U_23` and `particle_potential_energy[1] = U_31 + U_32`
 
     rnd_gen : numpy.random.Generator
         Random number generator.
@@ -92,7 +93,6 @@ class Particles:
     def __init__(self):
         self.mag_dump_dir = None
         self.rdf_nbins = None
-        self.potential_energy = 0.0
         self.kB = None
         self.fourpie0 = None
         self.prod_dump_dir = None
@@ -415,6 +415,8 @@ class Particles:
         self.no_grs = int64(self.num_species * (self.num_species + 1) / 2)
 
         self.rdf_hist = zeros((self.rdf_nbins, self.num_species, self.num_species))
+
+        self.particle_potential_energy = zeros(self.total_num_ptcls)
 
     def initialize_positions(self):
         """
@@ -810,6 +812,19 @@ class Particles:
             self.pbc_cntr = data["cntr"]
             self.rdf_hist = data["rdf_hist"]
 
+    def potential_energy(self):
+        """Calculate the total potential energy of the particles by summing the potential energy of each individual particle contained in attr:`particle_potential_energy`
+
+        Return
+        ------
+        pot : float
+            Total potential energy.
+
+        """
+        # The 0.5 is needed to avoid double counting. Each element of the array contains the interaction of each particle with all the other.
+        pot = 0.5 * self.particle_potential_energy.sum()  #
+        return pot
+
     def potential_energies(self):
         """
         Calculate the potential energies of each species.
@@ -822,20 +837,14 @@ class Particles:
         """
         P = zeros(self.num_species)
 
-        # species_start = 0
-        # species_end = 0
-        # for i, num in enumerate(self.species_num):
-        #     species_end += num
-        #
-        #     # TODO: Consider writing a numba function speedup in distance calculation
-        #     species_charges = self.charges[species_start:species_end]
-        #     uti = triu_indices(species_charges.size, k=1)
-        #     species_charge2 = species_charges[uti[0]] * species_charges[uti[1]]
-        #     species_distances = pdist(self.pos[species_start:species_end, :])
-        #     potential = species_charge2 / self.fourpie0 / species_distances
-        #     P[i] = potential.sum()
-        #
-        #     species_start = species_end
+        species_start = 0
+        species_end = 0
+        for i, num in enumerate(self.species_num):
+            species_end += num
+
+            P[i] = 0.5 * self.particle_potential_energy[species_start:species_end].sum()
+
+            species_start = species_end
 
         return P
 

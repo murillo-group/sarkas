@@ -138,7 +138,7 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_
         Particles' positions on the mesh.
 
     q_over_m : numpy.ndarray
-        Particles' charges divide by their masses.
+        Particles' charges divided by their masses.
 
     cao : int
         Charge assignment order.
@@ -418,6 +418,121 @@ def calc_mesh_coord(pos, h_array, cao):
     mesh_points = rint(mesh_pos - 0.5 * (cao % 2 == 0))
 
     return mesh_pos, mesh_points.astype(int64)
+
+
+@jit(
+    float64[:](
+        float64[:, :, :],  # E_x_r
+        float64[:, :],  # mesh_pos
+        int64[:, :],  # mesh_points
+        float64[:],  # charges
+        int64[:],  # cao
+        int64[:],  # mesh_sz
+        float64[:],  # mid
+        int64[:],  # pshift
+    ),
+    nopython=True,
+)
+def calc_pot_pm(phi_r, mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
+    """
+    Calculates the long range part of particles' accelerations.
+
+    Parameters
+    ----------
+    phi_r : numpy.ndarray
+        Potential energy at mesh points.
+
+    mesh_pos: numpy.ndarray
+        Particles' positions relative to the mesh.
+
+    mesh_points: numpy.ndarray
+        Particles' positions on the mesh.
+
+    charges : numpy.ndarray
+        Particles' charges.
+
+    cao : int
+        Charge assignment order.
+
+    mesh_sz: numpy.ndarray
+        Mesh points per direction.
+
+    mid: numpy.ndarray
+        Midpoint flag for the three directions.
+
+    pshift: numpy.ndarray
+        Midpoint shift in each direction.
+
+    Returns
+    -------
+    pot_p : numpy.ndarray
+          Potential energy of each particle.
+
+    """
+    pot_p = zeros_like(charges)  # potential energy for
+
+    for ipart, q in enumerate(charges):
+
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
+
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
+
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
+
+        wx = assgnmnt_func(cao[0], x)
+        wy = assgnmnt_func(cao[1], y)
+        wz = assgnmnt_func(cao[2], z)
+
+        izn = iz - pshift[2]  # min. index along z-axis
+
+        for g in range(cao[2]):
+            #
+            # if izn < 0:
+            #     r_g = izn + mesh_sz[2]
+            # elif izn > (mesh_sz[2] - 1):
+            #     r_g = izn - mesh_sz[2]
+            # else:
+            #     r_g = izn
+
+            r_g = izn + mesh_sz[2] * (izn < 0) - mesh_sz[2] * (izn > (mesh_sz[2] - 1))
+
+            iyn = iy - pshift[1]  # min. index along y-axis
+
+            for i in range(cao[1]):
+
+                # if iyn < 0:
+                #     r_i = iyn + mesh_sz[1]
+                # elif iyn > (mesh_sz[1] - 1):
+                #     r_i = iyn - mesh_sz[1]
+                # else:
+                #     r_i = iyn
+                r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
+
+                ixn = ix - pshift[0]  # min. index along x-axis
+
+                for j in range(cao[0]):
+                    r_j = ixn + mesh_sz[0] * (ixn < 0) - mesh_sz[0] * (ixn > (mesh_sz[0] - 1))
+
+                    # if ixn < 0:
+                    #     r_j = ixn + mesh_sz[0]
+                    # elif ixn > (mesh_sz[0] - 1):
+                    #     r_j = ixn - mesh_sz[0]
+                    # else:
+                    #     r_j = ixn
+
+                    # q_over_m = charges[ipart] / masses[ipart]
+                    pot_p[ipart] += q * phi_r[r_g, r_i, r_j] * wz[g] * wy[i] * wx[j]
+
+                    ixn += 1
+
+                iyn += 1
+
+            izn += 1
+
+    return pot_p
 
 
 @jit(UniTuple(float64[:, :], 3)(int64[:], int64[:], float64[:]), nopython=True)
@@ -765,7 +880,7 @@ def mesh_point_shift(cao):
 
 # FFTW version
 @jit(
-    Tuple((float64, float64[:, :]))(
+    Tuple((float64[:], float64[:, :]))(
         float64[:, :],  # pos
         float64[:],  # charges
         float64[:],  # masses
@@ -826,8 +941,8 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
 
     Returns
     -------
-    U_f : float
-        Long range part of the potential.
+    pot_particle : numpy.ndarray
+        Long range part of the potential for each particle.
 
     acc_f : numpy.ndarray
         Long range part of particles' accelerations.
@@ -858,9 +973,6 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     rho_k_imag = rho_k.imag
     rho_k_sq = rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
 
-    # Long range part of the potential
-    U_f = 0.5 * (rho_k_sq * G_k).sum() / box_volume
-
     # Calculate the Electric field's component on the mesh
     E_kx, E_ky, E_kz = calc_field(phi_k, kx_v, ky_v, kz_v)
 
@@ -877,7 +989,7 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     ifftw_n = ifftn(E_kz_unsh)
     E_z = ifftw_n()
 
-    # I am worried that this normalization is not needed
+    # FFT normalization
     E_x_r = E_x.real / mesh_volume
     E_y_r = E_y.real / mesh_volume
     E_z_r = E_z.real / mesh_volume
@@ -885,4 +997,17 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     q_over_m = charges / masses
     acc_f = calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_sizes, mid, pshift)
 
-    return U_f, acc_f
+    # Calculate the potential energy of each particle
+    phi_k_shift = ifftshift(phi_k)
+    ifftw_n = ifftn(phi_k_shift)
+    phi_r_cmplx = ifftw_n()
+
+    phi_r = phi_r_cmplx.real / mesh_volume
+
+    # Potential of each particle
+    pot_particle = calc_pot_pm(phi_r, mesh_pos, mesh_points, charges, cao, mesh_sizes, mid, pshift)
+    # The sum of this is equal to U_f, i.e. Long range part of the potential. It was tested.
+    # I leave it here for future testing
+    # U_f = 0.5 * (rho_k_sq * G_k).sum() / box_volume
+
+    return pot_particle, acc_f

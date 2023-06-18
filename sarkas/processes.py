@@ -107,7 +107,7 @@ class Process:
         self.timer = SarkasTimer()
         self.io = InputOutput(process=self.__name__)
 
-    def common_parser(self, filename: str = None) -> None:
+    def common_parser(self, filename: str = None):
         """
         Parse simulation parameters from YAML file.
 
@@ -200,6 +200,57 @@ class Process:
 
             if "TransportCoefficients" in dics.keys():
                 self.transport_dict = dics["TransportCoefficients"].copy()
+
+    def directory_sizes(self):
+        """Calculate the size of the dumps directories and print them to logger."""
+        # Estimate size of dump folder
+        # Grab one file from the dump directory and get the size of it.
+        if self.parameters.equilibration_phase:
+            if not listdir(self.io.eq_dump_dir):
+                raise FileNotFoundError(
+                    "Could not estimate the size of the equilibration phase dumps"
+                    " because there are no dumps in the equilibration directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
+                )
+            else:
+                eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+                eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
+        else:
+            eq_dump_size = 0
+            eq_dump_fldr_size = 0
+
+        if not listdir(self.io.prod_dump_dir):
+            raise FileNotFoundError(
+                "Could not estimate the size of the production phase dumps because"
+                " there are no dumps in the production directory."
+                "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
+            )
+
+        # Grab one file from the dump directory and get the size of it.
+        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+        prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
+        # Prepare arguments to pass for print out
+        sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
+        # Check for electrostatic equilibration
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
+            if not listdir(self.io.mag_dump_dir):
+                raise FileNotFoundError(
+                    "Could not estimate the size of the magnetization phase dumps because"
+                    " there are no dumps in the production directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
+                )
+            dump = self.parameters.mag_dump_step
+            mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
+            mag_dump_fldr_size = mag_dump_size * (self.parameters.magnetization_steps / self.parameters.mag_dump_step)
+            sizes = array(
+                [
+                    [eq_dump_size, eq_dump_fldr_size],
+                    [prod_dump_size, prod_dump_fldr_size],
+                    [mag_dump_size, mag_dump_fldr_size],
+                ]
+            )
+
+        self.io.directory_size_report(sizes, process=self.__name__)
 
     def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step) -> None:
         """
@@ -352,21 +403,23 @@ class Process:
 
         Kins, Temps = self.particles.kinetic_temperature()
         factor = self.parameters.J2erg if self.parameters.units == "mks" else 1.0 / self.parameters.J2erg
-
-        for sp, kp, tp in zip(self.species, Kins, Temps):
+        potential_energies = self.particles.potential_energies()
+        for sp, kp, tp, pot_sp in zip(self.species, Kins, Temps, potential_energies):
             sp_msg = (
                 f"Species {sp.name} :\n"
                 f"\tTemperature = {tp:.6e} {self.parameters.units_dict['temperature']} = {tp * self.parameters.eV2K:.6e} {self.parameters.units_dict['electron volt']}\n"
                 f"\tKinetic Energy = {kp:.6e} {self.parameters.units_dict['energy']} = {kp * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+                f"\tPotential Energy = {pot_sp:.6e} {self.parameters.units_dict['energy']} = {pot_sp * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
             )
             msg += sp_msg
 
         tot_kin_e = Kins.sum()
-        tot_e = tot_kin_e + self.particles.potential_energy
+        tot_pot_e = self.particles.potential_energy()
+        tot_e = tot_kin_e + tot_pot_e
 
         msg += (
             f"Initial total kinetic energy = {tot_kin_e:.6e} {self.parameters.units_dict['energy']} = {tot_kin_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
-            f"Initial total potential energy = {self.particles.potential_energy:.6e} {self.parameters.units_dict['energy']} = {self.particles.potential_energy * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+            f"Initial total potential energy = {tot_pot_e:.6e} {self.parameters.units_dict['energy']} = {tot_pot_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
             f"Initial total energy = {tot_e:.6e} {self.parameters.units_dict['energy']} = {tot_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
         )
         self.io.write_to_logger(msg)
@@ -1338,54 +1391,7 @@ class PreProcess(Process):
 
         self.time_evolution_loop(loops)
 
-        # Estimate size of dump folder
-        # Grab one file from the dump directory and get the size of it.
-        if self.parameters.equilibration_phase:
-            if not listdir(self.io.eq_dump_dir):
-                raise FileNotFoundError(
-                    "Could not estimate the size of the equilibration phase dumps"
-                    " because there are no dumps in the equilibration directory."
-                    "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
-                )
-            else:
-                eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-                eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
-        else:
-            eq_dump_size = 0
-            eq_dump_fldr_size = 0
-
-        if not listdir(self.io.prod_dump_dir):
-            raise FileNotFoundError(
-                "Could not estimate the size of the production phase dumps because"
-                " there are no dumps in the production directory."
-                "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
-            )
-
-        # Grab one file from the dump directory and get the size of it.
-        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
-        # Prepare arguments to pass for print out
-        sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
-        # Check for electrostatic equilibration
-        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
-            if not listdir(self.io.mag_dump_dir):
-                raise FileNotFoundError(
-                    "Could not estimate the size of the magnetization phase dumps because"
-                    " there are no dumps in the production directory."
-                    "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
-                )
-            dump = self.parameters.mag_dump_step
-            mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
-            mag_dump_fldr_size = mag_dump_size * (self.parameters.magnetization_steps / self.parameters.mag_dump_step)
-            sizes = array(
-                [
-                    [eq_dump_size, eq_dump_fldr_size],
-                    [prod_dump_size, prod_dump_fldr_size],
-                    [mag_dump_size, mag_dump_fldr_size],
-                ]
-            )
-
-        self.io.preprocess_sizing(sizes)
+        self.directory_sizes()
 
     def timing_study_calculation(self):
         """Estimate the best number of mesh points and cutoff radius."""
@@ -1674,7 +1680,7 @@ class Simulation(Process):
             self.io.dump(phase, self.particles, 0)
         return it_start
 
-    def equilibrate(self) -> None:
+    def equilibrate(self):
         """
         Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
         """
@@ -1709,7 +1715,7 @@ class Simulation(Process):
     #
     #     pass
 
-    def magnetize(self) -> None:
+    def magnetize(self):
         # Check for magnetization phase
         it_start = self.check_restart(phase="magnetization")
         # Update integrator
@@ -1726,7 +1732,7 @@ class Simulation(Process):
         time_eq = self.timer.stop()
         self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
 
-    def produce(self) -> None:
+    def produce(self):
 
         it_start = self.check_restart(phase="production")
 
@@ -1738,7 +1744,7 @@ class Simulation(Process):
         time_eq = self.timer.stop()
         self.io.time_stamp("Production", self.timer.time_division(time_eq))
 
-    def run(self) -> None:
+    def run(self):
         """Run the simulation."""
         time0 = self.timer.current()
 
@@ -1753,3 +1759,5 @@ class Simulation(Process):
 
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
+
+        self.directory_sizes()
