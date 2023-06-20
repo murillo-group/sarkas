@@ -640,7 +640,7 @@ class Parameters:
             4.0 * pi * self.average_charge**2 * self.total_num_density / (self.fourpie0 * self.average_mass)
         )
 
-    def from_dict(self, input_dict: dict) -> None:
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 
@@ -805,7 +805,7 @@ class Parameters:
         for i, sp in enumerate(species):
             sp.concentration = float(sp.num / tot_num_ptcls)
 
-    def setup(self, species) -> None:
+    def setup(self, species):
         """
         Setup simulations' parameters.
 

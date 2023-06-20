@@ -7,9 +7,9 @@ Average Atom Fit Potential
 The form of the potential is
 
 .. math::
-    U(r) = \frac{q_i q_j}{4 \pi \epsilon_0} \frac{e^{- \kappa r} }{r} \frac{1}{a + b e^{c (r - d)}},
+    U(r) = \frac{q_i q_j}{4 \pi \epsilon_0} a \frac{e^{- \kappa r} }{r} \frac{1}{a + b e^{c (r - d)}} + h \cos\left ( (r-i) j e^{-kr} \right ) e^{-l r},
 
-where :math:`\kappa, a, b, c, d` are fit parameters to be passed. Remember to use the correct units.
+where :math:`\kappa, a, b, c, d, h, i, j, k, l` are fit parameters to be passed. Remember to use the correct units.
 
 Force Error
 ***********
@@ -39,7 +39,7 @@ The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 """
 from numba import jit
 from numba.core.types import float64, UniTuple
-from numpy import array, exp, inf, pi, sqrt, zeros
+from numpy import array, cos, exp, inf, pi, sin, sqrt, zeros
 from scipy.integrate import quad
 
 
@@ -67,28 +67,42 @@ def fit_force(r, pot_matrix):
     """
 
     # Unpack the parameters
-    q2_e0 = pot_matrix[0]
-    kappa = pot_matrix[1]
-    a = pot_matrix[2]
-    b = pot_matrix[3]
-    c = pot_matrix[4]
-    d = pot_matrix[5]
+    a = pot_matrix[0]
+    b = pot_matrix[1]
+    c = pot_matrix[2]
+    d = pot_matrix[3]
+    e = pot_matrix[4]
+    f = pot_matrix[5]
+    g = pot_matrix[6]
+    h = pot_matrix[7]
+    i = pot_matrix[8]
+    j = pot_matrix[9]
+    k = pot_matrix[10]
+    l = pot_matrix[11]
 
-    yukawa = exp(-kappa * r) / r
-    denom = a + b * exp(c * r - c * d)
+    yukawa = a * exp(-b * r) / r
+    denom = 1 + exp(c * (r - d))
 
-    u_r = yukawa / denom
+    angle = (r - f) * g * exp(-h * r)
+    dangle_dr = -h * angle + g * exp(-h * r)
+    cos_term = e * cos(angle) * exp(-i * r)
 
-    # d/dr 1/r
-    f1 = u_r / r
-    # d/dr exp(-kappa r)
-    f2 = kappa * u_r
-    # d/dr denom
-    f3 = u_r / denom * (b * c * exp(c * r - c * d))
+    arg = -((k - r) ** 2) / l
+    gaussian_term = j * exp(arg)
+
+    u_r = yukawa / denom + cos_term + gaussian_term
+
+    # derivative of the yukawa term
+    # f1 = -yukawa/r/denom - b * yukawa/denom - c* yukawa/denom**2
+    f1 = -(1 / r + b + c / denom) * yukawa / denom
+
+    # derivative of the cos term
+    f2 = e * sin(angle) * (dangle_dr) * exp(-i * r) + i * cos_term
+
+    # derivative of the exp term
+    f3 = -2.0 * (k - r) / l * gaussian_term
 
     force = f1 + f2 + f3
-    force *= q2_e0
-    u_r *= q2_e0
 
     return u_r, force
 
@@ -118,37 +132,52 @@ def potential_derivatives(r, pot_matrix):
     """
 
     # Unpack the parameters
-    q2_e0 = pot_matrix[0]
-    kappa = pot_matrix[1]
-    a = pot_matrix[2]
-    b = pot_matrix[3]
-    c = pot_matrix[4]
-    d = pot_matrix[5]
+    a = pot_matrix[0]
+    b = pot_matrix[1]
+    c = pot_matrix[2]
+    d = pot_matrix[3]
+    e = pot_matrix[4]
+    f = pot_matrix[5]
+    g = pot_matrix[6]
+    h = pot_matrix[7]
+    i = pot_matrix[8]
+    j = pot_matrix[9]
+    k = pot_matrix[10]
+    l = pot_matrix[11]
 
-    yukawa = exp(-kappa * r) / r
-    denom = a + b * exp(c * r - c * d)
+    yukawa = a * exp(-b * r) / r
+    denom = 1.0 + exp(c * (r - d))
 
-    u_r = yukawa / denom
+    angle = (r - f) * g * exp(-h * r)
+    dangle_dr = -h * angle + g * exp(-h * r)
+    d2angle_dr2 = -h * dangle_dr - h * g * exp(-h * r)
+    cos_term = e * cos(angle) * exp(-i * r)
 
-    # d/dr 1/r
-    f1 = -u_r / r
-    # d/dr exp(-kappa r)
-    f2 = -kappa * u_r
-    # d/dr denom
-    f3 = -u_r / denom * (b * c * exp(c * r - c * d))
+    arg = -((k - r) ** 2) / l
+    gaussian_term = j * exp(arg)
 
-    dv_dr = q2_e0 * (f1 + f2 + f3)
+    u_r = yukawa / denom + cos_term + gaussian_term
 
-    # d/dr f1
-    h1 = 2.0 * f1 / r + f1 / denom * (b * c * exp(c * r - c * d)) + kappa * f1
-    # d/dr f2
-    h2 = kappa * f2 + f2 / r + f2 / denom * (b * c * exp(c * r - c * d))
-    # d/dr f3
-    h3 = f3 / r - f3 * (c - kappa) + 2 * f3 / denom * (b * c * exp(c * r - c * d))
+    # derivative of the yukawa term
+    # f1 = -yukawa/r/denom - b * yukawa/denom - c* yukawa/denom**2
+    f1 = -(1.0 / r + b + c / denom) * yukawa / denom
 
-    d2v_dr2 = q2_e0 * (h1 + h2 + h3)
+    # derivative of the cos term
+    f2 = -e * sin(angle) * (dangle_dr) * exp(-i * r) - i * cos_term
 
-    u_r *= q2_e0
+    # derivative of the exp term
+    f3 = 2.0 * (k - r) / l * gaussian_term
+
+    dv_dr = f1 + f2 + f3
+
+    # Derivative of f1
+    v1 = (1.0 / r**2 - c**2 / denom**2) * yukawa / denom - (1 / r + b + c / denom) * f1
+    # derivative of f2
+    v2 = -e * (cos(angle) * dangle_dr**2 + sin(angle) * (d2angle_dr2 - i * dangle_dr)) * exp(-i * r) - i * f2
+    # derivative of f3
+    v3 = (2.0 * (k - r) / l) * gaussian_term - 2.0 / l * gaussian_term
+
+    d2v_dr2 = v1 + v2 + v3
 
     return u_r, dv_dr, d2v_dr2
 
@@ -167,13 +196,20 @@ def pretty_print_info(potential):
         f"screening type : {potential.screening_length_type}\n"
         f"screening length = {potential.screening_length:.6e} {potential.units_dict['length']}\n"
         f"kappa = {potential.a_ws / potential.screening_length:.4f}\n"
+        f"Gamma_eff = {potential.coupling_constant:.2f}\n"
         f"Fit params:\n"
-        f"kappa = {potential.matrix[1, 0,0]*potential.a_ws:.3f} / a_ws = {potential.matrix[1, 0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"a = {potential.matrix[2,0,0]}\n"
-        f"b = {potential.matrix[3,0,0]}\n"
-        f"c = {potential.matrix[4,0,0] * potential.a_ws:.3f} /a_ws => {potential.matrix[4, 0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"d = {potential.matrix[5,0,0] / potential.a_ws:.3f} a_ws => {potential.matrix[4, 0,0]:.6e} {potential.units_dict['length']}\n"
-        f"Gamma_eff = {potential.coupling_constant:.2f}"
+        f"a = {potential.fit_params[0]:6e} beta/a_ws = {potential.matrix[0, 0, 0]:.6e} {potential.units_dict['energy']}\n"
+        f"b = {potential.fit_params[1]:.6e} / a_ws = {potential.matrix[1,0,0]:.6e} {potential.units_dict['inverse length']}\n"
+        f"c = {potential.fit_params[2]:.6e} / a_ws = {potential.matrix[2,0,0]:.6e} {potential.units_dict['inverse length']}\n"
+        f"d = {potential.fit_params[3]:.6e} a_ws = {potential.matrix[3,0,0]:.6e} {potential.units_dict['length']}\n"
+        f"e = {potential.fit_params[4]:.6e} beta = {potential.matrix[4,0,0]:.6e} {potential.units_dict['energy']}\n"
+        f"f = {potential.fit_params[5]:.6e} a_ws = {potential.matrix[5,0,0]:.6e} {potential.units_dict['length']}\n"
+        f"g = {potential.fit_params[6]:.6e} / a_ws = {potential.matrix[6,0,0]:.6e} {potential.units_dict['inverse length']}\n"
+        f"h = {potential.fit_params[7]:.6e} / a_ws = {potential.matrix[7,0,0]:.6e} {potential.units_dict['inverse length']}\n"
+        f"i = {potential.fit_params[8]:.6e} / a_ws = {potential.matrix[8,0,0]:.6e} {potential.units_dict['inverse length']}\n"
+        f"j = {potential.fit_params[9]:.6e} beta = {potential.matrix[9,0,0]:.6e} {potential.units_dict['energy']}\n"
+        f"k = {potential.fit_params[10]:.6e} a_ws = {potential.matrix[10,0,0]:.6e} {potential.units_dict['length']}\n"
+        f"l = {potential.fit_params[11]:.6e} a_ws^2 = {potential.matrix[11,0,0]:.6e} {potential.units_dict['length']}"
     )
     print(msg)
 
@@ -191,14 +227,23 @@ def update_params(potential):
     potential.fit_params = array(potential.fit_params)
     params_len = len(potential.fit_params)
 
-    potential.matrix = zeros((params_len + 2, potential.num_species, potential.num_species))
-
+    potential.matrix = zeros((params_len + 1, potential.num_species, potential.num_species))
+    beta = 1.0 / (potential.kB * potential.electron_temperature)
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
-            potential.matrix[1 : params_len + 1, i, j] = potential.fit_params
-            potential.matrix[-1, i, j] = potential.a_rs
-
+            potential.matrix[0, i, j] = potential.fit_params[0] * potential.a_ws / beta  # a
+            potential.matrix[1, i, j] = potential.fit_params[1] / potential.a_ws  # b
+            potential.matrix[2, i, j] = potential.fit_params[2] / potential.a_ws  # c
+            potential.matrix[3, i, j] = potential.fit_params[3] * potential.a_ws  # d
+            potential.matrix[4, i, j] = potential.fit_params[4] / beta  # e
+            potential.matrix[5, i, j] = potential.fit_params[5] * potential.a_ws  # f
+            potential.matrix[6, i, j] = potential.fit_params[6] / potential.a_ws  # g
+            potential.matrix[7, i, j] = potential.fit_params[7] / potential.a_ws  # h
+            potential.matrix[8, i, j] = potential.fit_params[8] / potential.a_ws  # i
+            potential.matrix[9, i, j] = potential.fit_params[9] / beta  # j
+            potential.matrix[10, i, j] = potential.fit_params[10] * potential.a_ws  # k
+            potential.matrix[11, i, j] = potential.fit_params[11] * potential.a_ws**2  # l
+            potential.matrix[12, i, j] = potential.a_rs
     potential.force = fit_force
     # _, f_rc = fit_force(potential.rc, potential.matrix[:, 0, 0])
     # _, f_2a = fit_force(2.0 * potential.a_ws, potential.matrix[:, 0, 0])
@@ -260,11 +305,16 @@ def calc_force_error_quad(a, rc, pot_matrix):
     """
 
     params = pot_matrix.copy()
-    params[0] = 1
-    # Un-dimensionalize the screening length.
-    params[1] *= a
-    params[4] *= a
-    params[5] /= a
+    params[0] /= a  # a
+    params[1] *= a  # b
+    params[2] *= a  # c
+    params[3] /= a  # d
+    params[5] /= a  # f
+    params[6] *= a  # g
+    params[7] *= a  # h
+    params[8] *= a  # i
+    params[10] /= a  # k
+    params[11] /= a**2  # l
 
     r_c = rc / a
 

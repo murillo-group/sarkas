@@ -53,7 +53,7 @@ from .tools.observables import (
 )
 
 # Sarkas modules
-from .utilities.io import InputOutput, pretty_print
+from .utilities.io import InputOutput, print_to_logger
 from .utilities.maths import force_error_analytic_pp, force_error_approx_pppm
 from .utilities.timing import SarkasTimer
 
@@ -1131,7 +1131,7 @@ class PreProcess(Process):
         # Header of process
         process_title = f"{'PostProcessing':^80}"
         msg = f"{'':*^80}\n {process_title} \n{'':*^80}"
-        pretty_print(msg, self.parameters.log_file, self.parameters.verbose)
+        print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
         if hasattr(self, "rdf"):
             self.rdf.setup(self.parameters)
@@ -1153,7 +1153,7 @@ class PreProcess(Process):
             self.ccf.setup(self.parameters)
             msg += self.vm.pretty_print_msg()
 
-        pretty_print(msg, self.parameters.log_file, self.parameters.verbose)
+        print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
     def make_pppm_plots_dir(self):
         self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")

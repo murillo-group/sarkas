@@ -965,7 +965,7 @@ class InputOutput:
         # Check whether energy files exist already
         if not exists(self.prod_energy_filename):
             # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
             if len(self.species_names) > 1:
                 for i, sp_name in enumerate(self.species_names):
                     dkeys.append("{} Kinetic Energy".format(sp_name))
@@ -979,7 +979,7 @@ class InputOutput:
 
         if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
             # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
             if len(self.species_names) > 1:
                 for i, sp_name in enumerate(self.species_names):
                     dkeys.append("{} Kinetic Energy".format(sp_name))
@@ -994,7 +994,7 @@ class InputOutput:
         if self.electrostatic_equilibration:
             if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
                 # Create the Energy file
-                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
+                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
                 if len(self.species_names) > 1:
                     for i, sp_name in enumerate(self.species_names):
                         dkeys.append("{} Kinetic Energy".format(sp_name))
@@ -1270,8 +1270,21 @@ def convert_bytes(tot_bytes):
     return [GB, MB, KB, rem]
 
 
-def pretty_print(msg, log_file, print_to_screen: bool = False):
-    """Print observable useful info to log file and to screen if `self.verbose` is `True`."""
+def print_to_logger(message, log_file, print_to_screen: bool = False):
+    """Print observable useful info to log file and to screen if `self.verbose` is `True`.
+
+    Parameters
+    ----------
+    message : str
+        Message to append to log and screen.
+
+    log_file: str
+        Path to log file.
+
+    print_to_screen : bool
+        Flag for printing to screen. Default = `False`.
+
+    """
 
     screen = sys.stdout
     f_log = open(log_file, "a+")
@@ -1280,7 +1293,7 @@ def pretty_print(msg, log_file, print_to_screen: bool = False):
     # redirect printing to file
     sys.stdout = f_log
     while repeat > 0:
-        print(msg)
+        print(message)
         repeat -= 1
         sys.stdout = screen
 

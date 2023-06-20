@@ -51,7 +51,7 @@ from scipy.linalg import norm
 from scipy.special import erfc, factorial
 from seaborn import histplot as sns_histplot
 
-from ..utilities.io import pretty_print
+from ..utilities.io import print_to_logger
 from ..utilities.maths import correlationfunction
 from ..utilities.misc import add_col_to_df
 from ..utilities.timing import datetime_stamp, SarkasTimer, time_stamp
@@ -1349,7 +1349,7 @@ class Observable:
         # Write log file
         datetime_stamp(self.log_file)
         msg = self.pretty_print_msg()
-        pretty_print(msg, self.log_file, self.verbose)
+        print_to_logger(msg, self.log_file, self.verbose)
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1612,7 +1612,7 @@ class CurrentCorrelationFunction(Observable):
 
             except FileNotFoundError:
                 msg = f"\nFile {self.filename_hdf_longitudinal} not found!\nComputing longitudinal ccf ..."
-                pretty_print(msg, self.log_file, self.verbose)
+                print_to_logger(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=longitudinal)
 
         elif transverse and not longitudinal:
@@ -1627,7 +1627,7 @@ class CurrentCorrelationFunction(Observable):
 
             except FileNotFoundError:
                 msg = f"\nFile {self.filename_hdf_transverse} not found!\nComputing transverse ccf ..."
-                pretty_print(msg, self.log_file, self.verbose)
+                print_to_logger(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=False, transverse=True)
 
         elif longitudinal and transverse:
@@ -1643,7 +1643,7 @@ class CurrentCorrelationFunction(Observable):
 
             except FileNotFoundError:
                 msg = f"\nFile {self.filename_hdf_longitudinal} or {self.filename_hdf_transverse} not found!\nComputing all ccf ..."
-                pretty_print(msg, self.log_file, self.verbose)
+                print_to_logger(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=True, transverse=True)
 
         else:
@@ -1651,7 +1651,7 @@ class CurrentCorrelationFunction(Observable):
                 "Direction not defined. Call the method with either option set to true."
                 "\nlongitudinal = True/False, transverse = True/False"
             )
-            pretty_print(msg, self.log_file, self.verbose)
+            print_to_logger(msg, self.log_file, self.verbose)
 
     @setup_doc
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
@@ -2477,7 +2477,7 @@ class PressureTensor(Observable):
         col_name = "Delta Pressure_Std"
         col_data = self.dataframe_slices[col_str].std(axis=1).values
         self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-        
+
         # Pressure ACF Mean and Std
         col_str = [f"Pressure ACF_slice {isl}" for isl in range(self.no_slices)]
         col_name = "Pressure ACF_Mean"
@@ -2507,18 +2507,18 @@ class PressureTensor(Observable):
                 col_name = pt_str_kin + f" {ax1}{ax2}_Std"
                 col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
                 self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-                
+
                 # Potential Terms
                 ij_col_str = [pt_str_pot + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
                 # Mean
                 col_name = pt_str_pot + f" {ax1}{ax2}_Mean"
                 col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data,col_name)
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
                 # Std
                 col_name = pt_str_pot + f" {ax1}{ax2}_Std"
                 col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data,col_name)
-                
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
                 # Full
                 ij_col_str = [pt_str + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
                 # Mean
@@ -2528,8 +2528,8 @@ class PressureTensor(Observable):
                 # Std
                 col_name = pt_str + f" {ax1}{ax2}_Std"
                 col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)   
-        
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 for k, ax3 in enumerate(dim_lbl):
@@ -2559,7 +2559,7 @@ class PressureTensor(Observable):
                         col_name = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
                         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
-                        
+
                         # Kinetic-Potential Terms
                         ij_col_acf_str = [
                             pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
