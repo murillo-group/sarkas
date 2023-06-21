@@ -3347,7 +3347,7 @@ class Thermodynamics(Observable):
                 # calculate the actual coupling constant
                 t_ratio = self.T_desired / self.dataframe["Temperature"].mean()
                 coupling_constant = (
-                    self.dataframe["Potential Energy"].mean() / self.dataframe["Total Kinetic Energy"].mean()
+                    self.dataframe["Total Potential Energy"].mean() / self.dataframe["Total Kinetic Energy"].mean()
                 )
                 to_append = [
                     f"Equilibration cycles = {eq_cycles}",
@@ -3405,11 +3405,11 @@ class Thermodynamics(Observable):
         else:
             self.parse()
 
-        Gamma = self.dataframe["Potential Energy"] / self.dataframe["Total Kinetic Energy"]
-        Gamma_T = self.dataframe["Potential Energy"] * self.beta / self.total_num_ptcls
+        Gamma = self.dataframe["Total Potential Energy"] / self.dataframe["Total Kinetic Energy"]
+        Gamma_T = self.dataframe["Total Potential Energy"] * self.beta / self.total_num_ptcls
         Gamma_a = self.coupling_constant * self.T_desired / (self.dataframe["Temperature"])
         time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
-            self.dataframe["Time"], self.dataframe["Potential Energy"], "Time", "ElectronVolt", self.units
+            self.dataframe["Time"], self.dataframe["Total Potential Energy"], "Time", "ElectronVolt", self.units
         )
 
         time = self.dataframe["Time"] * time_mul
