@@ -84,7 +84,7 @@ def fit_force(r, pot_matrix):
     dyuk_dr = -(1.0 / r + b) * yukawa
 
     sigmoid = 1.0 / (1.0 + exp(c * (r - d)))
-    dsig_dr = c * sigmoid**2
+    dsig_dr = -c * sigmoid**2 * exp(c * (r - d))
 
     angle = (r - f) * g * exp(-h * r)
     dangle_dr = -h * angle + g * exp(-h * r)
@@ -99,7 +99,8 @@ def fit_force(r, pot_matrix):
     f1 = -dyuk_dr * sigmoid - yukawa * dsig_dr
 
     # derivative of the cos term
-    f2 = e * sin(angle) * (dangle_dr) * exp(-i * r) + i * cos_term
+    # dcos_term = - e * sin(angle) * dangle_dr * exp(-i * r) - i * e * cos(angle)*exp(-i*r)
+    f2 = e * sin(angle) * dangle_dr * exp(-i * r) + i * cos_term
 
     # derivative of the exp term
     f3 = -2.0 * (k - r) / l * gaussian_term
@@ -149,11 +150,11 @@ def potential_derivatives(r, pot_matrix):
 
     yukawa = a * exp(-b * r) / r
     dyuk_dr = -(1.0 / r + b) * yukawa
-    d2yuk_dr2 = (1.0 / r**2) * yukawa + dyuk_dr * dyuk_dr
+    d2yuk_dr2 = (1.0 / r**2) * yukawa - (1.0 / r + b) * dyuk_dr
 
     sigmoid = 1.0 / (1.0 + exp(c * (r - d)))
-    dsig_dr = c * sigmoid**2
-    d2sig_dr2 = 2.0 * c * sigmoid * dsig_dr
+    dsig_dr = -c * exp(c * (r - d)) * sigmoid**2
+    d2sig_dr2 = -2.0 * c * exp(c * (r - d)) * sigmoid * dsig_dr + c * dsig_dr
 
     angle = (r - f) * g * exp(-h * r)
     dangle_dr = -h * angle + g * exp(-h * r)
@@ -167,10 +168,8 @@ def potential_derivatives(r, pot_matrix):
 
     # derivative of the yukawa term
     f1 = dyuk_dr * sigmoid + yukawa * dsig_dr
-
     # derivative of the cos term
     f2 = -e * sin(angle) * dangle_dr * exp(-i * r) - i * cos_term
-
     # derivative of the exp term
     f3 = 2.0 * (k - r) / l * gaussian_term
 
@@ -178,10 +177,8 @@ def potential_derivatives(r, pot_matrix):
 
     # Derivative of f1
     v1 = d2yuk_dr2 * sigmoid + dyuk_dr * dsig_dr + dyuk_dr * dsig_dr + yukawa * d2sig_dr2
-
     # derivative of f2
     v2 = -e * (cos(angle) * dangle_dr**2 + sin(angle) * (d2angle_dr2 - i * dangle_dr)) * exp(-i * r) - i * f2
-
     # derivative of f3
     v3 = -2.0 / l * gaussian_term + (2.0 * (k - r) / l) * f3
 
