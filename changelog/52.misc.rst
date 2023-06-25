@@ -8,3 +8,5 @@ removed mie energy calculation
 improved the colormap of make_pppm_color_map in PreProcess
 fixed a bug that prevented using the plot method in VACF observable.
 bug fixes
+added fmm3dpy dependency
+refactored tests for potentials and utilities modules to benefit from the pytest library
