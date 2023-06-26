@@ -232,6 +232,7 @@ class InputOutput:
                 vel=ptcls.vel,
                 acc=ptcls.acc,
                 pot_energies=ptcls.particle_potential_energy,
+                energy_current=ptcls.energy_current,
                 cntr=ptcls.pbc_cntr,
                 rdf_hist=ptcls.rdf_hist,
                 virial=ptcls.virial,
@@ -252,6 +253,7 @@ class InputOutput:
                 acc=ptcls.acc,
                 pot_energies=ptcls.particle_potential_energy,
                 virial=ptcls.virial,
+                energy_current=ptcls.energy_current,
                 time=tme,
             )
 
@@ -269,6 +271,7 @@ class InputOutput:
                 acc=ptcls.acc,
                 pot_energies=ptcls.particle_potential_energy,
                 virial=ptcls.virial,
+                energy_current=ptcls.energy_current,
                 time=tme,
             )
 
@@ -296,7 +299,7 @@ class InputOutput:
             w = csv.writer(f)
             w.writerow(data.values())
 
-    def dump_xyz(self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1) -> None:
+    def dump_xyz(self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1):
         """
         Save the XYZ file by reading Sarkas dumps.
 

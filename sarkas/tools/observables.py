@@ -2185,6 +2185,152 @@ class ElectricCurrent(Observable):
         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
 
+class EnergyCurrent(Observable):
+    """Energy Current."""
+
+    def __init__(self):
+        super().__init__()
+        self.__name__ = "energy_current"
+        self.__long_name__ = "Energy Current"
+        self.acf_observable = True
+
+    @setup_doc
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+
+        super().setup_init(params, phase, no_slices)
+        self.update_args(**kwargs)
+
+    @arg_update_doc
+    def update_args(self, **kwargs):
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(**kwargs)
+        self.update_finish()
+
+    @compute_doc
+    def compute(self):
+
+        t0 = self.timer.current()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        time_stamp(
+            self.log_file,
+            self.__long_name__ + " and its ACF Calculation",
+            self.timer.time_division(tend - t0),
+            self.verbose,
+        )
+
+    @calc_slice_doc
+    def calc_slices_data(self):
+
+        if self.dimensions == 3:
+            dim_lbl = ["X", "Y", "Z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["X", "Y"]
+
+        time = zeros(self.slice_steps)
+
+        # Let's compute
+        start_slice_step = 0
+        end_slice_step = self.slice_steps * self.dump_step
+        for isl in tqdm(
+            range(self.no_slices),
+            desc=f"\nCalculating {self.__long_name__} for slice ",
+            disable=not self.verbose,
+            position=0,
+        ):
+            # Parse the particles from the dump files
+            energy_current = zeros((3, self.num_species, self.slice_steps))
+
+            for it, dump in enumerate(
+                tqdm(
+                    range(start_slice_step, end_slice_step, self.dump_step),
+                    desc="Grab EC for timestep",
+                    position=1,
+                    disable=not self.verbose,
+                    leave=False,
+                )
+            ):
+                datap = load_from_restart(self.dump_dir, dump)
+                time[it] = datap["time"]
+
+                sp_start = 0
+                sp_end = 0
+                for isp, sp_num in enumerate(self.species_num):
+                    sp_end += sp_num
+                    ec = datap["energy_current"][:, sp_start:sp_end].sum(axis=-1)
+                    energy_current[0, isp, it] = ec[0]
+                    energy_current[1, isp, it] = ec[1]
+                    energy_current[2, isp, it] = ec[2]
+                    sp_start += sp_num
+
+            if isl == 0:
+                self.dataframe["Time"] = time.copy()
+                self.dataframe_acf["Time"] = time.copy()
+                self.dataframe_slices["Time"] = time.copy()
+                self.dataframe_acf_slices["Time"] = time.copy()
+
+            for isp, sp1 in enumerate(self.species_names):
+                for iax, ax in enumerate(dim_lbl):
+                    col_data = energy_current[iax, isp, :]
+                    col_name = f"{self.__long_name__}_{sp1}_{ax}_slice {isl}"
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+            for isp, sp1 in enumerate(self.species_names):
+                for isp2, sp2 in enumerate(self.species_names[isp:], isp):
+
+                    total_energy_current = zeros(self.slice_steps)
+                    for iax, ax in enumerate(dim_lbl):
+                        # Auto-correlation function
+                        col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}"
+                        ec_ACF = correlationfunction(energy_current[iax, isp, :], energy_current[iax, isp2, :])
+                        self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, ec_ACF, col_name)
+                        total_energy_current += ec_ACF / self.dimensions
+
+                    col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_Total_slice {isl}"
+                    self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, total_energy_current, col_name)
+
+            start_slice_step += self.slice_steps * self.dump_step
+            end_slice_step += self.slice_steps * self.dump_step
+            # end of slice loop
+
+    @avg_slice_doc
+    def average_slices_data(self):
+
+        if self.dimensions == 3:
+            dim_lbl = ["X", "Y", "Z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["X", "Y"]
+
+        for isp, sp1 in enumerate(self.species_names):
+            for _, ax in enumerate(dim_lbl):
+                columns = [f"{self.__long_name__}_{sp1}_{ax}_slice {isl}" for isl in range(self.no_slices)]
+                col_data = self.dataframe_slices[columns].mean(axis=1)
+                col_name = f"{self.__long_name__}_{sp1}_{ax}_Mean"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                col_data = self.dataframe_slices[columns].std(axis=1)
+                col_name = f"{self.__long_name__}_{sp1}_{ax}_Std"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+        # ACF data
+        dim_lbl.append("Total")
+        for isp, sp1 in enumerate(self.species_names):
+            for isp2, sp2 in enumerate(self.species_names[isp:], isp):
+                for _, ax in enumerate(dim_lbl):
+                    columns = [f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}" for isl in range(self.no_slices)]
+                    # Mean
+                    col_data = self.dataframe_acf_slices[columns].mean(axis=1)
+                    col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_Mean"
+                    self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                    # Std
+                    col_data = self.dataframe_acf_slices[columns].std(axis=1)
+                    col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_Std"
+                    self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+
+
 class PressureTensor(Observable):
     """Pressure Tensor."""
 
@@ -2445,7 +2591,6 @@ class PressureTensor(Observable):
 
     @avg_slice_doc
     def average_slices_data(self):
-        """Average and std over the slices"""
 
         if self.dimensions == 3:
             dim_lbl = ["x", "y", "z"]

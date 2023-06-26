@@ -1167,12 +1167,10 @@ class ElectricalConductivity(TransportCoefficients):
 
 
 class ThermalConductivity(TransportCoefficients):
-    def __init__(self, params, phase: str = "production", no_slices: int = 1):
+    def __init__(self):
         self.__name__ = "ThermalConductivity"
         self.__long_name__ = "Thermal Conductivity"
-        super().__init__(params, phase, no_slices)
-        datetime_stamp(self.log_file)
-        self.pretty_print()
+        super().__init__()
 
     def compute(
         self,
@@ -1180,7 +1178,99 @@ class ThermalConductivity(TransportCoefficients):
         plot: bool = True,
         display_plot: bool = False,
     ):
-        pass
+        """
+        Calculate the transport coefficient from the Green-Kubo formula.
+
+        Parameters
+        ----------
+        observable : :class:`sarkas.tools.observables.PressureTensor`
+            Observable object containing the ACF whose time integral leads to the viscsosity coefficients.
+
+        plot : bool, optional
+            Flag for making the dual plot of the ACF and transport coefficient. Default = True.
+
+        display_plot : bool, optional
+            Flag for displaying the plot if using the IPython. Default = False
+
+        """
+        observable.parse()
+        self.initialize_dataframes(observable)
+        # Initialize Timer
+        t0 = self.timer.current()
+
+        # Initialize some labels
+        if self.dimensions == 3:
+            dim_lbl = ["X", "Y", "Z"]
+        else:
+            dim_lbl = ["X", "Y"]
+
+        const = self.kB * self.beta**2 / self.box_volume
+        sp_vacf_str = f"{observable.__long_name__} ACF"
+        # Loop over time slices
+        for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
+
+            # Iterate over the number of species
+            for i, sp1 in enumerate(observable.species_names):
+                for j, sp2 in enumerate(observable.species_names):
+                    # Grab vacf data of each slice
+                    integrand = observable.dataframe_acf_slices[
+                        (sp_vacf_str, f"{sp1}-{sp2}", "Total", f"slice {isl}")
+                    ].values
+                    df_str = f"{self.__long_name__}_{sp1}-{sp2}_slice {isl}"
+                    self.dataframe_slices[df_str] = const * fast_integral_loop(time=self.time_array, integrand=integrand)
+
+        # Average and std of each transport coefficient.
+        for _, sp1 in enumerate(observable.species_names):
+            for _, sp2 in enumerate(observable.species_names):
+                col_str = [f"{self.__long_name__}_{sp1}-{sp2}_slice {isl}" for isl in range(observable.no_slices)]
+                # Mean
+                col_data = self.dataframe_slices[col_str].mean(axis=1).values
+                col_name = f"{self.__long_name__}_{sp1}-{sp2}_Mean"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                # Std
+                col_data = self.dataframe_slices[col_str].std(axis=1).values
+                col_name = f"{self.__long_name__}_{sp1}-{sp2}_Std"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+        # Time stamp
+        tend = self.timer.current()
+        self.time_stamp(f"{self.__long_name__} Calculation", self.timer.time_division(tend - t0))
+
+        # Save
+        self.save_hdf()
+        # Plot
+        if plot:
+            self.plot(observable, display_plot=display_plot)
 
     def plot(self, observable, display_plot: bool = False):
-        pass
+        """Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
+
+        Parameters
+        ----------
+        observable : :class:`sarkas.tools.observables.EnergyCurrent`
+            Observable object containing the ACF whose time integral leads to the self diffusion coefficient.
+
+        display_plot : bool, optional
+            Flag for displaying the plot if using the IPython. Default = False.
+        """
+        sp_vacf_str = f"{observable.__long_name__} ACF"
+        for _, sp1 in enumerate(observable.species_names):
+            for _, sp2 in enumerate(observable.species_names):
+
+                acf_avg = observable.dataframe_acf[(sp_vacf_str, f"{sp1}-{sp2}", "Total", "Mean")].to_numpy()
+                acf_std = observable.dataframe_acf[(sp_vacf_str, f"{sp1}-{sp2}", "Total", "Std")].to_numpy()
+
+                col_name = (f"{self.__long_name__}", f"{sp1}-{sp2}", "Mean")
+                tc_avg = self.dataframe[col_name].to_numpy()
+                col_name = (f"{self.__long_name__}", f"{sp1}-{sp2}", "Std")
+                tc_std = self.dataframe[col_name].to_numpy()
+
+                self.plot_tc(
+                    time=self.time_array,
+                    acf_data=column_stack((acf_avg, acf_std)),
+                    tc_data=column_stack((tc_avg, tc_std)),
+                    acf_name=sp_vacf_str,
+                    tc_name=f"{sp1}-{sp2} {self.__long_name__}",
+                    figname=f"{self.__name__}_{sp1}-{sp2}_Plot.png",
+                    show=display_plot,
+                )

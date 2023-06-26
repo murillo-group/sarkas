@@ -110,6 +110,7 @@ class Particles:
         self.acc = None
 
         self.virial = None
+        self.energy_current = None
         self.pbc_cntr = None
 
         self.names = None
@@ -400,7 +401,7 @@ class Particles:
 
         self.pbc_cntr = zeros((self.total_num_ptcls, 3))
         self.virial = zeros((3, 3, self.total_num_ptcls))
-
+        self.energy_current = zeros((3, self.total_num_ptcls))
         self.names = empty(self.total_num_ptcls, dtype=self.species_names.dtype)
         self.id = zeros(self.total_num_ptcls, dtype=int64)
 
@@ -821,8 +822,7 @@ class Particles:
             Total potential energy.
 
         """
-        # The 0.5 is needed to avoid double counting. Each element of the array contains the interaction of each particle with all the other.
-        pot = 0.5 * self.particle_potential_energy.sum()  #
+        pot = self.particle_potential_energy.sum()  #
         return pot
 
     def potential_energies(self):
@@ -842,7 +842,7 @@ class Particles:
         for i, num in enumerate(self.species_num):
             species_end += num
 
-            P[i] = 0.5 * self.particle_potential_energy[species_start:species_end].sum()
+            P[i] = self.particle_potential_energy[species_start:species_end].sum()
 
             species_start = species_end
 
