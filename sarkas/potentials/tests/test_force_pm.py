@@ -17,7 +17,7 @@ from scipy.constants import epsilon_0
 
 from ..force_pm import assgnmnt_func, create_k_arrays, force_optimized_green_function
 
-from pytest import mark
+from pytest import mark, fixture
 
 def test_create_k_arrays():
     N = 1000
@@ -86,8 +86,8 @@ def test_crete_k_arrays_2D():
 
     assert isclose(kz, kz_t).all()
 
-
-def test_fogf():
+@fixture(scope="session")
+def sample_Green_func():
     N = 1000
     box_lengths = (4.0 * pi * N / 3) ** (1.0 / 3.0) * array([1.0, 1.0, 1.0])
     kappa = 0.1
@@ -99,6 +99,10 @@ def test_fogf():
     G_k, kx_v, ky_v, kz_v, PM_err = force_optimized_green_function(
         box_lengths, h_array, mesh_sizes, aliases, cao, array([kappa, alpha_ewald, 1.0])
     )
+    return mesh_sizes, G_k, kx_v, ky_v, kz_v, PM_err
+
+def test_fogf_dimensions(sample_Green_func):
+    mesh_sizes, G_k, kx_v, ky_v, kz_v, _ = sample_Green_func
 
     # Check dimensions
     assert (G_k.shape == array([mesh_sizes[2], mesh_sizes[1], mesh_sizes[0]])).all()
@@ -109,7 +113,9 @@ def test_fogf():
 
     assert kz_v.shape == (mesh_sizes[2], 1, 1)
 
-    # Check values
+def test_fogf_values(sample_Green_func):
+    _,  G_k, kx_v, ky_v, kz_v, PM_err = sample_Green_func
+
     kx_t = array([[-0.38977771, 0.0]])
     ky_t = array([[-0.38977771], [0.0]])
     kz_t = array([[[-0.38977771]], [[0.0]]])
@@ -121,6 +127,7 @@ def test_fogf():
         ]
     )
 
+    # Check values
     assert isclose(kx_v, kx_t).all()
 
     assert isclose(ky_v, ky_t).all()
