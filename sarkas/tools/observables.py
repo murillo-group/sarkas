@@ -4734,7 +4734,7 @@ def calculate_particles_enthalpy(pot, vel, virial, species_mass, species_np, dim
 
         vir_sp = virial[0, 0, sp_start:sp_end] + virial[1, 1, sp_start:sp_end] + virial[2, 2, sp_start:sp_end]
         # Note: The pressure is defined by (kin + vir)/volume. However since I need to multiply by volume to get the enthalpy I decided to not divide and then multiply by volume
-        enthalpy[sp_start:sp_end] = kin_sp + pot_sp + kin_sp + vir_sp / dimensions
+        enthalpy[sp_start:sp_end] = kin_sp + pot_sp + (kin_sp + vir_sp) / dimensions
 
         sp_start += sp_num
 

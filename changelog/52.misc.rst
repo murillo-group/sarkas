@@ -9,3 +9,4 @@ improved the colormap of make_pppm_color_map in PreProcess
 fixed a bug that prevented using the plot method in VACF observable.
 bug fixes
 Calculate and print to logger the sizes of the dumps directories after Simulation.run()
+Added remove drift before any stage of the simulation.

@@ -970,12 +970,10 @@ class Particles:
         """
         species_start = 0
         species_end = 0
-        momentum = self.masses * self.vel.transpose()
         for ic, nums in enumerate(self.species_num):
             species_end += nums
-            P = momentum[:, species_start:species_end].sum(axis=1)
-            self.vel[species_start:species_end, :] -= P / (nums * self.masses[species_end - 1])
-            species_start = species_end
+            self.vel[species_start:species_end, :] -= self.vel[species_start:species_end, :].mean(axis=0)
+            species_start += nums
 
     def setup(self, params, species):
         """

@@ -1749,12 +1749,19 @@ class Simulation(Process):
         time0 = self.timer.current()
 
         if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
+            if self.parameters.remove_initial_drift:
+                self.particles.remove_drift()
             self.equilibrate()
 
         if self.parameters.magnetization_phase:
+            if self.parameters.remove_initial_drift:
+                self.particles.remove_drift()
             self.magnetize()
 
         if self.parameters.production_phase:
+            if self.parameters.remove_initial_drift:
+                self.particles.remove_drift()
+
             self.produce()
 
         time_tot = self.timer.current()

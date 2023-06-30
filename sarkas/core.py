@@ -285,6 +285,7 @@ class Parameters:
         self.log_file = None
         self.measure = False
         self.magnetized = False
+        self.remove_initial_drift = True
         self.plot_style = None
         self.pre_run = False
         self.threading = False
