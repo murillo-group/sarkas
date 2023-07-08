@@ -346,8 +346,9 @@ class InputOutput:
         dumps.sort(key=num_sort)
         dumps_dict = {}
         for i in dumps:
-            _, key = i.strip("_")
-            dumps_dict[int(key)] = i
+            _, key = i.split("_")
+            key_num, _ = key.split(".")
+            dumps_dict[int(key_num)] = i
 
         if not dump_end:
             dump_end = len(dumps) * dump_step
@@ -371,13 +372,17 @@ class InputOutput:
 
             f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+            savetxt(
+                f_xyz,
+                data[["names", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "acc_x", "acc_y", "acc_z"]],
+                fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e",
+            )
 
         f_xyz.close()
 
     def dump_potfit_config(
         self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1
-    ) -> None:
+    ):
         """Write configuration files for PotFit by reading the npz dumps.
 
         Parameters
