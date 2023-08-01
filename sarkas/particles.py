@@ -225,6 +225,8 @@ class Particles:
         self.num_species = params.num_species
         self.species_num = params.species_num.copy()
         self.dimensions = params.dimensions
+        self.box_volume = params.box_volume
+        self.pbox_volume = params.pbox_volume
         self.load_method = params.load_method
         self.restart_step = params.restart_step
         self.particles_input_file = params.particles_input_file
@@ -848,6 +850,12 @@ class Particles:
 
         return P
 
+    def pressure_tensors_species(self):
+        """Calculate the pressure tensor of each species. """
+        p, p_kin_tensor, p_pot_tensor = calc_pressure_tensor(self.vel, self.virial, self.masses, self.species_num, self.box_volume, self.dimensions)
+        
+        return p, p_kin_tensor, p_pot_tensor
+    
     def random_reject(self, r_reject):
         """
         Place particles by sampling a uniform distribution from 0 to LP (the initial particle box length)
@@ -1034,7 +1042,48 @@ class Particles:
             self.initialize_positions()
             self.initialize_velocities(species)
             self.initialize_accelerations()
+    
+    def thermodynamics(self):
+        """Calculate thermodynamics quantities from particles data.
+        
+        Return
+        ------
+        
+        data : dict
+            Thermodynamics data. In case of multiple species, it returns thermodynamics quantities per species. 
+            keys = [`Total Energy`, `Total Kinetic Energy`, `Total Potential Energy`, `Total Temperature`, `Total Pressure`,
+            `Ideal Pressure`, `Excess Pressure, `Enthalpy`] 
+        """
+        kinetic_energies, temperatures = self.kinetic_temperature()
+        potential_energies = self.potential_energies()
+        tot_pot = self.potential_energy()
+        tot_kin = kinetic_energies.sum()
+        sp_pressure, sp_p_kin_tensor, sp_p_pot_tensor = self.pressure_tensors_species()
+        tot_enthalpy = tot_kin + tot_pot + sp_pressure.sum() * self.box_volume
+        # Save Energy data
+        data = {
+            "Total Energy": tot_kin + tot_pot,
+            "Total Kinetic Energy": tot_kin,
+            "Total Potential Energy": tot_pot,
+            "Total Temperature": self.species_num.transpose() @ temperatures / self.total_num_ptcls,
+            "Total Pressure": sp_pressure.sum(),
+            "Ideal Pressure": sp_p_kin_tensor.sum(axis = -1).trace()/self.dimensions,
+            "Excess Pressure": sp_p_pot_tensor.sum(axis = -1).trace()/self.dimensions,
+            "Enthalpy": tot_enthalpy
+        }
 
+        if len(temperatures) > 1:
+            for sp, (temp, kin, pot) in enumerate(zip(temperatures, kinetic_energies, potential_energies)):
+                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
+                data[f"{self.species_names[sp]} Potential Energy"] = pot
+                data[f"{self.species_names[sp]} Temperature"] = temp
+                data[f"{self.species_names[sp]} Total Pressure"] = sp_pressure[sp]
+                data[f"{self.species_names[sp]} Ideal Pressure"] = sp_p_kin_tensor[:,:,sp].trace()/self.dimensions
+                data[f"{self.species_names[sp]} Excess Pressure"] = sp_p_pot_tensor[:,:,sp].trace()/self.dimensions
+                data[f"{self.species_names[sp]} Enthalpy"] = kin + pot + sp_pressure[sp]*self.box_volume
+
+        return data
+    
     def uniform_no_reject(self, mins, maxs):
         """
         Randomly distribute particles along each direction.
@@ -1086,3 +1135,63 @@ class Particles:
 
                 self.id[species_start:species_end] = ic
                 species_start += sp.num
+
+
+def calc_pressure_tensor(vel, virial, masses, species_np, box_volume, dimensions):
+    """
+    Calculate the pressure tensor.
+
+    Parameters
+    ----------
+    vel : numpy.ndarray
+        Particles' velocities.
+
+    virial : numpy.ndarray
+        Virial tensor of each particle. Shape= (3, 3, ``total_num_ptcls``).
+        Note that the size of the first two axis is 3 even if the system is 2D. 
+
+    masses : numpy.ndarray
+        Mass of each species. Shape = (``num_species``)
+
+    species_np : numpy.ndarray
+        Number of particles of each species.
+
+    box_volume : float
+        Volume of simulation's box.
+
+    dimensions : int
+        Number of dimensions.
+
+    Returns
+    -------
+    pressure : float
+        Scalar Pressure i.e. trace of the pressure tensor
+
+    pressure_kin : numpy.ndarray
+        Kinetic part of the Pressure tensor. Shape(``no_dim``,``no_dim``, ``num_species``)
+
+    pressure_pot : numpy.ndarray
+        Potential energy part of the Pressure tensor. Shape(``no_dim``,``no_dim``, `num_species`)
+
+    """
+    sp_start = 0
+    sp_end = 0
+
+    # Rescale vel of each particle by their individual mass
+    pressure_kin = zeros( (3,3, species_np))
+    pressure_pot = zeros( (3,3, species_np))
+
+    for sp, num in enumerate(species_np):
+        sp_end += num
+        vel[sp_start:sp_end, :] *= sqrt(masses[sp_start:sp_end])
+        pressure_kin[:,:,sp] = (vel[sp_start:sp_end, :].transpose() @ vel[sp_start:sp_end,:]) / box_volume
+        pressure_pot[:,:,sp] = virial[:,:,sp_start:sp_end].sum(axis = -1) / box_volume
+        # .trace is not supported by numba. hence no njit
+        # Pressure of each species
+        pressure = (pressure_kin[:,:,sp] + pressure_pot[:,:,sp] ).trace() / dimensions
+        sp_start += num
+
+    # Calculate the total pressure tensor
+    # pressure_tensor = (pressure_kin + pressure_pot).sum(axis = -1)
+
+    return pressure, pressure_kin, pressure_pot

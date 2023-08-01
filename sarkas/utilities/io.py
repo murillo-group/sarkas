@@ -56,31 +56,31 @@ class InputOutput:
 
     """
 
-    electrostatic_equilibration: bool = False
-    eq_dump_dir: str = "dumps"
-    equilibration_dir: str = "Equilibration"
-    input_file: str = None  # MD run input file.
-    job_dir: str = None
-    job_id: str = None
-    log_file: str = None
-    mag_dump_dir: str = "dumps"
-    magnetization_dir: str = "Magnetization"
-    magnetized: bool = False
-    preprocess_file: str = None
-    preprocessing: bool = False
-    preprocessing_dir: str = "PreProcessing"
-    process: str = "preprocessing"
-    processes_dir: str = None
-    prod_dump_dir: str = "dumps"
-    production_dir: str = "Production"
-    postprocessing_dir: str = "PostProcessing"
-    simulations_dir: str = "Simulations"
-    simulation_dir: str = "Simulation"
-    verbose: bool = False
-    xyz_dir: str = None
-    xyz_filename: str = None
-
     def __init__(self, process: str = "preprocess"):
+        
+        self.dump_particles_data: bool = True
+        self.electrostatic_equilibration: bool = False
+        self.eq_dump_dir: str = "dumps"
+        self.equilibration_dir: str = "Equilibration"
+        self.input_file: str = None  # MD run input file.
+        self.job_dir: str = None
+        self.job_id: str = None
+        self.log_file: str = None
+        self.mag_dump_dir: str = "dumps"
+        self.magnetization_dir: str = "Magnetization"
+        self.magnetized: bool = False
+        self.preprocess_file: str = None
+        self.preprocessing: bool = False
+        self.preprocessing_dir: str = "PreProcessing"
+        self.processes_dir: str = None
+        self.prod_dump_dir: str = "dumps"
+        self.production_dir: str = "Production"
+        self.postprocessing_dir: str = "PostProcessing"
+        self.simulations_dir: str = "Simulations"
+        self.simulation_dir: str = "Simulation"
+        self.verbose: bool = False
+        self.xyz_dir: str = None
+        self.xyz_filename: str = None
         self.process = process
 
     def __repr__(self):
@@ -206,7 +206,38 @@ class InputOutput:
         else:
             self.log_file = join(self.processes_dir[indx], self.log_file)
 
-    def dump(self, phase, ptcls, it):
+    def dump_thermodynamics(self, phase,ptcls, it):
+        """
+        Save particles' data to binary file for future restart.
+
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
+
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+        if phase == "production":
+            energy_file = self.prod_energy_filename
+
+        elif phase == "equilibration":
+            energy_file = self.eq_energy_filename
+
+        elif phase == "magnetization":
+            energy_file = self.mag_energy_filename
+
+        data = ptcls.calc_ptcls_thermodynamics()
+        data["Time"] = it * self.dt
+        
+        with open(energy_file, "a") as f:
+            w = csv.writer(f)
+            w.writerow(data.values())
+
+    def dump_particles_arrays(self, phase, ptcls, it):
         """
         Save particles' data to binary file for future restart.
 
@@ -277,24 +308,9 @@ class InputOutput:
 
             energy_file = self.mag_energy_filename
 
-        kinetic_energies, temperatures = ptcls.kinetic_temperature()
-        potential_energies = ptcls.potential_energies()
-        tot_pot = ptcls.potential_energy()
-        tot_kin = kinetic_energies.sum()
-        # Save Energy data
-        data = {
-            "Time": it * self.dt,
-            "Total Energy": tot_kin + tot_pot,
-            "Total Kinetic Energy": tot_kin,
-            "Total Potential Energy": tot_pot,
-            "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
-        }
-        if len(temperatures) > 1:
-            for sp, (temp, kin, pot) in enumerate(zip(temperatures, kinetic_energies, potential_energies)):
-                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
-                data[f"{self.species_names[sp]} Potential Energy"] = pot
-                data[f"{self.species_names[sp]} Temperature"] = temp
-
+        data = ptcls.calc_ptcls_thermodynamics()
+        data["Time"] = it * self.dt
+        
         with open(energy_file, "a") as f:
             w = csv.writer(f)
             w.writerow(data.values())
@@ -970,49 +986,42 @@ class InputOutput:
         """
 
         self.copy_params(params)
+        dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy",
+                  "Temperature", "Total Pressure", "Ideal Pressure", "Excess Pressure", "Enthalpy"]
+            # Create the Energy file
+        if len(self.species_names) > 1:
+            for i, sp_name in enumerate(self.species_names):
+                dkeys.append("{} Kinetic Energy".format(sp_name))
+                dkeys.append("{} Potential Energy".format(sp_name))
+                dkeys.append("{} Temperature".format(sp_name))
+                dkeys.append("{} Total Pressure".format(sp_name))
+                dkeys.append("{} Ideal Pressure".format(sp_name))
+                dkeys.append("{} Excess Pressure".format(sp_name))
+                dkeys.append("{} Enthalpy".format(sp_name))
         # Check whether energy files exist already
         if not exists(self.prod_energy_filename):
-            # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
-            if len(self.species_names) > 1:
-                for i, sp_name in enumerate(self.species_names):
-                    dkeys.append("{} Kinetic Energy".format(sp_name))
-                    dkeys.append("{} Potential Energy".format(sp_name))
-                    dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
-
             with open(self.prod_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
         if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
-            # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
-            if len(self.species_names) > 1:
-                for i, sp_name in enumerate(self.species_names):
-                    dkeys.append("{} Kinetic Energy".format(sp_name))
-                    dkeys.append("{} Potential Energy".format(sp_name))
-                    dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
-
             with open(self.eq_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
         if self.electrostatic_equilibration:
             if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
-                # Create the Energy file
-                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
-                if len(self.species_names) > 1:
-                    for i, sp_name in enumerate(self.species_names):
-                        dkeys.append("{} Kinetic Energy".format(sp_name))
-                        dkeys.append("{} Potential Energy".format(sp_name))
-                        dkeys.append("{} Temperature".format(sp_name))
                 data = dict.fromkeys(dkeys)
+            with open(self.mag_energy_filename, "w+") as f:
+                w = csv.writer(f)
+                w.writerow(data.keys())
 
-                with open(self.mag_energy_filename, "w+") as f:
-                    w = csv.writer(f)
-                    w.writerow(data.keys())
+        if self.dump_particles_data:
+            self.dump = self.dump_particles_arrays
+        else:
+            self.dump = self.dump_thermodynamics
 
     def simulation_summary(self, simulation):
         """

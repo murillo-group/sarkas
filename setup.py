@@ -64,7 +64,6 @@ BASE_DEPENDENCIES = [
     "tables",
     "tqdm",
     "pyfiglet==0.8.post1",
-    "pickle5",
     "jupyter",
     "jupyterlab",
     "notebook",
