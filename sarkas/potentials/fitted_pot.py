@@ -204,17 +204,17 @@ def pretty_print_info(potential):
         f"Gamma_eff = {potential.coupling_constant:.2f}\n"
         f"Fit params:\n"
         f"a = {potential.fit_params[0]:6e} beta/a_ws = {potential.matrix[0, 0, 0]:.6e} {potential.units_dict['energy']}\n"
-        f"b = {potential.fit_params[1]:.6e} / a_ws = {potential.matrix[1,0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"c = {potential.fit_params[2]:.6e} / a_ws = {potential.matrix[2,0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"d = {potential.fit_params[3]:.6e} a_ws = {potential.matrix[3,0,0]:.6e} {potential.units_dict['length']}\n"
-        f"e = {potential.fit_params[4]:.6e} beta = {potential.matrix[4,0,0]:.6e} {potential.units_dict['energy']}\n"
-        f"f = {potential.fit_params[5]:.6e} a_ws = {potential.matrix[5,0,0]:.6e} {potential.units_dict['length']}\n"
-        f"g = {potential.fit_params[6]:.6e} / a_ws = {potential.matrix[6,0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"h = {potential.fit_params[7]:.6e} / a_ws = {potential.matrix[7,0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"i = {potential.fit_params[8]:.6e} / a_ws = {potential.matrix[8,0,0]:.6e} {potential.units_dict['inverse length']}\n"
-        f"j = {potential.fit_params[9]:.6e} beta = {potential.matrix[9,0,0]:.6e} {potential.units_dict['energy']}\n"
-        f"k = {potential.fit_params[10]:.6e} a_ws = {potential.matrix[10,0,0]:.6e} {potential.units_dict['length']}\n"
-        f"l = {potential.fit_params[11]:.6e} a_ws^2 = {potential.matrix[11,0,0]:.6e} {potential.units_dict['length']}"
+        f"b = {potential.fit_params[1]:.6e} / a_ws = {potential.matrix[0,0,1]:.6e} {potential.units_dict['inverse length']}\n"
+        f"c = {potential.fit_params[2]:.6e} / a_ws = {potential.matrix[0,0,2]:.6e} {potential.units_dict['inverse length']}\n"
+        f"d = {potential.fit_params[3]:.6e} a_ws = {potential.matrix[0,0,3]:.6e} {potential.units_dict['length']}\n"
+        f"e = {potential.fit_params[4]:.6e} beta = {potential.matrix[0,0,4]:.6e} {potential.units_dict['energy']}\n"
+        f"f = {potential.fit_params[5]:.6e} a_ws = {potential.matrix[0,0,5]:.6e} {potential.units_dict['length']}\n"
+        f"g = {potential.fit_params[6]:.6e} / a_ws = {potential.matrix[0,0,6]:.6e} {potential.units_dict['inverse length']}\n"
+        f"h = {potential.fit_params[7]:.6e} / a_ws = {potential.matrix[0,0,7]:.6e} {potential.units_dict['inverse length']}\n"
+        f"i = {potential.fit_params[8]:.6e} / a_ws = {potential.matrix[0,0,8]:.6e} {potential.units_dict['inverse length']}\n"
+        f"j = {potential.fit_params[9]:.6e} beta = {potential.matrix[0,0,9]:.6e} {potential.units_dict['energy']}\n"
+        f"k = {potential.fit_params[10]:.6e} a_ws = {potential.matrix[0,0,10]:.6e} {potential.units_dict['length']}\n"
+        f"l = {potential.fit_params[11]:.6e} a_ws^2 = {potential.matrix[0,0,11]:.6e} {potential.units_dict['length']}"
     )
     print(msg)
 
@@ -232,29 +232,27 @@ def update_params(potential):
     potential.fit_params = array(potential.fit_params)
     params_len = len(potential.fit_params)
 
-    potential.matrix = zeros((params_len + 1, potential.num_species, potential.num_species))
+    potential.matrix = zeros((potential.num_species, potential.num_species, params_len + 1))
     beta = 1.0 / (potential.kB * potential.electron_temperature)
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = potential.fit_params[0] * potential.a_ws / beta  # a
-            potential.matrix[1, i, j] = potential.fit_params[1] / potential.a_ws  # b
-            potential.matrix[2, i, j] = potential.fit_params[2] / potential.a_ws  # c
-            potential.matrix[3, i, j] = potential.fit_params[3] * potential.a_ws  # d
-            potential.matrix[4, i, j] = potential.fit_params[4] / beta  # e
-            potential.matrix[5, i, j] = potential.fit_params[5] * potential.a_ws  # f
-            potential.matrix[6, i, j] = potential.fit_params[6] / potential.a_ws  # g
-            potential.matrix[7, i, j] = potential.fit_params[7] / potential.a_ws  # h
-            potential.matrix[8, i, j] = potential.fit_params[8] / potential.a_ws  # i
-            potential.matrix[9, i, j] = potential.fit_params[9] / beta  # j
-            potential.matrix[10, i, j] = potential.fit_params[10] * potential.a_ws  # k
-            potential.matrix[11, i, j] = potential.fit_params[11] * potential.a_ws**2  # l
-            potential.matrix[12, i, j] = potential.a_rs
+            potential.matrix[i, j, 0] = potential.fit_params[0] * potential.a_ws / beta  # a
+            potential.matrix[i, j, 1] = potential.fit_params[1] / potential.a_ws  # b
+            potential.matrix[i, j, 2] = potential.fit_params[2] / potential.a_ws  # c
+            potential.matrix[i, j, 3] = potential.fit_params[3] * potential.a_ws  # d
+            potential.matrix[i, j, 4] = potential.fit_params[4] / beta  # e
+            potential.matrix[i, j, 5] = potential.fit_params[5] * potential.a_ws  # f
+            potential.matrix[i, j, 6] = potential.fit_params[6] / potential.a_ws  # g
+            potential.matrix[i, j, 7] = potential.fit_params[7] / potential.a_ws  # h
+            potential.matrix[i, j, 8] = potential.fit_params[8] / potential.a_ws  # i
+            potential.matrix[i, j, 9] = potential.fit_params[9] / beta  # j
+            potential.matrix[i, j, 10] = potential.fit_params[10] * potential.a_ws  # k
+            potential.matrix[i, j, 11] = potential.fit_params[11] * potential.a_ws**2  # l
+            potential.matrix[i, j, 12] = potential.a_rs
+
     potential.force = fit_force
-    # _, f_rc = fit_force(potential.rc, potential.matrix[:, 0, 0])
-    # _, f_2a = fit_force(2.0 * potential.a_ws, potential.matrix[:, 0, 0])
-    # potential.force_error = f_rc / f_2a
     potential.potential_derivatives = potential_derivatives
-    potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[:, 0, 0])
+    potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[0, 0, :])
 
 
 def force_error_integrand(r, pot_matrix):

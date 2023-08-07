@@ -207,7 +207,7 @@ class Parameters:
 
     np_per_side : numpy.ndarray
         Number of particles per simulation's box side.
-        The product of its components should be equal to ``total_num_ptcls``.
+        The product of its components should be equal to :attr:`total_num_ptcls`.
 
     pre_run : bool
         Flag for preprocessing phase.
@@ -303,6 +303,7 @@ class Parameters:
         self.np_per_side = None
         self.num_species = 1
         self.magnetic_field = None
+        self.observables_list = None
         self.species_lj_sigmas = None
         self.species_names = None
         self.species_num = None

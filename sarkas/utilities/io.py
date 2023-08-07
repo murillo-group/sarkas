@@ -57,9 +57,8 @@ class InputOutput:
     """
 
     def __init__(self, process: str = "preprocess"):
-        
-        self.dump_particles_data: bool = True
-        self.electrostatic_equilibration: bool = False
+
+        self.electrostatic_equilibration: bool = True
         self.eq_dump_dir: str = "dumps"
         self.equilibration_dir: str = "Equilibration"
         self.input_file: str = None  # MD run input file.
@@ -78,6 +77,23 @@ class InputOutput:
         self.postprocessing_dir: str = "PostProcessing"
         self.simulations_dir: str = "Simulations"
         self.simulation_dir: str = "Simulation"
+        self.particles_directories: dict = {
+            "equilibration": "Equilibration",
+            "magnetization": "Magnetization",
+            "production": "Production",
+        }
+        self.particles_filenames: dict = {"equilibration": None, "magnetization": None, "production": None}
+        self.observables_filenames: dict = {"equilibration": None, "magnetization": None, "production": None}
+        self.observables_directories: dict = {
+            "equilibration": "Equilibration",
+            "magnetization": "Magnetization",
+            "production": "Production",
+        }
+        self.thermodynamics_filenames: dict = {"equilibration": None, "magnetization": None, "production": None}
+
+        self.save_pva: bool = True
+        self.save_onthefly_observables: bool = False
+
         self.verbose: bool = False
         self.xyz_dir: str = None
         self.xyz_filename: str = None
@@ -111,7 +127,7 @@ class InputOutput:
 
         """
         warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release. Use potential.method_pretty_print()",
+            "Deprecated feature. It will be removed in a future release. Use potential.method_pretty_print()",
             category=DeprecationWarning,
         )
         simulation.potential.method_pretty_print()
@@ -177,36 +193,143 @@ class InputOutput:
         # Equilibration directory and sub_dir
         self.equilibration_dir = join(self.processes_dir[indx], self.equilibration_dir)
         self.eq_dump_dir = join(self.equilibration_dir, "dumps")
+        self.particles_directories["equilibration"] = self.eq_dump_dir
+
         # Production dir and sub_dir
         self.production_dir = join(self.processes_dir[indx], self.production_dir)
         self.prod_dump_dir = join(self.production_dir, "dumps")
+        self.particles_directories["production"] = self.prod_dump_dir
 
         # Production phase filenames
-        self.prod_energy_filename = join(self.production_dir, "ProductionEnergy_" + self.job_id + ".csv")
+        self.prod_energy_filename = join(self.production_dir, f"ProductionEnergy_{self.job_id}.csv")
         self.prod_ptcls_filename = join(self.prod_dump_dir, "checkpoint_")
 
         # Equilibration phase filenames
-        self.eq_energy_filename = join(self.equilibration_dir, "EquilibrationEnergy_" + self.job_id + ".csv")
+        self.eq_energy_filename = join(self.equilibration_dir, f"EquilibrationEnergy_{self.job_id}.csv")
         self.eq_ptcls_filename = join(self.eq_dump_dir, "checkpoint_")
 
+        self.thermodynamics_filenames["equilibration"] = self.eq_energy_filename
+        self.thermodynamics_filenames["production"] = self.prod_energy_filename
+
+        self.particles_filenames["equilibration"] = self.eq_ptcls_filename
+        self.particles_filenames["production"] = self.prod_ptcls_filename
+
+        if self.save_onthefly_observables:
+            phases = ["equilibration", "production"]
+            for p in phases:
+                self.observables_directories[p] = join(self.job_dir, self.observables_directories[p])
+                self.observables_filenames[p] = join(self.observables_directories[p], "observables_")
+
         # Magnetic dir
-        if self.electrostatic_equilibration:
+        if self.magnetized and self.electrostatic_equilibration:
             self.magnetization_dir = join(self.processes_dir[indx], self.magnetization_dir)
             self.mag_dump_dir = join(self.magnetization_dir, "dumps")
+            self.particles_directories["magnetization"] = self.mag_dump_dir
             # Magnetization phase filenames
-            self.mag_energy_filename = join(self.magnetization_dir, "MagnetizationEnergy_" + self.job_id + ".csv")
+            self.mag_energy_filename = join(self.magnetization_dir, f"MagnetizationEnergy_{self.job_id}.csv")
             self.mag_ptcls_filename = join(self.mag_dump_dir, "checkpoint_")
+            self.thermodynamics_filenames["magnetization"] = self.mag_energy_filename
 
         if self.process == "postprocessing":
             indx = 2  # Redirect to the correct folder
 
         # Log File
         if self.log_file is None:
-            self.log_file = join(self.processes_dir[indx], "log_" + self.job_id + ".out")
+            self.log_file = join(self.processes_dir[indx], f"log_{self.job_id}.out")
         else:
             self.log_file = join(self.processes_dir[indx], self.log_file)
 
-    def dump_thermodynamics(self, phase,ptcls, it):
+    def dump_obs_therm(self, phase, ptcls, it):
+        """
+        Save particles' position, velocity, and acceleration data to binary file for future restart.
+
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
+
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+        # if phase == "production":
+        #     ptcls_file = self.prod_ptcls_filename + str(it)
+
+        # elif phase == "equilibration":
+        #     ptcls_file = self.eq_ptcls_filename + str(it)
+
+        # elif phase == "magnetization":
+        #     ptcls_file = self.mag_ptcls_filename + str(it)
+
+        self.dump_observables(phase, ptcls, it)
+        self.dump_thermodynamics(phase, ptcls, it)
+
+    def dump_pva_obs_therm(self, phase, ptcls, it):
+        """
+        Save particles' position, velocity, and acceleration data to binary file for future restart.
+
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
+
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+        # if phase == "production":
+        #     ptcls_file = self.prod_ptcls_filename + str(it)
+
+        # elif phase == "equilibration":
+        #     ptcls_file = self.eq_ptcls_filename + str(it)
+
+        # elif phase == "magnetization":
+        #     ptcls_file = self.mag_ptcls_filename + str(it)
+
+        self.dump_pva(phase, ptcls, it)
+        self.dump_observables(phase, ptcls, it)
+        self.dump_thermodynamics(phase, ptcls, it)
+
+    def dump_pva(self, phase, ptcls, it):
+        """
+        Save particles' position, velocity, and acceleration data to binary file for future restart.
+
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
+
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+        # if phase == "production":
+        #     ptcls_file = self.prod_ptcls_filename + str(it)
+
+        # elif phase == "equilibration":
+        #     ptcls_file = self.eq_ptcls_filename + str(it)
+
+        # elif phase == "magnetization":
+        #     ptcls_file = self.mag_ptcls_filename + str(it)
+
+        tme = it * self.dt
+        savez(
+            f"{self.particles_filenames[phase]}{it}",
+            id=ptcls.id,
+            names=ptcls.names,
+            pos=ptcls.pos,
+            vel=ptcls.vel,
+            acc=ptcls.acc,
+            time=tme,
+        )
+
+    def dump_observables_partial(self, phase, ptcls, it):
         """
         Save particles' data to binary file for future restart.
 
@@ -221,23 +344,25 @@ class InputOutput:
         it : int
             Timestep number.
         """
-        if phase == "production":
-            energy_file = self.prod_energy_filename
+        # if phase == "production":
+        #     ptcls_file = self.prod_ptcls_filename + str(it)
 
-        elif phase == "equilibration":
-            energy_file = self.eq_energy_filename
+        # elif phase == "equilibration":
+        #     ptcls_file = self.eq_ptcls_filename + str(it)
 
-        elif phase == "magnetization":
-            energy_file = self.mag_energy_filename
+        # elif phase == "magnetization":
+        #     ptcls_file = self.mag_ptcls_filename + str(it)
 
-        data = ptcls.calc_ptcls_thermodynamics()
-        data["Time"] = it * self.dt
-        
-        with open(energy_file, "a") as f:
-            w = csv.writer(f)
-            w.writerow(data.values())
+        tme = it * self.dt
+        savez(
+            f"{self.observables_filenames[phase]}{it}",
+            potential_energy=ptcls.potential_energy,
+            cntr=ptcls.pbc_cntr,
+            rdf_hist=ptcls.rdf_hist,
+            time=tme,
+        )
 
-    def dump_particles_arrays(self, phase, ptcls, it):
+    def dump_onthefly_observables(self, phase, ptcls, it):
         """
         Save particles' data to binary file for future restart.
 
@@ -252,66 +377,46 @@ class InputOutput:
         it : int
             Timestep number.
         """
-        if phase == "production":
-            ptcls_file = self.prod_ptcls_filename + str(it)
-            tme = it * self.dt
-            savez(
-                ptcls_file,
-                id=ptcls.id,
-                names=ptcls.names,
-                pos=ptcls.pos,
-                vel=ptcls.vel,
-                acc=ptcls.acc,
-                pot_energies=ptcls.particle_potential_energy,
-                energy_current=ptcls.energy_current,
-                cntr=ptcls.pbc_cntr,
-                rdf_hist=ptcls.rdf_hist,
-                virial=ptcls.virial,
-                time=tme,
-            )
+        # if phase == "production":
+        #     ptcls_file = self.prod_ptcls_filename + str(it)
 
-            energy_file = self.prod_energy_filename
+        # elif phase == "equilibration":
+        #     ptcls_file = self.eq_ptcls_filename + str(it)
 
-        elif phase == "equilibration":
-            ptcls_file = self.eq_ptcls_filename + str(it)
-            tme = it * self.dt
-            savez(
-                ptcls_file,
-                id=ptcls.id,
-                names=ptcls.names,
-                pos=ptcls.pos,
-                vel=ptcls.vel,
-                acc=ptcls.acc,
-                pot_energies=ptcls.particle_potential_energy,
-                virial=ptcls.virial,
-                energy_current=ptcls.energy_current,
-                time=tme,
-            )
+        # elif phase == "magnetization":
+        #     ptcls_file = self.mag_ptcls_filename + str(it)
 
-            energy_file = self.eq_energy_filename
+        tme = it * self.dt
+        savez(
+            f"{self.observables_filenames[phase]}{it}",
+            potential_energy=ptcls.potential_energy,
+            cntr=ptcls.pbc_cntr,
+            rdf_hist=ptcls.rdf_hist,
+            virial=ptcls.virial,
+            energy_current=ptcls.energy_current,
+            time=tme,
+        )
 
-        elif phase == "magnetization":
-            ptcls_file = self.mag_ptcls_filename + str(it)
-            tme = it * self.dt
-            savez(
-                ptcls_file,
-                id=ptcls.id,
-                names=ptcls.names,
-                pos=ptcls.pos,
-                vel=ptcls.vel,
-                acc=ptcls.acc,
-                pot_energies=ptcls.particle_potential_energy,
-                virial=ptcls.virial,
-                energy_current=ptcls.energy_current,
-                time=tme,
-            )
+    def dump_thermodynamics(self, phase, ptcls, it):
+        """
+        Save particles' data to binary file for future restart.
 
-            energy_file = self.mag_energy_filename
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
 
-        data = ptcls.calc_ptcls_thermodynamics()
-        data["Time"] = it * self.dt
-        
-        with open(energy_file, "a") as f:
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+
+        data = {"Time": it * self.dt}
+        datap = ptcls.make_thermodynamics_dictionary()
+        data.update(datap)
+        with open(self.thermodynamics_filenames[phase], "a") as f:
             w = csv.writer(f)
             w.writerow(data.values())
 
@@ -566,10 +671,6 @@ class InputOutput:
                 if key == "preprocessing":
                     self.preprocessing = value
 
-        if "Integrator" in dics.keys():
-            keyed = "Integrator"
-            for key, value in dics[keyed].items():
-
                 if key == "electrostatic_equilibration":
                     self.electrostatic_equilibration = value
 
@@ -609,7 +710,13 @@ class InputOutput:
         if not exists(self.prod_dump_dir):
             mkdir(self.prod_dump_dir)
 
-        if self.electrostatic_equilibration:
+        if self.dump_onthefly_observables:
+            phase = ["equilibration", "production"]
+            for p in phase:
+                if not exists(self.observables_directories[p]):
+                    mkdir(self.observables_directories[p])
+
+        if self.magnetized and self.electrostatic_equilibration:
             if not exists(self.magnetization_dir):
                 mkdir(self.magnetization_dir)
 
@@ -971,6 +1078,24 @@ class InputOutput:
         self.make_directories()
         self.file_header()
 
+        if self.save_pva:
+
+            if self.save_onthefly_observables:
+                self.dump_observables = self.dump_onthefly_observables
+            else:
+                self.dump_observables = self.dump_observables_partial
+
+            self.dump = self.dump_pva_obs_therm
+
+        else:
+
+            if self.save_onthefly_observables:
+                self.dump_observables = self.dump_onthefly_observables
+            else:
+                self.dump_observables = self.dump_observables_partial
+
+            self.dump = self.dump_obs_therm
+
     def setup_checkpoint(self, params):
         """
         Assign attributes needed for saving dumps.
@@ -986,9 +1111,18 @@ class InputOutput:
         """
 
         self.copy_params(params)
-        dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy",
-                  "Temperature", "Total Pressure", "Ideal Pressure", "Excess Pressure", "Enthalpy"]
-            # Create the Energy file
+        dkeys = [
+            "Time",
+            "Total Energy",
+            "Total Kinetic Energy",
+            "Total Potential Energy",
+            "Temperature",
+            "Total Pressure",
+            "Ideal Pressure",
+            "Excess Pressure",
+            "Total Enthalpy",
+        ]
+        # Create the Energy file
         if len(self.species_names) > 1:
             for i, sp_name in enumerate(self.species_names):
                 dkeys.append("{} Kinetic Energy".format(sp_name))
@@ -998,30 +1132,31 @@ class InputOutput:
                 dkeys.append("{} Ideal Pressure".format(sp_name))
                 dkeys.append("{} Excess Pressure".format(sp_name))
                 dkeys.append("{} Enthalpy".format(sp_name))
+        data = dict.fromkeys(dkeys)
         # Check whether energy files exist already
         if not exists(self.prod_energy_filename):
-            data = dict.fromkeys(dkeys)
             with open(self.prod_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
         if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
-            data = dict.fromkeys(dkeys)
             with open(self.eq_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
-        if self.electrostatic_equilibration:
+        if self.magnetized and self.electrostatic_equilibration:
             if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
                 data = dict.fromkeys(dkeys)
             with open(self.mag_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
-        if self.dump_particles_data:
-            self.dump = self.dump_particles_arrays
-        else:
-            self.dump = self.dump_thermodynamics
+        # if self.dump_particles_pva and self.dump_onthefly_quantities:
+        #     self.dump = self.dump_all_particles_arrays
+        # elif self.dump_particles_pva and not self.dump_onthefly_quantities:
+        #     self.dump = self.dump_pva
+        # else:
+        #     self.dump = self.dump_thermodynamics
 
     def simulation_summary(self, simulation):
         """
@@ -1077,11 +1212,14 @@ class InputOutput:
                 print(f"Job directory: {self.job_dir}")
                 print(f"PostProcessing directory: \n{self.postprocessing_dir}")
 
-                print(f"\nEquilibration dumps directory: {self.eq_dump_dir}")
-                print(f"Production dumps directory: \n{self.prod_dump_dir}")
+                print(f"\nEquilibration dumps directory: {self.particles_directories['equilibration']}")
+                print(f"Production dumps directory: \n{self.particles_directories['equilibration']}")
 
-                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
-                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
+                print(f"\nEquilibration Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
+                print(f"Production Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
+
+                print(f"\nEquilibration Observables directory: \n{self.observables_directories['equilibration']}")
+                print(f"Production Observables directory: \n{self.observables_directories['production']}")
 
             else:
 
@@ -1093,11 +1231,14 @@ class InputOutput:
 
                 print(f"\nJob ID: {self.job_id}")
                 print(f"Job directory: {self.job_dir}")
-                print(f"\nEquilibration dumps directory: \n", {self.eq_dump_dir})
-                print(f"Production dumps directory: \n", {self.prod_dump_dir})
+                print(f"\nEquilibration dumps directory: {self.particles_directories['equilibration']}")
+                print(f"Production dumps directory: \n{self.particles_directories['equilibration']}")
 
-                print(f"\nEquilibration Thermodynamics file: \n{self.eq_energy_filename}")
-                print(f"Production Thermodynamics file: \n{self.prod_energy_filename}")
+                print(f"\nEquilibration Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
+                print(f"Production Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
+
+                print(f"\nEquilibration Observables directory: \n{self.observables_directories['equilibration']}")
+                print(f"Production Observables directory: \n{self.observables_directories['production']}")
 
                 print("\nPARTICLES:")
                 print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")

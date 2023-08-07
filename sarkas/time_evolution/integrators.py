@@ -545,7 +545,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # # Magnetic rotation x - velocity
         # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
@@ -570,8 +570,6 @@ class Integrator:
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
         ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
         ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
-
-        return potential_energy
 
     def magnetic_verlet(self, ptcls):
         """
@@ -624,7 +622,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Re-calculate the cross products
         b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
@@ -640,8 +638,6 @@ class Integrator:
             - self.ccodt / self.omega_c * b_cross_a
             + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
         )
-
-        return potential_energy
 
     def magnetic_boris_zdir(self, ptcls):
         """
@@ -683,9 +679,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
-
-        return potential_energy
+        self.update_accelerations(ptcls)
 
     def magnetic_boris(self, ptcls):
         """
@@ -724,9 +718,7 @@ class Integrator:
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
-
-        return potential_energy
+        self.update_accelerations(ptcls)
 
     def magnetic_pos_verlet_zdir(self, ptcls):
         """
@@ -756,7 +748,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # First half step of velocity update
         # # Magnetic rotation x - velocity
@@ -788,8 +780,6 @@ class Integrator:
 
         # Enforce boundary condition
         self.enforce_bc(ptcls)
-
-        return potential_energy
 
     def magnetic_pos_verlet(self, ptcls):
         """
@@ -827,7 +817,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Calculate the cross products
         b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
@@ -847,8 +837,6 @@ class Integrator:
 
         # Enforce boundary condition
         self.enforce_bc(ptcls)
-
-        return potential_energy
 
     def cyclotronic_zdir(self, ptcls):
         """
@@ -885,7 +873,7 @@ class Integrator:
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         ptcls.vel[:, :2] = self.v_B[:, :2].copy()
         # Compute total potential energy and accelerations
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Kick full step
         ptcls.vel += ptcls.acc * self.dt
@@ -908,8 +896,6 @@ class Integrator:
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         # Update final velocities
         ptcls.vel[:, :2] = self.v_B[:, :2].copy()
-
-        return potential_energy
 
     def cyclotronic(self, ptcls):
         """
@@ -944,7 +930,7 @@ class Integrator:
         # First half step of velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
         # Compute total potential energy and accelerations
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Kick full step
         ptcls.vel += ptcls.acc * self.dt
@@ -964,8 +950,6 @@ class Integrator:
         # Second half step of velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
-        return potential_energy
-
     def thermostate(self, ptcls):
         """
         Update particles' velocities according to the chosen thermostat
@@ -976,8 +960,12 @@ class Integrator:
             Particles' data.
 
         """
-        _, T = ptcls.kinetic_temperature()
-        berendsen(ptcls.vel, self.species_temperatures, T, self.species_num, self.thermalization_rate)
+        # Kinetic Energy should have already been calculated.
+        # Look in processes.evolve_loop
+        # # _, T = ptcls.calculate_species_kinetic_temperature()
+        berendsen(
+            ptcls.vel, self.species_temperatures, ptcls.species_temperatures, self.species_num, self.thermalization_rate
+        )
 
     def periodic_bc(self, ptcls):
         """
@@ -1055,9 +1043,11 @@ class Integrator:
 
         wp_tot = norm(self.species_plasma_frequencies)
         wp_dt = wp_tot * self.dt
+        t_wp = 2.0 * pi / wp_tot
         time_msg = (
             f"Time step = {self.dt:.6e} {self.units_dict['time']}\n"
             f"Total plasma frequency = {wp_tot:.6e} {self.units_dict['frequency']}\n"
+            f"Total plasma period = {t_wp:.6e} {self.units_dict['time']}\n"
             f"w_p dt = {wp_dt:.4e} [rad] = {wp_dt/(2.0 * pi):.4e}\n"
             f"Timesteps per plasma cycle = {int(2.0 * pi/wp_dt)} \n"
         )
@@ -1197,7 +1187,7 @@ def enforce_abc(pos, vel, acc, charges, box_vector):
         Particles' accelerations.
 
     charges : numpy.ndarray
-        Charge of each particle. Shape = (``total_num_ptcls``).
+        Charge of each particle. Shape = (:attr:`total_num_ptcls`).
 
     box_vector: numpy.ndarray
         Box Dimensions.

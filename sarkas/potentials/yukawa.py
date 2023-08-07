@@ -14,7 +14,7 @@ where :math:`\kappa = 1/\lambda` is the screening parameter.
 Potential Attributes
 ********************
 
-The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 
 .. code-block:: python
 
@@ -235,20 +235,20 @@ def update_params(potential):
 
     """
     if potential.method == "pppm":
-        potential.matrix = zeros((4, potential.num_species, potential.num_species))
+        potential.matrix = zeros((potential.num_species, potential.num_species, 4))
     else:
-        potential.matrix = zeros((3, potential.num_species, potential.num_species))
+        potential.matrix = zeros((potential.num_species, potential.num_species, 3))
 
-    potential.matrix[1, :, :] = 1.0 / potential.screening_length
+    potential.matrix[:, :, 1] = 1.0 / potential.screening_length
 
-    # potential.matrix[0, :, :] = potential.species_charges.reshape((len(potential.species_charge), 1))
+    # potential.matrix[:, :, 0] = potential.species_charges.reshape((len(potential.species_charge), 1))
     # * potential.species_charges / potential.fourpie0
     # the above line is the Python version of the for loops below. I believe that the for loops are easier to understand
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
+            potential.matrix[i, j, 0] = q1 * q2 / potential.fourpie0
 
-    potential.matrix[-1, :, :] = potential.a_rs
+    potential.matrix[:, :, -1] = potential.a_rs
 
     potential.potential_derivatives = potential_derivatives
 
@@ -259,7 +259,7 @@ def update_params(potential):
         # potential.force_error = force_error_analytic_lcl(
         #     potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
         # )
-        potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[:, 0, 0])
+        potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[0, 0])
 
         # # Force error calculated from eq.(43) in Ref.[1]_
         # potential.force_error = sqrt( TWOPI / potential.electron_TF_wavelength) * exp(- potential.rc / potential.electron_TF_wavelength)
@@ -268,7 +268,7 @@ def update_params(potential):
 
     elif potential.method == "pppm":
         potential.force = yukawa_force_pppm
-        potential.matrix[2, :, :] = potential.pppm_alpha_ewald
+        potential.matrix[:, :, 2] = potential.pppm_alpha_ewald
         rescaling_constant = sqrt(potential.total_num_ptcls) * potential.a_ws**2 / sqrt(potential.pbox_volume)
 
         potential.pppm_pp_err = force_error_analytic_pp(
@@ -276,8 +276,8 @@ def update_params(potential):
         )
 
         # PP force error calculation. Note that the equation was derived for a single component plasma.
-        # kappa_over_alpha = -0.25 * (potential.matrix[1, 0, 0] / potential.matrix[2, 0, 0]) ** 2
-        # alpha_times_rcut = -((potential.matrix[2, 0, 0] * potential.rc) ** 2)
+        # kappa_over_alpha = -0.25 * (potential.matrix[0, 0, 1] / potential.matrix[0, 0, 2]) ** 2
+        # alpha_times_rcut = -((potential.matrix[0, 0, 2] * potential.rc) ** 2)
         # potential.pppm_pp_err = 2.0 * exp(kappa_over_alpha + alpha_times_rcut) / sqrt(potential.rc)
         # potential.pppm_pp_err *= sqrt(potential.total_num_ptcls) * potential.a_ws ** 2 / sqrt(potential.pbox_volume)
 

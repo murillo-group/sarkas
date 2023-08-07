@@ -58,18 +58,18 @@ def update_params(potential):
     potential.screening_charges = array(potential.screening_charges)
     params_len = len(potential.screening_lengths)
 
-    potential.matrix = zeros((2 * params_len + 1, potential.num_species, potential.num_species))
+    potential.matrix = zeros((potential.num_species, potential.num_species, 2 * params_len + 1))
 
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
-            potential.matrix[1 : params_len + 1, i, j] = potential.screening_charges
-            potential.matrix[params_len + 1 :, i, j] = 1.0 / potential.screening_lengths
+            potential.matrix[i, j, 0] = q1 * q2 / potential.fourpie0
+            potential.matrix[i, j, 1 : params_len + 1] = potential.screening_charges
+            potential.matrix[i, j, params_len + 1 :] = 1.0 / potential.screening_lengths
 
     potential.force = moliere_force
     potential.potential_derivatives = potential_derivatives
 
-    potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[:, 0, 0])
+    potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[0, 0])
 
 
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)

@@ -12,13 +12,13 @@ The Coulomb potential between two particles :math:`a,b` is
 Potential Attributes
 ********************
 
-The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 
 .. code-block::
 
-    pot_matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
-    pot_matrix[1] : Ewald parameter in the case of pppm Algorithm. Same value for all species.
-    pot_matrix[2] : Short-range cutoff. Same value for all species.
+    matrix[0] : qi qj/(4pi esp0) Force factor between two particles.
+    matrix[1] : Ewald parameter in the case of pppm Algorithm. Same value for all species.
+    matrix[2] : Short-range cutoff. Same value for all species.
 
 """
 
@@ -91,7 +91,7 @@ def coulomb_force(r_in, pot_matrix):
 
     pot_matrix : numpy.ndarray
         It contains potential dependent variables. \n
-        Shape = (3, :attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`) .
+        Shape = (:attr:`sarkas.core.Parameters.num_species`, :attr:`sarkas.core.Parameters.num_species`, 3) .
 
     Returns
     -------
@@ -194,21 +194,21 @@ def update_params(potential):
     potential.screening_length = inf
     potential.screening_length_type = "coulomb"
 
-    potential.matrix = zeros((3, potential.num_species, potential.num_species))
+    potential.matrix = zeros((potential.num_species, potential.num_species, 3))
 
     potential.potential_derivatives = potential_derivatives
 
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
+            potential.matrix[i, j, 0] = q1 * q2 / potential.fourpie0
 
     if potential.method == "pp":
-        potential.matrix[2, :, :] = potential.a_rs
+        potential.matrix[:, :, 2] = potential.a_rs
         potential.force = coulomb_force
         potential.force_error = 0.0  # TODO: Implement force error in PP case
     elif potential.method == "pppm":
-        potential.matrix[1, :, :] = potential.pppm_alpha_ewald
-        potential.matrix[2, :, :] = potential.a_rs
+        potential.matrix[:, :, 1] = potential.pppm_alpha_ewald
+        potential.matrix[:, :, 2] = potential.a_rs
         # Calculate the (total) plasma frequency
         potential.force = coulomb_force_pppm
 

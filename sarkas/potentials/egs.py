@@ -66,29 +66,29 @@ This overestimates it, but it doesn't matter.
 Potential Attributes
 ********************
 
-The elements of :attr:`sarkas.potentials.core.Potential.pot_matrix` are
+The elements of :attr:`sarkas.potentials.core.Potential.matrix` are
 
 if :attr:`sarkas.core.Parameters.nu` less than 1:
 
 .. code-block::
 
-    pot_matrix[0] = q_iq_j/4pi eps0
-    pot_matrix[1] = nu
-    pot_matrix[2] = 1 + alpha
-    pot_matrix[3] = 1 - alpha
-    pot_matrix[4] = 1.0 / lambda_minus
-    pot_matrix[5] = 1.0 / lambda_plus
+    matrix[0] = q_iq_j/4pi eps0
+    matrix[1] = nu
+    matrix[2] = 1 + alpha
+    matrix[3] = 1 - alpha
+    matrix[4] = 1.0 / lambda_minus
+    matrix[5] = 1.0 / lambda_plus
 
 else
 
 .. code-block::
 
-    pot_matrix[0] = q_iq_j/4pi eps0
-    pot_matrix[1] = nu
-    pot_matrix[2] = 1.0
-    pot_matrix[3] = alpha prime
-    pot_matrix[4] = 1.0 / gamma_minus
-    pot_matrix[5] = 1.0 / gamma_plus
+    matrix[0] = q_iq_j/4pi eps0
+    matrix[1] = nu
+    matrix[2] = 1.0
+    matrix[3] = alpha prime
+    matrix[4] = 1.0 / gamma_minus
+    matrix[5] = 1.0 / gamma_plus
 
 """
 from numba import jit
@@ -173,29 +173,29 @@ def update_params(potential, species):
         potential.gamma_p = eb.ThomasFermi_wavelength * sqrt(potential.nu / (sqrt(potential.nu) + b))
         potential.alphap = b / sqrt(potential.nu - b)
 
-    potential.matrix = zeros((7, potential.num_species, potential.num_species))
+    potential.matrix = zeros((potential.num_species, potential.num_species, 7))
 
-    potential.matrix[1, :, :] = potential.nu
+    potential.matrix[:, :, 1] = potential.nu
 
     for i, q1 in enumerate(potential.species_charges):
 
         for j, q2 in enumerate(potential.species_charges):
 
             if potential.nu <= 1:
-                potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
-                potential.matrix[2, i, j] = 1.0 + potential.alpha
-                potential.matrix[3, i, j] = 1.0 - potential.alpha
-                potential.matrix[4, i, j] = 1.0 / potential.lambda_m
-                potential.matrix[5, i, j] = 1.0 / potential.lambda_p
+                potential.matrix[i, j, 0] = q1 * q2 / potential.fourpie0
+                potential.matrix[i, j, 2] = 1.0 + potential.alpha
+                potential.matrix[i, j, 3] = 1.0 - potential.alpha
+                potential.matrix[i, j, 4] = 1.0 / potential.lambda_m
+                potential.matrix[i, j, 5] = 1.0 / potential.lambda_p
 
             elif potential.nu > 1:
-                potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
-                potential.matrix[2, i, j] = 1.0
-                potential.matrix[3, i, j] = potential.alphap
-                potential.matrix[4, i, j] = 1.0 / potential.gamma_m
-                potential.matrix[5, i, j] = 1.0 / potential.gamma_p
+                potential.matrix[i, j, 0] = q1 * q2 / potential.fourpie0
+                potential.matrix[i, j, 2] = 1.0
+                potential.matrix[i, j, 3] = potential.alphap
+                potential.matrix[i, j, 4] = 1.0 / potential.gamma_m
+                potential.matrix[i, j, 5] = 1.0 / potential.gamma_p
 
-    potential.matrix[6, :, :] = potential.a_rs
+    potential.matrix[:, :, 6] = potential.a_rs
 
     if potential.method == "pppm":
         raise AlgorithmError("pppm algorithm not implemented yet.")

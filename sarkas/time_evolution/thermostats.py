@@ -206,7 +206,7 @@ class Thermostat:
             Current timestep.
 
         """
-        _, T = ptcls.kinetic_temperature()
+        _, T = ptcls.calculate_species_kinetic_temperature()
         berendsen(ptcls.vel, self.temperatures, T, self.species_num, self.relaxation_timestep, self.relaxation_rate, it)
 
 

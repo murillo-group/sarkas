@@ -601,6 +601,15 @@ class Potential:
             self.pot_update_params = update_params
             update_params(self)
 
+        elif self.type == "tabulated":
+            # Tabulated potential
+            from .tabulated import pretty_print_info, update_params
+
+            self.calc_screening_length(species)
+
+            self.pot_update_params = update_params
+            update_params(self)
+
         self.pot_pretty_print = pretty_print_info
 
     def update_linked_list(self, ptcls):
@@ -613,7 +622,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.particle_potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update(
             ptcls.pos,
             ptcls.vel,
             ptcls.id,
@@ -630,7 +639,7 @@ class Potential:
         #     # Mie Energy of charged systems
         #     # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
         #     dipole = ptcls.charges @ ptcls.pos
-        #     ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
+        #     ptcls.total_potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_brute(self, ptcls):
         """
@@ -642,7 +651,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.particle_potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update_0D(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update_0D(
             ptcls.pos,
             ptcls.vel,
             ptcls.id,
@@ -658,7 +667,7 @@ class Potential:
         #     # Mie Energy of charged systems
         #     # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
         #     dipole = ptcls.charges @ ptcls.pos
-        #     ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
+        #     ptcls.total_potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_pm(self, ptcls):
         """Calculate the pm part of the potential and acceleration.
@@ -690,7 +699,7 @@ class Potential:
         # Neutrality condition
         # U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
 
-        ptcls.particle_potential_energy += U_long
+        ptcls.potential_energy += U_long
 
         ptcls.acc += acc_l_r
 
@@ -717,7 +726,7 @@ class Potential:
         """
 
         out_fmm = lfmm3d(eps=self.fmm_precision, sources=ptcls.pos.transpose(), charges=ptcls.charges, pg=2)
-        ptcls.particle_potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
+        ptcls.potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
         ptcls.acc = acc.transpose().copy()
 
@@ -738,6 +747,6 @@ class Potential:
             pg=2,
         )
 
-        ptcls.particle_potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
+        ptcls.potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
         ptcls.acc = acc.transpose().copy()

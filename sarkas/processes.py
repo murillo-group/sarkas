@@ -44,6 +44,7 @@ from .tools.observables import (
     DiffusionFlux,
     DynamicStructureFactor,
     ElectricCurrent,
+    EnergyCurrent,
     PressureTensor,
     RadialDistributionFunction,
     StaticStructureFactor,
@@ -143,7 +144,7 @@ class Process:
                 elif hasattr(self.potential, "electron_temperature_eV"):
                     self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
 
-        if self.__name__ != "simulation":
+        if "Observables" in dics.keys():
             self.observables_list = []
 
             for observable in dics["Observables"]:
@@ -157,6 +158,7 @@ class Process:
                         self.therm = Thermodynamics()
                         self.therm.from_dict(sub_dict)
                         self.observables_list.append("therm")
+
                     elif key == "DynamicStructureFactor":
                         self.observables_list.append("dsf")
                         self.dsf = DynamicStructureFactor()
@@ -197,6 +199,11 @@ class Process:
                         self.p_tensor = PressureTensor()
                         if sub_dict:
                             self.p_tensor.from_dict(sub_dict)
+                    elif key == "EnergyCurrent":
+                        self.observables_list.append("energy_current")
+                        self.energy_current = EnergyCurrent()
+                        if sub_dict:
+                            self.energy_current.from_dict(sub_dict)
 
             if "TransportCoefficients" in dics.keys():
                 self.transport_dict = dics["TransportCoefficients"].copy()
@@ -252,7 +259,7 @@ class Process:
 
         self.io.directory_size_report(sizes, process=self.__name__)
 
-    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step) -> None:
+    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step):
         """
         Evolve the system forward in time.
 
@@ -282,12 +289,13 @@ class Process:
             self.integrator.update(self.particles)
 
             if (it + 1) % dump_step == 0:
+                self.particles.calculate_observables()
                 self.io.dump(phase, self.particles, it + 1)
 
             if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
                 self.integrator.thermostate(self.particles)
 
-    def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step) -> None:
+    def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step):
         """
         Evolve the system forward in time. This method is similar to :meth:`sarkas.processes.Process.evolve_loop` with
         the only difference that it uses `threading` for saving data, it starts a new thread to save the data.
@@ -401,10 +409,17 @@ class Process:
         init_eng = " Initial Energies "
         msg = f"\n\n{init_eng:-^70}\n" f"Initial temperature and kinetic energy of each species\n"
 
-        Kins, Temps = self.particles.kinetic_temperature()
+        self.particles.calculate_species_kinetic_temperature()
+        self.particles.calculate_species_potential_energy()
+
         factor = self.parameters.J2erg if self.parameters.units == "mks" else 1.0 / self.parameters.J2erg
-        potential_energies = self.particles.potential_energies()
-        for sp, kp, tp, pot_sp in zip(self.species, Kins, Temps, potential_energies):
+
+        for sp, kp, tp, pot_sp in zip(
+            self.species,
+            self.particles.species_kinetic_energy,
+            self.particles.species_temperatures,
+            self.particles.species_potential_energy,
+        ):
             sp_msg = (
                 f"Species {sp.name} :\n"
                 f"\tTemperature = {tp:.6e} {self.parameters.units_dict['temperature']} = {tp * self.parameters.eV2K:.6e} {self.parameters.units_dict['electron volt']}\n"
@@ -413,8 +428,8 @@ class Process:
             )
             msg += sp_msg
 
-        tot_kin_e = Kins.sum()
-        tot_pot_e = self.particles.potential_energy()
+        tot_kin_e = self.particles.species_kinetic_energy.sum()
+        tot_pot_e = self.particles.species_potential_energy.sum()
         tot_e = tot_kin_e + tot_pot_e
 
         msg += (
@@ -1250,7 +1265,7 @@ class PreProcess(Process):
         plt.close("all")
 
         # Set the screening parameter
-        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "yukawa" else 0.0
+        self.kappa = self.potential.matrix[0, 0, 1] if self.potential.type == "yukawa" else 0.0
 
         if timing:
             self.time_n_space_estimates(loops=loops)
@@ -1473,14 +1488,6 @@ class PreProcess(Process):
                         self.timer.start()
                         self.potential.update_linked_list(self.particles)
                         pp_acc_time += self.timer.stop() / 3.0
-
-                    # tot_pppm_err, pppm_pm_err, pppm_pp_err = force_error_approx_pppm(
-                    #     self.potential.matrix[1, 0, 0],
-                    #     self.potential.rc,
-                    #     self.potential.pppm_cao[0],
-                    #     self.potential.pppm_h_array[0],
-                    #     self.potential.pppm_alpha_ewald,
-                    # )
 
                     data = data.append(
                         {

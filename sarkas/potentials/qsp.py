@@ -56,7 +56,7 @@ a wave number and wave length.
 Potential Attributes
 ********************
 
-The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 
 .. code-block:: python
 
@@ -471,9 +471,9 @@ def pretty_print_info(potential):
     """
 
     ii_scr_len = 1.0 / potential.matrix[1, 1, 1]
-    ei_scr_len = 1.0 / potential.matrix[1, 0, 1]
-    ee_scr_len = 1.0 / potential.matrix[1, 0, 0]
-    e_deBroglie_lambda = sqrt(2.0) * pi / potential.matrix[1, 0, 0]
+    ei_scr_len = 1.0 / potential.matrix[0, 1, 1]
+    ee_scr_len = 1.0 / potential.matrix[0, 0, 1]
+    e_deBroglie_lambda = sqrt(2.0) * pi / potential.matrix[0, 0, 1]
     i_deBroglie_lambda = sqrt(2.0) * pi / potential.matrix[1, 1, 1]
     a_ws = potential.a_ws
 
@@ -485,14 +485,14 @@ def pretty_print_info(potential):
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"e-e screening length = {ee_scr_len / a_ws:.4f} a_ws = {ee_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
-    print(f"e-e screening kappa = {potential.matrix[1, 0, 0] * a_ws:.4e}")
+    print(f"e-e screening kappa = {potential.matrix[0, 0, 1] * a_ws:.4e}")
     print(f"i-i screening length = {ii_scr_len / a_ws:.4f} a_ws = {ii_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"i-i screening kappa = {potential.matrix[1, 1, 1] * a_ws:.4e}")
     print(f"e-i screening length = {ei_scr_len / a_ws:.4f} a_ws = {ei_scr_len:.6e} ", end="")
     print("[cm]" if potential.units == "cgs" else "[m]")
     print(f"e-i coupling constant = {potential.coupling_constant:.4f}")
-    print(f"e-i screening kappa = {potential.matrix[1, 0, 1] * a_ws:.4e}")
+    print(f"e-i screening kappa = {potential.matrix[0, 1, 1] * a_ws:.4e}")
 
 
 def update_params(potential, species):
@@ -542,7 +542,7 @@ def update_params(potential, species):
 
     deBroglie_const = TWOPI * potential.hbar**2 / potential.kB
 
-    potential.matrix = zeros((6, potential.num_species, potential.num_species))
+    potential.matrix = zeros((potential.num_species, potential.num_species, 6))
     for i, sp1 in enumerate(species):
         m1 = sp1.mass
         q1 = sp1.charge
@@ -561,24 +561,24 @@ def update_params(potential, species):
                 if sp1.name == sp2.name:  # e-e
 
                     if potential.qsp_type == "hansen":
-                        potential.matrix[2, i, j] = log_2 * potential.kB * sp1.temperature
-                        potential.matrix[3, i, j] = four_pi / (log_2 * lambda_deB**2)
+                        potential.matrix[i, j, 2] = log_2 * potential.kB * sp1.temperature
+                        potential.matrix[i, j, 3] = four_pi / (log_2 * lambda_deB**2)
                     else:
-                        potential.matrix[2, i, j] = -potential.kB * sp1.temperature
-                        potential.matrix[3, i, j] = TWOPI / (lambda_deB**2)
+                        potential.matrix[i, j, 2] = -potential.kB * sp1.temperature
+                        potential.matrix[i, j, 3] = TWOPI / (lambda_deB**2)
 
             else:
                 # Use ion temperature in i-i interactions only
                 lambda_deB = sqrt(deBroglie_const / (reduced * total_ion_temperature))
 
-            potential.matrix[0, i, j] = q1 * q2 / potential.fourpie0
-            potential.matrix[1, i, j] = TWOPI / lambda_deB
+            potential.matrix[i, j, 0] = q1 * q2 / potential.fourpie0
+            potential.matrix[i, j, 1] = TWOPI / lambda_deB
 
     if not potential.qsp_pauli:
-        potential.matrix[2, :, :] = 0.0
+        potential.matrix[:, :, 2] = 0.0
 
-    potential.matrix[4, :, :] = potential.pppm_alpha_ewald
-    potential.matrix[5, :, :] = potential.a_rs
+    potential.matrix[:, :, 4] = potential.pppm_alpha_ewald
+    potential.matrix[:, :, 5] = potential.a_rs
 
     if potential.qsp_type == "deutsch":
         potential.force = deutsch_force

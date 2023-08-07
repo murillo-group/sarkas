@@ -2258,7 +2258,7 @@ class EnergyCurrent(Observable):
                 time[it] = datap["time"]
 
                 enthalpy[:, it] = calculate_particles_enthalpy(
-                    datap["pot_energies"],
+                    datap["potential_energy"],
                     datap["vel"],
                     datap["virial"],
                     self.species_masses,
@@ -2283,7 +2283,7 @@ class EnergyCurrent(Observable):
                 for isp, sp_num in enumerate(self.species_num):
                     sp_end += sp_num
                     ec = datap["energy_current"][:, sp_start:sp_end].sum(axis=-1)
-                    # pot = datap["pot_energies"][sp_start:sp_end]
+                    # pot = datap["potential_energy"][sp_start:sp_end]
                     vel = datap["vel"][sp_start:sp_end, :]
 
                     # vel * avg_ei[sp_start:sp_end]
@@ -3017,7 +3017,7 @@ class RadialDistributionFunction(Observable):
                 h_r = self.dataframe[(f"{sp1_name}-{sp2_name} RDF", "Mean")].to_numpy() - 1.0
 
                 # Calculate the derivatives of the potential
-                u_r, dv_dr, d2v_dr2 = potential.potential_derivatives(r, potential.matrix[:, sp1, sp2])
+                u_r, dv_dr, d2v_dr2 = potential.potential_derivatives(r, potential.matrix[sp1, sp2])
 
                 densities = self.species_num_dens[sp1] * self.species_num_dens[sp2]
 
@@ -4733,7 +4733,8 @@ def calculate_particles_enthalpy(pot, vel, virial, species_mass, species_np, dim
         pot_sp = pot[sp_start:sp_end]
 
         vir_sp = virial[0, 0, sp_start:sp_end] + virial[1, 1, sp_start:sp_end] + virial[2, 2, sp_start:sp_end]
-        # Note: The pressure is defined by (kin + vir)/volume. However since I need to multiply by volume to get the enthalpy I decided to not divide and then multiply by volume
+        # Note: The pressure is defined by (kin + vir)/volume.
+        # However since I need to multiply by volume to get the enthalpy I decided to not divide and then multiply by volume
         enthalpy[sp_start:sp_end] = kin_sp + pot_sp + (kin_sp + vir_sp) / dimensions
 
         sp_start += sp_num
@@ -4840,7 +4841,7 @@ def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
     Parameters
     ----------
     vel : numpy.ndarray
-        Particles' velocities. Shape = (``dimensions``, ``no_dumps``, ``total_num_ptcls``)
+        Particles' velocities. Shape = (``dimensions``, ``no_dumps``, :attr:`total_num_ptcls`)
 
     sp_num: numpy.ndarray
         Number of particles of each species.

@@ -434,12 +434,12 @@ def particles_interaction_loop(
                                         # These definitions are needed due to numba
                                         # see https://github.com/numba/numba/issues/5881
 
-                                        if measure and rdf_bin < rdf_nbins:
-                                            rdf_hist[rdf_bin, id_i, id_j] += 1
+                                        # if measure and rdf_bin < rdf_nbins:
+                                        rdf_hist[rdf_bin, id_i, id_j] += measure * (rdf_bin < rdf_nbins)
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
-                                            p_matrix = potential_matrix[:, id_i, id_j]
+                                            p_matrix = potential_matrix[id_i, id_j]
                                             # neighbors[i, j] = j
 
                                             # Compute the short-ranged force
@@ -690,7 +690,7 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
-                                            p_matrix = potential_matrix[:, p_id[i], p_id[j]]
+                                            p_matrix = potential_matrix[p_id[i], p_id[j]]
 
                                             # Compute the short-ranged force
                                             pot, fr = force(r, p_matrix)
@@ -849,7 +849,7 @@ def calculate_energy_current(pos, vel, p_id, box_lengths, rc, potential_matrix, 
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
-                                            p_matrix = potential_matrix[:, p_id[i], p_id[j]]
+                                            p_matrix = potential_matrix[p_id[i], p_id[j]]
 
                                             # Compute the short-ranged force
                                             uij, fr = force(r, p_matrix)

@@ -41,7 +41,7 @@ which we approximate with the first term only
 Potential Attributes
 ********************
 
-The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 
 .. code-block::
 
@@ -185,7 +185,7 @@ def update_params(potential):
     potential : :class:`sarkas.potentials.core.Potential`
         Class handling potential form.
     """
-    potential.matrix = zeros((5, potential.num_species, potential.num_species))
+    potential.matrix = zeros((potential.num_species, potential.num_species, 5))
     # See Lima Physica A 391 4281 (2012) for the following definitions
     if not hasattr(potential, "powers"):
         potential.powers = array([12, 6])
@@ -201,15 +201,15 @@ def update_params(potential):
     # Recall that species_charges contains sqrt(epsilon)
     for i, q1 in enumerate(potential.species_charges):
         for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = lj_constant * q1 * q2
-            potential.matrix[1, i, j] = 0.5 * (potential.species_lj_sigmas[i] + potential.species_lj_sigmas[j])
-            potential.matrix[2, i, j] = potential.powers[0]
-            potential.matrix[3, i, j] = potential.powers[1]
+            potential.matrix[i, j, 0] = lj_constant * q1 * q2
+            potential.matrix[i, j, 1] = 0.5 * (potential.species_lj_sigmas[i] + potential.species_lj_sigmas[j])
+            potential.matrix[i, j, 2] = potential.powers[0]
+            potential.matrix[i, j, 3] = potential.powers[1]
 
             potential.epsilon_tot += q1 * q2
 
     potential.sigma_avg = potential.species_lj_sigmas.mean()
-    potential.matrix[4, :, :] = potential.a_rs
+    potential.matrix[:, :, 4] = potential.a_rs
 
     potential.force = lj_force
 
