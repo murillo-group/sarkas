@@ -2,29 +2,27 @@ from numpy import array, isclose
 
 from ..yukawa import yukawa_force, yukawa_force_pppm
 
+from pytest import mark
 
-def test_yukawa_force():
+@mark.parametrize("r,pot_mat,expected_potential,expected_force",[
+    (2.0,array([1.0, 1.0, 0.001]),0.06766764161830635,0.10150146242745953)
+    ],ids=["r-2;pot_mat-[1.0,1.0,0.001]"])
+def test_yukawa_force(r,pot_mat,expected_potential,expected_force):
     """Test the calculation of the bare coulomb force."""
-    r = 2.0
-    pot_mat = array([1.0, 1.0, 0.001])
-
     potential, force = yukawa_force(r, pot_mat)
 
-    assert isclose(potential, 0.06766764161830635)
+    assert isclose(potential, expected_potential)
+    assert isclose(force, expected_force)
 
-    assert isclose(force, 0.10150146242745953)
-
-
-def test_yukawa_force_pppm():
+@mark.parametrize("r,pot_mat,expected_potential,expected_force",[
+    (2.0,array([1.0, 0.5, 0.25, 0.001]),0.16287410244138842,0.18025091684402375)
+    ],ids=["r-2;pot_mat-[1.0,0.5,0.25,0.001]"])
+def test_yukawa_force_pppm(r,pot_mat,expected_potential,expected_force):
     """Test the calculation of the pp part of the coulomb force."""
-    r = 2.0
-    pot_mat = array([1.0, 0.5, 0.25, 0.001])
-
     potential, force = yukawa_force_pppm(r, pot_mat)
 
-    assert isclose(potential, 0.16287410244138842)
-
-    assert isclose(force, 0.18025091684402375)
+    assert isclose(potential, expected_potential)
+    assert isclose(force, expected_force)
 
 
 # def test_update_params():
