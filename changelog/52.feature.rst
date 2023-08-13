@@ -3,3 +3,7 @@ Added bcc lattice configuration
 Added a fit potential module
 Added functions to calculate the first and second derivatives of the potential. It is used in the calculation of sum rules.
 Improved the force error calculation for short-range potentials only
+Calculate and save the potential energy of each particle.
+Added Energy Current in the list of observables.
+Added Thermal Conductivity in the list of transport coefficients.
+Added on-the-fly calculation of the Pressure tensor in Particles class.

@@ -56,31 +56,31 @@ class InputOutput:
 
     """
 
-    electrostatic_equilibration: bool = False
-    eq_dump_dir: str = "dumps"
-    equilibration_dir: str = "Equilibration"
-    input_file: str = None  # MD run input file.
-    job_dir: str = None
-    job_id: str = None
-    log_file: str = None
-    mag_dump_dir: str = "dumps"
-    magnetization_dir: str = "Magnetization"
-    magnetized: bool = False
-    preprocess_file: str = None
-    preprocessing: bool = False
-    preprocessing_dir: str = "PreProcessing"
-    process: str = "preprocessing"
-    processes_dir: str = None
-    prod_dump_dir: str = "dumps"
-    production_dir: str = "Production"
-    postprocessing_dir: str = "PostProcessing"
-    simulations_dir: str = "Simulations"
-    simulation_dir: str = "Simulation"
-    verbose: bool = False
-    xyz_dir: str = None
-    xyz_filename: str = None
-
     def __init__(self, process: str = "preprocess"):
+        
+        self.dump_particles_data: bool = True
+        self.electrostatic_equilibration: bool = False
+        self.eq_dump_dir: str = "dumps"
+        self.equilibration_dir: str = "Equilibration"
+        self.input_file: str = None  # MD run input file.
+        self.job_dir: str = None
+        self.job_id: str = None
+        self.log_file: str = None
+        self.mag_dump_dir: str = "dumps"
+        self.magnetization_dir: str = "Magnetization"
+        self.magnetized: bool = False
+        self.preprocess_file: str = None
+        self.preprocessing: bool = False
+        self.preprocessing_dir: str = "PreProcessing"
+        self.processes_dir: str = None
+        self.prod_dump_dir: str = "dumps"
+        self.production_dir: str = "Production"
+        self.postprocessing_dir: str = "PostProcessing"
+        self.simulations_dir: str = "Simulations"
+        self.simulation_dir: str = "Simulation"
+        self.verbose: bool = False
+        self.xyz_dir: str = None
+        self.xyz_filename: str = None
         self.process = process
 
     def __repr__(self):
@@ -206,7 +206,38 @@ class InputOutput:
         else:
             self.log_file = join(self.processes_dir[indx], self.log_file)
 
-    def dump(self, phase, ptcls, it):
+    def dump_thermodynamics(self, phase,ptcls, it):
+        """
+        Save particles' data to binary file for future restart.
+
+        Parameters
+        ----------
+        phase : str
+            Simulation phase.
+
+        ptcls : :class:`sarkas.particles.Particles`
+            Particles data.
+
+        it : int
+            Timestep number.
+        """
+        if phase == "production":
+            energy_file = self.prod_energy_filename
+
+        elif phase == "equilibration":
+            energy_file = self.eq_energy_filename
+
+        elif phase == "magnetization":
+            energy_file = self.mag_energy_filename
+
+        data = ptcls.calc_ptcls_thermodynamics()
+        data["Time"] = it * self.dt
+        
+        with open(energy_file, "a") as f:
+            w = csv.writer(f)
+            w.writerow(data.values())
+
+    def dump_particles_arrays(self, phase, ptcls, it):
         """
         Save particles' data to binary file for future restart.
 
@@ -231,6 +262,8 @@ class InputOutput:
                 pos=ptcls.pos,
                 vel=ptcls.vel,
                 acc=ptcls.acc,
+                pot_energies=ptcls.particle_potential_energy,
+                energy_current=ptcls.energy_current,
                 cntr=ptcls.pbc_cntr,
                 rdf_hist=ptcls.rdf_hist,
                 virial=ptcls.virial,
@@ -249,7 +282,9 @@ class InputOutput:
                 pos=ptcls.pos,
                 vel=ptcls.vel,
                 acc=ptcls.acc,
+                pot_energies=ptcls.particle_potential_energy,
                 virial=ptcls.virial,
+                energy_current=ptcls.energy_current,
                 time=tme,
             )
 
@@ -265,33 +300,22 @@ class InputOutput:
                 pos=ptcls.pos,
                 vel=ptcls.vel,
                 acc=ptcls.acc,
+                pot_energies=ptcls.particle_potential_energy,
                 virial=ptcls.virial,
+                energy_current=ptcls.energy_current,
                 time=tme,
             )
 
             energy_file = self.mag_energy_filename
 
-        kinetic_energies, temperatures = ptcls.kinetic_temperature()
-        potential_energies = ptcls.potential_energies()
-        # Save Energy data
-        data = {
-            "Time": it * self.dt,
-            "Total Energy": kinetic_energies.sum() + ptcls.potential_energy,
-            "Total Kinetic Energy": kinetic_energies.sum(),
-            "Potential Energy": ptcls.potential_energy,
-            "Total Temperature": ptcls.species_num.transpose() @ temperatures / ptcls.total_num_ptcls,
-        }
-        if len(temperatures) > 1:
-            for sp, kin in enumerate(kinetic_energies):
-                data[f"{self.species_names[sp]} Kinetic Energy"] = kin
-                data[f"{self.species_names[sp]} Potential Energy"] = potential_energies[sp]
-                data[f"{self.species_names[sp]} Temperature"] = temperatures[sp]
-
+        data = ptcls.calc_ptcls_thermodynamics()
+        data["Time"] = it * self.dt
+        
         with open(energy_file, "a") as f:
             w = csv.writer(f)
             w.writerow(data.values())
 
-    def dump_xyz(self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1) -> None:
+    def dump_xyz(self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1):
         """
         Save the XYZ file by reading Sarkas dumps.
 
@@ -338,8 +362,9 @@ class InputOutput:
         dumps.sort(key=num_sort)
         dumps_dict = {}
         for i in dumps:
-            _, key = i.strip("_")
-            dumps_dict[int(key)] = i
+            _, key = i.split("_")
+            key_num, _ = key.split(".")
+            dumps_dict[int(key_num)] = i
 
         if not dump_end:
             dump_end = len(dumps) * dump_step
@@ -363,13 +388,17 @@ class InputOutput:
 
             f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
             f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            savetxt(f_xyz, data, fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
+            savetxt(
+                f_xyz,
+                data[["names", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "acc_x", "acc_y", "acc_z"]],
+                fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e",
+            )
 
         f_xyz.close()
 
     def dump_potfit_config(
         self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1
-    ) -> None:
+    ):
         """Write configuration files for PotFit by reading the npz dumps.
 
         Parameters
@@ -684,7 +713,7 @@ class InputOutput:
         )
         simulation.potential.pot_pretty_print(simulation.potential)
 
-    def preprocess_sizing(self, sizes):
+    def directory_size_report(self, sizes, process):
         """Print the estimated file sizes."""
 
         screen = sys.stdout
@@ -693,8 +722,9 @@ class InputOutput:
 
         # redirect printing to file
         sys.stdout = f_log
+        msg_h = " Filesize Estimates "
+
         while repeat > 0:
-            msg_h = " Filesize Estimates "
             msg = f"\n\n{msg_h:=^70}\n"
 
             if self.equilibration_phase:
@@ -727,9 +757,10 @@ class InputOutput:
             msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
 
             size_GB, size_MB, size_KB, rem = convert_bytes(sizes[:, 1].sum())
-            msg += (
-                f"\nTotal minimum required space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
-            )
+            if process == "preprocessing":
+                msg += f"\nTotal minimum required space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
+            else:
+                msg += f"\nTotal occupied space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
 
             print(msg)
 
@@ -955,49 +986,42 @@ class InputOutput:
         """
 
         self.copy_params(params)
+        dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy",
+                  "Temperature", "Total Pressure", "Ideal Pressure", "Excess Pressure", "Enthalpy"]
+            # Create the Energy file
+        if len(self.species_names) > 1:
+            for i, sp_name in enumerate(self.species_names):
+                dkeys.append("{} Kinetic Energy".format(sp_name))
+                dkeys.append("{} Potential Energy".format(sp_name))
+                dkeys.append("{} Temperature".format(sp_name))
+                dkeys.append("{} Total Pressure".format(sp_name))
+                dkeys.append("{} Ideal Pressure".format(sp_name))
+                dkeys.append("{} Excess Pressure".format(sp_name))
+                dkeys.append("{} Enthalpy".format(sp_name))
         # Check whether energy files exist already
         if not exists(self.prod_energy_filename):
-            # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(self.species_names) > 1:
-                for i, sp_name in enumerate(self.species_names):
-                    dkeys.append("{} Kinetic Energy".format(sp_name))
-                    dkeys.append("{} Potential Energy".format(sp_name))
-                    dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
-
             with open(self.prod_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
         if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
-            # Create the Energy file
-            dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-            if len(self.species_names) > 1:
-                for i, sp_name in enumerate(self.species_names):
-                    dkeys.append("{} Kinetic Energy".format(sp_name))
-                    dkeys.append("{} Potential Energy".format(sp_name))
-                    dkeys.append("{} Temperature".format(sp_name))
             data = dict.fromkeys(dkeys)
-
             with open(self.eq_energy_filename, "w+") as f:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
         if self.electrostatic_equilibration:
             if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
-                # Create the Energy file
-                dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Potential Energy", "Temperature"]
-                if len(self.species_names) > 1:
-                    for i, sp_name in enumerate(self.species_names):
-                        dkeys.append("{} Kinetic Energy".format(sp_name))
-                        dkeys.append("{} Potential Energy".format(sp_name))
-                        dkeys.append("{} Temperature".format(sp_name))
                 data = dict.fromkeys(dkeys)
+            with open(self.mag_energy_filename, "w+") as f:
+                w = csv.writer(f)
+                w.writerow(data.keys())
 
-                with open(self.mag_energy_filename, "w+") as f:
-                    w = csv.writer(f)
-                    w.writerow(data.keys())
+        if self.dump_particles_data:
+            self.dump = self.dump_particles_arrays
+        else:
+            self.dump = self.dump_thermodynamics
 
     def simulation_summary(self, simulation):
         """
@@ -1263,8 +1287,21 @@ def convert_bytes(tot_bytes):
     return [GB, MB, KB, rem]
 
 
-def pretty_print(msg, log_file, print_to_screen: bool = False):
-    """Print observable useful info to log file and to screen if `self.verbose` is `True`."""
+def print_to_logger(message, log_file, print_to_screen: bool = False):
+    """Print observable useful info to log file and to screen if `self.verbose` is `True`.
+
+    Parameters
+    ----------
+    message : str
+        Message to append to log and screen.
+
+    log_file: str
+        Path to log file.
+
+    print_to_screen : bool
+        Flag for printing to screen. Default = `False`.
+
+    """
 
     screen = sys.stdout
     f_log = open(log_file, "a+")
@@ -1273,7 +1310,7 @@ def pretty_print(msg, log_file, print_to_screen: bool = False):
     # redirect printing to file
     sys.stdout = f_log
     while repeat > 0:
-        print(msg)
+        print(message)
         repeat -= 1
         sys.stdout = screen
 

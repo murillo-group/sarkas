@@ -613,8 +613,9 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial = pp_update(
+        ptcls.particle_potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update(
             ptcls.pos,
+            ptcls.vel,
             ptcls.id,
             ptcls.masses,
             self.box_lengths,
@@ -641,8 +642,9 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial = pp_update_0D(
+        ptcls.particle_potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update_0D(
             ptcls.pos,
+            ptcls.vel,
             ptcls.id,
             ptcls.masses,
             self.box_lengths,
@@ -681,13 +683,14 @@ class Potential:
             self.pppm_kz,
             self.pppm_cao,
         )
+
         # Ewald Self-energy
         U_long += self.QFactor * self.pppm_alpha_ewald / sqrt(pi)
 
         # Neutrality condition
         # U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
 
-        ptcls.potential_energy += U_long
+        ptcls.particle_potential_energy += U_long
 
         ptcls.acc += acc_l_r
 
@@ -714,11 +717,9 @@ class Potential:
         """
 
         out_fmm = lfmm3d(eps=self.fmm_precision, sources=ptcls.pos.transpose(), charges=ptcls.charges, pg=2)
-
-        potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
+        ptcls.particle_potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
         ptcls.acc = acc.transpose().copy()
-        ptcls.potential_energy = potential_energy
 
     def update_fmm_yukawa(self, ptcls):
         """Calculate particles' potential and accelerations using FMM method.
@@ -737,7 +738,6 @@ class Potential:
             pg=2,
         )
 
-        potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
+        ptcls.particle_potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
         ptcls.acc = acc.transpose().copy()
-        ptcls.potential_energy = potential_energy

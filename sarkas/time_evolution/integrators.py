@@ -1149,7 +1149,7 @@ def berendsen(vel, T_desired, T, species_np, tau):
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:]), nopython=True)
-def enforce_pbc(pos, cntr, box_vector) -> None:
+def enforce_pbc(pos, cntr, box_vector):
     """
     Numba'd function to enforce periodic boundary conditions.
 
@@ -1181,7 +1181,7 @@ def enforce_pbc(pos, cntr, box_vector) -> None:
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:, :], float64[:], float64[:]), nopython=True)
-def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
+def enforce_abc(pos, vel, acc, charges, box_vector):
     """
     Numba'd function to enforce absorbing boundary conditions.
 
@@ -1223,7 +1223,7 @@ def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:], float64), nopython=True)
-def enforce_rbc(pos, vel, box_vector, dt) -> None:
+def enforce_rbc(pos, vel, box_vector, dt):
     """
     Numba'd function to enforce reflecting boundary conditions.
 
@@ -1255,36 +1255,28 @@ def enforce_rbc(pos, vel, box_vector, dt) -> None:
                 pos[p, d] += vel[p, d] * dt
 
 
-# @jit(void(float64[:, :], int64[:], float64[:]), nopython=True)
-# def remove_drift(vel, nums, masses) -> None:
-#     """
-#     Numba'd function to enforce conservation of total linear momentum.
-#     It updates :attr:`sarkas.particles.Particles.vel`.
-#
-#     Parameters
-#     ----------
-#     vel: numpy.ndarray
-#         Particles' velocities.
-#
-#     nums: numpy.ndarray
-#         Number of particles of each species.
-#
-#     masses: numpy.ndarray
-#         Mass of each species.
-#
-#     """
-#
-#     P = zeros((len(nums), vel.shape[1]))
-#     species_start = 0
-#     for ic in range(len(nums)):
-#         species_end = species_start + nums[ic]
-#         P[ic, :] = vel[species_start:species_end, :].sum(axis=0) * masses[ic]
-#         species_start = species_end
-#
-#     if P.sum(axis=0).any() > 1e-40:
-#         # Remove tot momentum
-#         species_start = 0
-#         for ic in range(len(nums)):
-#             species_end = species_start + nums[ic]
-#             vel[species_start:species_end, :] -= P[ic, :] / (float(nums[ic]) * masses[ic])
-#             species_start = species_end
+@jit(void(float64[:, :], int64[:]), nopython=True)
+def remove_drift(vel, nums):
+    """
+    Numba'd function to enforce conservation of total linear momentum.
+    It updates :attr:`sarkas.particles.Particles.vel`.
+
+    Parameters
+    ----------
+    vel: numpy.ndarray
+        Particles' velocities.
+
+    nums: numpy.ndarray
+        Number of particles of each species.
+
+    masses: numpy.ndarray
+        Mass of each species.
+
+    """
+
+    species_start = 0
+    species_end = 0
+    for ic, sp_num in enumerate(nums):
+        species_end += sp_num
+        vel[species_start:species_end, :] -= vel[species_start:species_end, :].sum(axis=0) / sp_num
+        species_start += sp_num

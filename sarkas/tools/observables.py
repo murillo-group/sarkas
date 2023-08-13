@@ -51,7 +51,7 @@ from scipy.linalg import norm
 from scipy.special import erfc, factorial
 from seaborn import histplot as sns_histplot
 
-from ..utilities.io import pretty_print
+from ..utilities.io import print_to_logger
 from ..utilities.maths import correlationfunction
 from ..utilities.misc import add_col_to_df
 from ..utilities.timing import datetime_stamp, SarkasTimer, time_stamp
@@ -1349,7 +1349,7 @@ class Observable:
         # Write log file
         datetime_stamp(self.log_file)
         msg = self.pretty_print_msg()
-        pretty_print(msg, self.log_file, self.verbose)
+        print_to_logger(msg, self.log_file, self.verbose)
 
 
 class CurrentCorrelationFunction(Observable):
@@ -1612,7 +1612,7 @@ class CurrentCorrelationFunction(Observable):
 
             except FileNotFoundError:
                 msg = f"\nFile {self.filename_hdf_longitudinal} not found!\nComputing longitudinal ccf ..."
-                pretty_print(msg, self.log_file, self.verbose)
+                print_to_logger(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=longitudinal)
 
         elif transverse and not longitudinal:
@@ -1627,7 +1627,7 @@ class CurrentCorrelationFunction(Observable):
 
             except FileNotFoundError:
                 msg = f"\nFile {self.filename_hdf_transverse} not found!\nComputing transverse ccf ..."
-                pretty_print(msg, self.log_file, self.verbose)
+                print_to_logger(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=False, transverse=True)
 
         elif longitudinal and transverse:
@@ -1643,7 +1643,7 @@ class CurrentCorrelationFunction(Observable):
 
             except FileNotFoundError:
                 msg = f"\nFile {self.filename_hdf_longitudinal} or {self.filename_hdf_transverse} not found!\nComputing all ccf ..."
-                pretty_print(msg, self.log_file, self.verbose)
+                print_to_logger(msg, self.log_file, self.verbose)
                 self.compute(longitudinal=True, transverse=True)
 
         else:
@@ -1651,7 +1651,7 @@ class CurrentCorrelationFunction(Observable):
                 "Direction not defined. Call the method with either option set to true."
                 "\nlongitudinal = True/False, transverse = True/False"
             )
-            pretty_print(msg, self.log_file, self.verbose)
+            print_to_logger(msg, self.log_file, self.verbose)
 
     @setup_doc
     def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
@@ -2185,6 +2185,180 @@ class ElectricCurrent(Observable):
         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
 
+class EnergyCurrent(Observable):
+    """Energy Current."""
+
+    def __init__(self):
+        super().__init__()
+        self.__name__ = "energy_current"
+        self.__long_name__ = "Energy Current"
+        self.acf_observable = True
+
+    @setup_doc
+    def setup(self, params, phase: str = None, no_slices: int = None, **kwargs):
+
+        super().setup_init(params, phase, no_slices)
+        self.update_args(**kwargs)
+
+    @arg_update_doc
+    def update_args(self, **kwargs):
+
+        # Update the attribute with the passed arguments
+        self.__dict__.update(**kwargs)
+        self.update_finish()
+
+    @compute_doc
+    def compute(self):
+
+        t0 = self.timer.current()
+        self.calc_slices_data()
+        self.average_slices_data()
+        self.save_hdf()
+        tend = self.timer.current()
+        time_stamp(
+            self.log_file,
+            self.__long_name__ + " and its ACF Calculation",
+            self.timer.time_division(tend - t0),
+            self.verbose,
+        )
+
+    @calc_slice_doc
+    def calc_slices_data(self):
+
+        if self.dimensions == 3:
+            dim_lbl = ["X", "Y", "Z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["X", "Y"]
+
+        time = zeros(self.slice_steps)
+        e_i = zeros((self.total_num_ptcls, self.slice_steps))
+
+        # Let's compute
+        start_slice_step = 0
+        end_slice_step = self.slice_steps * self.dump_step
+        for isl in tqdm(
+            range(self.no_slices),
+            desc=f"\nCalculating {self.__long_name__} for slice ",
+            disable=not self.verbose,
+            position=0,
+        ):
+            # Parse the particles from the dump files
+            energy_current = zeros((3, self.num_species, self.slice_steps))
+            enthalpy = zeros((self.total_num_ptcls, self.slice_steps))
+            for it, dump in enumerate(
+                tqdm(
+                    range(start_slice_step, end_slice_step, self.dump_step),
+                    desc="Calculate the enthalpy of each particle",
+                    position=1,
+                    disable=not self.verbose,
+                    leave=False,
+                )
+            ):
+                datap = load_from_restart(self.dump_dir, dump)
+                time[it] = datap["time"]
+
+                enthalpy[:, it] = calculate_particles_enthalpy(
+                    datap["pot_energies"],
+                    datap["vel"],
+                    datap["virial"],
+                    self.species_masses,
+                    self.species_num,
+                    self.dimensions,
+                )
+
+            avg_ei = enthalpy.mean(axis=-1)  # average enthalpy of each particle
+
+            for it, dump in enumerate(
+                tqdm(
+                    range(start_slice_step, end_slice_step, self.dump_step),
+                    desc="Calculate EC for timestep",
+                    position=1,
+                    disable=not self.verbose,
+                    leave=False,
+                )
+            ):
+                datap = load_from_restart(self.dump_dir, dump)
+                sp_start = 0
+                sp_end = 0
+                for isp, sp_num in enumerate(self.species_num):
+                    sp_end += sp_num
+                    ec = datap["energy_current"][:, sp_start:sp_end].sum(axis=-1)
+                    # pot = datap["pot_energies"][sp_start:sp_end]
+                    vel = datap["vel"][sp_start:sp_end, :]
+
+                    # vel * avg_ei[sp_start:sp_end]
+                    energy_current[0, isp, it] = ec[0] - (vel[:, 0] * avg_ei[sp_start:sp_end]).sum()
+                    energy_current[1, isp, it] = ec[1] - (vel[:, 1] * avg_ei[sp_start:sp_end]).sum()
+                    energy_current[2, isp, it] = ec[2] - (vel[:, 2] * avg_ei[sp_start:sp_end]).sum()
+                    sp_start += sp_num
+
+            if isl == 0:
+                self.dataframe["Time"] = time.copy()
+                self.dataframe_acf["Time"] = time.copy()
+                self.dataframe_slices["Time"] = time.copy()
+                self.dataframe_acf_slices["Time"] = time.copy()
+
+            # Store data into dataframes
+            for isp, sp1 in enumerate(self.species_names):
+                for iax, ax in enumerate(dim_lbl):
+                    col_data = energy_current[iax, isp, :]
+                    col_name = f"{self.__long_name__}_{sp1}_{ax}_slice {isl}"
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+            # Calculate the ACF and store into dataframes
+            for isp, sp1 in enumerate(self.species_names):
+                for isp2, sp2 in enumerate(self.species_names[isp:], isp):
+
+                    total_energy_current = zeros(self.slice_steps)
+                    for iax, ax in enumerate(dim_lbl):
+                        # Auto-correlation function
+                        col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}"
+                        ec_ACF = correlationfunction(energy_current[iax, isp, :], energy_current[iax, isp2, :])
+                        self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, ec_ACF, col_name)
+                        total_energy_current += ec_ACF / self.dimensions
+
+                    col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_Total_slice {isl}"
+                    self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, total_energy_current, col_name)
+
+            start_slice_step += self.slice_steps * self.dump_step
+            end_slice_step += self.slice_steps * self.dump_step
+            # end of slice loop
+
+    @avg_slice_doc
+    def average_slices_data(self):
+
+        if self.dimensions == 3:
+            dim_lbl = ["X", "Y", "Z"]
+        elif self.dimensions == 2:
+            dim_lbl = ["X", "Y"]
+
+        for isp, sp1 in enumerate(self.species_names):
+            for _, ax in enumerate(dim_lbl):
+                columns = [f"{self.__long_name__}_{sp1}_{ax}_slice {isl}" for isl in range(self.no_slices)]
+                col_data = self.dataframe_slices[columns].mean(axis=1)
+                col_name = f"{self.__long_name__}_{sp1}_{ax}_Mean"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                col_data = self.dataframe_slices[columns].std(axis=1)
+                col_name = f"{self.__long_name__}_{sp1}_{ax}_Std"
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+        # ACF data
+        dim_lbl.append("Total")
+        for isp, sp1 in enumerate(self.species_names):
+            for isp2, sp2 in enumerate(self.species_names[isp:], isp):
+                for _, ax in enumerate(dim_lbl):
+                    columns = [f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}" for isl in range(self.no_slices)]
+                    # Mean
+                    col_data = self.dataframe_acf_slices[columns].mean(axis=1)
+                    col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_Mean"
+                    self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+                    # Std
+                    col_data = self.dataframe_acf_slices[columns].std(axis=1)
+                    col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_Std"
+                    self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+
+
 class PressureTensor(Observable):
     """Pressure Tensor."""
 
@@ -2445,7 +2619,6 @@ class PressureTensor(Observable):
 
     @avg_slice_doc
     def average_slices_data(self):
-        """Average and std over the slices"""
 
         if self.dimensions == 3:
             dim_lbl = ["x", "y", "z"]
@@ -2477,7 +2650,7 @@ class PressureTensor(Observable):
         col_name = "Delta Pressure_Std"
         col_data = self.dataframe_slices[col_str].std(axis=1).values
         self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-        
+
         # Pressure ACF Mean and Std
         col_str = [f"Pressure ACF_slice {isl}" for isl in range(self.no_slices)]
         col_name = "Pressure ACF_Mean"
@@ -2507,18 +2680,18 @@ class PressureTensor(Observable):
                 col_name = pt_str_kin + f" {ax1}{ax2}_Std"
                 col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
                 self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-                
+
                 # Potential Terms
                 ij_col_str = [pt_str_pot + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
                 # Mean
                 col_name = pt_str_pot + f" {ax1}{ax2}_Mean"
                 col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data,col_name)
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
                 # Std
                 col_name = pt_str_pot + f" {ax1}{ax2}_Std"
                 col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data,col_name)
-                
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
                 # Full
                 ij_col_str = [pt_str + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
                 # Mean
@@ -2528,8 +2701,8 @@ class PressureTensor(Observable):
                 # Std
                 col_name = pt_str + f" {ax1}{ax2}_Std"
                 col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)   
-        
+                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
         for i, ax1 in enumerate(dim_lbl):
             for j, ax2 in enumerate(dim_lbl):
                 for k, ax3 in enumerate(dim_lbl):
@@ -2559,7 +2732,7 @@ class PressureTensor(Observable):
                         col_name = pt_acf_str_pot + f" {ax1}{ax2}{ax3}{ax4}_Std"
                         col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
                         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
-                        
+
                         # Kinetic-Potential Terms
                         ij_col_acf_str = [
                             pt_acf_str_kinpot + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
@@ -3019,6 +3192,26 @@ class Thermodynamics(Observable):
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
 
+    def calculate_beta(self, ensemble: str = "NVE"):
+        """Calculate the inverse temperature by taking the mean of the temperature time series."""
+        if ensemble == "NVE":
+            self.beta = 1.0 / (self.kB * self.dataframe["Temperature"].mean())
+        else:
+            self.beta = 1.0 / (self.kB * self.T_desired)
+
+    def calculate_heat_capacity(self, ensemble: str = "NVE"):
+        """Calculate the specific heat capacity from the fluctuations of the energy."""
+
+        self.calculate_beta(ensemble=ensemble)
+
+        if ensemble == "NVE":
+            kin_2 = (self.dataframe["Total Kinetic Energy"].std()) ** 2
+            denom = 1 - 2.0 * self.beta**2 * kin_2 / (self.dimensions * self.total_num_ptcls)
+            self.specific_heat_volume = 0.5 * self.dimensions * self.kB * self.total_num_ptcls / denom
+        else:
+            deltaE_2 = (self.dataframe["Total Energy"].std()) ** 2
+            self.specific_heat_volume = deltaE_2 * self.beta**2 * self.kB
+
     def compute_from_rdf(self, rdf, potential):
         """
         Calculate the correlational energy and correlation pressure using
@@ -3098,7 +3291,10 @@ class Thermodynamics(Observable):
             self.dataframe = read_csv(self.mag_energy_filename, index_col=False)
             self.fldr = self.magnetization_dir
 
-        self.beta = 1.0 / (self.dataframe["Temperature"].mean() * self.kB)
+        if self.phase == "production":
+            self.calculate_beta(ensemble="NVE")
+        else:
+            self.calculate_beta(ensemble="NVT")
 
     def temp_energy_plot(
         self,
@@ -3164,6 +3360,11 @@ class Thermodynamics(Observable):
 
         else:
             self.parse()
+
+        if self.phase == "production":
+            self.calculate_beta(ensemble="NVE")
+        else:
+            self.calculate_beta(ensemble="NVT")
 
         completed_steps = self.dump_step * (self.no_dumps - 1)
         fig = plt.figure(figsize=(20, 8))
@@ -3239,35 +3440,43 @@ class Thermodynamics(Observable):
 
         if phase == "production":
             # The Temperature fluctuations in an NVE ensemble are
-            # < delta T^2> = T_desired^2 * ( 2 /(Np * Dims) ) *( 1 - Dims/2 * Np *k_B/Cv)
+            # < delta T^2> = T_desired^2 * ( 2 /(Np * Dims) ) *( 1 -  Np * Dims/2 * k_B/Cv)
             # where Cv is the heat capacity at constant volume.
-            delta_E2 = self.dataframe["Total Energy"].std() ** 2
-            beta_desired = 1.0 / (self.kB * self.T_desired)
-            dN = process.parameters.total_num_ptcls * process.parameters.dimensions
-            heat_capacity_v = 2.0 / dN / self.kB / (1.0 - delta_E2 * beta_desired**2 / dN)
-            T_std = T_desired * sqrt(2.0 / (process.parameters.total_num_ptcls * process.parameters.dimensions))
+            self.calculate_heat_capacity(ensemble="NVE")
+            dN = self.total_num_ptcls * self.dimensions
+            factor = 1 - 0.5 * dN * self.kB / self.specific_heat_volume
+            T_std = T_desired * sqrt(2.0 / dN * factor)
             # TODO: Review this calculation.
             # T_std *= sqrt(1 - 0.5 *process.parameters.dimensions*process.parameters.total_num_ptcls/heat_capacity_v)
         else:
             # The Temperature fluctuations in an NVT ensemble are
             # < delta T^2> = T_desired^2 *( 2 /(Np * Dims))
-            T_std = T_desired * sqrt(2.0 / (process.parameters.total_num_ptcls * process.parameters.dimensions))
+            dN = self.total_num_ptcls * self.dimensions
+            T_std = T_desired * sqrt(2.0 / dN)
 
-        T_dist = scp_stats.norm(loc=T_desired, scale=T_std)
-
+        # Calculate the theoretical distribution of the temperature.
+        # T_dist_desired is a Gaussian centered at T_desired with theoretical T_std
+        T_dist_desired = scp_stats.norm(loc=T_desired, scale=T_std)
+        # T_dist_actual is a Gaussian centered at the actual mean with theoretical T_std
+        T_dist_actual = scp_stats.norm(loc=Temperature.mean(), scale=T_std)
         # Histogram plot
         sns_histplot(y=Temperature, bins="auto", stat="density", alpha=0.75, legend="False", ax=T_hist_plot)
         T_hist_plot.set(ylabel=None, xlabel=None, xticks=[], yticks=[], ylim=T_main_plot.get_ylim())
-        T_hist_plot.plot(T_dist.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1])
+        T_hist_plot.plot(
+            T_dist_desired.pdf(Temperature.sort_values()), Temperature.sort_values(), ls="--", color="r", alpha=0.7
+        )
+        T_hist_plot.plot(
+            T_dist_actual.pdf(Temperature.sort_values()), Temperature.sort_values(), color=color_from_cycler[1]
+        )
         if self.phase == "equilibration":
             T_main_plot.set(ylim=(T_desired * 0.85, T_desired * 1.15))
             T_hist_plot.set(ylim=(T_desired * 0.85, T_desired * 1.15))
 
         # ------------------------------------------- Total Energy -------------------------------------------#
         # Calculate Energy plot's labels and multipliers
-        factor = process.parameters.J2erg if process.parameters.units == "mks" else 1.0 / process.parameters.J2erg
+        factor = 1.0 / process.parameters.J2erg if process.parameters.units == "cgs" else 1.0
 
-        Energy = self.dataframe["Total Energy"]  # * factor / process.parameters.eV2J  # Energy in [eV]
+        Energy = self.dataframe["Total Energy"].copy()  # * factor / process.parameters.eV2J  # Energy in [eV]
         time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
             self.dataframe["Time"], Energy, "Time", "Energy", self.units
         )
@@ -3295,10 +3504,30 @@ class Thermodynamics(Observable):
         # In an NVT ensemble Energy fluctuation are given by sigma(E) = sqrt( k_B T^2 C_v)
         # where C_v is the isothermal heat capacity
         # Since this requires a lot of prior calculation I skip it and just make a Gaussian
-        E_dist = scp_stats.norm(loc=Energy.mean(), scale=Energy.std())
+        if phase == "production":
+            self.calculate_heat_capacity(ensemble="NVE")
+            NkB = self.total_num_ptcls * self.kB
+            beta_desired = 1.0 / (self.kB * self.T_desired)
+            delta_E2 = (
+                self.dimensions
+                * self.total_num_ptcls
+                / beta_desired**2
+                * (1 - 0.5 * self.dimensions * NkB / self.specific_heat_volume)
+            )
+        else:
+            self.calculate_heat_capacity(ensemble="NVT")
+            delta_E2 = self.specific_heat_volume / self.beta**2 / self.kB
+
+        delta_E = sqrt(delta_E2)
+        # Calculate the theoretical distribution of the energy.
+        # E_dist_desired is a Gaussian centered at the actual mean with actaul E_std. This is to confirm that we have a Gaussian process.
+        E_dist_desired = scp_stats.norm(loc=Energy.mean(), scale=delta_E * energy_mul)
+        # E_dist_actual is a Gaussian centered at the actual mean with actaul E_std. This is to confirm that we have a Gaussian process.
+        E_dist_actual = scp_stats.norm(loc=Energy.mean(), scale=Energy.std())
         sns_histplot(y=Energy, bins="auto", stat="density", alpha=0.75, legend="False", ax=E_hist_plot)
         # Grab the second color since the first is used for histplot
-        E_hist_plot.plot(E_dist.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
+        E_hist_plot.plot(E_dist_desired.pdf(Energy.sort_values()), Energy.sort_values(), alpha=0.7, ls="--", color="r")
+        E_hist_plot.plot(E_dist_actual.pdf(Energy.sort_values()), Energy.sort_values(), color=color_from_cycler[1])
 
         E_hist_plot.set(ylabel=None, xlabel=None, ylim=E_main_plot.get_ylim(), xticks=[], yticks=[])
 
@@ -3347,7 +3576,7 @@ class Thermodynamics(Observable):
                 # calculate the actual coupling constant
                 t_ratio = self.T_desired / self.dataframe["Temperature"].mean()
                 coupling_constant = (
-                    self.dataframe["Potential Energy"].mean() / self.dataframe["Total Kinetic Energy"].mean()
+                    self.dataframe["Total Potential Energy"].mean() / self.dataframe["Total Kinetic Energy"].mean()
                 )
                 to_append = [
                     f"Equilibration cycles = {eq_cycles}",
@@ -3405,11 +3634,11 @@ class Thermodynamics(Observable):
         else:
             self.parse()
 
-        Gamma = self.dataframe["Potential Energy"] / self.dataframe["Total Kinetic Energy"]
-        Gamma_T = self.dataframe["Potential Energy"] * self.beta / self.total_num_ptcls
+        Gamma = self.dataframe["Total Potential Energy"] / self.dataframe["Total Kinetic Energy"]
+        Gamma_T = self.dataframe["Total Potential Energy"] * self.beta / self.total_num_ptcls
         Gamma_a = self.coupling_constant * self.T_desired / (self.dataframe["Temperature"])
         time_mul, energy_mul, _, _, time_lbl, energy_lbl = plot_labels(
-            self.dataframe["Time"], self.dataframe["Potential Energy"], "Time", "ElectronVolt", self.units
+            self.dataframe["Time"], self.dataframe["Total Potential Energy"], "Time", "ElectronVolt", self.units
         )
 
         time = self.dataframe["Time"] * time_mul
@@ -4458,20 +4687,71 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
     return nkt
 
 
+@njit
+def calculate_particles_enthalpy(pot, vel, virial, species_mass, species_np, dimensions):
+    """
+    Calculate the pressure tensor.
+
+    Parameters
+    ----------
+    pot : numpy.ndarray
+        Potential energy of each particle.
+
+    vel : numpy.ndarray
+        Particles' velocities.
+
+    virial : numpy.ndarray
+        Virial tensor of each particle. Shape= (3,3, Np)
+
+    species_mass : numpy.ndarray
+        Mass of each species.
+
+    species_np : numpy.ndarray
+        Number of particles of each species.
+
+    dimensions: int
+        Number of dimensions of the system.
+
+    Returns
+    -------
+    enthalpy : numpy.ndarray
+        Enthalpy of each particle.
+
+    """
+    # Rescale vel of each particle by their individual mass
+    sp_start = 0
+    sp_end = 0
+    # j_tot = zeros( (dimensions, len(species_np)) )
+    enthalpy = zeros(species_np.sum())
+
+    for isp, sp_num in enumerate(species_np):
+        sp_end += sp_num
+        vel_sp = vel[sp_start:sp_end, :]
+
+        kin_sp = 0.5 * (vel_sp**2).sum(axis=-1) * species_mass[isp]  # Kinetic energy of each particle
+
+        pot_sp = pot[sp_start:sp_end]
+
+        vir_sp = virial[0, 0, sp_start:sp_end] + virial[1, 1, sp_start:sp_end] + virial[2, 2, sp_start:sp_end]
+        # Note: The pressure is defined by (kin + vir)/volume. However since I need to multiply by volume to get the enthalpy I decided to not divide and then multiply by volume
+        enthalpy[sp_start:sp_end] = kin_sp + pot_sp + (kin_sp + vir_sp) / dimensions
+
+        sp_start += sp_num
+
+    return enthalpy
+
+
 def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dimensions):
     """
     Calculate the pressure tensor.
 
     Parameters
     ----------
-    pos : numpy.ndarray
-        Particles' positions.
-
     vel : numpy.ndarray
         Particles' velocities.
 
-    acc : numpy.ndarray
-        Particles' accelerations.
+    virial : numpy.ndarray
+        Virial tensor of each particle. Shape= (3,3, Np)
 
     species_mass : numpy.ndarray
         Mass of each species.
@@ -4482,10 +4762,19 @@ def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dime
     box_volume : float
         Volume of simulation's box.
 
+    dimensions : int
+        Number of dimensions.
+
     Returns
     -------
     pressure : float
         Scalar Pressure i.e. trace of the pressure tensor
+
+    pressure_kin : numpy.ndarray
+        Kinetic part of the Pressure tensor. Shape(``no_dim``,``no_dim``)
+
+    pressure_pot : numpy.ndarray
+        Potential energy part of the Pressure tensor. Shape(``no_dim``,``no_dim``)
 
     pressure_tensor : numpy.ndarray
         Pressure tensor. Shape(``no_dim``,``no_dim``)
