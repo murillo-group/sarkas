@@ -83,7 +83,8 @@ else:
 
 if options.check_status:
     sim.io.read_pickle(sim)
-    energy = Thermodynamics(sim.parameters)
+    energy = Thermodynamics()
+    energy.setup(sim.parameters)
     energy.temp_energy_plot(sim.parameters, options.check, options.plot_show)
 else:
    sim.run()

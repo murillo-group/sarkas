@@ -1,6 +1,8 @@
 """
 Module for calculating physical quantities from Sarkas checkpoints.
 """
+import inspect
+from copy import deepcopy
 from IPython import get_ipython
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
@@ -24,6 +26,7 @@ from numpy import (
     exp,
     format_float_scientific,
     histogram,
+    interp,
     isfinite,
     load,
     log,
@@ -513,6 +516,17 @@ class Observable:
             tend = self.timer.current()
             time_stamp(self.log_file, "v(k,t) Calculation", self.timer.time_division(tend - tinit), self.verbose)
 
+    def copy_params(self, params):
+
+        for i, val in params.__dict__.items():
+            if not inspect.ismethod(val):
+                if isinstance(val, dict):
+                    self.__dict__[i] = deepcopy(val)
+                elif isinstance(val, ndarray):
+                    self.__dict__[i] = val.copy()
+                else:
+                    self.__dict__[i] = val
+
     def create_dirs_filenames(self):
         """Create the directories and filenames where to save dataframes. It also creates a log file that can be accessed at
         :py:attr:`~.log_file`. Finally, it initializes the dataframes used to store data.
@@ -521,7 +535,7 @@ class Observable:
         self.setup_multirun_dirs()
 
         # If multi_run_average self.postprocessing_dir is Simulations/Postprocessing else Job_dir/Postprocessing
-        saving_dir = os_path_join(self.postprocessing_dir, self.__long_name__.replace(" ", ""))
+        saving_dir = os_path_join(self.directory_tree["postprocessing"]["path"], self.__long_name__.replace(" ", ""))
         if not os_path_exists(saving_dir):
             mkdir(saving_dir)
 
@@ -971,7 +985,7 @@ class Observable:
 
         return msg
 
-    def read_pickle(self):
+    def from_pickle(self):
         """Read the observable's info from the pickle file."""
         self.filename_pickle = os_path_join(self.saving_dir, self.__long_name__.replace(" ", "") + ".pickle")
         with open(self.filename_pickle, "rb") as pkl_data:
@@ -1130,7 +1144,7 @@ class Observable:
         name = self.__name__
         long_name = self.__long_name__
 
-        self.__dict__.update(params.__dict__)
+        self.copy_params(params)
 
         # Restore the correct names
         self.__name__ = name
@@ -1230,31 +1244,30 @@ class Observable:
         self.no_obs = int(self.num_species * (self.num_species + 1) / 2)
 
         # Get the total number of dumps by looking at the files in the directory
-        self.prod_no_dumps = len(listdir(self.prod_dump_dir))
-        self.eq_no_dumps = len(listdir(self.eq_dump_dir))
+        self.dump_dir = self.directory_tree["postprocessing"][self.phase]["dumps"]["path"]
+
+        self.prod_no_dumps = len(listdir(self.directory_tree["postprocessing"]["production"]["dumps"]["path"]))
+        self.eq_no_dumps = len(listdir(self.directory_tree["postprocessing"]["equilibration"]["dumps"]["path"]))
 
         # Check for magnetized plasma options
         if self.magnetized and self.electrostatic_equilibration:
-            self.mag_no_dumps = len(listdir(self.mag_dump_dir))
+            self.mag_no_dumps = len(listdir(self.directory_tree["postprocessing"]["magnetization"]["dumps"]["path"]))
 
         # Assign dumps variables based on the choice of phase
         if self.phase == "equilibration":
             self.no_dumps = self.eq_no_dumps
             self.dump_step = self.eq_dump_step
             self.no_steps = self.equilibration_steps
-            self.dump_dir = self.eq_dump_dir
 
         elif self.phase == "production":
             self.no_dumps = self.prod_no_dumps
             self.dump_step = self.prod_dump_step
             self.no_steps = self.production_steps
-            self.dump_dir = self.prod_dump_dir
 
         elif self.phase == "magnetization":
             self.no_dumps = self.mag_no_dumps
             self.dump_step = self.mag_dump_step
             self.no_steps = self.magnetization_steps
-            self.dump_dir = self.mag_dump_dir
 
         # Needed for preprocessing pretty print
         self.slice_steps = (
@@ -1271,7 +1284,7 @@ class Observable:
 
         The attribute postprocessing_dir refers to the location where to store postprocessing results.
         If the attribute :py:attr:`sarkas.tools.observables.Observable.multi_run_average` is set to `True` then the
-        postprocessing data will be saved in the :py:attr:`sarkas.core.Parameters.simulations_dir` directory, i.e. where
+        postprocessing data will be saved in the :py:attr:`sarkas.core.Parameters.md_simulations_dir` directory, i.e. where
         all the runs are.
         Otherwise :py:attr:`sarkas.tools.observables.Observable.postprocessing_dir` will be
         in the :py:attr:`sarkas.core.Parameters.job_dir`.
@@ -1289,12 +1302,12 @@ class Observable:
                 dump_dir = os_path_join(
                     f"run{r}", os_path_join("Simulation", os_path_join(self.phase.capitalize(), "dumps"))
                 )
-                dump_dir = os_path_join(self.simulations_dir, dump_dir)
+                dump_dir = os_path_join(self.md_simulations_dir, dump_dir)
                 self.dump_dirs_list.append(dump_dir)
 
             # Re-path the saving directory.
             # Data is saved in Simulations/PostProcessing/Observable/Phase/
-            self.postprocessing_dir = os_path_join(self.simulations_dir, "PostProcessing")
+            self.postprocessing_dir = os_path_join(self.md_simulations_dir, "PostProcessing")
             if not os_path_exists(self.postprocessing_dir):
                 mkdir(self.postprocessing_dir)
         else:
@@ -2050,7 +2063,7 @@ class ElectricCurrent(Observable):
             position=0,
         ):
             # Parse the particles from the dump files
-            vel = zeros((self.dimensions, self.slice_steps, self.total_num_ptcls))
+            species_current = zeros((self.num_species, self.dimensions, self.slice_steps))
             #
             # print("\nParsing particles' velocities.")
             for it, dump in enumerate(
@@ -2064,8 +2077,7 @@ class ElectricCurrent(Observable):
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
-                for d in range(self.dimensions):
-                    vel[d, it, :] = datap["vel"][:, d]
+                species_current[:, :, it] = datap["species_electric_current"]
             #
             if isl == 0:
                 self.dataframe["Time"] = time.copy()
@@ -2073,7 +2085,8 @@ class ElectricCurrent(Observable):
                 self.dataframe_slices["Time"] = time.copy()
                 self.dataframe_acf_slices["Time"] = time.copy()
 
-            species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
+            # species_current, total_current = calc_elec_current(vel, self.species_charges, self.species_num)
+            total_current = species_current.sum(axis=0)
 
             # Store species data
             for i, sp_name in enumerate(self.species_names):
@@ -2231,7 +2244,6 @@ class EnergyCurrent(Observable):
             dim_lbl = ["X", "Y"]
 
         time = zeros(self.slice_steps)
-        e_i = zeros((self.total_num_ptcls, self.slice_steps))
 
         # Let's compute
         start_slice_step = 0
@@ -2244,7 +2256,6 @@ class EnergyCurrent(Observable):
         ):
             # Parse the particles from the dump files
             energy_current = zeros((3, self.num_species, self.slice_steps))
-            enthalpy = zeros((self.total_num_ptcls, self.slice_steps))
             for it, dump in enumerate(
                 tqdm(
                     range(start_slice_step, end_slice_step, self.dump_step),
@@ -2256,41 +2267,7 @@ class EnergyCurrent(Observable):
             ):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
-
-                enthalpy[:, it] = calculate_particles_enthalpy(
-                    datap["potential_energy"],
-                    datap["vel"],
-                    datap["virial"],
-                    self.species_masses,
-                    self.species_num,
-                    self.dimensions,
-                )
-
-            avg_ei = enthalpy.mean(axis=-1)  # average enthalpy of each particle
-
-            for it, dump in enumerate(
-                tqdm(
-                    range(start_slice_step, end_slice_step, self.dump_step),
-                    desc="Calculate EC for timestep",
-                    position=1,
-                    disable=not self.verbose,
-                    leave=False,
-                )
-            ):
-                datap = load_from_restart(self.dump_dir, dump)
-                sp_start = 0
-                sp_end = 0
-                for isp, sp_num in enumerate(self.species_num):
-                    sp_end += sp_num
-                    ec = datap["energy_current"][:, sp_start:sp_end].sum(axis=-1)
-                    # pot = datap["potential_energy"][sp_start:sp_end]
-                    vel = datap["vel"][sp_start:sp_end, :]
-
-                    # vel * avg_ei[sp_start:sp_end]
-                    energy_current[0, isp, it] = ec[0] - (vel[:, 0] * avg_ei[sp_start:sp_end]).sum()
-                    energy_current[1, isp, it] = ec[1] - (vel[:, 1] * avg_ei[sp_start:sp_end]).sum()
-                    energy_current[2, isp, it] = ec[2] - (vel[:, 2] * avg_ei[sp_start:sp_end]).sum()
-                    sp_start += sp_num
+                energy_current[:, :, it] = datap["species_energy_current"].transpose()
 
             if isl == 0:
                 self.dataframe["Time"] = time.copy()
@@ -2313,7 +2290,9 @@ class EnergyCurrent(Observable):
                     for iax, ax in enumerate(dim_lbl):
                         # Auto-correlation function
                         col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}"
-                        ec_ACF = correlationfunction(energy_current[iax, isp, :], energy_current[iax, isp2, :])
+                        delta_ec_sp1 = energy_current[iax, isp, :] - energy_current[iax, isp, :].mean(axis=-1)
+                        delta_ec_sp2 = energy_current[iax, isp2, :] - energy_current[iax, isp2, :].mean(axis=-1)
+                        ec_ACF = correlationfunction(delta_ec_sp1, delta_ec_sp2)
                         self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, ec_ACF, col_name)
                         total_energy_current += ec_ACF / self.dimensions
 
@@ -2529,9 +2508,13 @@ class PressureTensor(Observable):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
 
-                pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
-                    datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume, self.dimensions
-                )
+                pt_pot_temp[:, :, it] = datap["species_pressure_pot_tensor"][:, :, 0]
+                pt_kin_temp[:, :, it] = datap["species_pressure_kin_tensor"][:, :, 0]
+                pt_temp[:, :, it] = pt_pot_temp[:, :, it] + pt_kin_temp[:, :, it]
+                pressure[it] = (pt_temp[:, :, it]).trace() / self.dimensions
+                # pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
+                #     datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume, self.dimensions
+                # )
 
             if isl == 0:
                 self.dataframe["Time"] = time.copy()
@@ -2891,6 +2874,7 @@ class RadialDistributionFunction(Observable):
         #     dumps_list.sort(key=num_sort)
         #     name, ext = os.path.splitext(dumps_list[-1])
         #     _, number = name.split('_')
+
         datap = load_from_restart(self.dump_dir, 0)
 
         # Make sure you are getting the right number of bins and redefine dr_rdf.
@@ -3182,15 +3166,9 @@ class Thermodynamics(Observable):
     @arg_update_doc
     def update_args(self, **kwargs):
 
-        if self.phase.lower() == "production":
-            self.saving_dir = self.production_dir
-        elif self.phase.lower() == "equilibration":
-            self.saving_dir = self.equilibration_dir
-        elif self.phase.lower() == "magnetization":
-            self.saving_dir = self.magnetization_dir
-
         # Update the attribute with the passed arguments
         self.__dict__.update(kwargs.copy())
+        self.update_finish()
 
     def calculate_beta(self, ensemble: str = "NVE"):
         """Calculate the inverse temperature by taking the mean of the temperature time series."""
@@ -3281,15 +3259,18 @@ class Thermodynamics(Observable):
         if phase:
             self.phase = phase.lower()
 
-        if self.phase == "equilibration":
-            self.dataframe = read_csv(self.eq_energy_filename, index_col=False)
-            self.fldr = self.equilibration_dir
-        elif self.phase == "production":
-            self.dataframe = read_csv(self.prod_energy_filename, index_col=False)
-            self.fldr = self.production_dir
-        elif self.phase == "magnetization":
-            self.dataframe = read_csv(self.mag_energy_filename, index_col=False)
-            self.fldr = self.magnetization_dir
+        # if self.phase == "equilibration":
+        #     self.dataframe = read_csv(self.filenames_tree["thermodynamics"][self.phase]["path"], index_col=False)
+        #     self.fldr = self.directory_tree["simulation"][self.phase]["path"]
+        # elif self.phase == "production":
+        #     self.dataframe = read_csv(self.prod_energy_filename, index_col=False)
+        #     self.fldr = self.production_dir
+        # elif self.phase == "magnetization":
+        #     self.dataframe = read_csv(self.mag_energy_filename, index_col=False)
+        #     self.fldr = self.magnetization_dir
+
+        self.dataframe = read_csv(self.filenames_tree["thermodynamics"][self.phase]["path"], index_col=False)
+        self.fldr = self.directory_tree["simulation"][self.phase]["path"]
 
         if self.phase == "production":
             self.calculate_beta(ensemble="NVE")
@@ -3337,16 +3318,16 @@ class Thermodynamics(Observable):
                 self.no_dumps = self.eq_no_dumps
                 self.dump_dir = self.eq_dump_dir
                 self.dump_step = self.eq_dump_step
-                self.saving_dir = self.equilibration_dir
+                # self.saving_dir = self.equilibration_dir
                 self.no_steps = self.equilibration_steps
                 self.parse(self.phase)
-                self.dataframe = self.dataframe.iloc[1:, :]
+                # self.dataframe = self.dataframe.iloc[1:, :]
 
             elif self.phase == "production":
                 self.no_dumps = self.prod_no_dumps
                 self.dump_dir = self.prod_dump_dir
                 self.dump_step = self.prod_dump_step
-                self.saving_dir = self.production_dir
+                # self.saving_dir = self.production_dir
                 self.no_steps = self.production_steps
                 self.parse(self.phase)
 
@@ -3354,7 +3335,7 @@ class Thermodynamics(Observable):
                 self.no_dumps = self.mag_no_dumps
                 self.dump_dir = self.mag_dump_dir
                 self.dump_step = self.mag_dump_step
-                self.saving_dir = self.magnetization_dir
+                # self.saving_dir = self.magnetization_dir
                 self.no_steps = self.magnetization_steps
                 self.parse(self.phase)
 

@@ -1,7 +1,8 @@
 """
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
-import pandas as pd
+
+from importlib import import_module
 from IPython import get_ipython
 from threading import Thread
 
@@ -39,19 +40,6 @@ from .particles import Particles
 from .plasma import Species
 from .potentials.core import Potential
 from .time_evolution.integrators import Integrator
-from .tools.observables import (
-    CurrentCorrelationFunction,
-    DiffusionFlux,
-    DynamicStructureFactor,
-    ElectricCurrent,
-    EnergyCurrent,
-    PressureTensor,
-    RadialDistributionFunction,
-    StaticStructureFactor,
-    Thermodynamics,
-    VelocityAutoCorrelationFunction,
-    VelocityDistribution,
-)
 
 # Sarkas modules
 from .utilities.io import InputOutput, print_to_logger
@@ -101,9 +89,13 @@ class Process:
         self.integrator = Integrator()
         self.parameters = Parameters()
         self.particles = Particles()
+
+        self.species = []  # Deprecated
         self.species = []
         self.threads_ls = []
-        self.observables_list = []
+        self.observables_dict = {}
+        self.transport_dict = {}
+
         self.input_file = input_file
         self.timer = SarkasTimer()
         self.io = InputOutput(process=self.__name__)
@@ -117,96 +109,126 @@ class Process:
         filename: str
             Input YAML file
 
+        Return
+        ------
+        dics : dict
+            Nested dictionary from reading the YAML input file.
         """
         if filename:
             self.input_file = filename
 
         dics = self.io.from_yaml(self.input_file)
 
-        for lkey in dics:
-            if lkey == "Particles":
-                for species in dics["Particles"]:
+        return dics
+
+    def update_subclasses_from_dict(self, nested_dict: dict):
+        """Update the subclasses parameters using a dictionary.
+
+        Parameters
+        ----------
+        nested_dict : dict
+            Nested dictionary. See example for format.
+
+        """
+        for lkey, vals in nested_dict.items():
+            if lkey not in ["Particles", "Observables", "TransportCoefficients"]:
+                self.__dict__[lkey.lower()].__dict__.update(vals)
+            elif lkey in ["Particles", "Plasma"]:
+                # Remember Particles should be a list of dict
+                # example:
+                # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
+
+                # Check if you already have a non-empty dict of species
+                if len(self.species) == 0:
+                    # If so do you want to replace or update?
+                    # Update species attributes
+
+                    for sp, species in enumerate(vals):
+                        spec = Species(species["Species"])
+                        if hasattr(spec, "replace"):
+                            self.species[sp].__dict__.update(spec.__dict__)
+                        else:
+                            self.species.append(spec)
+                    else:
+                        # Append new species
+                        for sp, species in enumerate(vals):
+                            spec = Species(species["Species"])
+                            self.species.append(spec)
+
+            elif lkey in ["Observables"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".observables", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        if inst.__long_name__ in self.observables_dict.keys():
+                            self.observables_dict[inst.__long_name__].__dict__.update(params)
+                        else:
+                            self.observables_dict[inst.__long_name__] = inst
+                            self.observables_dict[inst.__long_name__].from_dict(params)
+
+            elif lkey in ["TransportCoefficients"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".transport", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        if inst.__long_name__ in self.transport_dict.keys():
+                            self.transport_dict[inst.__long_name__].__dict__.update(params)
+                        else:
+                            self.transport_dict[inst.__long_name__] = inst
+                            self.transport_dict[inst.__long_name__].from_dict(params)
+
+        # electron properties has been moved to the Parameters class. Therefore I need to put this here.
+        if hasattr(self.potential, "electron_temperature"):
+            self.parameters.electron_temperature = self.potential.electron_temperature
+        elif hasattr(self.potential, "electron_temperature_eV"):
+            self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
+
+    def instantiate_subclasses_from_dict(self, nested_dict: dict):
+        """Instantiate the process subclasses from a dictionary."""
+
+        for lkey, vals in nested_dict.items():
+            if lkey not in ["Particles", "Observables", "TransportCoefficients"]:
+                # self.__dict__[lkey.lower()].__dict__.update(vals)
+
+                if lkey == "Potential":
+                    self.potential.from_dict(nested_dict[lkey])
+
+                elif lkey == "Integrator":
+                    self.integrator.from_dict(nested_dict[lkey])
+
+                elif lkey == "Parameters":
+                    self.parameters.from_dict(nested_dict[lkey])
+
+            elif lkey in ["Particles", "Plasma"]:
+                for sp, species in enumerate(vals):
                     spec = Species(species["Species"])
                     self.species.append(spec)
 
-            if lkey == "Potential":
-                self.potential.from_dict(dics[lkey])
+            elif lkey in ["Observables"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".observables", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        self.observables_dict[inst.__long_name__] = inst
+                        self.observables_dict[inst.__long_name__].from_dict(params)
 
-            if lkey == "Integrator":
-                self.integrator.from_dict(dics[lkey])
+            elif lkey in ["TransportCoefficients"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".transport", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        self.transport_dict[inst.__long_name__] = inst
+                        self.transport_dict[inst.__long_name__].from_dict(params)
 
-            if lkey == "Parameters":
-                self.parameters.from_dict(dics[lkey])
-
-                # electron properties has been moved to the Parameters class. Therefore I need to put this here.
-                if hasattr(self.potential, "electron_temperature"):
-                    self.parameters.electron_temperature = self.potential.electron_temperature
-                elif hasattr(self.potential, "electron_temperature_eV"):
-                    self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
-
-        if "Observables" in dics.keys():
-            self.observables_list = []
-
-            for observable in dics["Observables"]:
-                for key, sub_dict in observable.items():
-                    if key == "RadialDistributionFunction":
-                        self.observables_list.append("rdf")
-                        self.rdf = RadialDistributionFunction()
-                        if sub_dict:
-                            self.rdf.from_dict(sub_dict)
-                    elif key == "Thermodynamics":
-                        self.therm = Thermodynamics()
-                        self.therm.from_dict(sub_dict)
-                        self.observables_list.append("therm")
-
-                    elif key == "DynamicStructureFactor":
-                        self.observables_list.append("dsf")
-                        self.dsf = DynamicStructureFactor()
-                        if sub_dict:
-                            self.dsf.from_dict(sub_dict)
-                    elif key == "CurrentCorrelationFunction":
-                        self.observables_list.append("ccf")
-                        self.ccf = CurrentCorrelationFunction()
-                        if sub_dict:
-                            self.ccf.from_dict(sub_dict)
-                    elif key == "StaticStructureFactor":
-                        self.observables_list.append("ssf")
-                        self.ssf = StaticStructureFactor()
-                        if sub_dict:
-                            self.ssf.from_dict(sub_dict)
-                    elif key == "VelocityAutoCorrelationFunction":
-                        self.observables_list.append("vacf")
-                        self.vacf = VelocityAutoCorrelationFunction()
-                        if sub_dict:
-                            self.vacf.from_dict(sub_dict)
-                    elif key == "VelocityDistribution":
-                        self.observables_list.append("vd")
-                        self.vm = VelocityDistribution()
-                        if sub_dict:
-                            self.vm.from_dict(sub_dict)
-                    elif key == "ElectricCurrent":
-                        self.observables_list.append("ec")
-                        self.ec = ElectricCurrent()
-                        if sub_dict:
-                            self.ec.from_dict(sub_dict)
-                    elif key == "DiffusionFlux":
-                        self.observables_list.append("diff_flux")
-                        self.diff_flux = DiffusionFlux()
-                        if sub_dict:
-                            self.diff_flux.from_dict(sub_dict)
-                    elif key == "PressureTensor":
-                        self.observables_list.append("p_tensor")
-                        self.p_tensor = PressureTensor()
-                        if sub_dict:
-                            self.p_tensor.from_dict(sub_dict)
-                    elif key == "EnergyCurrent":
-                        self.observables_list.append("energy_current")
-                        self.energy_current = EnergyCurrent()
-                        if sub_dict:
-                            self.energy_current.from_dict(sub_dict)
-
-            if "TransportCoefficients" in dics.keys():
-                self.transport_dict = dics["TransportCoefficients"].copy()
+        # electron properties has been moved to the Parameters class. Therefore I need to put this here.
+        if hasattr(self.potential, "electron_temperature"):
+            self.parameters.electron_temperature = self.potential.electron_temperature
+        elif hasattr(self.potential, "electron_temperature_eV"):
+            self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
 
     def directory_sizes(self):
         """Calculate the size of the dumps directories and print them to logger."""
@@ -259,7 +281,7 @@ class Process:
 
         self.io.directory_size_report(sizes, process=self.__name__)
 
-    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step):
+    def evolve(self, phase, thermalization, it_start, it_end, dump_step):
         """
         Evolve the system forward in time.
 
@@ -293,6 +315,7 @@ class Process:
                 self.io.dump(phase, self.particles, it + 1)
 
             if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
+                self.particles.calculate_species_kinetic_temperature()
                 self.integrator.thermostate(self.particles)
 
     def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step):
@@ -357,12 +380,12 @@ class Process:
         self.io.setup()
 
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
-
+        self.parameters.copy_io_attrs(self.io)
         # Update parameters' dictionary with filenames and directories
-        self.parameters.from_dict(self.io.__dict__)
+
         self.parameters.potential_type = self.potential.type.lower()
         self.parameters.setup(self.species)
-
+        self.parameters.dt = self.integrator.dt
         # Initialize particles
         t0 = self.timer.current()
         self.particles.setup(self.parameters, self.species)
@@ -394,7 +417,7 @@ class Process:
         self.io.simulation_summary(self)
         time_end = self.timer.current()
 
-        self.evolve = self.evolve_loop_threading if self.parameters.threading else self.evolve_loop
+        # self.evolve = self.evolve_loop_threading if self.parameters.threading else self.evolve_loop
 
         # Print timing
         self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - t0))
@@ -439,91 +462,43 @@ class Process:
         )
         self.io.write_to_logger(msg)
 
-    def setup(self, read_yaml: bool = False, other_inputs: dict = None):
-        """Setup simulations' parameters and io subclasses.
+    def setup(self, read_yaml: bool = True, input_file: str = None, other_inputs: dict = None):
+        """
+        Setup simulations' subclasses by reading the YAML input file and update them with `other_inputs`.
 
         Parameters
         ----------
         read_yaml: bool
-            Flag for reading YAML input file. Default = False.
+            Flag for reading YAML input file. Default = True.
+
+        input_file: str (optional)
+            Path to YAML file with inputs.
 
         other_inputs: dict (optional)
-            Dictionary with additional simulations options.
+            Nested dictionary with additional simulations options. This is called after reading the YAML file.
 
         """
+        if input_file:
+            self.input_file = input_file
+
         if read_yaml:
-            self.common_parser()
+            yaml_dict = self.common_parser()
+            self.instantiate_subclasses_from_dict(yaml_dict)
 
         if other_inputs:
             if not isinstance(other_inputs, dict):
-                raise TypeError("Wrong input type. " "other_inputs should be a nested dictionary")
-
-            for class_name, class_attr in other_inputs.items():
-                if class_name not in ["Particles", "Observables"]:
-                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
-                elif class_name == "Particles":
-                    # Remember Particles should be a list of dict
-                    # example:
-                    # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
-
-                    # Check if you already have a non-empty list of species
-                    if isinstance(self.species, list):
-                        # If so do you want to replace or update?
-                        # Update species attributes
-                        for sp, species in enumerate(other_inputs["Particles"]):
-                            spec = Species(species["Species"])
-                            if hasattr(spec, "replace"):
-                                self.species[sp].__dict__.update(spec.__dict__)
-                            else:
-                                self.species.append(spec)
-                    else:
-                        # Append new species
-                        for sp, species in enumerate(other_inputs["Particles"]):
-                            spec = Species(species["Species"])
-                            self.species.append(spec)
-
-                if class_name == "Observables":
-
-                    for observable in class_attr:
-                        for key, sub_dict in observable.items():
-                            if key == "RadialDistributionFunction":
-                                self.rdf = RadialDistributionFunction()
-                                self.rdf.from_dict(sub_dict)
-                            if key == "Thermodynamics":
-                                self.therm = Thermodynamics()
-                                self.therm.from_dict(sub_dict)
-                            if key == "DynamicStructureFactor":
-                                self.dsf = DynamicStructureFactor()
-                                if sub_dict:
-                                    self.dsf.from_dict(sub_dict)
-                            if key == "CurrentCorrelationFunction":
-                                self.ccf = CurrentCorrelationFunction()
-                                if sub_dict:
-                                    self.ccf.from_dict(sub_dict)
-                            if key == "StaticStructureFactor":
-                                self.ssf = StaticStructureFactor()
-                                if sub_dict:
-                                    self.ssf.from_dict(sub_dict)
-                            if key == "VelocityAutoCorrelationFunction":
-                                self.vacf = VelocityAutoCorrelationFunction()
-                                if sub_dict:
-                                    self.vacf.from_dict(sub_dict)
-                            if key == "VelocityDistribution":
-                                self.vm = VelocityDistribution()
-                                if sub_dict:
-                                    self.vm.from_dict(sub_dict)
-                            if key == "ElectricCurrent":
-                                self.ec = ElectricCurrent()
-                                if sub_dict:
-                                    self.ec.from_dict(sub_dict)
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+            self.update_subclasses_from_dict(other_inputs)
 
         if self.__name__ == "postprocessing":
 
             # Create the file paths without creating directories and redefining io attributes
-            self.io.create_file_paths()
+            self.io.make_directory_tree()
+            self.io.make_directories()
+            self.io.make_files_tree()
 
             # Read previously stored files
-            self.io.read_pickle(self)
+            self.io.read_pickle(self, self.io.directory_tree["simulation"]["path"])
             self.io.copy_params(self.parameters)
             # Print parameters to log file
             if not exists(self.io.log_file):
@@ -549,10 +524,63 @@ class Process:
                 self.parameters.load_method = old_method
                 # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
                 self.parameters.log_file = self.io.log_file
-                # Initialize the observable classes
-                # for obs in self.observables_list:
-                #     if obs in self.__dict__.keys():
-                #         self.__dict__[obs].setup(self.parameters)
+        else:
+            self.initialization()
+
+        if self.parameters.plot_style:
+            plt.style.use(self.parameters.plot_style)
+
+    def setup_from_dict(self, input_dict: dict):
+        """Setup simulations' subclasses from a nested dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Nested dictionary with all necessary simulations parameters.
+
+        Note
+        ----
+        This method does the same as:meth:`setup` but without reading a yaml file.
+        If you want to update the attributes of this class use :meth:`update_subclasses_from_dict`.
+        """
+
+        self.instantiate_subclasses_from_dict(input_dict)
+
+        if self.__name__ == "postprocessing":
+
+            # Create the file paths without creating directories and redefining io attributes
+            self.io.make_directory_tree()
+            self.io.make_directories()
+            self.io.make_files_tree()
+
+            # Read previously stored files
+            self.io.read_pickle(self, self.io.directory_tree["simulation"]["path"])
+            self.io.copy_params(self.parameters)
+
+            # Print parameters to log file
+            if not exists(self.io.log_file):
+                # if the file exists do not print the file header
+                self.io.file_header()
+                self.io.simulation_summary(self)
+
+            self.io.datetime_stamp()
+
+            if self.grab_last_step:
+                # Initialize the Particles class attributes by reading the last step
+                old_method = self.parameters.load_method
+                self.parameters.load_method = "production_restart"
+                no_dumps = len(listdir(self.io.prod_dump_dir))
+                last_step = self.parameters.prod_dump_step * (no_dumps - 1)
+                if no_dumps == 0:
+                    self.parameters.load_method = "equilibration_restart"
+                    no_dumps = len(listdir(self.io.eq_dump_dir))
+                    last_step = self.parameters.eq_dump_step * (no_dumps - 1)
+                self.parameters.restart_step = last_step
+                self.particles.setup(self.parameters, self.species)
+                # Restore the original value for future use
+                self.parameters.load_method = old_method
+                # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
+                self.parameters.log_file = self.io.log_file
 
         else:
             self.initialization()
@@ -582,74 +610,30 @@ class PostProcess(Process):
     def run(self):
         """Calculate all the observables from the YAML input file."""
 
-        if len(self.observables_list) == 0:
-            # Make Temperature and Energy plots
-            self.therm = Thermodynamics()
-            self.therm.setup(self.parameters)
-            if self.parameters.equilibration_steps > 0:
-                self.therm.temp_energy_plot(self, phase="equilibration")
-            self.therm.temp_energy_plot(self, phase="production")
-            # Calculate the RDF.
-            self.rdf = RadialDistributionFunction()
-            self.rdf.setup(self.parameters)
-            self.rdf.parse()
+        if len(self.observables_dict.keys()) == 0:
+            print("No observables found in observables_dict")
         else:
-            for obs in self.observables_list:
-                # Check that the observable is actually there
-                if obs in self.__dict__.keys():
+            for obs_key, obs_class in self.observables_dict.items():
 
-                    self.__dict__[obs].setup(self.parameters)
-                    if obs == "therm":
-                        self.therm.temp_energy_plot(self)
-                    else:
-                        # self.io.postprocess_info(self, observable=obs)
-                        msg = self.__dict__[obs].pretty_print_msg()
-                        self.io.write_to_logger(msg)
-                        self.__dict__[obs].compute()
+                obs_class.setup(self.parameters)
+                msg = obs_class.pretty_print_msg()
+                self.io.write_to_logger(msg)
 
-            # Calculate transport coefficients
-            if hasattr(self, "transport_dict"):
+                if obs_key == "Thermodynamics":
+                    # Make Temperature and Energy plots
+                    obs_class.temp_energy_plot(self)
+                else:
+                    obs_class.compute()
 
-                from .tools.transport import TransportCoefficients
+        if len(self.transport_dict.keys()) == 0:
+            print("No transport coefficients found in tranport_dict")
+        else:
+            for obs_key, obs_class in self.transport_dict.items():
 
-                tc = TransportCoefficients(self.parameters)
-
-                for coeff in self.transport_dict:
-
-                    for key, coeff_kwargs in coeff.items():
-
-                        if key.lower() == "diffusion":
-                            # Calculate if not already
-                            if not self.vacf:
-                                self.vacf = VelocityAutoCorrelationFunction()
-                                self.vacf.setup(self.parameters)
-                                # Use parse in case you calculated it already
-                                self.vacf.parse()
-
-                            tc.diffusion(observable=self.vacf)
-
-                        elif key.lower() == "interdiffusion":
-                            if not self.diff_flux:
-                                self.diff_flux = DiffusionFlux()
-                                self.diff_flux.setup(self.parameters)
-                                self.diff_flux.parse()
-
-                            tc.interdiffusion(self.diff_flux)
-
-                        elif key.lower() == "viscosities":
-                            if not self.p_tensor:
-                                self.p_tensor = PressureTensor()
-                                self.p_tensor.setup(self.parameters)
-                                self.p_tensor.parse()
-                            tc.viscosity(self.p_tensor)
-
-                        elif key.lower() == "electricalconductivity":
-                            if not self.ec:
-                                self.ec = ElectricCurrent()
-                                self.ec.setup(self.parameters)
-                                self.ec.parse()
-
-                            tc.electrical_conductivity(self.ec)
+                obs_class.setup(self.parameters)
+                msg = obs_class.pretty_print_msg()
+                self.io.write_to_logger(msg)
+                obs_class.compute(observable=self.observables_dict[obs_class.required_observable])
 
     def setup_from_simulation(self, simulation):
         """
@@ -1148,25 +1132,9 @@ class PreProcess(Process):
         msg = f"{'':*^80}\n {process_title} \n{'':*^80}"
         print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
-        if hasattr(self, "rdf"):
-            self.rdf.setup(self.parameters)
+        for _, obs_class in self.observables_dict.items():
+            obs_class.setup(self.parameters)
             msg += self.rdf.pretty_print_msg()
-
-        if hasattr(self, "ssf"):
-            self.ssf.setup(self.parameters)
-            msg += self.ssf.pretty_print_msg()
-
-        if hasattr(self, "dsf"):
-            self.dsf.setup(self.parameters)
-            msg += self.dsf.pretty_print_msg()
-
-        if hasattr(self, "ccf"):
-            self.ccf.setup(self.parameters)
-            msg += self.ccf.pretty_print_msg()
-
-        if hasattr(self, "vm"):
-            self.ccf.setup(self.parameters)
-            msg += self.vm.pretty_print_msg()
 
         print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 

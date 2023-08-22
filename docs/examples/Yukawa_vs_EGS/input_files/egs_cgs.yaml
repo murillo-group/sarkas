@@ -39,7 +39,7 @@ Parameters:
 
 IO:
     verbose: yes
-    simulations_dir: Simulations
+    md_simulations_dir: Simulations
     job_dir: egs_cgs_qkst               # dir name to save data.
     job_id: egs
 

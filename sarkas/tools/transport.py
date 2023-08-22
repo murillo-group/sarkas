@@ -2,6 +2,8 @@
 Transport Module.
 """
 
+import inspect
+from copy import deepcopy
 from IPython import get_ipython
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
@@ -11,7 +13,7 @@ else:
 
 import sys
 from matplotlib.pyplot import subplots
-from numpy import array, column_stack, pi
+from numpy import array, column_stack, ndarray, pi
 from os import mkdir as os_mkdir
 from os import remove as os_remove
 from os.path import exists as os_path_exists
@@ -74,12 +76,12 @@ class TransportCoefficients:
             Observable class
         """
         #
-
         self.copy_params(params=params)
+        self.postprocessing_dir = self.directory_tree["postprocessing"]["path"]
         self.get_observable_data(observable)
         self.calculate_average_temperature(params)
 
-        self.create_dir()
+        self.make_directories()
         self.create_df_filenames()
         self.log_file = os_path_join(self.saving_dir, f"{self.__name__}_logfile.out")
 
@@ -87,19 +89,15 @@ class TransportCoefficients:
         self.pretty_print()
 
     def copy_params(self, params):
-        # Parameters copies
-        self.postprocessing_dir = params.postprocessing_dir
-        self.units = params.units
-        self.job_id = params.job_id
-        self.verbose = params.verbose
-        self.dt = params.dt
-        self.units_dict = params.units_dict
-        self.total_plasma_frequency = params.total_plasma_frequency
-        self.dimensions = params.dimensions
-        self.box_volume = params.box_volume
-        self.pbox_volume = params.pbox_volume
-        #
-        self.kB = params.kB
+
+        for i, val in params.__dict__.items():
+            if not inspect.ismethod(val):
+                if isinstance(val, dict):
+                    self.__dict__[i] = deepcopy(val)
+                elif isinstance(val, ndarray):
+                    self.__dict__[i] = val.copy()
+                else:
+                    self.__dict__[i] = val
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -152,7 +150,7 @@ class TransportCoefficients:
 
         self.df_fnames = fnames
 
-    def create_dir(self):
+    def make_directories(self):
         """Create directories where to save the transport coefficients."""
 
         transport_dir = os_path_join(self.postprocessing_dir, "TransportCoefficients")
@@ -352,7 +350,7 @@ class TransportCoefficients:
 
         return fig, (ax1, ax2, ax3, ax4)
 
-    def pretty_print(self):
+    def pretty_print_msg(self):
         """Print to screen the location where data is stored and other relevant information."""
 
         tc_name = self.__long_name__
@@ -371,6 +369,8 @@ class TransportCoefficients:
             f"Time interval step: dtau = {dtau:.4e} ~ {dtau / t_wp:.4e} plasma period"
         )
 
+    def pretty_print(self):
+        msg = self.pretty_print_msg()
         # Print the message to log file and screen
         print_to_logger(message=msg, log_file=self.log_file, print_to_screen=self.verbose)
 
@@ -449,6 +449,7 @@ class Diffusion(TransportCoefficients):
     def __init__(self):
         self.__name__ = "Diffusion"
         self.__long_name__ = "Diffusion Coefficients"
+        self.required_observable = "Velocity Autocorrelation Function"
         super().__init__()
 
     def compute(self, observable, plot: bool = True, display_plot: bool = False):
@@ -678,6 +679,7 @@ class InterDiffusion(TransportCoefficients):
     def __init__(self):
         self.__name__ = "InterDiffusion"
         self.__long_name__ = "InterDiffusion Coefficients"
+        self.required_observable = "Diffusion Flux"
         super().__init__()
 
     def compute(self, observable, plot: bool = True, display_plot: bool = False):
@@ -810,6 +812,7 @@ class Viscosity(TransportCoefficients):
     def __init__(self):
         self.__name__ = "Viscosities"
         self.__long_name__ = "Viscosity Coefficients"
+        self.required_observable = "Pressure Tensor"
         super().__init__()
 
     def compute(self, observable, plot: bool = True, display_plot: bool = False):
@@ -975,6 +978,7 @@ class ElectricalConductivity(TransportCoefficients):
     def __init__(self):
         self.__name__ = "ElectricalConductivity"
         self.__long_name__ = "Electrical Conductivity"
+        self.required_observable = "Electric Current"
         super().__init__()
 
     def compute(
@@ -1170,6 +1174,7 @@ class ThermalConductivity(TransportCoefficients):
     def __init__(self):
         self.__name__ = "ThermalConductivity"
         self.__long_name__ = "Thermal Conductivity"
+        self.required_observable = "Energy Current"
         super().__init__()
 
     def compute(

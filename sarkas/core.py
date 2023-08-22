@@ -175,7 +175,7 @@ class Parameters:
     verbose : bool
         Flag for screen output.
 
-    simulations_dir : str
+    md_simulations_dir : str
         Name of directory where to store simulations.
 
     job_dir : str
@@ -289,7 +289,7 @@ class Parameters:
         self.plot_style = None
         self.pre_run = False
         self.threading = False
-        self.simulations_dir = "Simulations"
+        self.md_simulations_dir = "Simulations"
         self.production_dir = "Production"
         self.magnetization_dir = "Magnetization"
         self.equilibration_dir = "Equilibration"
@@ -538,6 +538,25 @@ class Parameters:
             self.species_lj_sigmas = zeros(self.num_species)
 
         self.create_unit_dict()
+
+    def copy_io_attrs(self, io):
+        """Copy the directories and filenames from io
+
+        Parameters
+        ----------
+        io : :class:`sarkas.utilities.io.InputOutput`
+            IO class
+        """
+        self.directory_tree = deepcopy(io.directory_tree)
+        self.filenames_tree = deepcopy(io.filenames_tree)
+        self.thermodynamics_to_save = io.thermodynamics_to_save
+        self.verbose = io.verbose
+        self.md_simulations_dir = io.md_simulations_dir
+        self.job_dir = io.job_dir
+        self.job_id = io.job_id
+        self.eq_dump_dir = io.eq_dump_dir
+        self.prod_dump_dir = io.prod_dump_dir
+        self.mag_dump_dir = io.mag_dump_dir
 
     def create_unit_dict(self):
         """Make a dictionary whose values are strings of the units. It is used in pretty_print methods."""

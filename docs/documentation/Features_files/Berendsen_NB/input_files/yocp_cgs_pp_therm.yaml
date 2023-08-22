@@ -37,7 +37,7 @@ Parameters:
 
 IO:
     verbose: yes
-    simulations_dir: Berendsen_runs            # dir name to save data. The default is "Checkpoint"
+    md_simulations_dir: Berendsen_runs            # dir name to save data. The default is "Checkpoint"
     job_dir: tau_2
 
 Observables:

@@ -43,53 +43,54 @@ class Integrator:
 
     """
 
-    dt: float = None
-    kB: float = None
+    def __init__(self):
+        self.dt: float = None
+        self.kB: float = None
 
-    # attributes
-    type: str = None
-    supported_integrators = {}
-    equilibration_type: str = "verlet"
-    magnetization_type: str = "magnetic_verlet"
-    production_type: str = "verlet"
+        # attributes
+        self.type: str = None
+        self.supported_integrators = {}
+        self.equilibration_type: str = "verlet"
+        self.magnetization_type: str = "magnetic_verlet"
+        self.production_type: str = "verlet"
 
-    species_num = None
-    species_plasma_frequencies = None
+        self.species_num = None
+        self.species_plasma_frequencies = None
 
-    # Thermostat attributes
-    thermalization: bool = True
-    thermostat_type: str = "berendsen"
-    thermalization_rate: float = 2.0
-    thermalization_timestep: int = 0
-    berendsen_tau: float = None
-    thermostat_temperatures = None
-    thermostat_temperatures_eV = None
+        # Thermostat attributes
+        self.thermalization: bool = True
+        self.thermostat_type: str = "berendsen"
+        self.thermalization_rate: float = 2.0
+        self.thermalization_timestep: int = 0
+        self.berendsen_tau: float = None
+        self.thermostat_temperatures = None
+        self.thermostat_temperatures_eV = None
 
-    # Magnetic attributes
-    magnetized: bool = False
-    magnetic_field_uvector = None
-    magnetic_field = None
-    omega_c = None
-    species_cyclotron_frequencies = None
-    ccodt = None
-    cdt = None
-    ssodt = None
-    sdt = None
-    v_B = None
-    v_F = None
+        # Magnetic attributes
+        self.magnetized: bool = False
+        self.magnetic_field_uvector = None
+        self.magnetic_field = None
+        self.omega_c = None
+        self.species_cyclotron_frequencies = None
+        self.ccodt = None
+        self.cdt = None
+        self.ssodt = None
+        self.sdt = None
+        self.v_B = None
+        self.v_F = None
 
-    # Langevin attributes
-    c1 = None
-    c2 = None
-    sigma = None
-    box_lengths = None
-    pbox_lengths = None
+        # Langevin attributes
+        self.c1 = None
+        self.c2 = None
+        self.sigma = None
+        self.box_lengths = None
+        self.pbox_lengths = None
 
-    boundary_conditions = None
+        self.boundary_conditions = None
 
-    supported_boundary_conditions = {}
+        self.supported_boundary_conditions = {}
 
-    verbose: bool = False
+        self.verbose: bool = False
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -170,13 +171,13 @@ class Integrator:
             self.boundary_conditions = params.boundary_conditions.lower()
 
         # Check whether you input temperatures in eV or K
-        if self.thermalization and self.thermostat_temperatures:
+        if self.thermostat_temperatures:
             self.thermostat_temperatures_eV = self.thermostat_temperatures.copy() / self.eV2K
-        elif self.thermalization and self.thermostat_temperatures_eV:
+        elif self.thermostat_temperatures_eV:
             self.thermostat_temperatures = self.thermostat_temperatures_eV.copy() * self.eV2K
-        elif self.thermalization and not self.thermostat_temperatures:
-            self.thermostate_temperatures = params.species_temperatures.copy()
-            self.thermostate_temperatures_eV = params.species_temperatures_eV.copy()
+        elif not self.thermostat_temperatures_eV and not self.thermostat_temperatures:
+            self.thermostat_temperatures = params.species_temperatures.copy()
+            self.thermostat_temperatures_eV = params.species_temperatures_eV.copy()
 
         # Backwards compatibility
         if hasattr(self, "equilibration_steps"):
@@ -224,6 +225,8 @@ class Integrator:
         if self.dt is None:
             raise ValueError("integrator.dt is None. Please define Integrator.dt")
 
+        self.thermostat_setup()
+
         self.copy_params(params)
 
         if self.magnetized:
@@ -235,9 +238,6 @@ class Integrator:
             self.production_type = self.type
 
         self.boundary_condition_setup()
-
-        if self.thermalization:
-            self.thermostat_setup()
 
         self.pot_acc_setup(potential)
 
@@ -291,16 +291,22 @@ class Integrator:
             If a thermostat different from Berendsen is chosen.
 
         """
+        if self.thermostat_type:
+            self.thermostat_type = self.thermostat_type.lower()
 
-        self.thermostat_type = self.thermostat_type.lower()
+        if self.thermostat_temperatures:
+            self.thermostat_temperatures = array(self.thermostat_temperatures)
 
-        if self.thermostat_type != "berendsen":
-            raise ValueError("Only Berendsen thermostat is supported.")
+        if self.thermostat_temperatures_eV:
+            self.thermostat_temperatures_eV = array(self.thermostat_temperatures_eV)
 
-        if self.berendsen_tau:
-            self.thermalization_rate = 1.0 / self.berendsen_tau
-        else:
-            self.berendsen_tau = 1.0 / self.thermalization_rate
+        if self.thermostat_type == "berendsen":
+            # raise ValueError("Only Berendsen thermostat is supported.")
+
+            if self.berendsen_tau:
+                self.thermalization_rate = 1.0 / self.berendsen_tau
+            else:
+                self.berendsen_tau = 1.0 / self.thermalization_rate
 
     def type_setup(self, int_type):
         """
@@ -327,7 +333,7 @@ class Integrator:
 
         if int_type == "langevin":
 
-            self.sigma = sqrt(2.0 * self.langevin_gamma * self.kB * self.species_temperatures / self.species_masses)
+            self.sigma = sqrt(2.0 * self.langevin_gamma * self.kB * self.thermostat_temperatures / self.species_masses)
             self.c1 = 1.0 - 0.5 * self.langevin_gamma * self.dt
             self.c2 = 1.0 / (1.0 + 0.5 * self.langevin_gamma * self.dt)
 
@@ -964,7 +970,11 @@ class Integrator:
         # Look in processes.evolve_loop
         # # _, T = ptcls.calculate_species_kinetic_temperature()
         berendsen(
-            ptcls.vel, self.species_temperatures, ptcls.species_temperatures, self.species_num, self.thermalization_rate
+            ptcls.vel,
+            self.thermostat_temperatures,
+            ptcls.species_temperatures,
+            self.species_num,
+            self.thermalization_rate,
         )
 
     def periodic_bc(self, ptcls):
@@ -1031,7 +1041,7 @@ class Integrator:
                 f"Berendsen relaxation rate: {self.thermalization_rate:.3f} [1/timesteps]\n"
                 "Thermostating temperatures:\n"
             )
-            for i, (t, t_ev) in enumerate(zip(self.thermostate_temperatures, self.thermostate_temperatures_eV)):
+            for i, (t, t_ev) in enumerate(zip(self.thermostat_temperatures, self.thermostat_temperatures_eV)):
                 msg += f"Species ID {i}: T_eq = {t:.6e} {self.units_dict['temperature']} = {t_ev:.6e} {self.units_dict['electron volt']}\n"
         else:
             msg = ""
@@ -1161,13 +1171,13 @@ def enforce_pbc(pos, cntr, box_vector):
         for d in arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, wrap to negative side
-            if pos[p, d] > box_vector[d]:
-                pos[p, d] -= box_vector[d]
-                cntr[p, d] += 1
+            # if pos[d,p] > box_vector[d]:
+            pos[p, d] -= box_vector[d] * (pos[p, d] > box_vector[d])
+            cntr[p, d] += 1 * (pos[p, d] > box_vector[d])
             # If particle is outside of box in negative direction, wrap to positive side
-            if pos[p, d] < 0.0:
-                pos[p, d] += box_vector[d]
-                cntr[p, d] -= 1
+            # if pos[d,p] < 0.0:
+            pos[p, d] += box_vector[d] * (pos[p, d] < 0.0)
+            cntr[p, d] -= 1 * (pos[p, d] < 0.0)
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:, :], float64[:], float64[:]), nopython=True)
@@ -1243,30 +1253,3 @@ def enforce_rbc(pos, vel, box_vector, dt):
                 vel[p, d] *= -1.0
                 # Restore previous position assuming verlet algorithm
                 pos[p, d] += vel[p, d] * dt
-
-
-@jit(void(float64[:, :], int64[:]), nopython=True)
-def remove_drift(vel, nums):
-    """
-    Numba'd function to enforce conservation of total linear momentum.
-    It updates :attr:`sarkas.particles.Particles.vel`.
-
-    Parameters
-    ----------
-    vel: numpy.ndarray
-        Particles' velocities.
-
-    nums: numpy.ndarray
-        Number of particles of each species.
-
-    masses: numpy.ndarray
-        Mass of each species.
-
-    """
-
-    species_start = 0
-    species_end = 0
-    for ic, sp_num in enumerate(nums):
-        species_end += sp_num
-        vel[species_start:species_end, :] -= vel[species_start:species_end, :].sum(axis=0) / sp_num
-        species_start += sp_num

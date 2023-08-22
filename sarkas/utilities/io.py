@@ -13,7 +13,7 @@ from numpy import c_, float64
 from numpy import load as np_load
 from numpy import savetxt, savez, zeros
 from numpy.random import randint
-from os import listdir, mkdir
+from os import listdir, mkdir, symlink
 from os.path import basename, exists, join
 from pyfiglet import Figlet, print_figlet
 from warnings import warn
@@ -71,33 +71,47 @@ class InputOutput:
         self.preprocess_file: str = None
         self.preprocessing: bool = False
         self.preprocessing_dir: str = "PreProcessing"
-        self.processes_dir: str = None
         self.prod_dump_dir: str = "dumps"
         self.production_dir: str = "Production"
         self.postprocessing_dir: str = "PostProcessing"
-        self.simulations_dir: str = "Simulations"
+        self.md_simulations_dir: str = "SarkasSimulations"
         self.simulation_dir: str = "Simulation"
-        self.particles_directories: dict = {
-            "equilibration": "Equilibration",
-            "magnetization": "Magnetization",
-            "production": "Production",
-        }
-        self.particles_filenames: dict = {"equilibration": None, "magnetization": None, "production": None}
-        self.observables_filenames: dict = {"equilibration": None, "magnetization": None, "production": None}
-        self.observables_directories: dict = {
-            "equilibration": "Equilibration",
-            "magnetization": "Magnetization",
-            "production": "Production",
-        }
-        self.thermodynamics_filenames: dict = {"equilibration": None, "magnetization": None, "production": None}
 
-        self.save_pva: bool = True
-        self.save_onthefly_observables: bool = False
+        self.process_names_dict = {
+            "preprocessing": "PreProcessing",
+            "simulation": "Simulation",
+            "postprocessing": "PostProcessing",
+        }
+        self.phase_names_dict = {
+            "equilibration": "Equilibration",
+            "production": "Production",
+            "magnetization": "Magnetization",
+        }
+
+        self.filenames_tree = {
+            "log": {"path": "log", "name": "log.out"},
+            "particles": {
+                "equilibration": {"path": "dumps", "name": "checkpoint_"},
+                "magnetization": {"path": "dumps", "name": "checkpoint_"},
+                "production": {"path": "dumps", "name": "checkpoint_"},
+            },
+            "thermodynamics": {
+                "equilibration": {"path": "process", "name": "energy.csv"},
+                "magnetization": {"path": "process", "name": "energy.csv"},
+                "production": {"path": "process", "name": "energy.csv"},
+            },
+        }
+
+        self.particles_filepaths = {"equilibration": None, "magnetization": None, "production": None}
+        self.thermodynamics_filepaths = {"equilibration": None, "magnetization": None, "production": None}
+
+        self.thermodynamics_to_save = []  #: bool = False
 
         self.verbose: bool = False
         self.xyz_dir: str = None
         self.xyz_filename: str = None
         self.process = process
+        self.data_to_save = ["pos", "vel", "acc", "rdf_hist"]
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -160,86 +174,20 @@ class InputOutput:
         self.production_steps = params.production_steps
 
     def create_file_paths(self):
-        """Create all directories', subdirectories', and files' paths."""
+        """Create all directories', subdirectories', and files' paths.
 
-        if self.job_dir is None:
-            self.job_dir = basename(self.input_file).split(".")[0]
+        Raises
+        ------
+            : DeprecationWarning
+        """
 
-        if self.job_id is None:
-            self.job_id = self.job_dir
+        warn(
+            "Deprecated feature. It will be removed in a future release.\nUse :meth:`make_files_tree`.",
+            category=DeprecationWarning,
+        )
+        self.make_files_tree()
 
-        self.job_dir = join(self.simulations_dir, self.job_dir)
-
-        # Create Processes directories
-        self.processes_dir = [
-            join(self.job_dir, self.preprocessing_dir),
-            join(self.job_dir, self.simulation_dir),
-            join(self.job_dir, self.postprocessing_dir),
-        ]
-
-        # Redundancy
-        self.preprocessing_dir = self.processes_dir[0]
-        self.simulation_dir = self.processes_dir[1]
-        self.postprocessing_dir = self.processes_dir[2]
-
-        # Redirect to the correct process folder
-        if self.process == "preprocessing":
-            indx = 0
-        else:
-            # Note that Postprocessing needs the link to simulation's folder
-            # because that is where I look for energy files and pickle files
-            indx = 1
-
-        # Equilibration directory and sub_dir
-        self.equilibration_dir = join(self.processes_dir[indx], self.equilibration_dir)
-        self.eq_dump_dir = join(self.equilibration_dir, "dumps")
-        self.particles_directories["equilibration"] = self.eq_dump_dir
-
-        # Production dir and sub_dir
-        self.production_dir = join(self.processes_dir[indx], self.production_dir)
-        self.prod_dump_dir = join(self.production_dir, "dumps")
-        self.particles_directories["production"] = self.prod_dump_dir
-
-        # Production phase filenames
-        self.prod_energy_filename = join(self.production_dir, f"ProductionEnergy_{self.job_id}.csv")
-        self.prod_ptcls_filename = join(self.prod_dump_dir, "checkpoint_")
-
-        # Equilibration phase filenames
-        self.eq_energy_filename = join(self.equilibration_dir, f"EquilibrationEnergy_{self.job_id}.csv")
-        self.eq_ptcls_filename = join(self.eq_dump_dir, "checkpoint_")
-
-        self.thermodynamics_filenames["equilibration"] = self.eq_energy_filename
-        self.thermodynamics_filenames["production"] = self.prod_energy_filename
-
-        self.particles_filenames["equilibration"] = self.eq_ptcls_filename
-        self.particles_filenames["production"] = self.prod_ptcls_filename
-
-        if self.save_onthefly_observables:
-            phases = ["equilibration", "production"]
-            for p in phases:
-                self.observables_directories[p] = join(self.job_dir, self.observables_directories[p])
-                self.observables_filenames[p] = join(self.observables_directories[p], "observables_")
-
-        # Magnetic dir
-        if self.magnetized and self.electrostatic_equilibration:
-            self.magnetization_dir = join(self.processes_dir[indx], self.magnetization_dir)
-            self.mag_dump_dir = join(self.magnetization_dir, "dumps")
-            self.particles_directories["magnetization"] = self.mag_dump_dir
-            # Magnetization phase filenames
-            self.mag_energy_filename = join(self.magnetization_dir, f"MagnetizationEnergy_{self.job_id}.csv")
-            self.mag_ptcls_filename = join(self.mag_dump_dir, "checkpoint_")
-            self.thermodynamics_filenames["magnetization"] = self.mag_energy_filename
-
-        if self.process == "postprocessing":
-            indx = 2  # Redirect to the correct folder
-
-        # Log File
-        if self.log_file is None:
-            self.log_file = join(self.processes_dir[indx], f"log_{self.job_id}.out")
-        else:
-            self.log_file = join(self.processes_dir[indx], self.log_file)
-
-    def dump_obs_therm(self, phase, ptcls, it):
+    def dump(self, phase, ptcls, it):
         """
         Save particles' position, velocity, and acceleration data to binary file for future restart.
 
@@ -263,12 +211,13 @@ class InputOutput:
         # elif phase == "magnetization":
         #     ptcls_file = self.mag_ptcls_filename + str(it)
 
+        # self.dump_pva(phase, ptcls, it)
         self.dump_observables(phase, ptcls, it)
         self.dump_thermodynamics(phase, ptcls, it)
 
-    def dump_pva_obs_therm(self, phase, ptcls, it):
+    def dump_observables(self, phase, ptcls, it):
         """
-        Save particles' position, velocity, and acceleration data to binary file for future restart.
+        Save particles' data to binary file (uncompressed npz) for future restart.
 
         Parameters
         ----------
@@ -281,121 +230,11 @@ class InputOutput:
         it : int
             Timestep number.
         """
-        # if phase == "production":
-        #     ptcls_file = self.prod_ptcls_filename + str(it)
-
-        # elif phase == "equilibration":
-        #     ptcls_file = self.eq_ptcls_filename + str(it)
-
-        # elif phase == "magnetization":
-        #     ptcls_file = self.mag_ptcls_filename + str(it)
-
-        self.dump_pva(phase, ptcls, it)
-        self.dump_observables(phase, ptcls, it)
-        self.dump_thermodynamics(phase, ptcls, it)
-
-    def dump_pva(self, phase, ptcls, it):
-        """
-        Save particles' position, velocity, and acceleration data to binary file for future restart.
-
-        Parameters
-        ----------
-        phase : str
-            Simulation phase.
-
-        ptcls : :class:`sarkas.particles.Particles`
-            Particles data.
-
-        it : int
-            Timestep number.
-        """
-        # if phase == "production":
-        #     ptcls_file = self.prod_ptcls_filename + str(it)
-
-        # elif phase == "equilibration":
-        #     ptcls_file = self.eq_ptcls_filename + str(it)
-
-        # elif phase == "magnetization":
-        #     ptcls_file = self.mag_ptcls_filename + str(it)
 
         tme = it * self.dt
-        savez(
-            f"{self.particles_filenames[phase]}{it}",
-            id=ptcls.id,
-            names=ptcls.names,
-            pos=ptcls.pos,
-            vel=ptcls.vel,
-            acc=ptcls.acc,
-            time=tme,
-        )
-
-    def dump_observables_partial(self, phase, ptcls, it):
-        """
-        Save particles' data to binary file for future restart.
-
-        Parameters
-        ----------
-        phase : str
-            Simulation phase.
-
-        ptcls : :class:`sarkas.particles.Particles`
-            Particles data.
-
-        it : int
-            Timestep number.
-        """
-        # if phase == "production":
-        #     ptcls_file = self.prod_ptcls_filename + str(it)
-
-        # elif phase == "equilibration":
-        #     ptcls_file = self.eq_ptcls_filename + str(it)
-
-        # elif phase == "magnetization":
-        #     ptcls_file = self.mag_ptcls_filename + str(it)
-
-        tme = it * self.dt
-        savez(
-            f"{self.observables_filenames[phase]}{it}",
-            potential_energy=ptcls.potential_energy,
-            cntr=ptcls.pbc_cntr,
-            rdf_hist=ptcls.rdf_hist,
-            time=tme,
-        )
-
-    def dump_onthefly_observables(self, phase, ptcls, it):
-        """
-        Save particles' data to binary file for future restart.
-
-        Parameters
-        ----------
-        phase : str
-            Simulation phase.
-
-        ptcls : :class:`sarkas.particles.Particles`
-            Particles data.
-
-        it : int
-            Timestep number.
-        """
-        # if phase == "production":
-        #     ptcls_file = self.prod_ptcls_filename + str(it)
-
-        # elif phase == "equilibration":
-        #     ptcls_file = self.eq_ptcls_filename + str(it)
-
-        # elif phase == "magnetization":
-        #     ptcls_file = self.mag_ptcls_filename + str(it)
-
-        tme = it * self.dt
-        savez(
-            f"{self.observables_filenames[phase]}{it}",
-            potential_energy=ptcls.potential_energy,
-            cntr=ptcls.pbc_cntr,
-            rdf_hist=ptcls.rdf_hist,
-            virial=ptcls.virial,
-            energy_current=ptcls.energy_current,
-            time=tme,
-        )
+        kwargs = {key: ptcls.__dict__[key] for key in self.data_to_save}
+        kwargs["time"] = tme
+        savez(f"{self.particles_filepaths[phase]}{it}", **kwargs)
 
     def dump_thermodynamics(self, phase, ptcls, it):
         """
@@ -416,7 +255,7 @@ class InputOutput:
         data = {"Time": it * self.dt}
         datap = ptcls.make_thermodynamics_dictionary()
         data.update(datap)
-        with open(self.thermodynamics_filenames[phase], "a") as f:
+        with open(self.thermodynamics_filepaths[phase], "a") as f:
             w = csv.writer(f)
             w.writerow(data.values())
 
@@ -683,52 +522,187 @@ class InputOutput:
 
         return dics
 
+    def make_directory_tree(self):
+        """Construct the tree of directory paths of the MD simulation and save it into :attr:`directory_tree`. Set :attr:`job_dir` and :attr:`job_id` too."""
+
+        if self.job_dir is None:
+            self.job_dir = basename(self.input_file).split(".")[0]
+
+        if self.job_id is None:
+            self.job_id = self.job_dir
+
+        self.job_dir = join(self.md_simulations_dir, self.job_dir)
+
+        # DEV NOTE: The following construction of the dic tree can be put in a loop, but it would be hard to understand hence the hard coding.
+        self.directory_tree = {
+            "preprocessing": {
+                "path": join(self.job_dir, "PreProcessing"),
+                "name": "PreProcessing",
+                "equilibration": {
+                    "path": join(join(self.job_dir, "PreProcessing"), "Equilibration"),
+                    "name": "Equilibration",
+                    "dumps": {"path": join(join(join(self.job_dir, "PreProcessing"), "Equilibration"), "dumps")},
+                },
+                "production": {
+                    "path": join(join(self.job_dir, "PreProcessing"), "Production"),
+                    "name": "Production",
+                    "dumps": {"path": join(join(join(self.job_dir, "PreProcessing"), "Production"), "dumps")},
+                },
+                "magnetization": {
+                    "path": join(join(self.job_dir, "PreProcessing"), "Magnetization"),
+                    "name": "Magnetization",
+                    "dumps": {"path": join(join(join(self.job_dir, "PreProcessing"), "Magnetization"), "dumps")},
+                },
+            },
+            "simulation": {
+                "path": join(self.job_dir, "Simulation"),
+                "name": "Simulation",
+                "equilibration": {
+                    "path": join(join(self.job_dir, "Simulation"), "Equilibration"),
+                    "name": "Equilibration",
+                    "dumps": {"path": join(join(join(self.job_dir, "Simulation"), "Equilibration"), "dumps")},
+                },
+                "production": {
+                    "path": join(join(self.job_dir, "Simulation"), "Production"),
+                    "name": "Production",
+                    "dumps": {"path": join(join(join(self.job_dir, "Simulation"), "Production"), "dumps")},
+                },
+                "magnetization": {
+                    "path": join(join(self.job_dir, "Simulation"), "Magnetization"),
+                    "name": "Magnetization",
+                    "dumps": {"path": join(join(join(self.job_dir, "Simulation"), "Magnetization"), "dumps")},
+                },
+            },
+            "postprocessing": {
+                "path": join(self.job_dir, "PostProcessing"),
+                "name": "PostProcessing",
+                "equilibration": {
+                    "path": join(join(self.job_dir, "Simulation"), "Equilibration"),
+                    "name": "Equilibration",
+                    "dumps": {"path": join(join(join(self.job_dir, "Simulation"), "Equilibration"), "dumps")},
+                },
+                "production": {
+                    "path": join(join(self.job_dir, "Simulation"), "Production"),
+                    "name": "Production",
+                    "dumps": {"path": join(join(join(self.job_dir, "Simulation"), "Production"), "dumps")},
+                },
+                "magnetization": {
+                    "path": join(join(self.job_dir, "Simulation"), "Magnetization"),
+                    "name": "Magnetization",
+                    "dumps": {"path": join(join(join(self.job_dir, "Simulation"), "Magnetization"), "dumps")},
+                },
+            },
+        }
+
     def make_directories(self):
-        """Create directories where to store MD results."""
+        """Make directories in :attr:`directory_tree` where to store the MD results."""
 
         # Check if the directories exist
-        if not exists(self.simulations_dir):
-            mkdir(self.simulations_dir)
+        if not exists(self.md_simulations_dir):
+            mkdir(self.md_simulations_dir)
 
         if not exists(self.job_dir):
             mkdir(self.job_dir)
 
         # Create Process' directories and their subdir
-        for i in self.processes_dir:
-            if not exists(i):
-                mkdir(i)
-        # The following automatically create directories in the correct Process
-        if not exists(self.equilibration_dir):
-            mkdir(self.equilibration_dir)
-
-        if not exists(self.eq_dump_dir):
-            mkdir(self.eq_dump_dir)
-
-        if not exists(self.production_dir):
-            mkdir(self.production_dir)
-
-        if not exists(self.prod_dump_dir):
-            mkdir(self.prod_dump_dir)
-
-        if self.dump_onthefly_observables:
-            phase = ["equilibration", "production"]
-            for p in phase:
-                if not exists(self.observables_directories[p]):
-                    mkdir(self.observables_directories[p])
-
         if self.magnetized and self.electrostatic_equilibration:
-            if not exists(self.magnetization_dir):
-                mkdir(self.magnetization_dir)
+            phases = list(self.phase_names_dict.keys())[:3]
+        else:
+            phases = list(self.phase_names_dict.keys())[:2]
 
-            if not exists(self.mag_dump_dir):
-                mkdir(self.mag_dump_dir)
+        for _, proc_dict in self.directory_tree.items():
+            for key, val in proc_dict.items():
+                if key == "path":
+                    if not exists(val):
+                        mkdir(val)
 
-        if self.preprocessing:
-            if not exists(self.preprocessing_dir):
-                mkdir(self.preprocessing_dir)
+                elif key in phases:
+                    if not exists(val["path"]):
+                        mkdir(val["path"])
 
-        if not exists(self.postprocessing_dir):
-            mkdir(self.postprocessing_dir)
+                    if not exists(val["dumps"]["path"]):
+                        mkdir(val["dumps"]["path"])
+
+    def make_files_tree(self):
+        """Make the dictionary of files' names and paths, :attr:`filenames_tree`."""
+        # Log File
+        if self.log_file is None:
+            self.filenames_tree["log"]["name"] = f"log_{self.job_id}.out"
+        else:
+            self.filenames_tree["log"]["name"] = self.log_file
+
+        log_dir = self.directory_tree[self.process]["path"]
+        self.filenames_tree["log"]["path"] = join(log_dir, self.filenames_tree["log"]["name"])
+        # Redundancy for backward compatibility
+        self.log_file = self.filenames_tree["log"]["path"]
+
+        self.filenames_tree["particles"] = {
+            "equilibration": {
+                "name": "checkpoint_",
+                "path": join(self.directory_tree[self.process]["equilibration"]["dumps"]["path"], "checkpoint_"),
+            },
+            "production": {
+                "name": "checkpoint_",
+                "path": join(self.directory_tree[self.process]["production"]["dumps"]["path"], "checkpoint_"),
+            },
+            "magnetization": {
+                "name": "checkpoint_",
+                "path": join(self.directory_tree[self.process]["magnetization"]["dumps"]["path"], "checkpoint_"),
+            },
+        }
+        self.filenames_tree["thermodynamics"] = {
+            "equilibration": {
+                "name": f"EquilibrationEnergy_{self.job_id}.csv_",
+                "path": join(
+                    self.directory_tree[self.process]["equilibration"]["path"], f"EquilibrationEnergy_{self.job_id}.csv"
+                ),
+            },
+            "production": {
+                "name": f"ProductionEnergy_{self.job_id}.csv_",
+                "path": join(
+                    self.directory_tree[self.process]["production"]["path"], f"ProductionEnergy_{self.job_id}.csv"
+                ),
+            },
+            "magnetization": {
+                "name": f"MagnetizationEnergy_{self.job_id}.csv_",
+                "path": join(
+                    self.directory_tree[self.process]["magnetization"]["path"], f"MagnetizationEnergy_{self.job_id}.csv"
+                ),
+            },
+        }
+
+        # Redundancy for faster lookup
+        for ph in self.phase_names_dict.keys():
+            self.particles_filepaths[ph] = self.filenames_tree["particles"][ph]["path"]
+            self.thermodynamics_filepaths[ph] = self.filenames_tree["thermodynamics"][ph]["path"]
+
+        # The following is for old version compatibility
+        # Equilibration directory and sub_dir
+        self.equilibration_dir = self.directory_tree[self.process]["equilibration"]["path"]
+        self.eq_dump_dir = self.directory_tree[self.process]["equilibration"]["dumps"]["path"]
+        # self.particles_directories["equilibration"] = self.eq_dump_dir
+
+        # Production dir and sub_dir
+        self.production_dir = self.directory_tree[self.process]["production"]["path"]
+        self.prod_dump_dir = self.directory_tree[self.process]["production"]["dumps"]["path"]
+        # self.particles_directories["production"] = self.prod_dump_dir
+
+        # Production phase filenames
+        self.prod_energy_filename = self.filenames_tree["thermodynamics"]["production"]["path"]
+        self.prod_ptcls_filename = self.filenames_tree["particles"]["production"]["path"]
+
+        # Equilibration phase filenames
+        self.eq_energy_filename = self.filenames_tree["thermodynamics"]["equilibration"]["path"]
+        self.eq_ptcls_filename = self.filenames_tree["particles"]["equilibration"]["path"]
+
+        # Magnetic dir
+        if self.magnetized and self.electrostatic_equilibration:
+            self.magnetization_dir = self.directory_tree[self.process]["magnetization"]["path"]
+            self.mag_dump_dir = self.directory_tree[self.process]["magnetization"]["dumps"]["path"]
+
+            # Magnetization phase filenames
+            self.mag_energy_filename = self.filenames_tree["thermodynamics"]["magnetization"]["path"]
+            self.mag_ptcls_filename = self.filenames_tree["particles"]["magnetization"]["path"]
 
     def postprocess_info(self, simulation, observable=None):
         pass
@@ -766,7 +740,7 @@ class InputOutput:
         #     raise ValueError(msg)
         #
         # screen = sys.stdout
-        # f_log = open(self.log_file, "a+")
+        # f_log = open(self.filenames_tree["log"]["path"], "a+")
         # # redirect printing to file
         # sys.stdout = f_log
         #
@@ -824,7 +798,7 @@ class InputOutput:
         """Print the estimated file sizes."""
 
         screen = sys.stdout
-        f_log = open(self.log_file, "a+")
+        f_log = open(self.filenames_tree["log"]["path"], "a+")
         repeat = 2 if self.verbose else 1
 
         # redirect printing to file
@@ -879,7 +853,7 @@ class InputOutput:
     def preprocess_timing(self, str_id, t, loops):
         """Print times estimates of simulation to file first and then to screen if verbose."""
         screen = sys.stdout
-        f_log = open(self.log_file, "a+")
+        f_log = open(self.filenames_tree["log"]["path"], "a+")
         repeat = 2 if self.verbose else 1
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
         # redirect printing to file
@@ -911,6 +885,34 @@ class InputOutput:
 
     @staticmethod
     def read_npz(fldr: str, filename: str):
+        """
+        Load particles' data from dumps.
+
+        Parameters
+        ----------
+        fldr : str
+            Folder containing dumps.
+
+        filename: str
+            Name of the dump file to load.
+
+        Returns
+        -------
+        struct_array : numpy.ndarray
+            Structured data array.
+
+        Raises
+        ------
+            : DeprecationWarning
+        """
+
+        warn(
+            "Deprecated feature. It will be removed in a future release.\nUse :meth:`make_files_tree`.",
+            category=DeprecationWarning,
+        )
+
+    @staticmethod
+    def read_particles_npz(fldr: str, filename: str):
         """
         Load particles' data from dumps.
 
@@ -969,7 +971,7 @@ class InputOutput:
 
         return struct_array
 
-    def read_pickle(self, process):
+    def read_pickle(self, process, dir_path: str = None):
         """
         Read pickle files containing all the simulation information.
 
@@ -978,31 +980,32 @@ class InputOutput:
         process : :class:`sarkas.processes.Process`
             Process class containing MD run info to save.
 
+        dir_path : str, (optional)
+            Path to directory where pickles are stored.
+
         """
+
         file_list = ["parameters", "integrator", "potential"]
 
-        # Redirect to the correct process folder
-        if self.process == "preprocessing":
-            indx = 0
+        if dir_path:
+            directory = dir_path
         else:
-            # Note that Postprocessing needs the link to simulation's folder
-            # because that is where I look for energy files and pickle files
-            indx = 1
+            directory = self.directory_tree[self.process]["path"]
 
         for fl in file_list:
-            filename = join(self.processes_dir[indx], fl + ".pickle")
+            filename = join(directory, fl + ".pickle")
             with open(filename, "rb") as handle:
                 data = pickle.load(handle)
                 process.__dict__[fl] = copy(data)
 
         # Read species
-        filename = join(self.processes_dir[indx], "species.pickle")
+        filename = join(directory, "species.pickle")
         process.species = []
         with open(filename, "rb") as handle:
             data = pickle.load(handle)
             process.species = copy(data)
 
-    def read_pickle_single(self, class_to_read: str):
+    def read_pickle_single(self, class_to_read: str, dir_path: str = None):
         """
         Read the desired pickle file.
 
@@ -1011,6 +1014,9 @@ class InputOutput:
         class_to_read : str
             Name of the class to read.
 
+        dir_path : str, (optional)
+            Path to directory where pickles are stored.
+
         Returns
         -------
         _copy : cls
@@ -1018,14 +1024,13 @@ class InputOutput:
 
         """
         # Redirect to the correct process folder
-        if self.process == "preprocessing":
-            indx = 0
-        else:
-            # Note that Postprocessing needs the link to simulation's folder
-            # because that is where I look for energy files and pickle files
-            indx = 1
 
-        filename = join(self.processes_dir[indx], class_to_read + ".pickle")
+        if dir_path:
+            directory = dir_path
+        else:
+            directory = self.directory_tree[self.process]["path"]
+
+        filename = join(directory, class_to_read + ".pickle")
         with open(filename, "rb") as pickle_file:
             data = pickle.load(pickle_file)
             _copy = deepcopy(data)
@@ -1051,7 +1056,7 @@ class InputOutput:
             indx = 1
 
         for fl in file_list:
-            filename = join(self.processes_dir[indx], fl + ".pickle")
+            filename = join(self.directory_tree[self.process]["path"], fl + ".pickle")
             with open(filename, "wb") as pickle_file:
                 pickle.dump(simulation.__dict__[fl], pickle_file)
                 pickle_file.close()
@@ -1074,27 +1079,10 @@ class InputOutput:
 
     def setup(self):
         """Create file paths and directories for the simulation."""
-        self.create_file_paths()
+        self.make_directory_tree()
         self.make_directories()
+        self.make_files_tree()
         self.file_header()
-
-        if self.save_pva:
-
-            if self.save_onthefly_observables:
-                self.dump_observables = self.dump_onthefly_observables
-            else:
-                self.dump_observables = self.dump_observables_partial
-
-            self.dump = self.dump_pva_obs_therm
-
-        else:
-
-            if self.save_onthefly_observables:
-                self.dump_observables = self.dump_onthefly_observables
-            else:
-                self.dump_observables = self.dump_observables_partial
-
-            self.dump = self.dump_obs_therm
 
     def setup_checkpoint(self, params):
         """
@@ -1111,27 +1099,34 @@ class InputOutput:
         """
 
         self.copy_params(params)
-        dkeys = [
-            "Time",
-            "Total Energy",
-            "Total Kinetic Energy",
-            "Total Potential Energy",
-            "Temperature",
-            "Total Pressure",
-            "Ideal Pressure",
-            "Excess Pressure",
-            "Total Enthalpy",
-        ]
+        dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
+
+        if len(self.thermodynamics_to_save) > 0:
+            extra_cols = []
+            if "Pressure" in self.thermodynamics_to_save:
+                extra_cols.append("Total Pressure")
+                extra_cols.append("Ideal Pressure")
+                extra_cols.append("Excess Pressure")
+            if "Enthalpy" in self.thermodynamics_to_save:
+                extra_cols.append("Total Enthalpy")
+
+            for col in extra_cols:
+                dkeys.append(col)
+
         # Create the Energy file
         if len(self.species_names) > 1:
             for i, sp_name in enumerate(self.species_names):
                 dkeys.append("{} Kinetic Energy".format(sp_name))
                 dkeys.append("{} Potential Energy".format(sp_name))
                 dkeys.append("{} Temperature".format(sp_name))
-                dkeys.append("{} Total Pressure".format(sp_name))
-                dkeys.append("{} Ideal Pressure".format(sp_name))
-                dkeys.append("{} Excess Pressure".format(sp_name))
-                dkeys.append("{} Enthalpy".format(sp_name))
+                if len(self.thermodynamics_to_save) > 0:
+                    if "Pressure" in self.thermodynamics_to_save:
+                        dkeys.append("{} Total Pressure".format(sp_name))
+                        dkeys.append("{} Ideal Pressure".format(sp_name))
+                        dkeys.append("{} Excess Pressure".format(sp_name))
+                    if "Enthalpy" in self.thermodynamics_to_save:
+                        dkeys.append("{} Enthalpy".format(sp_name))
+
         data = dict.fromkeys(dkeys)
         # Check whether energy files exist already
         if not exists(self.prod_energy_filename):
@@ -1151,13 +1146,6 @@ class InputOutput:
                 w = csv.writer(f)
                 w.writerow(data.keys())
 
-        # if self.dump_particles_pva and self.dump_onthefly_quantities:
-        #     self.dump = self.dump_all_particles_arrays
-        # elif self.dump_particles_pva and not self.dump_onthefly_quantities:
-        #     self.dump = self.dump_pva
-        # else:
-        #     self.dump = self.dump_thermodynamics
-
     def simulation_summary(self, simulation):
         """
         Print out to file a summary of simulation's parameters.
@@ -1171,7 +1159,7 @@ class InputOutput:
         """
 
         screen = sys.stdout
-        f_log = open(self.log_file, "a+")
+        f_log = open(self.filenames_tree["log"]["path"], "a+")
 
         repeat = 2 if self.verbose else 1
         # redirect printing to file
@@ -1210,16 +1198,19 @@ class InputOutput:
 
                 print(f"\nJob ID: {self.job_id}")
                 print(f"Job directory: {self.job_dir}")
-                print(f"PostProcessing directory: \n{self.postprocessing_dir}")
+                print(
+                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
+                )
 
-                print(f"\nEquilibration dumps directory: {self.particles_directories['equilibration']}")
-                print(f"Production dumps directory: \n{self.particles_directories['equilibration']}")
+                print(
+                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
+                )
+                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
 
-                print(f"\nEquilibration Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
-                print(f"Production Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
-
-                print(f"\nEquilibration Observables directory: \n{self.observables_directories['equilibration']}")
-                print(f"Production Observables directory: \n{self.observables_directories['production']}")
+                print(
+                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
+                )
+                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
 
             else:
 
@@ -1231,14 +1222,19 @@ class InputOutput:
 
                 print(f"\nJob ID: {self.job_id}")
                 print(f"Job directory: {self.job_dir}")
-                print(f"\nEquilibration dumps directory: {self.particles_directories['equilibration']}")
-                print(f"Production dumps directory: \n{self.particles_directories['equilibration']}")
+                print(
+                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
+                )
 
-                print(f"\nEquilibration Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
-                print(f"Production Thermodynamics file: \n{self.thermodynamics_filenames['equilibration']}")
+                print(
+                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
+                )
+                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
 
-                print(f"\nEquilibration Observables directory: \n{self.observables_directories['equilibration']}")
-                print(f"Production Observables directory: \n{self.observables_directories['production']}")
+                print(
+                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
+                )
+                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
 
                 print("\nPARTICLES:")
                 print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
@@ -1294,7 +1290,7 @@ class InputOutput:
             Time in hrs, min, sec, msec, usec, nsec..
         """
         screen = sys.stdout
-        f_log = open(self.log_file, "a+")
+        f_log = open(self.filenames_tree["log"]["path"], "a+")
         repeat = 2 if self.verbose else 1
         t_hrs, t_min, t_sec, t_msec, t_usec, t_nsec = t
         # redirect printing to file

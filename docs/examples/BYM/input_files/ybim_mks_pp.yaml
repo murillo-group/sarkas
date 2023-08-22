@@ -44,7 +44,7 @@ Parameters:
 
 IO:
     verbose: yes
-    simulations_dir: Simulations
+    md_simulations_dir: Simulations
     job_dir: CO_mks_pp                         # dir name to save data.
     job_id: CO_mks_pp
 

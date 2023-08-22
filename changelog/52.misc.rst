@@ -12,3 +12,5 @@ added fmm3dpy dependency
 refactored tests for potentials and utilities modules to benefit from the pytest library
 Calculate and print to logger the sizes of the dumps directories after Simulation.run()
 Added remove drift before any stage of the simulation.
+Changed .simulations_dir to .md_simulations_dir to avoid confusion.
+Changed default directory name where to save simulations from Simulations to SarkasSimulations to avoid confusion.

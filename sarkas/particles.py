@@ -2,11 +2,24 @@
 Module containing the basic class for handling particles properties.
 """
 
+import csv
 from copy import deepcopy
-from numba import njit
-from numpy import arange, empty, floor, int64
+from h5py import File as h5File
+from numba import float64, int64, jit, njit, void
+from numpy import arange, array, empty, floor, int64
 from numpy import load as np_load
-from numpy import loadtxt, meshgrid, ndarray, outer, rint, sqrt, triu_indices, zeros
+from numpy import (
+    loadtxt,
+    meshgrid,
+    ndarray,
+    outer,
+    rint,
+    savetxt,
+    savez,
+    sqrt,
+    triu_indices,
+    zeros,
+)
 from numpy.random import Generator, PCG64
 from os.path import join
 from scipy.linalg import norm
@@ -98,14 +111,14 @@ class Particles:
         For example:\n
         :attr:`total_num_ptcls` is an `int` indicating the total number of particles.
         :attr:`potential_energy` is a 1-D array of length :attr:`total_num_ptcls` containing the potential energy of each particle.\n
-        :attr:`virial` is a 3-D array of shape = (3, 3, :attr:`total_num_ptcls)` containing the virial of each particle.\n
+        :attr:`virial` is a 3-D array of shape = (3, 3, :attr:`total_num_ptcls`) containing the virial of each particle.\n
         :attr:`species_num` is a 1-D array of length `num_species` containing the number of particles of each species.\n
         Methods for the calculation of properties/quantities follow the same convention as above but we the prefix `.calculate_[quantity]`.\n
         For example:\n
-        :meth:`calculate_kinetic_energy()` returns a 1-D array of length :attr:`total_num_ptcls` containing the kinetic energy of each particle.\n
-        :meth:`calculate_species_kinetic_energy()` returns a 1-D array of length :attr:`num_species` containing the kinetic energy of each species.\n
-        :meth:`calculate_total_kinetic_energy()` returns a float containing the total kinetic energy.\n\n
-        The attributes :attr:`potential_energy`, :attr:`virial`, :attr:`energy_current` are calculated by the :class:`Potential` class.
+        :meth:`calculate_kinetic_energy()` calculates the kinetic energy of each particle and stores it in :attr:`kinetic_energy` a 1-D array of length :attr:`total_num_ptcls`.\n
+        :meth:`calculate_species_kinetic_energy()` calculates the kinetic energy of each species and stores it in :attr:`species_kinetic_energy` a 1-D array of length :attr:`num_species`.\n
+        :meth:`calculate_total_kinetic_energy()` calculates the total kinetic energy and stores it in :attr:`tottal_kinetic_energy` a float.\n\n
+        The attributes :attr:`potential_energy`, :attr:`virial`, :attr:`energy_current` are calculated by the :class:`sarkas.potentials.core.Potential` class.
         Therefore, this class is missing the :meth:`calculate_potential_energy`, :meth:`calculate_virial`, :meth:`calculate_energy_current` methods.
     """
 
@@ -139,6 +152,7 @@ class Particles:
 
         self.species_initial_velocity = None
         self.species_thermal_velocity = None
+        self.species_thermostat_temperatures = None
         self.species_masses = None
         self.species_charges = None
 
@@ -149,9 +163,21 @@ class Particles:
             "Kinetic Energy",
             "Potential Energy",
         ]  #  "Pressure Tensor", "Enthalpy", "Energy Current"]
-        self.observables_calculator_dict = {
+        self.species_observables_calculator_dict = {
             "Kinetic Energy": self.calculate_species_kinetic_temperature,
             "Potential Energy": self.calculate_species_potential_energy,
+            "Momentum": self.calculate_species_momentum,
+            "Electric Current": self.calculate_species_electric_current,
+            "Pressure Tensor": self.calculate_species_pressure_tensor,
+            "Enthalpy": self.calculate_species_enthalpy,
+            "Energy Current": self.calculate_species_energy_current,
+        }
+
+        self.thermodynamics_calculator_dict = {
+            "Kinetic Energy": self.calculate_species_kinetic_temperature,
+            "Potential Energy": self.calculate_species_potential_energy,
+            "Momentum": self.calculate_species_momentum,
+            "Electric Current": self.calculate_species_electric_current,
             "Pressure Tensor": self.calculate_species_pressure_tensor,
             "Enthalpy": self.calculate_species_enthalpy,
             "Energy Current": self.calculate_species_energy_current,
@@ -248,11 +274,14 @@ class Particles:
             Simulation's parameters.
 
         """
+        self.directory_tree = deepcopy(params.directory_tree)
+        self.filenames_tree = deepcopy(params.filenames_tree)
 
         self.kB = params.kB
+        self.dt = params.dt
         self.fourpie0 = params.fourpie0
-        self.prod_dump_dir = params.prod_dump_dir
-        self.eq_dump_dir = params.eq_dump_dir
+        self.prod_dump_dir = params.directory_tree["simulation"]["production"]["dumps"]["path"]
+        self.eq_dump_dir = params.directory_tree["simulation"]["equilibration"]["dumps"]["path"]
         self.box_lengths = params.box_lengths.copy()
         self.pbox_lengths = params.pbox_lengths.copy()
         self.total_num_ptcls = params.total_num_ptcls
@@ -294,10 +323,44 @@ class Particles:
             self.rdf_nbins = int64(0.05 * params.total_num_ptcls)
             params.rdf_nbins = self.rdf_nbins
 
+    def dump_arrays(self, filename, data_to_save):
+        """
+        Save particles' data to binary file (uncompressed npz) for future restart.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file.
+
+        data_to_save : list
+            Name of the arrays to save to file.
+        """
+
+        kwargs = {key: self.__dict__[key] for key in data_to_save}
+        savez(f"{filename}", **kwargs)
+
+    def dump_pva_h5(self, filename, data_to_save):
+        """
+        Save particles' data to HDF5 file.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file.
+
+        data_to_save : list
+            Name of the arrays to save to file.
+        """
+        ## DEV Note: This method seems to be slower than npz.
+
+        with h5File(f"{filename}.h5", "w") as hf:
+            for key in data_to_save:
+                hf.create_dataset(key, data=self.__dict__[key])
+
     def gaussian(self, mean, sigma, size):
         """
         Initialize particles' velocities according to a normalized Maxwell-Boltzmann (Normal) distribution.
-        It calls ``numpy.random.Generator.normal``
+        It calls :meth:`numpy.random.Generator.normal`
 
         Parameters
         ----------
@@ -459,16 +522,22 @@ class Particles:
 
         self.species_initial_velocity = zeros((self.num_species, 3))
         self.species_thermal_velocity = zeros((self.num_species, 3))
-        self.species_masses = zeros(self.num_species)
-        self.species_charges = zeros(self.num_species)
 
         self.species_kinetic_energy = zeros(self.num_species)
         self.species_potential_energy = zeros(self.num_species)
         self.species_temperatures = zeros(self.num_species)
-
+        self.species_thermostat_temperatures = zeros(self.num_species)
         # No. of independent rdf
         self.no_grs = int64(self.num_species * (self.num_species + 1) / 2)
         self.rdf_hist = zeros((self.rdf_nbins, self.num_species, self.num_species))
+
+        if "Momentum" in self.observables_list:
+            self.momentum = zeros((self.total_num_ptcls, 3))
+            self.species_momentum = zeros((self.num_species, 3))
+
+        if "Electric Current" in self.observables_list:
+            self.electric_current = zeros((self.total_num_ptcls, 3))
+            self.species_electric_current = zeros((self.num_species, 3))
 
         if "Pressure Tensor" in self.observables_list:
             self.pressure = zeros(self.total_num_ptcls)
@@ -478,11 +547,13 @@ class Particles:
             self.species_pressure_tensor = zeros((3, 3, self.num_species))
             self.virial = zeros((3, 3, self.total_num_ptcls))
 
-        if "Energy Current" in self.observables_list:
+        if "Enthalpy":
             self.enthalpy = zeros(self.total_num_ptcls)
-            self.energy_current = zeros((3, self.total_num_ptcls))
             self.species_enthalpy = zeros(self.num_species)
-            self.species_energy_current = zeros((3, self.num_species))
+
+        if "Energy Current" in self.observables_list:
+            self.energy_current = zeros((self.total_num_ptcls, 3))
+            self.species_energy_current = zeros((self.num_species, 3))
 
     def initialize_positions(self):
         """
@@ -522,6 +593,9 @@ class Particles:
         else:
             raise AttributeError("Incorrect particle placement scheme specified.")
 
+        if self.dimensions == 2:
+            self.pos[2, :] = 0.0
+
     def initialize_velocities(self, species):
         """
         Initialize particles' velocities based on the species input values. The velocities can be initialized from a
@@ -530,7 +604,7 @@ class Particles:
         Parameters
         ----------
         species: list
-            List of :class:`sarkas.core.Spcies`.
+            List of :class:`sarkas.core.Species`.
 
         """
         species_end = 0
@@ -539,14 +613,14 @@ class Particles:
             if sp.name != "electron_background":
                 species_end += sp.num
                 self.species_initial_velocity[ic, :] = sp.initial_velocity
-
+                self.species_thermostat_temperatures[ic] = sp.temperature
                 if sp.initial_velocity_distribution == "boltzmann":
                     if isinstance(sp.temperature, (int, float)):
                         sp_temperature = zeros(3)
                         for d in range(self.dimensions):
                             sp_temperature[d] = sp.temperature
 
-                    self.species_thermal_velocity[ic] = sqrt(self.dimensions * self.kB * sp_temperature / (2.0 * sp.mass))
+                    self.species_thermal_velocity[ic] = sqrt(self.kB * sp_temperature / sp.mass)
                     # Note gaussian(0.0, 0.0, N) = array of zeros
                     self.vel[species_start:species_end, :] = self.gaussian(
                         sp.initial_velocity, self.species_thermal_velocity[ic], (sp.num, 3)
@@ -558,16 +632,19 @@ class Particles:
 
                 species_start += sp.num
 
+        if self.dimensions == 2:
+            self.vel[2, :] = 0.0
+
     def kinetic_temperature(self):
         """Calculate the kinetic energy and temperature of each species.
 
         Returns
         -------
         K : numpy.ndarray
-            Kinetic energy of each species. Shape=(``num_species``).
+            Kinetic energy of each species. Shape=(:attr:`num_species`).
 
         T : numpy.ndarray
-            Temperature of each species. Shape=(``num_species``).
+            Temperature of each species. Shape=(:attr:`num_species`).
 
         Raises
         ------
@@ -579,9 +656,9 @@ class Particles:
             "Use particles.calculate_species_kinetic_temperature()",
             category=DeprecationWarning,
         )
-        k, t = self.calculate_species_kinetic_temperature()
+        self.calculate_species_kinetic_temperature()
 
-        return k, t
+        return self.species_kinetic_energy, self.species_temperatures
 
     def lattice(self, perturb: float = 0.05):
         """
@@ -825,10 +902,10 @@ class Particles:
         self.pos = data["pos"]
         self.vel = data["vel"]
         self.acc = data["acc"]
-        self.pbc_cntr = data["cntr"]
-        self.rdf_hist = data["rdf_hist"]
-        self.energy_current = data["energy current"]
-        self.virial = data["virial"]
+        # self.pbc_cntr = data["cntr"]
+        # self.rdf_hist = data["rdf_hist"]
+        # self.energy_current = data["energy current"]
+        # self.virial = data["virial"]
 
     def load_from_restart(self, phase, it):
         """
@@ -869,16 +946,15 @@ class Particles:
             file_name = join(self.mag_dump_dir, "checkpoint_" + str(it) + ".npz")
 
         data = np_load(file_name, allow_pickle=True)
-        self.id = data["id"]
-        self.names = data["names"]
+
         self.pos = data["pos"]
         self.vel = data["vel"]
         self.acc = data["acc"]
-        self.pbc_cntr = data["cntr"]
+
         self.rdf_hist = data["rdf_hist"]
-        self.energy_current = data["energy_current"]
-        self.potential_energy = data["potential_energy"]
-        self.virial = data["virial"]
+
+        if "cntr" in data.files:
+            self.pbc_cntr = data["cntr"]
 
     def calculate_enthalpy(self):
         """Calculate the enthalpy of each particle.
@@ -893,6 +969,10 @@ class Particles:
         energy = self.kinetic_energy + self.potential_energy
         self.calculate_pressure()
         self.enthalpy = energy + self.pressure * self.box_volume
+
+    def calculate_electric_current(self):
+        """Calculate the electric current of each particle and store it into :attr:`electric_current`."""
+        self.electric_current = self.charges * self.vel
 
     def calculate_kinetic_energy(self):
         """Calculate the kinetic energy of each particle.
@@ -909,7 +989,7 @@ class Particles:
         """Calculate the observables in :attr:`observables_list`."""
 
         for i in self.observables_list:
-            self.observables_calculator_dict[i]
+            self.species_observables_calculator_dict[i]()
 
     def calculate_pressure(self):
         """Calculate the pressure of each particle.
@@ -928,6 +1008,10 @@ class Particles:
         self.pressure = 2.0 * self.kinetic_energy + self.virial[0, 0] + self.virial[1, 1] + self.virial[2, 2]
         self.pressure /= self.box_volume
 
+    def calculate_species_electric_current(self):
+        """Calculate the energy current of each species from :attr:`energy_current` and stores it into :attr:`species_energy_current`. Note that :attr:`energy_current` is calculated in the force loop if requested."""
+        self.species_electric_current = self.species_charges * vector_species_loop(self.vel, self.species_num)
+
     def calculate_species_energy_current(self):
         """Calculate the energy current of each species from :attr:`energy_current` and stores it into :attr:`species_energy_current`. Note that :attr:`energy_current` is calculated in the force loop if requested."""
         self.species_energy_current = vector_species_loop(self.energy_current, self.species_num)
@@ -944,10 +1028,10 @@ class Particles:
         Returns
         -------
         K : numpy.ndarray
-            Kinetic energy of each species. Shape=(``num_species``).
+            Kinetic energy of each species. Shape=(:attr:`num_species`).
 
         T : numpy.ndarray
-            Temperature of each species. Shape=(``num_species``).
+            Temperature of each species. Shape=(:attr:`num_species`).
 
         """
         # K = zeros(self.num_species)
@@ -991,6 +1075,10 @@ class Particles:
             self.vel, self.virial, self.species_masses, self.species_num, self.box_volume, self.dimensions
         )
 
+    # def calculate_thermodynamic_quantities(self):
+    #             for i in self.observables_list:
+    #             self.species_observables_calculator_dict[i]()
+
     def calculate_thermodynamic_quantities_partial(self):
         """Calculate the main thermodynamics quantities from particles data and return a dictionary with their values."""
         self.calculate_total_kinetic_energy()
@@ -1003,6 +1091,11 @@ class Particles:
         self.calculate_total_pressure()
         self.calculate_total_enthalpy()
 
+    def calculate_total_electric_current(self):
+        """Calculate the total electric current of the system, by summing the electric current of each species and store it into :attr:`total_electric_current`."""
+        self.calculate_species_electric_current()
+        self.total_electric_current = self.species_electric_current.sum()
+
     def calculate_total_enthalpy(self):
         """Calculate the total enthalpy of the system, by summing the enthalpy of each species and store it into :attr:`total_enthalpy`."""
 
@@ -1011,7 +1104,8 @@ class Particles:
 
     def calculate_total_kinetic_energy(self):
         """Calculate the total kinetic energy by summing the :attr:`kinetic_energy` array and store it into :attr:`total_kinetic_energy`."""
-        self.total_kinetic_energy = self.calculate_kinetic_energy().sum()
+        self.calculate_species_kinetic_temperature()
+        self.total_kinetic_energy = self.species_kinetic_energy.sum()
 
     def calculate_total_momentum(self):
 
@@ -1191,8 +1285,8 @@ class Particles:
 
     def random_unit_vectors(self, num_ptcls, dimensions):
         """
-        Initialize random unit vectors for particles' velocities (e.g. for monochromatic energies but random velocities)
-        It calls ``numpy.random.Generator.normal``
+        Initialize random unit vectors for particles' velocities (e.g. for monochromatic energies but random velocities).
+        It calls :meth:`numpy.random.Generator.normal`.
 
         Parameters
         ----------
@@ -1219,12 +1313,7 @@ class Particles:
         """
         Enforce conservation of total linear momentum. Updates particles velocities
         """
-        species_start = 0
-        species_end = 0
-        for ic, nums in enumerate(self.species_num):
-            species_end += nums
-            self.vel[species_start:species_end, :] -= self.vel[species_start:species_end, :].mean(axis=0)
-            species_start += nums
+        remove_drift_nb(self.vel, self.species_num)
 
     def setup(self, params, species):
         """
@@ -1236,7 +1325,7 @@ class Particles:
             Simulation's parameters.
 
         species : list
-            List of :meth:`sarkas.plasma.Species` objects.
+            List of :class:`sarkas.plasma.Species` objects.
 
         """
 
@@ -1361,7 +1450,7 @@ def calc_pressure_tensor(vel, virial, species_masses, species_num, box_volume, d
         Note that the size of the first two axis is 3 even if the system is 2D.
 
     species_masses : numpy.ndarray
-        Mass of each species. Shape = (``num_species``)
+        Mass of each species. Shape = (:attr:`num_species`)
 
     species_np : numpy.ndarray
         Number of particles of each species.
@@ -1378,10 +1467,10 @@ def calc_pressure_tensor(vel, virial, species_masses, species_num, box_volume, d
         Scalar Pressure i.e. trace of the pressure tensor
 
     pressure_kin : numpy.ndarray
-        Kinetic part of the Pressure tensor. Shape(``no_dim``,``no_dim``, ``num_species``)
+        Kinetic part of the Pressure tensor. Shape(:attr:`dimensions`,:attr:`dimensions`, :attr:`num_species`)
 
     pressure_pot : numpy.ndarray
-        Potential energy part of the Pressure tensor. Shape(``no_dim``,``no_dim``, `num_species`)
+        Potential energy part of the Pressure tensor. Shape(:attr:`dimensions`,:attr:`dimensions`, `num_species`)
 
     """
     # sp_start = 0
@@ -1437,10 +1526,10 @@ def vector_species_loop(observable, species_num):
 
     sp_start = 0
     sp_end = 0
-    sp_obs = zeros((3, species_num.shape[0]))
+    sp_obs = zeros((species_num.shape[0], 3))
     for sp, sp_num in enumerate(species_num):
         sp_end += sp_num
-        sp_obs[:, sp] = observable[:, sp_start:sp_end].sum(axis=-1)
+        sp_obs[sp, :] = observable[sp_start:sp_end, :].sum(axis=0)
         sp_start += sp_num
 
     return sp_obs
@@ -1454,7 +1543,34 @@ def tensor_species_loop(observable, species_num):
     sp_obs = zeros((3, 3, species_num.shape[0]))
     for sp, sp_num in enumerate(species_num):
         sp_end += sp_num
-        sp_obs[:, :, sp] = observable[:, sp_start:sp_end].sum(axis=-1)
+        sp_obs[:, :, sp] = observable[:, :, sp_start:sp_end].sum(axis=-1)
         sp_start += sp_num
 
     return sp_obs
+
+
+@njit
+def remove_drift_nb(vel, nums):
+    """
+    Numba'd function to enforce conservation of total linear momentum.
+    It updates :attr:`sarkas.particles.Particles.vel`.
+
+    Parameters
+    ----------
+    vel: numpy.ndarray
+        Particles' velocities.
+
+    nums: numpy.ndarray
+        Number of particles of each species.
+
+    masses: numpy.ndarray
+        Mass of each species.
+
+    """
+
+    species_start = 0
+    species_end = 0
+    for ic, sp_num in enumerate(nums):
+        species_end += sp_num
+        vel[species_start:species_end, :] -= vel[species_start:species_end, :].sum(axis=0) / sp_num
+        species_start += sp_num

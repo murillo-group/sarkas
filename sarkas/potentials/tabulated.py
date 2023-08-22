@@ -51,7 +51,7 @@ def tab_force(r, pot_matrix):
     # f_tab = pot_matrix[2, :]
     dr = pot_matrix[0, 0]
     rbin = int(r / dr)
-    # The following branchless programming is needed because numba was grabbing the wrong array element when rbin > rc.
+    # The following branchless programming is needed because numba grabs the wrong element when rbin > rc.
     u_r = pot_matrix[1, rbin] * (rbin < pot_matrix.shape[1]) + 0.0
     f_r = pot_matrix[2, rbin] * (rbin < pot_matrix.shape[1]) + 0.0
 
@@ -139,9 +139,6 @@ def update_params(potential):
             potential.matrix[i, j, 2, :] = f[mask]
             potential.matrix[i, j, 3, :] = f2[mask]
     potential.force = tab_force
-    # _, f_rc = fit_force(potential.rc, potential.matrix[:, 0, 0])
-    # _, f_2a = fit_force(2.0 * potential.a_ws, potential.matrix[:, 0, 0])
-    # potential.force_error = f_rc / f_2a
     potential.potential_derivatives = potential_derivatives
     potential.force_error = calc_force_error_quad(potential.a_ws, beta, potential.rc, potential.matrix[0, 0])
 

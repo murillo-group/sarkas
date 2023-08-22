@@ -64,7 +64,7 @@ def update_0D(pos, vel, p_id, p_mass, box_lengths, rc, potential_matrix, force, 
     acc_s_r = zeros(pos.shape)  # Vector of accelerations
 
     # Energy current
-    j_e = zeros((3, N))
+    j_e = zeros((N, 3))
     # Virial term for the viscosity calculation
     virial = zeros((3, 3, N))
 
@@ -149,19 +149,19 @@ def update_0D(pos, vel, p_id, p_mass, box_lengths, rc, potential_matrix, force, 
 
                 fij_vij = dx * fr * vx + dy * fr * vy + dz * fr * vz
 
-                j_e[0, i] += 0.25 * (vx * pot + dx * fij_vij)
-                j_e[1, i] += 0.25 * (vy * pot + dy * fij_vij)
-                j_e[2, i] += 0.25 * (vz * pot + dz * fij_vij)
+                j_e[i, 0] += 0.25 * (vx * pot + dx * fij_vij)
+                j_e[i, 1] += 0.25 * (vy * pot + dy * fij_vij)
+                j_e[i, 2] += 0.25 * (vz * pot + dz * fij_vij)
 
-                j_e[0, j] += 0.25 * (vx * pot + dx * fij_vij)
-                j_e[1, j] += 0.25 * (vy * pot + dy * fij_vij)
-                j_e[2, j] += 0.25 * (vz * pot + dz * fij_vij)
+                j_e[j, 0] += 0.25 * (vx * pot + dx * fij_vij)
+                j_e[j, 1] += 0.25 * (vy * pot + dy * fij_vij)
+                j_e[j, 2] += 0.25 * (vz * pot + dz * fij_vij)
 
     # Add the first term of the energy current
     for i in range(pos.shape[0]):
-        j_e[0, i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 0]
-        j_e[1, i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 1]
-        j_e[2, i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 2]
+        j_e[i, 0] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 0]
+        j_e[i, 1] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 1]
+        j_e[i, 2] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 2]
 
     return ptcl_pot_energy, acc_s_r, virial, j_e
 
@@ -306,7 +306,7 @@ def particles_interaction_loop(
     rshift = zeros(3)  # Shifts for array flattening
     acc_s_r = zeros_like(pos)
     # energy current
-    j_e = zeros((3, pos.shape[0]))
+    j_e = zeros((pos.shape[0], 3))
     # Virial term for the viscosity calculation
     virial = zeros((3, 3, pos.shape[0]))
     # Initialize
@@ -473,13 +473,13 @@ def particles_interaction_loop(
 
                                             fij_vij = dx * fr * vx + dy * fr * vy + dz * fr * vz
 
-                                            j_e[0, i] += 0.25 * dx * fij_vij
-                                            j_e[1, i] += 0.25 * dy * fij_vij
-                                            j_e[2, i] += 0.25 * dz * fij_vij
+                                            j_e[i, 0] += 0.25 * dx * fij_vij
+                                            j_e[i, 1] += 0.25 * dy * fij_vij
+                                            j_e[i, 2] += 0.25 * dz * fij_vij
 
-                                            j_e[0, j] += 0.25 * dx * fij_vij
-                                            j_e[1, j] += 0.25 * dy * fij_vij
-                                            j_e[2, j] += 0.25 * dz * fij_vij
+                                            j_e[j, 0] += 0.25 * dx * fij_vij
+                                            j_e[j, 1] += 0.25 * dy * fij_vij
+                                            j_e[j, 2] += 0.25 * dz * fij_vij
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls_array[j]
@@ -488,9 +488,9 @@ def particles_interaction_loop(
                                 i = ls_array[i]
     # Add the first term of the energy current
     for i in range(pos.shape[0]):
-        j_e[0, i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 0]
-        j_e[1, i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 1]
-        j_e[2, i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 2]
+        j_e[i, 0] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 0]
+        j_e[i, 1] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 1]
+        j_e[i, 2] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 2]
 
     return ptcl_pot_energy, acc_s_r, virial, j_e
 
