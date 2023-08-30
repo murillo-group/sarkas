@@ -13,7 +13,7 @@ else:
 
 import sys
 from matplotlib.pyplot import subplots
-from numpy import array, column_stack, ndarray, pi
+from numpy import array, column_stack, ndarray, pi, trapz
 from os import mkdir as os_mkdir
 from os import remove as os_remove
 from os.path import exists as os_path_exists
@@ -53,12 +53,11 @@ class TransportCoefficients:
         self.pbox_volume = None
         self.phase = None
         self.no_slices = None
-        self.slice_steps = None
+        self.acf_slice_steps = None
         self.dump_step = None
 
         self.kB = 0.0
-        self.T_avg = 0.0
-        self.beta = 0.0
+        self.beta_slice = 0.0
         #
         self.log_file = None
         self.df_fnames = {}
@@ -109,7 +108,7 @@ class TransportCoefficients:
 
     def calculate_average_temperature(self, params):
         """
-        Calculate the average temperature from the csv data. It updates the :attr:`T_avg` and :attr:`beta` attributes.
+        Calculate the average temperature from the :class:`sarkas.tools.observables.Thermodynamics` data. It updates the :attr:`beta_slice` attribute.
 
         Parameters
         ----------
@@ -118,10 +117,11 @@ class TransportCoefficients:
         """
 
         energy = Thermodynamics()
-        energy.setup(params, self.phase)
-        energy.parse()
-        self.T_avg = energy.dataframe["Temperature"].mean()
-        self.beta = 1.0 / (self.kB * self.T_avg)
+        energy.setup(params, self.phase, self.no_slices)
+        energy.parse(acf_data=False)
+        energy.calculate_beta_slices()
+        # self.T_avg = energy.dataframe["Temperature"].mean()
+        self.beta_slice = energy.beta_slice.copy()
 
     def initialize_dataframes(self, observable):
         """
@@ -240,7 +240,7 @@ class TransportCoefficients:
 
         self.phase = observable.phase
         self.no_slices = observable.no_slices
-        self.slice_steps = observable.slice_steps
+        self.acf_slice_steps = observable.acf_slice_steps
         self.dump_step = observable.dump_step
 
     def parse(self, observable):
@@ -255,7 +255,7 @@ class TransportCoefficients:
         # Copy relevant info
         self.phase = observable.phase
         self.no_slices = observable.no_slices
-        self.slice_steps = observable.slice_steps
+        self.acf_slice_steps = observable.acf_slice_steps
         self.dump_step = observable.dump_step
 
         self.dataframe = read_hdf(os_path_join(self.saving_dir, self.df_fnames["dataframe"]), mode="r", index_col=False)
@@ -277,11 +277,11 @@ class TransportCoefficients:
 
         acf_data: numpy.ndarray
             Mean and Std of the ACF. \n
-            Shape = (:attr:`sarkas.tools.observables.Observable.slice_steps`, 2).
+            Shape = (:attr:`sarkas.tools.observables.Observable.acf_slice_steps`, 2).
 
         tc_data: numpy.ndarray
             Mean and Std of the transport coefficient. \n
-            Shape = (:attr:`sarkas.tools.observables.Observable.slice_steps`, 2).
+            Shape = (:attr:`sarkas.tools.observables.Observable.acf_slice_steps`, 2).
 
         acf_name: str
             y-Label of the ACF plot.
@@ -297,7 +297,7 @@ class TransportCoefficients:
 
         Returns
         -------
-        fig : matplotlib.figure.Figure
+        fig : :class:`matplotlib.figure.Figure`
             Figure object.
 
         (ax1, ax2, ax3, ax4) : tuple
@@ -329,18 +329,18 @@ class TransportCoefficients:
         )
 
         xlims = (xmul * time[1], xmul * time[-1] * 1.5)
-        ax1.set(xlim=xlims, xscale="log", ylabel=acf_name, xlabel=r"Time difference" + xlbl)
-        xlims = (0, xmul * time[-1] * 1.05)
-        ax2.set(xlim=xlims, ylabel=tc_name + ylbl, xlabel=r"$\tau$" + xlbl)
+        ax1.set(xlim=xlims, xscale="log", ylim=(-0.5, 1.1), ylabel=acf_name, xlabel=r"Time difference" + xlbl)
+        xlims = (xmul * time[1], xmul * time[-1] * 1.05)
+        ax2.set(xlim=xlims, ylim=(-0.05, ax2.get_ylim()[1]), ylabel=tc_name + ylbl, xlabel=r"$\tau$" + xlbl, xscale="log")
 
         # ax1.legend(loc='best')
         # ax2.legend(loc='best')
         # Finish the index axes
-        ax3.set(xlim=(1, self.slice_steps * 1.5), xscale="log")
+        ax3.set(xlim=(1, self.acf_slice_steps * 1.5), xscale="log")
+        ax4.set(xlim=(1, self.acf_slice_steps * 1.5), xscale="log")
         for axi in [ax3, ax4]:
             axi.grid(alpha=0.1)
             axi.set(xlabel="Index")
-        ax4.set(xlim=(0, self.slice_steps * 1.05))
 
         fig.tight_layout()
         fig.savefig(os_path_join(self.saving_dir, figname))
@@ -357,17 +357,18 @@ class TransportCoefficients:
 
         # Create the message to print
         dtau = self.dt * self.dump_step
-        tau = dtau * self.slice_steps
+        tau = dtau * self.acf_slice_steps
         t_wp = 2.0 * pi / self.total_plasma_frequency  # Plasma period
         tau_wp = int(tau / t_wp)
         msg = (
             f"\n\n{tc_name:=^70}\n"
             f"Data saved in: \n {self.df_fnames['dataframe_slices']} \n {self.df_fnames['dataframe_slices']} \n"
             f"No. of slices = {self.no_slices}\n"
-            f"No. dumps per slice = {int(self.slice_steps)}\n"
+            f"No. dumps per slice = {int(self.acf_slice_steps)}\n"
             f"Total time interval of autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n"
             f"Time interval step: dtau = {dtau:.4e} ~ {dtau / t_wp:.4e} plasma period"
         )
+        return msg
 
     def pretty_print(self):
         msg = self.pretty_print_msg()
@@ -585,7 +586,7 @@ class Diffusion(TransportCoefficients):
         self.save_hdf()
         # Plot
         if plot:
-            self.plot(observable, display_plot=display_plot)
+            _, _ = self.plot(observable, display_plot=display_plot)
 
     def plot(self, observable, display_plot: bool = False):
         """Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
@@ -597,9 +598,26 @@ class Diffusion(TransportCoefficients):
 
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
-        """
 
+        Return
+        ------
+        figs: dict
+            Dictionary of `matplotlib` figure handles for each species. If the system is magnetized then it returns a nested dictionary.
+            Each `figs[species_name]` is a dictionary with keys `Parallel` and `Perpendicular`.
+
+        axes: dict,
+            Dictionary of tuples containing the axes handles for each element of `figs`. Each element of `axes` is a tuple of four axes handles.
+            'ax1` and `ax2` are the handles for the left and right plots respectively.
+            `ax3` and `ax4` are the handles for the "Index" axes, created from `ax1.twiny()` and `ax2.twiny()` respectively.\n
+            If the system is magnetized, then it returns a nested dictionary.
+            Each `axes[species_name]` is a dictionary with keys `Parallel` and `Perpendicular` each containing a tuple of four axes handles.
+
+        """
         vacf_str = "VACF"
+
+        figs = {}
+        axes = {}
+
         if observable.magnetized:
             for isp, sp in enumerate(observable.species_names):
                 sp_vacf_str = f"{sp} " + vacf_str
@@ -612,7 +630,7 @@ class Diffusion(TransportCoefficients):
                 tc_avg = self.dataframe[(sp_diff_str, "Parallel", "Mean")].to_numpy()
                 tc_std = self.dataframe[(sp_diff_str, "Parallel", "Std")].to_numpy()
 
-                self.plot_tc(
+                fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
@@ -621,7 +639,8 @@ class Diffusion(TransportCoefficients):
                     figname=f"{sp}_Parallel_Diffusion_Plot.png",
                     show=display_plot,
                 )
-
+                figs[sp] = {"Parallel": fig}
+                axes[sp] = {"Parallel": (ax1, ax2, ax3, ax4)}
                 # Perpendicular
                 acf_avg = observable.dataframe_acf[(sp_vacf_str, "Perpendicular", "Mean")]
                 acf_std = observable.dataframe_acf[(sp_vacf_str, "Perpendicular", "Std")]
@@ -629,7 +648,7 @@ class Diffusion(TransportCoefficients):
                 tc_avg = self.dataframe[(sp_diff_str, "Perpendicular", "Mean")]
                 tc_std = self.dataframe[(sp_diff_str, "Perpendicular", "Std")]
 
-                self.plot_tc(
+                fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
@@ -638,6 +657,8 @@ class Diffusion(TransportCoefficients):
                     figname=f"{sp}_Perpendicular_Diffusion_Plot.png",
                     show=display_plot,
                 )
+                figs[sp]["Perpendicular"] = fig
+                axes[sp]["Perpendicular"] = (ax1, ax2, ax3, ax4)
         else:
             for isp, sp in enumerate(observable.species_names):
                 sp_vacf_str = f"{sp} " + vacf_str
@@ -648,7 +669,7 @@ class Diffusion(TransportCoefficients):
                 tc_avg = self.dataframe[(d_str, "Mean")].to_numpy()
                 tc_std = self.dataframe[(d_str, "Std")].to_numpy()
 
-                self.plot_tc(
+                fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
@@ -657,6 +678,10 @@ class Diffusion(TransportCoefficients):
                     figname=f"{sp}_Diffusion_Plot.png",
                     show=display_plot,
                 )
+                figs[sp] = fig
+                axes[sp] = (ax1, ax2, ax3, ax4)
+
+        return figs, axes
 
 
 class InterDiffusion(TransportCoefficients):
@@ -710,7 +735,7 @@ class InterDiffusion(TransportCoefficients):
         # Time
         t0 = self.timer.current()
         for isl in tqdm(range(self.no_slices), disable=not self.verbose):
-            # D_ij = zeros((no_fluxes_acf, jc_acf.slice_steps))
+            # D_ij = zeros((no_fluxes_acf, jc_acf.acf_slice_steps))
 
             for ij in range(no_fluxes_acf):
                 acf_df_str = (df_str + f" {ij}", "Total", f"slice {isl}")
@@ -740,7 +765,7 @@ class InterDiffusion(TransportCoefficients):
         self.save_hdf()
         # Plot
         if plot:
-            self.plot(observable, display_plot=display_plot)
+            _, _ = self.plot(observable, display_plot=display_plot)
 
     def plot(self, observable, display_plot: bool = False):
         """Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
@@ -752,10 +777,22 @@ class InterDiffusion(TransportCoefficients):
 
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
+
+        Return
+        ------
+        figs: dict
+            Dictionary of `matplotlib` figure handles for each flux. Keys are `flux_0`, `flux_1`, etc..
+
+        axes: dict
+            Dictionary of tuples containing the axes handles for each element of `figs`. Keys are the same as in `figs`. Each element of `axes` is a tuple of four axes handles. 'ax1` and `ax2` are the handles for the left and right plots respectively.
+            `ax3` and `ax4` are the handles for the "Index" axes, created from `ax1.twiny()` and `ax2.twiny()` respectively.\n
         """
 
         df_str = "Diffusion Flux ACF"
-        id_str = "Inter Diffusion Flux"
+        id_str = "Inter Diffusion Coefficient Flux"
+
+        figs = {}
+        axes = {}
 
         for flux in range(observable.no_fluxes_acf):
             flux_str = f"{df_str} {flux}"
@@ -766,15 +803,19 @@ class InterDiffusion(TransportCoefficients):
             tc_avg = self.dataframe[(d_str, "Mean")].to_numpy()
             tc_std = self.dataframe[(d_str, "Std")].to_numpy()
 
-            self.plot_tc(
+            fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                 time=self.time_array,
                 acf_data=column_stack((acf_avg, acf_std)),
                 tc_data=column_stack((tc_avg, tc_std)),
                 acf_name=flux_str,
                 tc_name=d_str,
-                figname=f"InterDiffusion_{flux}_Plot.png",
+                figname=f"InterDiffusion_Flux{flux}_Plot.png",
                 show=display_plot,
             )
+            figs[f"Flux_{flux}"] = fig
+            axes[f"Flux_{flux}"] = (ax1, ax2, ax3, ax4)
+
+        return figs, axes
 
 
 class Viscosity(TransportCoefficients):
@@ -836,29 +877,31 @@ class Viscosity(TransportCoefficients):
         # Initialize Timer
         t0 = self.timer.current()
 
-        # Initialize some labels
-        dim_lbl = ["x", "y", "z"]
-        pt_str_list = [
-            "Pressure Tensor Kinetic ACF",
-            "Pressure Tensor Potential ACF",
-            "Pressure Tensor Kin-Pot ACF",
-            "Pressure Tensor Pot-Kin ACF",
-            "Pressure Tensor ACF",
-        ]
-        eta_str_list = [
-            "Shear Viscosity Tensor Kinetic",
-            "Shear Viscosity Tensor Potential",
-            "Shear Viscosity Tensor Kin-Pot",
-            "Shear Viscosity Tensor Pot-Kin",
-            "Shear Viscosity Tensor Total",
-        ]
+        if observable.kinetic_potential_division:
+            pt_str_list = [
+                "Pressure Tensor Kinetic ACF",
+                "Pressure Tensor Potential ACF",
+                "Pressure Tensor Kin-Pot ACF",
+                "Pressure Tensor Pot-Kin ACF",
+                "Pressure Tensor ACF",
+            ]
+            eta_str_list = [
+                "Shear Viscosity Tensor Kinetic",
+                "Shear Viscosity Tensor Potential",
+                "Shear Viscosity Tensor Kin-Pot",
+                "Shear Viscosity Tensor Pot-Kin",
+                "Shear Viscosity Tensor Total",
+            ]
+        else:
+            pt_str_list = ["Pressure Tensor ACF"]
+            eta_str_list = ["Shear Viscosity Tensor Total"]
 
         start_steps = 0
         end_steps = 0
         for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
-            end_steps += observable.slice_steps
+            end_steps += observable.acf_slice_steps
 
-            const = observable.box_volume * self.beta
+            const = observable.box_volume * self.beta_slice[isl]
             # Calculate Bulk Viscosity
             # It is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
             integrand = observable.dataframe_acf_slices[(f"Delta Pressure ACF", f"slice {isl}")].to_numpy()
@@ -868,8 +911,8 @@ class Viscosity(TransportCoefficients):
             self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             # Calculate the Shear Viscosity Elements
-            for _, ax1 in enumerate(dim_lbl):
-                for _, ax2 in enumerate(dim_lbl):
+            for _, ax1 in enumerate(observable.dim_labels):
+                for _, ax2 in enumerate(observable.dim_labels):
                     for _, (pt_str, eta_str) in enumerate(zip(pt_str_list, eta_str_list)):
                         pt_str_temp = (pt_str + f" {ax1}{ax2}{ax1}{ax2}", f"slice {isl}")
                         integrand = observable.dataframe_acf_slices[pt_str_temp].to_numpy()
@@ -877,7 +920,7 @@ class Viscosity(TransportCoefficients):
                         col_data = const * fast_integral_loop(self.time_array, integrand)
                         self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-            start_steps += observable.slice_steps
+            start_steps += observable.acf_slice_steps
 
         # Now average the slices
         col_str = [f"Bulk Viscosity_slice {isl}" for isl in range(observable.no_slices)]
@@ -890,8 +933,8 @@ class Viscosity(TransportCoefficients):
         col_data = self.dataframe_slices[col_str].std(axis=1).values
         self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
-        for _, ax1 in enumerate(dim_lbl):
-            for _, ax2 in enumerate(dim_lbl):
+        for _, ax1 in enumerate(observable.dim_labels):
+            for _, ax2 in enumerate(observable.dim_labels):
                 for _, eta_str in enumerate(eta_str_list):
                     col_str = [eta_str + f" {ax1}{ax2}_slice {isl}" for isl in range(observable.no_slices)]
                     col_name = eta_str + f" {ax1}{ax2}_Mean"
@@ -919,7 +962,7 @@ class Viscosity(TransportCoefficients):
         self.save_hdf()
         # Plot
         if plot:
-            self.plot(observable, display_plot=display_plot)
+            _, _ = self.plot(observable, display_plot=display_plot)
 
     def plot(self, observable, display_plot: bool = False):
         """Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
@@ -931,11 +974,23 @@ class Viscosity(TransportCoefficients):
 
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
+
+        Return
+        ------
+        figs: list, :class:`matplotlib.pyplot.Figure`
+            List of `matplotlib` figure handles for the bulk and shear viscosity respectively.
+
+        axes: list,
+            List of tuples containing the axes handles for each element of `figs`. Each element of `axes` is a tuple of four axes handles. 'ax1` and `ax2` are the handles for the left and right plots respectively.
+            `ax3` and `ax4` are the handles for the "Index" axes, created from `ax1.twiny()` and `ax2.twiny()` respectively.\n
         """
 
         # Plot
         plot_quantities = ["Bulk Viscosity", "Shear Viscosity"]
         shear_list_coord = ["xyxy", "xzxz", "yxyx", "yzyz", "zxzx", "zyzy"]
+
+        figs = []
+        axes = []
         # Make the plot
         for ipq, pq in enumerate(plot_quantities):
             if pq == "Bulk Viscosity":
@@ -951,7 +1006,7 @@ class Viscosity(TransportCoefficients):
             tc_avg = self.dataframe[(pq, "Mean")]
             tc_std = self.dataframe[(pq, "Std")]
 
-            self.plot_tc(
+            fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                 time=self.time_array,
                 acf_data=column_stack((acf_avg, acf_std)),
                 tc_data=column_stack((tc_avg, tc_std)),
@@ -960,6 +1015,10 @@ class Viscosity(TransportCoefficients):
                 figname=f"{pq}_Plot.png",
                 show=display_plot,
             )
+            figs.append[fig]
+            axes.append[(ax1, ax2, ax3, ax4)]
+
+        return figs, axes
 
 
 class ElectricalConductivity(TransportCoefficients):
@@ -1002,7 +1061,6 @@ class ElectricalConductivity(TransportCoefficients):
 
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
-
         """
         observable.parse()
         self.initialize_dataframes(observable)
@@ -1012,13 +1070,13 @@ class ElectricalConductivity(TransportCoefficients):
 
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
-        const = self.beta / observable.box_volume
+        const = self.beta_slice / observable.box_volume
 
         if not observable.magnetized:
             for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
                 integrand = array(observable.dataframe_acf_slices[(jc_str, "Total", "slice {}".format(isl))])
                 col_name = sigma_str + "_slice {}".format(isl)
-                col_data = const * fast_integral_loop(self.time_array, integrand)
+                col_data = const[isl] * fast_integral_loop(self.time_array, integrand)
                 self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             col_str = [sigma_str + "_slice {}".format(isl) for isl in range(observable.no_slices)]
@@ -1103,7 +1161,7 @@ class ElectricalConductivity(TransportCoefficients):
         self.save_hdf()
         # Plot
         if plot:
-            self.plot(observable, display_plot=display_plot)
+            _, _ = self.plot(observable, display_plot=display_plot)
 
     def plot(self, observable, display_plot: bool = False):
         """Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
@@ -1115,9 +1173,22 @@ class ElectricalConductivity(TransportCoefficients):
 
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
+
+        Return
+        ------
+        fig (fig_par, fig_perp) : :class:`matplotlib.pyplot.Figure`, tuple
+            Matplotlib figure handle. If the system is magnetized then it return a tuple with the handles for the parallel (`fig_par`) and perpendicular (`fig_perp`) figures.
+
+        (ax1, ax2, ax3, ax4), ((ax1_par, ax2_par, ax3_par, ax4_par), (ax1_perp, ax2_perp, ax3_perp, ax4_perp)): tuple, :class:`matplotlib.axes.Axes`
+            Tuple containing the axes handles for `fig`. 'ax1` and `ax2` are the handles for the left and right plots respectively.
+            `ax3` and `ax4` are the handles for the "Index" axes, created from `ax1.twiny()` and `ax2.twiny()` respectively.\n
+            If the system is magnetized then it returns a tuple of tuples whose elements are the axes handles of each figure.
+
         """
         jc_str = "Electric Current ACF"
         sigma_str = "Electrical Conductivity"
+        figs = []
+        axes = []
 
         if not observable.magnetized:
             acf_avg = observable.dataframe_acf[(jc_str, "Total", "Mean")].to_numpy()
@@ -1126,7 +1197,7 @@ class ElectricalConductivity(TransportCoefficients):
             tc_avg = self.dataframe[(sigma_str, "Mean")].to_numpy()
             tc_std = self.dataframe[(sigma_str, "Std")].to_numpy()
 
-            self.plot_tc(
+            fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                 time=self.time_array,
                 acf_data=column_stack((acf_avg, acf_std)),
                 tc_data=column_stack((tc_avg, tc_std)),
@@ -1135,6 +1206,9 @@ class ElectricalConductivity(TransportCoefficients):
                 figname="ElectricalConductivity_Plot.png",
                 show=display_plot,
             )
+
+            figs.append[fig]
+            axes.append[(ax1, ax2, ax3, ax4)]
         else:
 
             acf_avg = observable.dataframe_acf[(jc_str, "Parallel", "Mean")].to_numpy()
@@ -1143,7 +1217,7 @@ class ElectricalConductivity(TransportCoefficients):
             tc_avg = self.dataframe[(sigma_str, "Parallel", "Mean")].to_numpy()
             tc_std = self.dataframe[(sigma_str, "Parallel", "Std")].to_numpy()
 
-            self.plot_tc(
+            fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                 time=self.time_array,
                 acf_data=column_stack((acf_avg, acf_std)),
                 tc_data=column_stack((tc_avg, tc_std)),
@@ -1153,13 +1227,16 @@ class ElectricalConductivity(TransportCoefficients):
                 show=display_plot,
             )
 
+            figs.append[fig]
+            axes.append[(ax1, ax2, ax3, ax4)]
+
             acf_avg = observable.dataframe_acf[(jc_str, "Perpendicular", "Mean")].to_numpy()
             acf_std = observable.dataframe_acf[(jc_str, "Perpendicular", "Std")].to_numpy()
 
             tc_avg = self.dataframe[(sigma_str, "Perpendicular", "Mean")].to_numpy()
             tc_std = self.dataframe[(sigma_str, "Perpendicular", "Std")].to_numpy()
 
-            self.plot_tc(
+            fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                 time=self.time_array,
                 acf_data=column_stack((acf_avg, acf_std)),
                 tc_data=column_stack((tc_avg, tc_std)),
@@ -1168,6 +1245,10 @@ class ElectricalConductivity(TransportCoefficients):
                 figname="ElectricalConductivity_Perpendicular_Plot.png",
                 show=display_plot,
             )
+            figs.append[fig]
+            axes.append[(ax1, ax2, ax3, ax4)]
+
+        return figs, axes
 
 
 class ThermalConductivity(TransportCoefficients):
@@ -1203,30 +1284,32 @@ class ThermalConductivity(TransportCoefficients):
         # Initialize Timer
         t0 = self.timer.current()
 
-        # Initialize some labels
-        if self.dimensions == 3:
-            dim_lbl = ["X", "Y", "Z"]
-        else:
-            dim_lbl = ["X", "Y"]
-
-        const = self.kB * self.beta**2 / self.box_volume
+        const = self.kB * self.beta_slice**2 / self.box_volume
         sp_vacf_str = f"{observable.__long_name__} ACF"
+
+        if self.num_species > 1:
+            species_list = [*observable.species_names, "all"]
+        else:
+            species_list = observable.species_names
+
         # Loop over time slices
         for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
 
             # Iterate over the number of species
-            for i, sp1 in enumerate(observable.species_names):
-                for j, sp2 in enumerate(observable.species_names):
+            for isp, sp1 in enumerate(species_list):
+                for _, sp2 in enumerate(species_list[isp:], isp):
                     # Grab vacf data of each slice
                     integrand = observable.dataframe_acf_slices[
                         (sp_vacf_str, f"{sp1}-{sp2}", "Total", f"slice {isl}")
                     ].values
                     df_str = f"{self.__long_name__}_{sp1}-{sp2}_slice {isl}"
-                    self.dataframe_slices[df_str] = const * fast_integral_loop(time=self.time_array, integrand=integrand)
+                    self.dataframe_slices[df_str] = const[isl] * fast_integral_loop(
+                        time=self.time_array, integrand=integrand
+                    )
 
         # Average and std of each transport coefficient.
-        for _, sp1 in enumerate(observable.species_names):
-            for _, sp2 in enumerate(observable.species_names):
+        for isp, sp1 in enumerate(species_list):
+            for _, sp2 in enumerate(species_list[isp:], isp):
                 col_str = [f"{self.__long_name__}_{sp1}-{sp2}_slice {isl}" for isl in range(observable.no_slices)]
                 # Mean
                 col_data = self.dataframe_slices[col_str].mean(axis=1).values
@@ -1245,22 +1328,39 @@ class ThermalConductivity(TransportCoefficients):
         self.save_hdf()
         # Plot
         if plot:
-            self.plot(observable, display_plot=display_plot)
+            _, _ = self.plot(observable, display_plot=display_plot)
 
     def plot(self, observable, display_plot: bool = False):
-        """Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
+        """
+        Make a dual plot comparing the ACF and the Transport Coefficient by using the :meth:`plot_tc` method.
 
         Parameters
         ----------
-        observable : :class:`sarkas.tools.observables.EnergyCurrent`
+        observable: :class:`sarkas.tools.observables.EnergyCurrent`
             Observable object containing the ACF whose time integral leads to the self diffusion coefficient.
 
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
+
+        Return
+        ------
+        fig : :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure handle
+
+        (ax1, ax2, ax3, ax4) : tuple, :class:`matplotlib.axes.Axes`
+            Tuple containing the axes handles for `fig`. 'ax1` and `ax2` are the handles for the left and right plots respectively.
+            `ax3` and `ax4` are the handles for the "Index" axes, created from `ax1.twiny()` and `ax2.twiny()` respectively.
+
         """
         sp_vacf_str = f"{observable.__long_name__} ACF"
-        for _, sp1 in enumerate(observable.species_names):
-            for _, sp2 in enumerate(observable.species_names):
+
+        if self.num_species > 1:
+            species_list = [*observable.species_names, "all"]
+        else:
+            species_list = observable.species_names
+
+        for isp, sp1 in enumerate(species_list):
+            for _, sp2 in enumerate(species_list[isp:], isp):
 
                 acf_avg = observable.dataframe_acf[(sp_vacf_str, f"{sp1}-{sp2}", "Total", "Mean")].to_numpy()
                 acf_std = observable.dataframe_acf[(sp_vacf_str, f"{sp1}-{sp2}", "Total", "Std")].to_numpy()
@@ -1270,7 +1370,7 @@ class ThermalConductivity(TransportCoefficients):
                 col_name = (f"{self.__long_name__}", f"{sp1}-{sp2}", "Std")
                 tc_std = self.dataframe[col_name].to_numpy()
 
-                self.plot_tc(
+                fig, (ax1, ax2, ax3, ax4) = self.plot_tc(
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
@@ -1279,3 +1379,5 @@ class ThermalConductivity(TransportCoefficients):
                     figname=f"{self.__name__}_{sp1}-{sp2}_Plot.png",
                     show=display_plot,
                 )
+
+        return fig, (ax1, ax2, ax3, ax4)

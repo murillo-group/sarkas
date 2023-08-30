@@ -593,9 +593,6 @@ class Particles:
         else:
             raise AttributeError("Incorrect particle placement scheme specified.")
 
-        if self.dimensions == 2:
-            self.pos[2, :] = 0.0
-
     def initialize_velocities(self, species):
         """
         Initialize particles' velocities based on the species input values. The velocities can be initialized from a
@@ -631,9 +628,6 @@ class Particles:
                     self.vel[species_start:species_end, :] = vrms * self.random_unit_vectors(sp.num, self.dimensions)
 
                 species_start += sp.num
-
-        if self.dimensions == 2:
-            self.vel[2, :] = 0.0
 
     def kinetic_temperature(self):
         """Calculate the kinetic energy and temperature of each species.

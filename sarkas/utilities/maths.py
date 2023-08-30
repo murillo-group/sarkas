@@ -85,7 +85,7 @@ def fast_integral_loop(time, integrand):
     return integral
 
 
-def yukawa_green_function(k: float, alpha: float, kappa: float) -> float:
+def yukawa_green_function(k: float, alpha: float, kappa: float):
     """
     Evaluate the Green's function of Coulomb/Yukawa potential.
 
@@ -121,7 +121,7 @@ def yukawa_green_function(k: float, alpha: float, kappa: float) -> float:
     return 4.0 * pi * exp(-(k**2 + kappa**2) / (2 * alpha) ** 2) / (kappa**2 + k**2)
 
 
-def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
+def betamp(m: int, p: int, alpha: float, kappa: float):
     """
     Calculate the integral of the Yukawa Green's function using :func:`scipy.integrate.quad`.
 
