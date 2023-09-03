@@ -78,7 +78,7 @@ UNITS = [
     # MKS Units
     {
         "Energy": "J",
-        "Energy Current": "J/s",
+        "Heat Flux": "J/s",
         "Time": "s",
         "Length": "m",
         "Charge": "C",
@@ -98,7 +98,7 @@ UNITS = [
     # CGS Units
     {
         "Energy": "erg",
-        "Energy Current": "erg/s",
+        "Heat Flux": "erg/s",
         "Time": "s",
         "Length": "m",
         "Charge": "esu",
@@ -168,7 +168,7 @@ def compute_acf_doc(func):
     return func
 
 
-def calc_slice_doc(func):
+def calc_slices_doc(func):
     func.__doc__ = """
     Calculate the observable for each slice. See class doc for exact quantities.\n
     The data of each slice is saved in hierarchical dataframes,
@@ -177,7 +177,7 @@ def calc_slice_doc(func):
     return func
 
 
-def calc_acf_slice_doc(func):
+def calc_acf_slices_doc(func):
     func.__doc__ = """
     Calculate the observable acf for each slice. See class doc for exact quantities.\n
     The data of each slice is saved in hierarchical dataframes,
@@ -186,7 +186,7 @@ def calc_acf_slice_doc(func):
     return func
 
 
-def avg_slice_doc(func):
+def avg_slices_doc(func):
     func.__doc__ = """
     Calculate the average and standard deviation of the observable from the slices dataframe.
     See class doc for exact quantities. \n
@@ -199,7 +199,7 @@ def avg_slice_doc(func):
     return func
 
 
-def avg_acf_slice_doc(func):
+def avg_acf_slices_doc(func):
     func.__doc__ = """
     Calculate the average and standard deviation of the observable autocorrelation function from the slices dataframe.
     See class doc for exact quantities. \n
@@ -815,10 +815,14 @@ class Observable:
 
         return time, data_all
 
-    def parse(self, acf_data: bool = True):
+    def parse(self, acf_data: bool = False):
         """
         Grab the pandas dataframe from the saved csv file. If file does not exist call :meth:`compute()`.
         """
+
+        if self.__name__ == "rdf":
+            acf_data = False
+
         if self.k_observable:
             try:
                 self.dataframe = read_hdf(self.filename_hdf, mode="r", index_col=False)
@@ -1073,7 +1077,7 @@ class Observable:
                 f"\n\nACF Data:\n"
                 f"No. of acf slices = {self.no_slices}\n"
                 f"No. dumps per slice = {int(self.acf_slice_steps)}\n"
-                f"Largest time lag of the autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods"
+                f"Largest time lag of the autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n\n"
             )
 
         if self.k_observable:
@@ -1588,7 +1592,7 @@ class CurrentCorrelationFunction(Observable):
         self.k_observable = True
         self.kw_observable = True
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self, longitudinal: bool = False, transverse: bool = False):
 
         # Now the actual dataframe
@@ -1630,7 +1634,7 @@ class CurrentCorrelationFunction(Observable):
 
                     self.dataframe_transverse = concat([self.dataframe_transverse, tdf_mean, tdf_std], axis=1)
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_longitudinal_data(self):
 
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
@@ -1685,7 +1689,7 @@ class CurrentCorrelationFunction(Observable):
             tuples, names=["species", "slices", "ka_value", "k_harmonics"]
         )
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_transverse_data(self):
 
         self.parse_kt_data(nkt_flag=False, vkt_flag=True)
@@ -1967,7 +1971,7 @@ class DiffusionFlux(Observable):
         tend = self.timer.current()
         time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
 
         start_slice = 0
@@ -2035,7 +2039,7 @@ class DiffusionFlux(Observable):
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_date(self):
 
         df_str = "Diffusion Flux"
@@ -2124,7 +2128,7 @@ class DynamicStructureFactor(Observable):
         tend = self.timer.current()
         time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
 
         # Parse nkt otherwise calculate it
@@ -2166,7 +2170,7 @@ class DynamicStructureFactor(Observable):
             tuples, names=["species", "slices", "k_index", "k_harmonics"]
         )
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
 
         # Now for the actual df
@@ -2360,13 +2364,13 @@ class ElectricCurrent(Observable):
         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
 
-class EnergyCurrent(Observable):
-    """Energy Current."""
+class HeatFlux(Observable):
+    """Heat Flux."""
 
     def __init__(self):
         super().__init__()
-        self.__name__ = "energy_current"
-        self.__long_name__ = "Energy Current"
+        self.__name__ = "heat_flux_species_tensor"
+        self.__long_name__ = "Heat Flux"
         self.acf_observable = True
 
     @setup_doc
@@ -2389,25 +2393,32 @@ class EnergyCurrent(Observable):
         self.calc_slices_data()
         self.average_slices_data()
         self.save_hdf()
-        if calculate_acf:
-            self.compute_acf()
-
         tend = self.timer.current()
         time_stamp(
             self.log_file,
-            self.__long_name__ + " and its ACF Calculation",
+            self.__long_name__ + " calculation",
             self.timer.time_division(tend - t0),
             self.verbose,
         )
+        if calculate_acf:
+            self.compute_acf()
 
     @compute_acf_doc
     def compute_acf(self):
 
+        t0 = self.timer.current()
         self.calc_acf_slices_data()
         self.average_acf_slices_data()
         self.save_acf_hdf()
+        tend = self.timer.current()
+        time_stamp(
+            self.log_file,
+            self.__long_name__ + " ACF calculation",
+            self.timer.time_division(tend - t0),
+            self.verbose,
+        )
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
 
         time = zeros(self.slice_steps)
@@ -2423,11 +2434,11 @@ class EnergyCurrent(Observable):
             position=0,
         ):
             # Parse the particles from the dump files
-            energy_current = zeros((3, self.num_species, self.slice_steps))
+            heat_flux_species_tensor = zeros((3, self.num_species, self.slice_steps))
             for it, dump in enumerate(range(start_slice_step, end_slice_step, self.dump_step)):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
-                energy_current[:, :, it] = datap["species_energy_current"].transpose()
+                heat_flux_species_tensor[:, :, it] = datap["species_heat_flux"]
 
             if isl == 0:
                 time_str = f"{self.__long_name__}_Species_Axis_Time"
@@ -2439,7 +2450,7 @@ class EnergyCurrent(Observable):
             # Store data into dataframes
             for isp, sp1 in enumerate(self.species_names):
                 for iax, ax in enumerate(self.dim_labels):
-                    col_data = energy_current[iax, isp, :]
+                    col_data = heat_flux_species_tensor[iax, isp, :]
                     col_name = f"{self.__long_name__}_{sp1}_{ax}_slice {isl}"
                     self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
@@ -2447,7 +2458,7 @@ class EnergyCurrent(Observable):
             end_slice_step += self.slice_steps * self.dump_step
             # end of slice loop
 
-    @calc_acf_slice_doc
+    @calc_acf_slices_doc
     def calc_acf_slices_data(self):
 
         # In order to have the same number of timesteps products for each time lag of the ACF do the following.
@@ -2456,7 +2467,7 @@ class EnergyCurrent(Observable):
         end_slice_step = int(2 * self.acf_slice_steps * self.dump_step)
 
         # Temporarily store two consecutive slice data
-        energy_current = zeros((3, self.num_species, 2 * self.acf_slice_steps))
+        heat_flux_species_tensor = zeros((3, self.num_species, 2 * self.acf_slice_steps))
 
         # Slices loop
         ec_ACF = zeros(self.acf_slice_steps)
@@ -2469,10 +2480,10 @@ class EnergyCurrent(Observable):
             # This could be
             for it, dump in enumerate(range(start_slice_step, end_slice_step, self.dump_step)):
                 datap = load_from_restart(self.dump_dir, dump)
-                energy_current[:, :, it] = datap["species_energy_current"].transpose()
+                heat_flux_species_tensor[:, :, it] = datap["species_heat_flux"]
 
             # Calculate the ACF and store into dataframes
-            total_energy_current = zeros((self.no_obs, self.acf_slice_steps))
+            total_heat_flux = zeros((self.no_obs, self.acf_slice_steps))
 
             # These loops calculate the acf of each pair for each axis. In this order
             # EC_X_11 -> EC_X_12 -> EC_X_22 -> EC_Y_11 -> ... -> EC_Z_11 -> ...
@@ -2493,8 +2504,8 @@ class EnergyCurrent(Observable):
                             position=0,
                             leave=False,
                         ):
-                            ec_sp1 = energy_current[iax, isp, : self.acf_slice_steps + it]
-                            ec_sp2 = energy_current[iax, isp2, : self.acf_slice_steps + it]
+                            ec_sp1 = heat_flux_species_tensor[iax, isp, : self.acf_slice_steps + it]
+                            ec_sp2 = heat_flux_species_tensor[iax, isp2, : self.acf_slice_steps + it]
                             delta_ec_sp1 = ec_sp1 - ec_sp1.mean(axis=-1)
                             delta_ec_sp2 = ec_sp2 - ec_sp2.mean(axis=-1)
                             ec_ACF[it] = correlationfunction(delta_ec_sp1, delta_ec_sp2)[it]
@@ -2502,7 +2513,7 @@ class EnergyCurrent(Observable):
                         col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}"
                         self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, ec_ACF, col_name)
                         # Add to the total ACF of each species pair.
-                        total_energy_current[k] += const * ec_ACF
+                        total_heat_flux[k] += const * ec_ACF
 
             # Store the total EC_11, EC_12, EC_13, .. EC_22, EC_23, ...
             for isp, sp1 in enumerate(self.species_names):
@@ -2511,7 +2522,7 @@ class EnergyCurrent(Observable):
                     k = int(self.num_species * isp - (isp - 1) * isp / 2 + (isp2 - isp))
 
                     col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_Total_slice {isl}"
-                    col_data = total_energy_current[k, :]
+                    col_data = total_heat_flux[k, :]
 
                     self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
@@ -2519,7 +2530,7 @@ class EnergyCurrent(Observable):
             if self.num_species > 1:
                 col_name = f"{self.__long_name__} ACF_all-all_Total_slice {isl}"
                 self.dataframe_acf_slices = add_col_to_df(
-                    self.dataframe_acf_slices, total_energy_current.sum(axis=0) / self.dimensions, col_name
+                    self.dataframe_acf_slices, total_heat_flux.sum(axis=0) / self.dimensions, col_name
                 )
 
             # Advance by only one slice at a time.
@@ -2527,7 +2538,7 @@ class EnergyCurrent(Observable):
             end_slice_step += self.acf_slice_steps * self.dump_step
             # end of slice loop
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
 
         for isp, sp1 in enumerate(self.species_names):
@@ -2541,7 +2552,7 @@ class EnergyCurrent(Observable):
                 col_name = f"{self.__long_name__}_{sp1}_{ax}_Std"
                 self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
-    @avg_acf_slice_doc
+    @avg_acf_slices_doc
     def average_acf_slices_data(self):
 
         # ACF data
@@ -2667,7 +2678,7 @@ class PressureTensor(Observable):
         self.dataframe_acf_slices = pd.DataFrame(columns=acf_slice_df_column_names)
 
     @compute_doc
-    def compute(self, kin_pot_division: bool = False):
+    def compute(self, calculate_acf: bool = True, kin_pot_division: bool = False):
 
         self.kinetic_potential_division = kin_pot_division
         t0 = self.timer.current()
@@ -2677,12 +2688,30 @@ class PressureTensor(Observable):
         tend = self.timer.current()
         time_stamp(
             self.log_file,
-            self.__long_name__ + " and its ACF Calculation",
+            self.__long_name__ + " calculation",
+            self.timer.time_division(tend - t0),
+            self.verbose,
+        )
+        if calculate_acf:
+            self.compute_acf()
+
+    @compute_acf_doc
+    def compute_acf(self, kin_pot_division: bool = False):
+
+        self.kinetic_potential_division = kin_pot_division
+        t0 = self.timer.current()
+        self.calc_acf_slices_data()
+        self.average_acf_slices_data()
+        self.save_acf_hdf()
+        tend = self.timer.current()
+        time_stamp(
+            self.log_file,
+            self.__long_name__ + " ACF calculation",
             self.timer.time_division(tend - t0),
             self.verbose,
         )
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
         # Precompute the number of columns in the dataframe and make the list of names
         # self.df_column_names()
@@ -2691,11 +2720,6 @@ class PressureTensor(Observable):
         pt_str_kin = "Pressure Tensor Kinetic"
         pt_str_pot = "Pressure Tensor Potential"
         pt_str = "Pressure Tensor"
-        pt_acf_str_kin = "Pressure Tensor Kinetic ACF"
-        pt_acf_str_pot = "Pressure Tensor Potential ACF"
-        pt_acf_str_kinpot = "Pressure Tensor Kin-Pot ACF"
-        pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
-        pt_acf_str = "Pressure Tensor ACF"
 
         time = zeros(self.slice_steps)
 
@@ -2710,10 +2734,10 @@ class PressureTensor(Observable):
         ):
             # Parse the particles from the dump files
             pressure = zeros(self.slice_steps)
-            pt_kin_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pt_pot_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pt_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
-
+            pt_kin_temp = zeros((self.dimensions, self.dimensions, self.num_species, self.slice_steps))
+            pt_pot_temp = zeros((self.dimensions, self.dimensions, self.num_species, self.slice_steps))
+            pt_temp = zeros((self.dimensions, self.dimensions, self.num_species, self.slice_steps))
+            species_pressure = zeros((self.num_species, self.slice_steps))
             for it, dump in enumerate(
                 tqdm(
                     range(start_slice_step, end_slice_step, self.dump_step),
@@ -2726,121 +2750,123 @@ class PressureTensor(Observable):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
 
-                pt_pot_temp[:, :, it] = datap["species_pressure_pot_tensor"][:, :, 0]
-                pt_kin_temp[:, :, it] = datap["species_pressure_kin_tensor"][:, :, 0]
-                pt_temp[:, :, it] = pt_pot_temp[:, :, it] + pt_kin_temp[:, :, it]
-                pressure[it] = (pt_temp[:, :, it]).trace() / self.dimensions
+                pt_pot_temp[:, :, :, it] = datap["species_pressure_pot_tensor"][:, :, :]
+                pt_kin_temp[:, :, :, it] = datap["species_pressure_kin_tensor"][:, :, :]
+                pt_temp[:, :, :, it] = pt_pot_temp[:, :, :, it] + pt_kin_temp[:, :, :, it]
+
+                for isp in range(self.num_species):
+                    species_pressure[isp, it] = (pt_temp[:, :, isp, it]).trace() / self.dimensions
                 # pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
-                #     datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume, self.dimensions
+                #     datap["vel"], datap["virial_species_tensor"], self.species_masses, self.species_num, self.box_volume, self.dimensions
                 # )
 
             if isl == 0:
-                self.dataframe["Time"] = time.copy()
-                self.dataframe_acf["Time"] = time[: self.acf_slice_steps].copy()
-                self.dataframe_slices["Time"] = time.copy()
-                self.dataframe_acf_slices["Time"] = time[: self.acf_slice_steps].copy()
+                time_str = f"Species_Quantity_Time"
+                self.dataframe[time_str] = time.copy()
+                self.dataframe_slices[time_str] = time.copy()
 
-            col_data = pressure
-            col_name = f"Pressure_slice {isl}"
+            # Add total quantities first
+            col_data = species_pressure[:, :].sum(axis=0)
+            col_name = f"Total_Pressure_slice {isl}"
             self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
-
-            # This is needed for the bulk viscosity
-            delta_pressure = pressure - pressure.mean()
-            col_name = f"Delta Pressure_slice {isl}"
-            self.dataframe_slices = add_col_to_df(self.dataframe_slices, delta_pressure, col_name)
-
-            # ACF
-            # delta_p_acf = zeros(self.acf_slice_steps)
-            # for it in range(self.acf_slice_steps):
-            #     dp = delta_pressure[:self.acf_slice_steps + it]
-            #     delta_p_acf[it] = correlationfunction(dp,dp)[it]
-
-            # col_name = f"Delta Pressure ACF_slice {isl}"
-            # col_data = delta_p_acf
-            # self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
-
-            for i, ax1 in enumerate(self.dim_labels):
-                pt_temp[i, i, :] -= pressure.mean()
 
             # The reason for dividing these two loops is that I want a specific order in the dataframe.
             # Pressure, Stress Tensor, All
             for i, ax1 in enumerate(self.dim_labels):
                 for j, ax2 in enumerate(self.dim_labels):
-                    slc_str = f" {ax1}{ax2}_slice {isl}"
+                    slc_str = f"{ax1}{ax2}_slice {isl}"
 
-                    col_name = pt_str_kin + slc_str
-                    col_data = pt_kin_temp[i, j, :]
+                    if self.kinetic_potential_division:
+                        col_name = f"Total_{pt_str_kin} {slc_str}"
+                        col_data = pt_kin_temp[i, j, :, :].sum(axis=-2)
+                        self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+                        col_name = f"Total_{pt_str_pot} {slc_str}"
+                        col_data = pt_pot_temp[i, j, :, :].sum(axis=-2)
+                        self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+
+                    # Stress Tensor P_XX, P_XY, P_XZ, P_YX, ...
+                    col_name = f"Total_{pt_str} {slc_str}"
+                    col_data = pt_temp[i, j, :, :].sum(axis=-2)
                     self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-                    col_name = pt_str_pot + slc_str
-                    col_data = pt_pot_temp[i, j, :]
-                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+            # Save data for each species to df
+            for isp, sp_name in enumerate(self.species_names):
 
-                    col_name = pt_str + slc_str
-                    col_data = pt_temp[i, j, :]
-                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+                col_data = species_pressure[isp, :]
+                col_name = f"{sp_name}_Pressure_slice {isl}"
+                self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-            # Calculate the ACF of the thermal fluctuations of the pressure tensor elements
-            # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
-            for i, ax1 in enumerate(self.dim_labels):
-                for j, ax2 in enumerate(self.dim_labels):
-                    for k, ax3 in enumerate(self.dim_labels):
-                        for l, ax4 in enumerate(self.dim_labels):
+                # The reason for dividing these two loops is that I want a specific order in the dataframe.
+                # Pressure, Stress Tensor, All
+                for i, ax1 in enumerate(self.dim_labels):
+                    for j, ax2 in enumerate(self.dim_labels):
+                        slc_str = f"{ax1}{ax2}_slice {isl}"
 
-                            if self.kinetic_potential_division:
-                                C_ijkl_kin = correlationfunction(pt_kin_temp[i, j, :], pt_kin_temp[k, l, :])
-                                C_ijkl_pot = correlationfunction(pt_pot_temp[i, j, :], pt_pot_temp[k, l, :])
-                                C_ijkl_kinpot = correlationfunction(pt_kin_temp[i, j, :], pt_pot_temp[k, l, :])
-                                C_ijkl_potkin = correlationfunction(pt_pot_temp[i, j, :], pt_kin_temp[k, l, :])
+                        if self.kinetic_potential_division:
+                            col_name = f"{sp_name}_{pt_str_kin} {slc_str}"
+                            col_data = pt_kin_temp[i, j, isp, :]
+                            self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-                                slc_str = f" {ax1}{ax2}{ax3}{ax4}_slice {isl}"
-                                # Kinetic
-                                col_name = pt_acf_str_kin + slc_str
-                                col_data = C_ijkl_kin
-                                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+                            col_name = f"{sp_name}_{pt_str_pot} {slc_str}"
+                            col_data = pt_pot_temp[i, j, isp, :]
+                            self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-                                # Potential
-                                col_name = pt_acf_str_pot + slc_str
-                                col_data = C_ijkl_pot
-                                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
-
-                                # Kin-Pot
-                                col_name = pt_acf_str_kinpot + slc_str
-                                col_data = C_ijkl_kinpot
-                                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
-
-                                # Pot-Kin
-                                col_name = pt_acf_str_potkin + slc_str
-                                col_data = C_ijkl_potkin
-                                self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
-
-                            C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
-                            # Total
-                            col_name = pt_acf_str + slc_str
-                            col_data = C_ijkl
-                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+                        # Stress Tensor P_XX, P_XY, P_XZ, P_YX, ...
+                        col_name = f"{sp_name}_{pt_str} {slc_str}"
+                        col_data = pt_temp[i, j, isp, :]
+                        self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             start_slice_step += self.slice_steps * self.dump_step
             end_slice_step += self.slice_steps * self.dump_step
             # end of slice loop
 
-    def calc_acf_data(self):
+    @calc_acf_slices_doc
+    def calc_acf_slices_data(self):
 
         # Dataframes' columns names
-        pt_str_kin = "Pressure Tensor Kinetic"
-        pt_str_pot = "Pressure Tensor Potential"
-        pt_str = "Pressure Tensor"
         pt_acf_str_kin = "Pressure Tensor Kinetic ACF"
         pt_acf_str_pot = "Pressure Tensor Potential ACF"
         pt_acf_str_kinpot = "Pressure Tensor Kin-Pot ACF"
         pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
         pt_acf_str = "Pressure Tensor ACF"
+        # The column names will be:
 
-        time = zeros(self.slice_steps)
+        # Quantity_Time, Pressure Bulk ACF_slice #,
+
+        # Pressure Tensor ACF XXXX_slice #, Pressure Tensor ACF XXXY_slice #, Pressure Tensor ACF XXXZ_slice #
+        # ................................  Pressure Tensor ACF XXYY_slice #, Pressure Tensor ACF XXYZ_slice #
+        # ................................  ................................  Pressure Tensor ACF XXZZ_slice #
+
+        # Pressure Tensor ACF XYXX_slice #, Pressure Tensor ACF XYXY_slice #, Pressure Tensor ACF XYXZ_slice #
+        # ................................  Pressure Tensor ACF XYYY_slice #, Pressure Tensor ACF XYYZ_slice #
+        # ................................  ................................  Pressure Tensor ACF XYZZ_slice #
+
+        # Pressure Tensor ACF XZXX_slice #, Pressure Tensor ACF XZXY_slice #, Pressure Tensor ACF XZXZ_slice #
+        # ................................  Pressure Tensor ACF XZYY_slice #, Pressure Tensor ACF XZYZ_slice #
+        # ................................  ................................  Pressure Tensor ACF XZZZ_slice #
+
+        # ................................  ................................  ................................
+        # ................................  Pressure Tensor ACF YYYY_slice #, Pressure Tensor ACF YYYZ_slice #
+        # ................................  ................................  Pressure Tensor ACF YYZZ_slice #
+
+        # ................................  ................................  ................................
+        # ................................  Pressure Tensor ACF YZYY_slice #, Pressure Tensor ACF YZYZ_slice #
+        # ................................  ................................  Pressure Tensor ACF YZZZ_slice #
+
+        # ................................  ................................  ................................
+        # ................................  ................................  ................................
+        # ................................  ................................  Pressure Tensor ACF ZZZZ_slice #
+
+        # These are the only calculated axes combination, the .................... indicates that those combination are not calculated.
+
+        data_storage_size = int(2 * self.acf_slice_steps)
+        time = zeros(data_storage_size)
 
         # Let's compute
         start_slice_step = 0
-        end_slice_step = self.slice_steps * self.dump_step
+        end_slice_step = int(2 * self.acf_slice_steps * self.dump_step)
+        # Unfortunately I haven't found a better way to grab the data than to re-read it from file.
         for isl in tqdm(
             range(self.no_slices),
             desc=f"\nCalculating {self.__long_name__} for slice ",
@@ -2848,11 +2874,10 @@ class PressureTensor(Observable):
             position=0,
         ):
             # Parse the particles from the dump files
-            pressure = zeros(self.slice_steps)
-            pt_kin_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pt_pot_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
-            pt_temp = zeros((self.dimensions, self.dimensions, self.slice_steps))
-
+            pt_kin_temp = zeros((self.dimensions, self.dimensions, data_storage_size))
+            pt_pot_temp = zeros((self.dimensions, self.dimensions, data_storage_size))
+            pt_temp = zeros((self.dimensions, self.dimensions, data_storage_size))
+            pressure = zeros((data_storage_size))
             for it, dump in enumerate(
                 tqdm(
                     range(start_slice_step, end_slice_step, self.dump_step),
@@ -2865,66 +2890,43 @@ class PressureTensor(Observable):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
 
-                pt_pot_temp[:, :, it] = datap["species_pressure_pot_tensor"][:, :, 0]
-                pt_kin_temp[:, :, it] = datap["species_pressure_kin_tensor"][:, :, 0]
+                pt_pot_temp[:, :, it] = datap["species_pressure_pot_tensor"][:, :, :].sum(axis=-1)
+                pt_kin_temp[:, :, it] = datap["species_pressure_kin_tensor"][:, :, :].sum(axis=-1)
                 pt_temp[:, :, it] = pt_pot_temp[:, :, it] + pt_kin_temp[:, :, it]
-                pressure[it] = (pt_temp[:, :, it]).trace() / self.dimensions
-                # pressure[it], pt_kin_temp[:, :, it], pt_pot_temp[:, :, it], pt_temp[:, :, it] = calc_pressure_tensor(
-                #     datap["vel"], datap["virial"], self.species_masses, self.species_num, self.box_volume, self.dimensions
-                # )
+                pressure[it] = pt_temp[:, :, it].trace()
 
             if isl == 0:
-                self.dataframe["Time"] = time.copy()
-                self.dataframe_acf["Time"] = time[: self.acf_slice_steps].copy()
-                self.dataframe_slices["Time"] = time.copy()
-                self.dataframe_acf_slices["Time"] = time[: self.acf_slice_steps].copy()
+                time_str = f"Quantity_Time"
+                self.dataframe_acf[time_str] = time[: self.acf_slice_steps].copy()
+                self.dataframe_acf_slices[time_str] = time[: self.acf_slice_steps].copy()
 
-            col_data = pressure
-            col_name = f"Pressure_slice {isl}"
-            self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+            # Calculate the ACF for each species to df. I am not calculating the Sp1-Sp2 ACF
 
-            # This is needed for the bulk viscosity
-            delta_pressure = pressure - pressure.mean()
-            col_name = f"Delta Pressure_slice {isl}"
-            self.dataframe_slices = add_col_to_df(self.dataframe_slices, delta_pressure, col_name)
+            acf_data = zeros(self.acf_slice_steps)
 
-            # ACF
-            # delta_p_acf = zeros(self.acf_slice_steps)
-            # for it in range(self.acf_slice_steps):
-            #     dp = delta_pressure[:self.acf_slice_steps + it]
-            #     delta_p_acf[it] = correlationfunction(dp,dp)[it]
+            # Auto-correlation function with the same number of time steps for each lag.
+            for it in tqdm(
+                range(self.acf_slice_steps),
+                desc=f"Bulk Pressure Tensor ACF calculation",
+                disable=not self.verbose,
+                position=0,
+                leave=False,
+            ):
+                # This is needed for the bulk viscosity
+                col_data = pressure[: self.acf_slice_steps + it]
+                delta_pressure = col_data - col_data.mean()
+                acf_data[it] = correlationfunction(delta_pressure, delta_pressure)[it]
 
-            # col_name = f"Delta Pressure ACF_slice {isl}"
-            # col_data = delta_p_acf
-            # self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
-
-            for i, ax1 in enumerate(self.dim_labels):
-                pt_temp[i, i, :] -= pressure.mean()
-
-            # The reason for dividing these two loops is that I want a specific order in the dataframe.
-            # Pressure, Stress Tensor, All
-            for i, ax1 in enumerate(self.dim_labels):
-                for j, ax2 in enumerate(self.dim_labels):
-                    slc_str = f" {ax1}{ax2}_slice {isl}"
-
-                    col_name = pt_str_kin + slc_str
-                    col_data = pt_kin_temp[i, j, :]
-                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
-
-                    col_name = pt_str_pot + slc_str
-                    col_data = pt_pot_temp[i, j, :]
-                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
-
-                    col_name = pt_str + slc_str
-                    col_data = pt_temp[i, j, :]
-                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
+            col_name = f"Pressure Bulk ACF_slice {isl}"
+            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, acf_data, col_name)
 
             # Calculate the ACF of the thermal fluctuations of the pressure tensor elements
             # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
             for i, ax1 in enumerate(self.dim_labels):
-                for j, ax2 in enumerate(self.dim_labels):
-                    for k, ax3 in enumerate(self.dim_labels):
-                        for l, ax4 in enumerate(self.dim_labels):
+                for j, ax2 in enumerate(self.dim_labels[i:], i):
+                    for k, ax3 in enumerate(self.dim_labels[i:], i):
+                        for l, ax4 in enumerate(self.dim_labels[k:], k):
+                            slc_str = f"{ax1}{ax2}{ax3}{ax4}_slice {isl}"
 
                             if self.kinetic_potential_division:
                                 C_ijkl_kin = correlationfunction(pt_kin_temp[i, j, :], pt_kin_temp[k, l, :])
@@ -2932,7 +2934,6 @@ class PressureTensor(Observable):
                                 C_ijkl_kinpot = correlationfunction(pt_kin_temp[i, j, :], pt_pot_temp[k, l, :])
                                 C_ijkl_potkin = correlationfunction(pt_pot_temp[i, j, :], pt_kin_temp[k, l, :])
 
-                                slc_str = f" {ax1}{ax2}{ax3}{ax4}_slice {isl}"
                                 # Kinetic
                                 col_name = pt_acf_str_kin + slc_str
                                 col_data = C_ijkl_kin
@@ -2953,103 +2954,141 @@ class PressureTensor(Observable):
                                 col_data = C_ijkl_potkin
                                 self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
-                            C_ijkl = correlationfunction(pt_temp[i, j, :], pt_temp[k, l, :])
-                            # Total
-                            col_name = pt_acf_str + slc_str
-                            col_data = C_ijkl
-                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+                            acf_data = zeros(self.acf_slice_steps)
+                            # Auto-correlation function with the same number of time steps for each lag.
+                            for it in range(self.acf_slice_steps):
+                                # desc=f"Shear {ax1}{ax2}{ax3}{ax4} ACF calculation",
+                                # disable=not self.verbose,
+                                # position=0,
+                                # leave=False,
+                                # ):
+                                # This is needed for the bulk viscosity
+                                col_data = pt_temp[i, j, : self.acf_slice_steps + it]
+                                acf_data[it] = correlationfunction(col_data, col_data)[it]
 
-            start_slice_step += self.slice_steps * self.dump_step
-            end_slice_step += self.slice_steps * self.dump_step
+                            # Total
+                            col_name = f"{pt_acf_str} {slc_str}"
+                            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, acf_data, col_name)
+
+            start_slice_step += self.acf_slice_steps * self.dump_step
+            end_slice_step += self.acf_slice_steps * self.dump_step
             # end of slice loop
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
 
         # Dataframes' columns names
         pt_str_kin = "Pressure Tensor Kinetic"
         pt_str_pot = "Pressure Tensor Potential"
         pt_str = "Pressure Tensor"
+
+        col_str = [f"Total_Pressure_slice {isl}" for isl in range(self.no_slices)]
+        col_name = "Total_Pressure_Mean"
+        col_data = self.dataframe_slices[col_str].mean(axis=1).values
+        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+        col_name = "Total_Pressure_Std"
+        col_data = self.dataframe_slices[col_str].std(axis=1).values
+        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+        # Save data for each species to df
+        for _, sp_name in enumerate(self.species_names):
+            col_str = [f"{sp_name}_Pressure_slice {isl}" for isl in range(self.no_slices)]
+            col_name = f"{sp_name}_Pressure_Mean"
+            col_data = self.dataframe_slices[col_str].mean(axis=1).values
+            self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+            # Std
+            col_name = f"{sp_name}_Pressure_Std"
+            col_data = self.dataframe_slices[col_str].std(axis=1).values
+            self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+            for i, ax1 in enumerate(self.dim_labels):
+                for j, ax2 in enumerate(self.dim_labels):
+
+                    if self.kinetic_potential_division:
+                        # Kinetic Terms
+                        ij_col_str = [f"{sp_name}_{pt_str_kin} {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
+                        # Mean
+                        col_name = f"{sp_name}_{pt_str_kin} {ax1}{ax2}_Mean"
+                        col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
+                        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                        # Std
+                        col_name = f"{sp_name}_{pt_str_kin} {ax1}{ax2}_Std"
+                        col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
+                        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                        # Potential Terms
+                        ij_col_str = [f"{sp_name}_{pt_str_pot} {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
+                        # Mean
+                        col_name = f"{sp_name}_{pt_str_pot} {ax1}{ax2}_Mean"
+                        col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
+                        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                        # Std
+                        col_name = f"{sp_name}_{pt_str_pot} {ax1}{ax2}_Std"
+                        col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
+                        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+                    # Full
+                    ij_col_str = [f"{sp_name}_{pt_str} {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
+                    # Mean
+                    col_name = f"{sp_name}_{pt_str} {ax1}{ax2}_Mean"
+                    col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
+                    self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+                    # Std
+                    col_name = f"{sp_name}_{pt_str} {ax1}{ax2}_Std"
+                    col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
+                    self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+
+    @avg_acf_slices_doc
+    def average_acf_slices_data(self):
+
         pt_acf_str_kin = "Pressure Tensor Kinetic ACF"
         pt_acf_str_pot = "Pressure Tensor Potential ACF"
         pt_acf_str_kinpot = "Pressure Tensor Kin-Pot ACF"
         pt_acf_str_potkin = "Pressure Tensor Pot-Kin ACF"
         pt_acf_str = "Pressure Tensor ACF"
+        # The column names will be:
+        # Quantity_Time, Pressure Tensor ACF_Mean, Pressure Tensor ACF_Std,
 
-        col_str = ["Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
-        col_name = "Pressure_Mean"
-        col_data = self.dataframe_slices[col_str].mean(axis=1).values
-        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-        col_name = "Pressure_Std"
-        col_data = self.dataframe_slices[col_str].std(axis=1).values
-        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+        # Pressure Tensor ACF XXXX_Mean/Std, Pressure Tensor ACF XXXY_Mean/Std, Pressure Tensor ACF XXXZ_Mean/Std
+        # ................................   Pressure Tensor ACF XXYY_Mean/Std, Pressure Tensor ACF XXYZ_Mean/Std
+        # ................................   ................................   Pressure Tensor ACF XXZZ_Mean/Std
 
-        col_str = ["Delta Pressure_slice {}".format(isl) for isl in range(self.no_slices)]
-        col_name = "Delta Pressure_Mean"
-        col_data = self.dataframe_slices[col_str].mean(axis=1).values
-        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-        col_name = "Delta Pressure_Std"
-        col_data = self.dataframe_slices[col_str].std(axis=1).values
-        self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
+        # Pressure Tensor ACF XYXX_Mean/Std, Pressure Tensor ACF XYXY_Mean/Std, Pressure Tensor ACF XYXZ_Mean/Std
+        # ................................   Pressure Tensor ACF XYYY_Mean/Std, Pressure Tensor ACF XYYZ_Mean/Std
+        # ................................   ................................   Pressure Tensor ACF XYZZ_Mean/Std
+
+        # Pressure Tensor ACF XZXX_Mean/Std, Pressure Tensor ACF XZXY_Mean/Std, Pressure Tensor ACF XZXZ_Mean/Std
+        # ................................   Pressure Tensor ACF XZYY_Mean/Std, Pressure Tensor ACF XZYZ_Mean/Std
+        # ................................   ................................   Pressure Tensor ACF XZZZ_Mean/Std
+
+        # ................................   ................................   ................................
+        # ................................   Pressure Tensor ACF YYYY_Mean/Std, Pressure Tensor ACF YYYZ_Mean/Std
+        # ................................   ................................   Pressure Tensor ACF YYZZ_Mean/Std
+
+        # ................................   ................................   ................................
+        # ................................   Pressure Tensor ACF YZYY_Mean/Std, Pressure Tensor ACF YZYZ_Mean/Std
+        # ................................   ................................   Pressure Tensor ACF YZZZ_Mean/Std
+
+        # ................................   ................................   ................................
+        # ................................   ................................   ................................
+        # ................................   ................................   Pressure Tensor ACF ZZZZ_Mean/Std
+
+        # These are the only calculated axes combination, the .................... indicates that those combination are not calculated.
 
         # Pressure ACF Mean and Std
-        col_str = [f"Pressure ACF_slice {isl}" for isl in range(self.no_slices)]
-        col_name = "Pressure ACF_Mean"
+        col_str = [f"Pressure Bulk ACF_slice {isl}" for isl in range(self.no_slices)]
+        col_name = "Pressure Bulk ACF_Mean"
         col_data = self.dataframe_acf_slices[col_str].mean(axis=1).values
         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
-        col_name = "Pressure ACF_Std"
-        col_data = self.dataframe_acf_slices[col_str].std(axis=1).values
-        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
-        # Delta Pressure ACF Mean and Std
-        col_str = [f"Delta Pressure ACF_slice {isl}" for isl in range(self.no_slices)]
-        col_name = "Delta Pressure ACF_Mean"
-        col_data = self.dataframe_acf_slices[col_str].mean(axis=1).values
-        self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
-        col_name = "Delta Pressure ACF_Std"
+        col_name = "Pressure Bulk ACF_Std"
         col_data = self.dataframe_acf_slices[col_str].std(axis=1).values
         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
+        # Note: C_{abcd} = < sigma_{ab} sigma_{cd} >
         for i, ax1 in enumerate(self.dim_labels):
-            for j, ax2 in enumerate(self.dim_labels):
-
-                if self.kinetic_potential_division:
-                    # Kinetic Terms
-                    ij_col_str = [pt_str_kin + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
-                    # Mean
-                    col_name = pt_str_kin + f" {ax1}{ax2}_Mean"
-                    col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
-                    self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-                    # Std
-                    col_name = pt_str_kin + f" {ax1}{ax2}_Std"
-                    col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                    self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-
-                    # Potential Terms
-                    ij_col_str = [pt_str_pot + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
-                    # Mean
-                    col_name = pt_str_pot + f" {ax1}{ax2}_Mean"
-                    col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
-                    self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-                    # Std
-                    col_name = pt_str_pot + f" {ax1}{ax2}_Std"
-                    col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                    self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-
-                # Full
-                ij_col_str = [pt_str + f" {ax1}{ax2}_slice {isl}" for isl in range(self.no_slices)]
-                # Mean
-                col_name = pt_str + f" {ax1}{ax2}_Mean"
-                col_data = self.dataframe_slices[ij_col_str].mean(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-                # Std
-                col_name = pt_str + f" {ax1}{ax2}_Std"
-                col_data = self.dataframe_slices[ij_col_str].std(axis=1).values
-                self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
-
-        for i, ax1 in enumerate(self.dim_labels):
-            for j, ax2 in enumerate(self.dim_labels):
-                for k, ax3 in enumerate(self.dim_labels):
-                    for l, ax4 in enumerate(self.dim_labels):
+            for j, ax2 in enumerate(self.dim_labels[i:], i):
+                for k, ax3 in enumerate(self.dim_labels[i:], i):
+                    for l, ax4 in enumerate(self.dim_labels[k:], k):
 
                         if self.kinetic_potential_division:
                             # Kinetic Terms
@@ -3106,14 +3145,14 @@ class PressureTensor(Observable):
 
                         # Full
                         ij_col_acf_str = [
-                            pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
+                            f"{pt_acf_str} {ax1}{ax2}{ax3}{ax4}_slice {isl}" for isl in range(self.no_slices)
                         ]
                         # Mean
-                        col_name = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Mean"
+                        col_name = f"{pt_acf_str} {ax1}{ax2}{ax3}{ax4}_Mean"
                         col_data = self.dataframe_acf_slices[ij_col_acf_str].mean(axis=1).values
                         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
                         # Std
-                        col_name = pt_acf_str + f" {ax1}{ax2}{ax3}{ax4}_Std"
+                        col_name = f"{pt_acf_str} {ax1}{ax2}{ax3}{ax4}_Std"
                         col_data = self.dataframe_acf_slices[ij_col_acf_str].std(axis=1).values
                         self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
 
@@ -3293,7 +3332,7 @@ class RadialDistributionFunction(Observable):
 
             dump_init = dump_end
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
 
         for i, sp1 in enumerate(self.species_names):
@@ -3444,7 +3483,7 @@ class StaticStructureFactor(Observable):
             self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - tinit), self.verbose
         )
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
 
         self.parse_kt_data(nkt_flag=True)
@@ -3473,7 +3512,7 @@ class StaticStructureFactor(Observable):
                     self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
                     sp_indx += 1
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
 
         for i, sp1 in enumerate(self.species_names):
@@ -3582,7 +3621,7 @@ class Thermodynamics(Observable):
             deltaE_2 = (self.simulation_dataframe["Total Energy"].std()) ** 2
             self.specific_heat_volume = deltaE_2 * self.beta**2 * self.kB
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
 
         # data_size
@@ -3611,7 +3650,7 @@ class Thermodynamics(Observable):
                 data_end += self.slice_steps
             # end of slice loop
 
-    @calc_acf_slice_doc
+    @calc_acf_slices_doc
     def calc_acf_slice_data(self):
 
         # In order to have the same number of timesteps products for each time lag of the ACF do the following.
@@ -3656,7 +3695,7 @@ class Thermodynamics(Observable):
                 data_end += self.acf_slice_steps
             # end of slice loop
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
 
         ### Slices loop
@@ -3671,7 +3710,7 @@ class Thermodynamics(Observable):
             col_name = f"{df_col_name}_Std"
             self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
-    @avg_acf_slice_doc
+    @avg_acf_slices_doc
     def average_acf_slices_data(self):
 
         ### Slices loop
@@ -3770,11 +3809,7 @@ class Thermodynamics(Observable):
         p_hartree = -hartrees[:, 1] / 3.0
         p_corr = -corrs[:, 1] / 3.0
 
-        if self.beta_slice:
-            nkT = self.total_num_density / self.beta_slice.mean()
-        else:
-            self.calculate_beta_slices()
-            nkT = self.total_num_density / self.beta_slice.mean()
+        nkT = self.total_num_density / self.beta_slice.mean()
 
         return nkT, u_hartree, u_corr, p_hartree, p_corr
 
@@ -4200,7 +4235,7 @@ class VelocityAutoCorrelationFunction(Observable):
         tend = self.timer.current()
         time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
 
-    @calc_slice_doc
+    @calc_slices_doc
     def calc_slices_data(self):
         start_slice = 0
         end_slice = self.slice_steps * self.dump_step
@@ -4253,7 +4288,7 @@ class VelocityAutoCorrelationFunction(Observable):
             start_slice += self.slice_steps * self.dump_step
             end_slice += self.slice_steps * self.dump_step
 
-    @avg_slice_doc
+    @avg_slices_doc
     def average_slices_data(self):
         """Average the data from all the slices and add it to the dataframe."""
 
@@ -5177,119 +5212,6 @@ def calc_nkt(fldr, slices, dump_step, species_np, k_list, verbose):
             sp_start += sp
 
     return nkt
-
-
-@njit
-def calculate_particles_enthalpy(pot, vel, virial, species_mass, species_np, dimensions):
-    """
-    Calculate the pressure tensor.
-
-    Parameters
-    ----------
-    pot : numpy.ndarray
-        Potential energy of each particle.
-
-    vel : numpy.ndarray
-        Particles' velocities.
-
-    virial : numpy.ndarray
-        Virial tensor of each particle. Shape= (3,3, Np)
-
-    species_mass : numpy.ndarray
-        Mass of each species.
-
-    species_np : numpy.ndarray
-        Number of particles of each species.
-
-    dimensions: int
-        Number of dimensions of the system.
-
-    Returns
-    -------
-    enthalpy : numpy.ndarray
-        Enthalpy of each particle.
-
-    """
-    # Rescale vel of each particle by their individual mass
-    sp_start = 0
-    sp_end = 0
-    # j_tot = zeros( (dimensions, len(species_np)) )
-    enthalpy = zeros(species_np.sum())
-
-    for isp, sp_num in enumerate(species_np):
-        sp_end += sp_num
-        vel_sp = vel[sp_start:sp_end, :]
-
-        kin_sp = 0.5 * (vel_sp**2).sum(axis=-1) * species_mass[isp]  # Kinetic energy of each particle
-
-        pot_sp = pot[sp_start:sp_end]
-
-        vir_sp = virial[0, 0, sp_start:sp_end] + virial[1, 1, sp_start:sp_end] + virial[2, 2, sp_start:sp_end]
-        # Note: The pressure is defined by (kin + vir)/volume.
-        # However since I need to multiply by volume to get the enthalpy I decided to not divide and then multiply by volume
-        enthalpy[sp_start:sp_end] = kin_sp + pot_sp + (kin_sp + vir_sp) / dimensions
-
-        sp_start += sp_num
-
-    return enthalpy
-
-
-def calc_pressure_tensor(vel, virial, species_mass, species_np, box_volume, dimensions):
-    """
-    Calculate the pressure tensor.
-
-    Parameters
-    ----------
-    vel : numpy.ndarray
-        Particles' velocities.
-
-    virial : numpy.ndarray
-        Virial tensor of each particle. Shape= (3,3, Np)
-
-    species_mass : numpy.ndarray
-        Mass of each species.
-
-    species_np : numpy.ndarray
-        Number of particles of each species.
-
-    box_volume : float
-        Volume of simulation's box.
-
-    dimensions : int
-        Number of dimensions.
-
-    Returns
-    -------
-    pressure : float
-        Scalar Pressure i.e. trace of the pressure tensor
-
-    pressure_kin : numpy.ndarray
-        Kinetic part of the Pressure tensor. Shape(``no_dim``,``no_dim``)
-
-    pressure_pot : numpy.ndarray
-        Potential energy part of the Pressure tensor. Shape(``no_dim``,``no_dim``)
-
-    pressure_tensor : numpy.ndarray
-        Pressure tensor. Shape(``no_dim``,``no_dim``)
-
-    """
-    sp_start = 0
-    sp_end = 0
-
-    # Rescale vel of each particle by their individual mass
-    for sp, num in enumerate(species_np):
-        sp_end += num
-        vel[sp_start:sp_end, :] *= sqrt(species_mass[sp])
-        sp_start += num
-
-    pressure_kin = (vel.transpose() @ vel) / box_volume
-    pressure_pot = virial.sum(axis=-1) / box_volume
-    pressure_tensor = pressure_kin + pressure_pot
-
-    # .trace is not supported by numba. hence no njit
-    pressure = pressure_tensor.trace() / dimensions
-
-    return pressure, pressure_kin, pressure_pot, pressure_tensor
 
 
 @njit

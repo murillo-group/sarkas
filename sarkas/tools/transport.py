@@ -890,11 +890,11 @@ class Viscosity(TransportCoefficients):
                 "Shear Viscosity Tensor Potential",
                 "Shear Viscosity Tensor Kin-Pot",
                 "Shear Viscosity Tensor Pot-Kin",
-                "Shear Viscosity Tensor Total",
+                "Shear Viscosity Tensor",
             ]
         else:
             pt_str_list = ["Pressure Tensor ACF"]
-            eta_str_list = ["Shear Viscosity Tensor Total"]
+            eta_str_list = ["Shear Viscosity Tensor"]
 
         start_steps = 0
         end_steps = 0
@@ -904,19 +904,19 @@ class Viscosity(TransportCoefficients):
             const = observable.box_volume * self.beta_slice[isl]
             # Calculate Bulk Viscosity
             # It is calculated from the fluctuations of the pressure eq. 2.124a Allen & Tilsdeley
-            integrand = observable.dataframe_acf_slices[(f"Delta Pressure ACF", f"slice {isl}")].to_numpy()
+            integrand = observable.dataframe_acf_slices[(f"Pressure Bulk ACF", f"slice {isl}")].to_numpy()
 
             col_name = f"Bulk Viscosity_slice {isl}"
             col_data = const * fast_integral_loop(self.time_array, integrand)
             self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             # Calculate the Shear Viscosity Elements
-            for _, ax1 in enumerate(observable.dim_labels):
-                for _, ax2 in enumerate(observable.dim_labels):
+            for iax, ax1 in enumerate(observable.dim_labels):
+                for _, ax2 in enumerate(observable.dim_labels[iax:], iax):
                     for _, (pt_str, eta_str) in enumerate(zip(pt_str_list, eta_str_list)):
                         pt_str_temp = (pt_str + f" {ax1}{ax2}{ax1}{ax2}", f"slice {isl}")
                         integrand = observable.dataframe_acf_slices[pt_str_temp].to_numpy()
-                        col_name = eta_str + f" {ax1}{ax2}_slice {isl}".format(ax1, ax2, isl)
+                        col_name = eta_str + f" {ax1}{ax2}_slice {isl}"
                         col_data = const * fast_integral_loop(self.time_array, integrand)
                         self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
@@ -933,8 +933,8 @@ class Viscosity(TransportCoefficients):
         col_data = self.dataframe_slices[col_str].std(axis=1).values
         self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
-        for _, ax1 in enumerate(observable.dim_labels):
-            for _, ax2 in enumerate(observable.dim_labels):
+        for iax, ax1 in enumerate(observable.dim_labels):
+            for _, ax2 in enumerate(observable.dim_labels[iax + 1 :], iax + 1):
                 for _, eta_str in enumerate(eta_str_list):
                     col_str = [eta_str + f" {ax1}{ax2}_slice {isl}" for isl in range(observable.no_slices)]
                     col_name = eta_str + f" {ax1}{ax2}_Mean"
@@ -945,7 +945,7 @@ class Viscosity(TransportCoefficients):
                     col_data = self.dataframe_slices[col_str].std(axis=1).values
                     self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
-        list_coord = ["xy", "xz", "yx", "yz", "zx", "zy"]
+        list_coord = ["XY", "XZ", "YZ"]
         col_str = [eta_str + f" {coord}_Mean" for coord in list_coord]
         # Mean
         col_data = self.dataframe[col_str].mean(axis=1).values
@@ -987,18 +987,19 @@ class Viscosity(TransportCoefficients):
 
         # Plot
         plot_quantities = ["Bulk Viscosity", "Shear Viscosity"]
-        shear_list_coord = ["xyxy", "xzxz", "yxyx", "yzyz", "zxzx", "zyzy"]
+        shear_list_coord = ["XYXY", "XZXZ", "YZYZ"]
 
         figs = []
         axes = []
         # Make the plot
         for ipq, pq in enumerate(plot_quantities):
             if pq == "Bulk Viscosity":
-                acf_str = "Delta Pressure ACF"
-                acf_avg = observable.dataframe_acf[("Delta Pressure ACF", "Mean")]
-                acf_std = observable.dataframe_acf[("Delta Pressure ACF", "Std")]
+                acf_str = "Pressure Bulk ACF"
+                acf_avg = observable.dataframe_acf[("Pressure Bulk ACF", "Mean")]
+                acf_std = observable.dataframe_acf[("Pressure Bulk ACF", "Std")]
             elif pq == "Shear Viscosity":
                 # The axis are the last two elements in the string
+                acf_str = "Stress Tensors ACF"
                 acf_strs = [(f"Pressure Tensor ACF {coord}", "Mean") for coord in shear_list_coord]
                 acf_avg = observable.dataframe_acf[acf_strs].mean(axis=1)
                 acf_std = observable.dataframe_acf[acf_strs].std(axis=1)
@@ -1015,8 +1016,8 @@ class Viscosity(TransportCoefficients):
                 figname=f"{pq}_Plot.png",
                 show=display_plot,
             )
-            figs.append[fig]
-            axes.append[(ax1, ax2, ax3, ax4)]
+            figs.append(fig)
+            axes.append((ax1, ax2, ax3, ax4))
 
         return figs, axes
 
@@ -1255,7 +1256,7 @@ class ThermalConductivity(TransportCoefficients):
     def __init__(self):
         self.__name__ = "ThermalConductivity"
         self.__long_name__ = "Thermal Conductivity"
-        self.required_observable = "Energy Current"
+        self.required_observable = "Heat Flux"
         super().__init__()
 
     def compute(
@@ -1336,7 +1337,7 @@ class ThermalConductivity(TransportCoefficients):
 
         Parameters
         ----------
-        observable: :class:`sarkas.tools.observables.EnergyCurrent`
+        observable: :class:`sarkas.tools.observables.HeatFlux`
             Observable object containing the ACF whose time integral leads to the self diffusion coefficient.
 
         display_plot : bool, optional

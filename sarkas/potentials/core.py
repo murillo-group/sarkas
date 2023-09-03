@@ -622,7 +622,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial_species_tensor, ptcls.heat_flux_species_tensor = pp_update(
             ptcls.pos,
             ptcls.vel,
             ptcls.id,
@@ -651,7 +651,7 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial, ptcls.energy_current = pp_update_0D(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial_species_tensor, ptcls.heat_flux_species_tensor = pp_update_0D(
             ptcls.pos,
             ptcls.vel,
             ptcls.id,
