@@ -32,6 +32,7 @@ from numpy import (
     log,
     ndarray,
     ones,
+    ones_like,
     pi,
     real,
     repeat,
@@ -45,6 +46,7 @@ from numpy import (
     zeros,
 )
 from numpy.polynomial import hermite_e
+from numpy.random import default_rng
 from os import listdir, mkdir
 from os import remove as os_remove
 from os.path import exists as os_path_exists
@@ -1516,9 +1518,7 @@ class Observable:
 
         self.save_pickle()
 
-        # This re-initialization of the dataframe is needed to avoid len mismatch conflicts when re-calculating
-        self.dataframe = DataFrame()
-        self.dataframe_slices = DataFrame()
+        self.initialize_hdf()
 
         if self.__name__ == "ccf":
             self.dataframe_longitudinal = DataFrame()
@@ -1532,13 +1532,19 @@ class Observable:
                 if self.no_dumps < self.no_slices
                 else int(self.no_dumps / (self.no_slices + 1))
             )
-            self.dataframe_acf = DataFrame()
-            self.dataframe_acf_slices = DataFrame()
 
         # Write log file
         datetime_stamp(self.log_file)
         msg = self.pretty_print_msg()
         print_to_logger(msg, self.log_file, self.verbose)
+
+    def initialize_hdf(self):
+
+        self.dataframe = DataFrame()
+        self.dataframe_slices = DataFrame()
+        if self.acf_observable:
+            self.dataframe_acf = DataFrame()
+            self.dataframe_acf_slices = DataFrame()
 
 
 class CurrentCorrelationFunction(Observable):
@@ -2404,10 +2410,10 @@ class HeatFlux(Observable):
             self.compute_acf()
 
     @compute_acf_doc
-    def compute_acf(self):
+    def compute_acf(self, equal_number_time_samples: bool = False):
 
         t0 = self.timer.current()
-        self.calc_acf_slices_data()
+        self.calc_acf_slices_data(equal_number_time_samples)
         self.average_acf_slices_data()
         self.save_acf_hdf()
         tend = self.timer.current()
@@ -2459,7 +2465,7 @@ class HeatFlux(Observable):
             # end of slice loop
 
     @calc_acf_slices_doc
-    def calc_acf_slices_data(self):
+    def calc_acf_slices_data(self, equal_number_time_samples: bool = False):
 
         # In order to have the same number of timesteps products for each time lag of the ACF do the following.
         # Take two slice data
@@ -2497,18 +2503,25 @@ class HeatFlux(Observable):
                         k = int(self.num_species * isp - (isp - 1) * isp / 2 + (isp2 - isp))
 
                         # Auto-correlation function with the same number of time steps for each lag.
-                        for it in tqdm(
-                            range(self.acf_slice_steps),
-                            desc=f"{sp1}-{sp2} ACF {ax} time lag",
-                            disable=not self.verbose,
-                            position=0,
-                            leave=False,
-                        ):
-                            ec_sp1 = heat_flux_species_tensor[iax, isp, : self.acf_slice_steps + it]
-                            ec_sp2 = heat_flux_species_tensor[iax, isp2, : self.acf_slice_steps + it]
+                        if equal_number_time_samples:
+                            for it in tqdm(
+                                range(self.acf_slice_steps),
+                                desc=f"{sp1}-{sp2} ACF {ax} time lag",
+                                disable=not self.verbose,
+                                position=0,
+                                leave=False,
+                            ):
+                                ec_sp1 = heat_flux_species_tensor[iax, isp, : self.acf_slice_steps + it]
+                                ec_sp2 = heat_flux_species_tensor[iax, isp2, : self.acf_slice_steps + it]
+                                delta_ec_sp1 = ec_sp1 - ec_sp1.mean(axis=-1)
+                                delta_ec_sp2 = ec_sp2 - ec_sp2.mean(axis=-1)
+                                ec_ACF[it] = correlationfunction(delta_ec_sp1, delta_ec_sp2)[it]
+                        else:
+                            ec_sp1 = heat_flux_species_tensor[iax, isp, : self.acf_slice_steps]
+                            ec_sp2 = heat_flux_species_tensor[iax, isp2, : self.acf_slice_steps]
                             delta_ec_sp1 = ec_sp1 - ec_sp1.mean(axis=-1)
                             delta_ec_sp2 = ec_sp2 - ec_sp2.mean(axis=-1)
-                            ec_ACF[it] = correlationfunction(delta_ec_sp1, delta_ec_sp2)[it]
+                            ec_ACF = correlationfunction(delta_ec_sp1, delta_ec_sp2)
                         # Store in the dataframe
                         col_name = f"{self.__long_name__} ACF_{sp1}-{sp2}_{ax}_slice {isl}"
                         self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, ec_ACF, col_name)
@@ -4209,6 +4222,8 @@ class VelocityAutoCorrelationFunction(Observable):
         super(VelocityAutoCorrelationFunction, self).__init__()
         self.__name__ = "vacf"
         self.__long_name__ = "Velocity AutoCorrelation Function"
+        self.no_ptcls_per_species = [10]
+        self.particles_id = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         self.acf_observable = True
 
     @setup_doc
@@ -4223,23 +4238,37 @@ class VelocityAutoCorrelationFunction(Observable):
         self.__dict__.update(kwargs.copy())
         self.update_finish()
 
+        if "no_ptcls_per_species" in kwargs.keys():
+            self.select_random_indices(kwargs["no_ptcls_per_species"])
+        else:
+            self.select_random_indices()
+
     @compute_doc
-    def compute(self):
+    def compute(self, calculate_acf_data: bool = True, no_ptcls_per_species=None):
+
+        raise DeprecationWarning("VACF does not have a `compute` method anymore. Use `compute_acf()`.")
+
+    @compute_acf_doc
+    def compute_acf(self, no_ptcls_per_species=None):
+
+        if no_ptcls_per_species:
+            self.select_random_indices(no_ptcls_per_species)
 
         t0 = self.timer.current()
-        # for run_idx, run_id in enumerate(self.runs):
-        #     self.dump_dir = self.dump_dirs_list[run_idx]
-        self.calc_slices_data()
-        self.average_slices_data()
-        self.save_hdf()
+        self.calc_acf_slices_data()
+        self.average_acf_slices_data()
+        self.save_acf_hdf()
         tend = self.timer.current()
-        time_stamp(self.log_file, self.__long_name__ + " Calculation", self.timer.time_division(tend - t0), self.verbose)
+        time_stamp(self.log_file, f"{self.__long_name__} Calculation", self.timer.time_division(tend - t0), self.verbose)
 
-    @calc_slices_doc
-    def calc_slices_data(self):
+    @calc_acf_slices_doc
+    def calc_acf_slices_data(self):
+
         start_slice = 0
-        end_slice = self.slice_steps * self.dump_step
-        time = zeros(self.slice_steps)
+        end_slice = int(2 * self.acf_slice_steps * self.dump_step)
+
+        time = zeros(2 * self.slice_steps)
+        vel = zeros((self.dimensions, sum(self.no_ptcls_per_species), 2 * self.acf_slice_steps))
 
         for isl in tqdm(
             range(self.no_slices),
@@ -4247,54 +4276,140 @@ class VelocityAutoCorrelationFunction(Observable):
             disable=not self.verbose,
             position=0,
         ):
+            self.grab_sim_data(start_slice, end_slice, vel, time)
 
-            # Parse the particles from the dump files
-            vel = zeros((self.dimensions, self.total_num_ptcls, self.slice_steps))
-            #
-            for it, dump in enumerate(
-                tqdm(
-                    range(start_slice, end_slice, self.dump_step),
-                    desc="Reading data",
-                    disable=not self.verbose,
-                    position=1,
-                    leave=False,
-                )
-            ):
-                datap = load_from_restart(self.dump_dir, dump)
-                time[it] = datap["time"]
-                for d in range(self.dimensions):
-                    vel[d, :, it] = datap["vel"][:, d]
-            #
             if isl == 0:
-                self.dataframe["Time"] = time
-                self.dataframe_slices["Time"] = time
-                self.dataframe_acf["Time"] = time
-                self.dataframe_acf_slices["Time"] = time
+                self.dataframe_acf["Time"] = time[: self.acf_slice_steps]
+                self.dataframe_acf_slices["Time"] = time[: self.acf_slice_steps]
 
-            # Return an array of shape( num_species, dim + 1, slice_steps)
-            vacf = calc_vacf(vel, self.species_num, self.verbose)
+            # Return an array of shape = ( num_species, dim + 1, slice_steps)
+            vacf = self.calculate_vacf(vel)
 
-            for i, sp1 in enumerate(self.species_names):
-                sp_vacf_str = f"{sp1} " + self.__name__.swapcase()
-                for d in range(self.dimensions):
-                    col_name = sp_vacf_str + f"_{self.dim_labels[d]}_slice {isl}"
-                    col_data = vacf[i, d, :]
-                    self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
+            self.save_acf_slices_data_to_hdf(vacf, isl)
 
-                col_name = sp_vacf_str + f"_Total_slice {isl}"
-                col_data = vacf[i, -1, :]
+            start_slice += self.acf_slice_steps * self.dump_step
+            end_slice += self.acf_slice_steps * self.dump_step
+
+    def save_acf_slices_data_to_hdf(self, vacf, isl):
+        """Store ACF data of slice `isl` into a hierarchical dataframe.
+
+        Parameters
+        ----------
+        vacf: numpy.ndarray
+            Data to store,
+
+        isl: int
+            Number of the slice being evaluated.
+        """
+        for i, sp1 in enumerate(self.species_names):
+            sp_vacf_str = f"{sp1} {self.__name__.swapcase()}"
+            for d in range(self.dimensions):
+                col_name = f"{sp_vacf_str}_{self.dim_labels[d]}_slice {isl}"
+                col_data = vacf[i, d, :]
                 self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
-            start_slice += self.slice_steps * self.dump_step
-            end_slice += self.slice_steps * self.dump_step
+            col_name = f"{sp_vacf_str}_Total_slice {isl}"
+            col_data = vacf[i, -1, :]
+            self.dataframe_acf_slices = add_col_to_df(self.dataframe_acf_slices, col_data, col_name)
 
-    @avg_slices_doc
-    def average_slices_data(self):
+    def grab_sim_data(self, start_dump_no, end_dump_no, vel, time):
+        """
+        Grab the data from simulation dumps.
+
+        Parameters
+        ----------
+        start_dump_no: int
+            Initial number of the checkpoint dump.
+
+        end_dump_no: int
+            Final number of the checkpoint dump.
+
+        vel: numpy.ndarray
+            Array in which to store the collected velocities.
+            Shape = (:attr:`dimensions`, `len(`:attr:`no_ptcls_per_species``)`, `2`:attr:`acf_slice_steps`)
+
+        time: numpy.ndarray
+            Array in which to store the time collected from the dump.
+            Shape = (`2`:attr:`acf_slice_steps`)
+
+        """
+
+        for it, dump in enumerate(
+            tqdm(
+                range(start_dump_no, end_dump_no, self.dump_step),
+                desc="Reading data",
+                disable=not self.verbose,
+                position=1,
+                leave=False,
+            )
+        ):
+            datap = load_from_restart(self.dump_dir, dump)
+            time[it] = datap["time"]
+            for d in range(self.dimensions):
+                vel[d, :, it] = datap["vel"][self.particles_id, d]
+
+    def select_random_indices(self, no_ptcls_per_species=None):
+        """Randomly select a given number of indices that indicate the particles to be used to average the VACF.
+        The random number of indices is stored in :attr:`particles_id`.
+
+        Parameters
+        ----------
+        no_ptcls_per_species: list, int, optional
+            List containing the number of particles to randomly select for each species.
+            If `None` it uses :attr:`no_ptcls_per_species` attribute which is equal to `[10]` by default.
+
+        Raises
+        ------
+        _: ValueError
+            If the chosen `no_ptcls_per_species` is less than the total number of particles in :attr:`species_num`.
+
+        Notes
+        -----
+        If the length of :attr:`no_ptcls_per_species` is less than the length of :attr:`species_num`, it selects the minimum of :attr:`no_ptcls_per_species` to be used for all species.
+
+        """
+
+        # Check whether the user passed an integer
+        if no_ptcls_per_species:
+            if isinstance(no_ptcls_per_species, int):
+                self.no_ptcls_per_species = [no_ptcls_per_species]
+
+        # Total number of indices to select for each range
+        rng = default_rng()
+
+        # Check if the length of no_ptcls_per_species is equal to the length of species_num
+        if len(self.no_ptcls_per_species) != len(self.species_num):
+            # If not, adjust no_ptcls_per_species to have the same length and values
+            self.no_ptcls_per_species = min(self.no_ptcls_per_species) * ones_like(self.species_num)
+
+        # Initialize an empty list to store the combined random indices
+        combined_random_indices = []
+
+        species_start = 0
+        species_end = 0
+        for ip, num_ptcls in enumerate(self.no_ptcls_per_species):
+            species_end += self.species_num[ip]
+            # Check whether there are enough particles to choose from
+            if num_ptcls > self.species_num[ip]:
+                raise ValueError(
+                    f"Species {self.species_names[ip]}: the chosen random number of particles, {num_ptcls}, is less than its total species number of particles, {self.species_num[ip]}"
+                )
+
+            # Generate unique random indices for the current range
+            random_indices = rng.choice(range(species_start, species_end), size=num_ptcls, replace=False)
+
+            # Append the current random indices to the combined list
+            combined_random_indices.extend(random_indices)
+
+        self.particles_id = combined_random_indices
+
+    @avg_acf_slices_doc
+    def average_acf_slices_data(self):
         """Average the data from all the slices and add it to the dataframe."""
 
         # Average the stuff
         for i, sp1 in enumerate(self.species_names):
-            sp_vacf_str = f"{sp1} " + self.__name__.swapcase()
+            sp_vacf_str = f"{sp1} {self.__name__.swapcase()}"
             for d in range(self.dimensions):
                 dl = self.dim_labels[d]
                 dcol_str = [sp_vacf_str + f"_{dl}_slice {isl}" for isl in range(self.no_slices)]
@@ -4309,6 +4424,59 @@ class VelocityAutoCorrelationFunction(Observable):
             col_name = sp_vacf_str + "_Total_Std"
             col_data = self.dataframe_acf_slices[tot_col_str].std(axis=1).values
             self.dataframe_acf = add_col_to_df(self.dataframe_acf, col_data, col_name)
+
+    # @jit Numba doesn't like Scipy
+    def calculate_vacf(self, vel):
+        """
+        Calculate the velocity autocorrelation function of each species and in each direction.
+
+        Parameters
+        ----------
+        vel : numpy.ndarray
+            Particles' velocities stored in a 3D array with shape = (D x Np x Nt).
+            D = cartesian dimensions, Np = Number of particles, Nt = number of dumps.
+
+        Returns
+        -------
+        vacf: numpy.ndarray
+            Velocity autocorrelation functions. Shape= (No_species, D + 1, Nt)
+
+        """
+        no_dim = vel.shape[0]
+
+        vacf = zeros((self.num_species, no_dim + 1, self.acf_slice_steps))
+        species_vacf = zeros(self.acf_slice_steps)
+        ptcl_vacf = zeros(self.acf_slice_steps)
+
+        # Calculate the vacf of each species in each dimension
+        for d in tqdm(range(no_dim), desc=f"Dimension", position=1, disable=not self.verbose, leave=False):
+            species_start = 0
+            species_end = 0
+            for sp, np in enumerate(
+                tqdm(self.no_ptcls_per_species, desc=f"Species", position=2, disable=not self.verbose, leave=False)
+            ):
+                species_end += np
+                # Temporary species vacf
+
+                # Calculate the vacf for each particle of species sp
+                for ptcl in range(species_start, species_end):
+
+                    for it in range(self.acf_slice_steps):
+                        v = vel[d, ptcl, : self.acf_slice_steps + it]
+                        # Calculate the correlation function and add it to the array
+                        ptcl_vacf[it] = correlationfunction(v, v)[it]
+
+                    # Add this particle vacf to the species vacf and normalize by the time origins
+                    species_vacf += ptcl_vacf
+
+                # Save the species vacf for dimension i
+                vacf[sp, d, :] = species_vacf / np
+                # Save the total vacf
+                vacf[sp, -1, :] += species_vacf / np
+                # Move to the next species first particle position
+                species_start += np
+
+        return vacf
 
 
 # TODO: Review and fix this class
@@ -5331,57 +5499,6 @@ def calc_diff_flux_acf(vel, sp_num, sp_conc, sp_mass):
         indx += 1
 
     return J_flux, jr_acf
-
-
-# @jit Numba doesn't like Scipy
-def calc_vacf(vel, sp_num, verbose):
-    """
-    Calculate the velocity autocorrelation function of each species and in each direction.
-
-    Parameters
-    ----------
-    vel : numpy.ndarray
-        Particles' velocities stored in a 3D array with shape = (D x Np x Nt).
-        D = cartesian dimensions, Np = Number of particles, Nt = number of dumps.
-
-    sp_num: numpy.ndarray
-        Number of particles of each species.
-
-    Returns
-    -------
-    vacf: numpy.ndarray
-        Velocity autocorrelation functions. Shape= (No_species, D + 1, Nt)
-
-    """
-    no_dim = vel.shape[0]
-    no_dumps = vel.shape[2]
-
-    vacf = zeros((len(sp_num), no_dim + 1, no_dumps))
-
-    # Calculate the vacf of each species in each dimension
-    for d in tqdm(range(no_dim), desc=f"Dimension", position=1, disable=not verbose, leave=False):
-        sp_start = 0
-        sp_end = 0
-        for sp, n_sp in enumerate(tqdm(sp_num, desc=f"Species", position=2, disable=not verbose, leave=False)):
-            sp_end += n_sp
-            # Temporary species vacf
-            sp_vacf = zeros(no_dumps)
-            # Calculate the vacf for each particle of species sp
-            for ptcl in tqdm(range(sp_start, sp_end), desc="Particle", position=3, disable=not verbose, leave=False):
-                # Calculate the correlation function and add it to the array
-                ptcl_vacf = correlationfunction(vel[d, ptcl, :], vel[d, ptcl, :])
-
-                # Add this particle vacf to the species vacf and normalize by the time origins
-                sp_vacf += ptcl_vacf
-
-            # Save the species vacf for dimension i
-            vacf[sp, d, :] = sp_vacf / n_sp
-            # Save the total vacf
-            vacf[sp, -1, :] += sp_vacf / n_sp
-            # Move to the next species first particle position
-            sp_start += n_sp
-
-    return vacf
 
 
 @njit

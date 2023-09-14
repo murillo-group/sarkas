@@ -236,7 +236,7 @@ class TransportCoefficients:
         """
 
         # Check that the phase and no_slices is the same from the one computed in the Observable
-        observable.parse()
+        observable.parse_acf()
 
         self.phase = observable.phase
         self.no_slices = observable.no_slices
@@ -470,7 +470,7 @@ class Diffusion(TransportCoefficients):
 
         """
         # Write Log File
-        observable.parse()
+        observable.parse_acf()
         self.initialize_dataframes(observable)
 
         vacf_str = "VACF"
@@ -723,7 +723,7 @@ class InterDiffusion(TransportCoefficients):
             Flag for displaying the plot if using the IPython. Default = False
 
         """
-        observable.parse()
+        observable.parse_acf()
         self.initialize_dataframes(observable)
 
         no_fluxes_acf = observable.no_fluxes_acf
@@ -872,7 +872,7 @@ class Viscosity(TransportCoefficients):
             Flag for displaying the plot if using the IPython. Default = False
 
         """
-        observable.parse()
+        observable.parse_acf()
         self.initialize_dataframes(observable)
         # Initialize Timer
         t0 = self.timer.current()
@@ -1063,7 +1063,7 @@ class ElectricalConductivity(TransportCoefficients):
         display_plot : bool, optional
             Flag for displaying the plot if using the IPython. Default = False.
         """
-        observable.parse()
+        observable.parse_acf()
         self.initialize_dataframes(observable)
 
         # Time
@@ -1280,7 +1280,7 @@ class ThermalConductivity(TransportCoefficients):
             Flag for displaying the plot if using the IPython. Default = False
 
         """
-        observable.parse()
+        observable.parse_acf()
         self.initialize_dataframes(observable)
         # Initialize Timer
         t0 = self.timer.current()
