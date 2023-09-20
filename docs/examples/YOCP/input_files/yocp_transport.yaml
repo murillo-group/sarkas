@@ -1,0 +1,54 @@
+# keywords: YOCP, Yukawa, PP, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        number_density: 1.137e+23           # N/cc
+        mass: 2.0089e-23                    # g
+        num: 1000                            # total number of particles
+        Z: 6.0
+        temperature_eV: 4.0                 # T = 1.0 eV
+
+Potential:
+    type: Yukawa                            # potential type
+    method: PP
+    screening_length_type: from_kappa
+    kappa: 2.0
+    rc: 8.0e-8                              # cm, cut-off radius
+
+Integrator:
+    equilibration_type: langevin
+    production_type: verlet
+    langevin_type: BBK
+    thermalization: false
+    langevin_gamma: 8.1e+13
+    dt: 8.17507e-17                         # sec
+    equilibration_steps: 20000              # number of timesteps for the equilibrium
+    production_steps: 600000                # number of timesteps after the equilibrium
+    eq_dump_step: 20
+    prod_dump_step: 5
+
+Thermostat:
+    type: Berendsen                         # thermostat type
+    relaxation_timestep: 10
+    berendsen_tau: 2.0
+
+Parameters:
+    seed: 3141592
+    units: cgs                              # units
+    verbose: yes
+    load_method: random_no_reject
+    boundary_conditions: periodic
+    observables_list: ["Electric Current", "Pressure Tensor", "Heat Flux"]
+
+IO:
+    verbose: no
+    job_dir: yocp_transport            # dir name to save data. The default is "Checkpoint"
+    thermodynamics_to_save: ["Pressure"]
+    data_to_save: ["rdf_hist", "species_electric_current", "species_heat_flux", "species_pressure_kin_tensor", "species_pressure_pot_tensor"]
+
+Observables:
+  - Thermodynamics:
+      phase: production
+
+  - RadialDistributionFunction:
+      no_bins: 250

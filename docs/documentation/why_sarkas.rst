@@ -148,14 +148,7 @@ screening parameters and measure their diffusion coefficient. An example script 
         # Make Temperature and Energy plots.
         postproc = PostProcess(input_file_name)
         postproc.setup(read_yaml = True, other_inputs = args)
-        postproc.run()
-        # Calculate the VACF
-        vacf = VelocityAutoCorrelationFunction()
-        vacf.setup(postproc.parameters)
-        vacf.compute()
-        # Calculate the diffusion coefficient
-        tc = TransportCoefficients(postproc.parameters)
-        tc.diffusion(vacf, plot=True)
+
 
     if __name__ = "__main__":
 
