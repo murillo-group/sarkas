@@ -4178,7 +4178,7 @@ class Thermodynamics(Observable):
             # The Temperature fluctuations in an NVE ensemble are
             # < delta T^2> = T_desired^2 * ( 2 /(Np * Dims) ) *( 1 -  Np * Dims/2 * k_B/Cv)
             # where Cv is the heat capacity at constant volume.
-            self.calculate_heat_capacity(ensemble="NVE")
+            self.calculate_heat_capacity_simulation(ensemble="NVE")
             dN = self.total_num_ptcls * self.dimensions
             factor = 1 - 0.5 * dN * self.kB / self.specific_heat_volume
             T_std = T_desired * sqrt(2.0 / dN * factor)
