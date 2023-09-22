@@ -336,8 +336,8 @@ class TransportCoefficients:
         # ax1.legend(loc='best')
         # ax2.legend(loc='best')
         # Finish the index axes
-        ax3.set(xlim=(1, self.acf_slice_steps * 1.5), xscale="log")
-        ax4.set(xlim=(1, self.acf_slice_steps * 1.5), xscale="log")
+        ax3.set(xlim=(1, len(time) * 1.5), xscale="log")
+        ax4.set(xlim=(1, len(time) * 1.5), xscale="log")
         for axi in [ax3, ax4]:
             axi.grid(alpha=0.1)
             axi.set(xlabel="Index")
@@ -898,8 +898,9 @@ class Viscosity(TransportCoefficients):
 
         start_steps = 0
         end_steps = 0
+        time_steps = len(self.time_array)
         for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
-            end_steps += observable.acf_slice_steps
+            end_steps += time_steps
 
             const = observable.box_volume * self.beta_slice[isl]
             # Calculate Bulk Viscosity
@@ -920,7 +921,7 @@ class Viscosity(TransportCoefficients):
                         col_data = const * fast_integral_loop(self.time_array, integrand)
                         self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-            start_steps += observable.acf_slice_steps
+            start_steps += time_steps
 
         # Now average the slices
         col_str = [f"Bulk Viscosity_slice {isl}" for isl in range(observable.no_slices)]

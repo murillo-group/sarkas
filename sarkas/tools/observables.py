@@ -93,8 +93,9 @@ UNITS = [
         "Pressure": "Pa",
         "Electrical Conductivity": "S/m",
         "Diffusion": r"m$^2$/s",
-        "Bulk Viscosity": r"kg/m s",
-        "Shear Viscosity": r"kg/m s",
+        "Bulk Viscosity": r"kg/m-s",
+        "Shear Viscosity": r"kg/m-s",
+        "Thermal Conductivity": r"J/m-s-K",
         "none": "",
     },
     # CGS Units
@@ -113,8 +114,9 @@ UNITS = [
         "Pressure": "Ba",
         "Electrical Conductivity": "mho/m",
         "Diffusion": r"m$^2$/s",
-        "Bulk Viscosity": r"g/ cm s",
-        "Shear Viscosity": r"g/ cm s",
+        "Bulk Viscosity": r"g/cm-s",
+        "Shear Viscosity": r"g/cm-s",
+        "Thermal Conductivity": r"erg/cm-s-K",
         "none": "",
     },
 ]
@@ -1077,6 +1079,7 @@ class Observable:
 
             msg += (
                 f"\n\nACF Data:\n"
+                f"If you choose to set equal_number_time_samples=True in compute_acf() then the following applies. Otherwise, the above applies."
                 f"No. of acf slices = {self.no_slices}\n"
                 f"No. dumps per slice = {int(self.acf_slice_steps)}\n"
                 f"Largest time lag of the autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n\n"
@@ -1183,7 +1186,7 @@ class Observable:
         self.dataframe.to_hdf(self.filename_hdf, mode="w", key=self.__name__)
 
     def save_acf_hdf(self):
-
+   
         if not isinstance(self.dataframe_acf.columns, pd.MultiIndex):
             self.dataframe_acf.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe_acf.columns])
 
@@ -2393,7 +2396,7 @@ class HeatFlux(Observable):
         self.update_finish()
 
     @compute_doc
-    def compute(self, calculate_acf: bool = True):
+    def compute(self, calculate_acf: bool = False):
 
         t0 = self.timer.current()
         self.calc_slices_data()
@@ -2773,7 +2776,7 @@ class PressureTensor(Observable):
         self.dataframe_acf_slices = pd.DataFrame(columns=acf_slice_df_column_names)
 
     @compute_doc
-    def compute(self, calculate_acf: bool = True, kin_pot_division: bool = False):
+    def compute(self, calculate_acf: bool = False, kin_pot_division: bool = False):
 
         self.kinetic_potential_division = kin_pot_division
         t0 = self.timer.current()
@@ -2964,7 +2967,7 @@ class PressureTensor(Observable):
             # Unfortunately I haven't found a better way to grab the data than to re-read it from file.
             for isl in tqdm(
                 range(self.no_slices),
-                desc=f"\nCalculating {self.__long_name__} for slice ",
+                desc=f"\nCalculating {self.__long_name__} ACF for slice ",
                 disable=not self.verbose,
                 position=0,
             ):
@@ -3837,7 +3840,7 @@ class Thermodynamics(Observable):
         data_size = int(self.slice_steps)
 
         ### Slices loop
-        for col_name, col_data in self.simulation_dataframe.iloc[:, 1:].iteritems():
+        for col_name, col_data in self.simulation_dataframe.iloc[:, 1:].items():
             data_start = 0
             data_end = data_size
             for isl in range(self.no_slices):
@@ -3847,8 +3850,6 @@ class Thermodynamics(Observable):
                     time_str = f"Quantity_Time"
                     self.dataframe[time_str] = time.copy()
                     self.dataframe_slices[time_str] = time.copy()
-                    self.dataframe_acf[time_str] = time[: self.acf_slice_steps].copy()
-                    self.dataframe_acf_slices[time_str] = time[: self.acf_slice_steps].copy()
 
                 df_col_name = f"{col_name}_slice {isl}"
                 self.dataframe_slices = add_col_to_df(
@@ -3860,7 +3861,7 @@ class Thermodynamics(Observable):
             # end of slice loop
 
     @calc_acf_slices_doc
-    def calc_acf_slice_data(self):
+    def calc_acf_slice_data(self, equal_number_time_samples: bool = False):
 
         # In order to have the same number of timesteps products for each time lag of the ACF do the following.
         # Temporarily store two consecutive slice data
@@ -3869,7 +3870,7 @@ class Thermodynamics(Observable):
         # data_size
         data_size = int(2 * self.acf_slice_steps)
 
-        for col_name, col_data in self.simulation_dataframe.iloc[:, 1:].iteritems():
+        for col_name, col_data in self.simulation_dataframe.iloc[:, 1:].items():
 
             data_start = 0
             data_end = data_size
@@ -3882,18 +3883,28 @@ class Thermodynamics(Observable):
                 disable=not self.verbose,
                 position=0,
             ):
+                if isl == 0:
+                    time = self.simulation_dataframe["Time"][: self.acf_slice_steps]
+                    time_str = f"Quantity_Time"
+                    self.dataframe_acf[time_str] = time[: self.acf_slice_steps].copy()
+                    self.dataframe_acf_slices[time_str] = time[: self.acf_slice_steps].copy()
+
                 data_col = col_data[data_start:data_end].values
 
-                # Auto-correlation function with the same number of time steps for each lag.
-                for it in tqdm(
-                    range(self.acf_slice_steps),
-                    desc=f"{col_name} ACF time lag",
-                    disable=not self.verbose,
-                    position=0,
-                    leave=False,
-                ):
+                if equal_number_time_samples:
+                    # Auto-correlation function with the same number of time steps for each lag.
+                    for it in tqdm(
+                        range(self.acf_slice_steps),
+                        desc=f"{col_name} ACF time lag",
+                        disable=not self.verbose,
+                        position=0,
+                        leave=False,
+                    ):
+                        delta_data = data_col[:it + self.acf_slice_steps] - data_col[:it + self.acf_slice_steps].mean()
+                        data_acf[it] = correlationfunction(delta_data, delta_data)[it]
+                else:
                     delta_data = data_col - data_col.mean()
-                    data_acf[it] = correlationfunction(delta_data, delta_data)[it]
+                    data_acf = correlationfunction(delta_data, delta_data)
 
                 # Store in the dataframe
                 col_name = f"{col_name} ACF_slice {isl}"
