@@ -54,23 +54,23 @@ extensions = [
     "sphinx.ext.viewcode",  # Add links to highlighted source code
     "sphinxcontrib.bibtex",  # Allows BibTeX citations to be inserted into documentation
     "sphinx.ext.intersphinx",  # To reference parts of other Sphinx documentations
-    # "nbsphinx",  # Provides a source parser for *.ipynb files
-    # "recommonmark",  # A markdown parser for docutils --- should be substitued with MySt Markdown
+    "nbsphinx",  # Provides a source parser for *.ipynb files
+    "recommonmark",  # A markdown parser for docutils --- should be substitued with MySt Markdown
     "sphinx_design",  # For creating cards, grid layout, drop-downs, tabs
     "sphinxext.opengraph",  # to add Open Graph metadata
     "sphinx_copybutton",  # Add a "copy" button to code blocks
     # "sphinx_codeautolink" #Automatic links from code examples to reference documentation --- it does not work properly at the moment
-    "myst_nb",
+    # "myst_nb",
 ]
 # MyST configuration
-myst_enable_extensions = [
-    "amsmath",
-    "colon_fence",
-    "deflist",
-    "dollarmath",
-    "html_image",
-]
-myst_url_schemes = ("http", "https", "mailto")
+# myst_enable_extensions = [
+#     "amsmath",
+#     "colon_fence",
+#     "deflist",
+#     "dollarmath",
+#     "html_image",
+# ]
+# myst_url_schemes = ("http", "https", "mailto")
 nb_execution_mode = "off"
 
 # Add any paths that contain templates here, relative to this directory.

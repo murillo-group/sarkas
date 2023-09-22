@@ -1,6 +1,6 @@
 # Sarkas
 
-![Tests](https://github.com/lucianogsilvestri/sarkas/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/murillo-group/sarkas/actions/workflows/tests.yml/badge.svg)
 
 A Pure Python Molecular Dynamics package for Non-Ideal Plasmas
 
