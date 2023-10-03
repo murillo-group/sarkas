@@ -14,7 +14,7 @@ where :math:`\kappa = 1/\lambda` is the screening parameter.
 Potential Attributes
 ********************
 
-The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 
 .. code-block:: python
 
@@ -23,6 +23,8 @@ The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
     pot_matrix[2] = Ewald screening parameter
     pot_matrix[3] = short range cutoff
 """
+# TODO: Review this entire module. It was left unchecked because the potential is too steep at small r.
+
 from numba import njit
 from numpy import exp, pi, sqrt
 from numpy import zeros as np_zeros
@@ -113,13 +115,13 @@ def update_params(potential, species):
         potential.kappa = potential.hs_diameter / potential.screening_length
 
     # Interaction Matrix
-    potential.matrix = np_zeros((3, potential.num_species, potential.num_species))
-    potential.matrix[1, :, :] = 1.0 / potential.screening_length
+    potential.matrix = np_zeros((potential.num_species, potential.num_species, 3))
+    potential.matrix[:, :, 1] = 1.0 / potential.screening_length
     for i, sp1 in enumerate(species):
         for j, sp2 in enumerate(species):
-            potential.matrix[0, i, j] = sp1.charge * sp2.charge / potential.fourpie0
+            potential.matrix[i, j, 0] = sp1.charge * sp2.charge / potential.fourpie0
 
-    potential.matrix[2, :, :] = potential.hs_diameter
+    potential.matrix[:, :, 2] = potential.hs_diameter
 
     if potential.method == "pp":
         # The rescaling constant is sqrt ( n sigma^4 ) = sqrt(  6 eta *sigma/pi )

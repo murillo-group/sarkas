@@ -4,7 +4,7 @@ Module of various types of time_evolution
 
 from copy import deepcopy
 from numba import float64, int64, jit, void
-from numpy import arange, array, cos, cross, pi, sin, sqrt, zeros
+from numpy import arange, array, cos, cross, log, pi, sin, sqrt, zeros
 from scipy.linalg import norm
 
 
@@ -43,53 +43,54 @@ class Integrator:
 
     """
 
-    dt: float = None
-    kB: float = None
+    def __init__(self):
+        self.dt: float = None
+        self.kB: float = None
 
-    # attributes
-    type: str = None
-    supported_integrators = {}
-    equilibration_type: str = "verlet"
-    magnetization_type: str = "magnetic_verlet"
-    production_type: str = "verlet"
+        # attributes
+        self.type: str = None
+        self.supported_integrators = {}
+        self.equilibration_type: str = "verlet"
+        self.magnetization_type: str = "magnetic_verlet"
+        self.production_type: str = "verlet"
 
-    species_num = None
-    species_plasma_frequencies = None
+        self.species_num = None
+        self.species_plasma_frequencies = None
 
-    # Thermostat attributes
-    thermalization: bool = True
-    thermostat_type: str = "berendsen"
-    thermalization_rate: float = 2.0
-    thermalization_timestep: int = 0
-    berendsen_tau: float = None
-    thermostat_temperatures = None
-    thermostat_temperatures_eV = None
+        # Thermostat attributes
+        self.thermalization: bool = True
+        self.thermostat_type: str = "berendsen"
+        self.thermalization_rate: float = 2.0
+        self.thermalization_timestep: int = 0
+        self.berendsen_tau: float = None
+        self.thermostat_temperatures = None
+        self.thermostat_temperatures_eV = None
 
-    # Magnetic attributes
-    magnetized: bool = False
-    magnetic_field_uvector = None
-    magnetic_field = None
-    omega_c = None
-    species_cyclotron_frequencies = None
-    ccodt = None
-    cdt = None
-    ssodt = None
-    sdt = None
-    v_B = None
-    v_F = None
+        # Magnetic attributes
+        self.magnetized: bool = False
+        self.magnetic_field_uvector = None
+        self.magnetic_field = None
+        self.omega_c = None
+        self.species_cyclotron_frequencies = None
+        self.ccodt = None
+        self.cdt = None
+        self.ssodt = None
+        self.sdt = None
+        self.v_B = None
+        self.v_F = None
 
-    # Langevin attributes
-    c1 = None
-    c2 = None
-    sigma = None
-    box_lengths = None
-    pbox_lengths = None
+        # Langevin attributes
+        self.c1 = None
+        self.c2 = None
+        self.sigma = None
+        self.box_lengths = None
+        self.pbox_lengths = None
 
-    boundary_conditions = None
+        self.boundary_conditions = None
 
-    supported_boundary_conditions = {}
+        self.supported_boundary_conditions = {}
 
-    verbose: bool = False
+        self.verbose: bool = False
 
     # def __repr__(self):
     #     sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -164,18 +165,19 @@ class Integrator:
         self.species_masses = params.species_masses.copy()
         self.species_temperatures = params.species_temperatures.copy()
         self.verbose = params.verbose
+        self.units_dict = params.units_dict
         # Enforce consistency
         if not self.boundary_conditions:
             self.boundary_conditions = params.boundary_conditions.lower()
 
         # Check whether you input temperatures in eV or K
-        if self.thermalization and self.thermostat_temperatures:
+        if self.thermostat_temperatures:
             self.thermostat_temperatures_eV = self.thermostat_temperatures.copy() / self.eV2K
-        elif self.thermalization and self.thermostat_temperatures_eV:
+        elif self.thermostat_temperatures_eV:
             self.thermostat_temperatures = self.thermostat_temperatures_eV.copy() * self.eV2K
-        elif self.thermalization and not self.thermostat_temperatures:
-            self.thermostate_temperatures = params.species_temperatures.copy()
-            self.thermostate_temperatures_eV = params.species_temperatures_eV.copy()
+        elif not self.thermostat_temperatures_eV and not self.thermostat_temperatures:
+            self.thermostat_temperatures = params.species_temperatures.copy()
+            self.thermostat_temperatures_eV = params.species_temperatures_eV.copy()
 
         # Backwards compatibility
         if hasattr(self, "equilibration_steps"):
@@ -223,6 +225,8 @@ class Integrator:
         if self.dt is None:
             raise ValueError("integrator.dt is None. Please define Integrator.dt")
 
+        self.thermostat_setup()
+
         self.copy_params(params)
 
         if self.magnetized:
@@ -234,9 +238,6 @@ class Integrator:
             self.production_type = self.type
 
         self.boundary_condition_setup()
-
-        if self.thermalization:
-            self.thermostat_setup()
 
         self.pot_acc_setup(potential)
 
@@ -287,19 +288,25 @@ class Integrator:
         Raises
         ------
         ValueError
-            If a thermostat different than Berendsen is chosen.
+            If a thermostat different from Berendsen is chosen.
 
         """
+        if self.thermostat_type:
+            self.thermostat_type = self.thermostat_type.lower()
 
-        self.thermostat_type = self.thermostat_type.lower()
+        if self.thermostat_temperatures:
+            self.thermostat_temperatures = array(self.thermostat_temperatures)
 
-        if self.thermostat_type != "berendsen":
-            raise ValueError("Only Berendsen thermostat is supported.")
+        if self.thermostat_temperatures_eV:
+            self.thermostat_temperatures_eV = array(self.thermostat_temperatures_eV)
 
-        if self.berendsen_tau:
-            self.thermalization_rate = 1.0 / self.berendsen_tau
-        else:
-            self.berendsen_tau = 1.0 / self.thermalization_rate
+        if self.thermostat_type == "berendsen":
+            # raise ValueError("Only Berendsen thermostat is supported.")
+
+            if self.berendsen_tau:
+                self.thermalization_rate = 1.0 / self.berendsen_tau
+            else:
+                self.berendsen_tau = 1.0 / self.thermalization_rate
 
     def type_setup(self, int_type):
         """
@@ -326,7 +333,7 @@ class Integrator:
 
         if int_type == "langevin":
 
-            self.sigma = sqrt(2.0 * self.langevin_gamma * self.kB * self.species_temperatures / self.species_masses)
+            self.sigma = sqrt(2.0 * self.langevin_gamma * self.kB * self.thermostat_temperatures / self.species_masses)
             self.c1 = 1.0 - 0.5 * self.langevin_gamma * self.dt
             self.c2 = 1.0 / (1.0 + 0.5 * self.langevin_gamma * self.dt)
 
@@ -417,12 +424,14 @@ class Integrator:
         beta = ptcls.gaussian(0.0, 1.0, (self.total_num_ptcls, self.dimensions))
         sp_start = 0  # start index for species loop
         sp_end = 0
+
         for ic, num in enumerate(self.species_num):
             sp_end += num
+
             ptcls.pos[sp_start:sp_end, : self.dimensions] += (
                 self.c1 * self.dt * ptcls.vel[sp_start:sp_end, : self.dimensions]
                 + 0.5 * self.dt**2 * ptcls.acc[sp_start:sp_end, : self.dimensions]
-                + 0.5 * self.sigma[ic] * self.dt**1.5 * beta
+                + 0.5 * self.sigma[ic] * self.dt**1.5 * beta[sp_start:sp_end, : self.dimensions]
             )
             sp_start += num
 
@@ -443,7 +452,7 @@ class Integrator:
                 * self.c2
                 * self.dt
                 * (ptcls.acc[sp_start:sp_end, : self.dimensions] + acc_old[sp_start:sp_end, : self.dimensions])
-                + self.c2 * self.sigma[ic] * sqrt(self.dt) * beta
+                + self.c2 * self.sigma[ic] * sqrt(self.dt) * beta[sp_start:sp_end, : self.dimensions]
             )
             sp_start += num
 
@@ -542,7 +551,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # # Magnetic rotation x - velocity
         # (B x v)_x  = -v_y, (B x B x v)_x = -v_x
@@ -567,8 +576,6 @@ class Integrator:
         ptcls.vel[:, 0] = self.v_B[:, 0] + self.v_F[:, 0]
         ptcls.vel[:, 1] = self.v_B[:, 1] + self.v_F[:, 1]
         ptcls.vel[:, 2] += 0.5 * self.dt * ptcls.acc[:, 2]
-
-        return potential_energy
 
     def magnetic_verlet(self, ptcls):
         """
@@ -621,7 +628,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Re-calculate the cross products
         b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
@@ -637,8 +644,6 @@ class Integrator:
             - self.ccodt / self.omega_c * b_cross_a
             + 0.5 * self.dt * self.ssodt * b_cross_b_cross_a
         )
-
-        return potential_energy
 
     def magnetic_boris_zdir(self, ptcls):
         """
@@ -680,9 +685,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
-
-        return potential_energy
+        self.update_accelerations(ptcls)
 
     def magnetic_boris(self, ptcls):
         """
@@ -721,9 +724,7 @@ class Integrator:
         enforce_pbc(ptcls.pos, ptcls.pbc_cntr, self.box_lengths)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
-
-        return potential_energy
+        self.update_accelerations(ptcls)
 
     def magnetic_pos_verlet_zdir(self, ptcls):
         """
@@ -753,7 +754,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # First half step of velocity update
         # # Magnetic rotation x - velocity
@@ -785,8 +786,6 @@ class Integrator:
 
         # Enforce boundary condition
         self.enforce_bc(ptcls)
-
-        return potential_energy
 
     def magnetic_pos_verlet(self, ptcls):
         """
@@ -824,7 +823,7 @@ class Integrator:
         self.enforce_bc(ptcls)
 
         # Compute total potential energy and acceleration for second half step velocity update
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Calculate the cross products
         b_cross_v = cross(self.magnetic_field_uvector, ptcls.vel)
@@ -844,8 +843,6 @@ class Integrator:
 
         # Enforce boundary condition
         self.enforce_bc(ptcls)
-
-        return potential_energy
 
     def cyclotronic_zdir(self, ptcls):
         """
@@ -882,7 +879,7 @@ class Integrator:
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         ptcls.vel[:, :2] = self.v_B[:, :2].copy()
         # Compute total potential energy and accelerations
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Kick full step
         ptcls.vel += ptcls.acc * self.dt
@@ -905,8 +902,6 @@ class Integrator:
         self.v_B[:, 1] = self.cdt[:, 1] * ptcls.vel[:, 1] - self.sdt[:, 0] * ptcls.vel[:, 0]
         # Update final velocities
         ptcls.vel[:, :2] = self.v_B[:, :2].copy()
-
-        return potential_energy
 
     def cyclotronic(self, ptcls):
         """
@@ -941,7 +936,7 @@ class Integrator:
         # First half step of velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
         # Compute total potential energy and accelerations
-        potential_energy = self.update_accelerations(ptcls)
+        self.update_accelerations(ptcls)
 
         # Kick full step
         ptcls.vel += ptcls.acc * self.dt
@@ -961,8 +956,6 @@ class Integrator:
         # Second half step of velocity update
         ptcls.vel += -self.sdt * b_cross_v + self.ccodt * b_cross_b_cross_v
 
-        return potential_energy
-
     def thermostate(self, ptcls):
         """
         Update particles' velocities according to the chosen thermostat
@@ -973,8 +966,16 @@ class Integrator:
             Particles' data.
 
         """
-        _, T = ptcls.kinetic_temperature()
-        berendsen(ptcls.vel, self.species_temperatures, T, self.species_num, self.thermalization_rate)
+        # Kinetic Energy should have already been calculated.
+        # Look in processes.evolve_loop
+        # # _, T = ptcls.calculate_species_kinetic_temperature()
+        berendsen(
+            ptcls.vel,
+            self.thermostat_temperatures,
+            ptcls.species_temperatures,
+            self.species_num,
+            self.thermalization_rate,
+        )
 
     def periodic_bc(self, ptcls):
         """
@@ -1032,52 +1033,79 @@ class Integrator:
         """Print integrator and thermostat information in a user-friendly way."""
 
         if self.thermalization:
-            print("\nTHERMOSTAT: ")
-            print(f"Type: {self.thermostat_type}")
-            print(f"First thermostating timestep, i.e. thermalization_timestep = {self.thermalization_timestep}")
-            print(f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]")
-            print(f"Berendsen relaxation rate: {self.thermalization_rate:.3f} [1/timesteps] ")
-            print("Thermostating temperatures: ")
-            for i, (t, t_ev) in enumerate(zip(self.thermostate_temperatures, self.thermostate_temperatures_eV)):
-                print(f"Species ID {i}: T_eq = {t:.6e} [K] = {t_ev:.6e} [eV]")
+            msg = (
+                f"\nTHERMOSTAT:\n"
+                f"Type: {self.thermostat_type}\n"
+                f"First thermostating timestep, i.e. thermalization_timestep = {self.thermalization_timestep}\n"
+                f"Berendsen parameter tau: {self.berendsen_tau:.3f} [timesteps]\n"
+                f"Berendsen relaxation rate: {self.thermalization_rate:.3f} [1/timesteps]\n"
+                "Thermostating temperatures:\n"
+            )
+            for i, (t, t_ev) in enumerate(zip(self.thermostat_temperatures, self.thermostat_temperatures_eV)):
+                msg += f"Species ID {i}: T_eq = {t:.6e} {self.units_dict['temperature']} = {t_ev:.6e} {self.units_dict['electron volt']}\n"
+        else:
+            msg = ""
 
-        print("\nINTEGRATOR: ")
-        print(f"Equilibration Integrator Type: {self.equilibration_type}")
+        integrator_msg = f"\nINTEGRATOR:\n" f"Equilibration Integrator Type: {self.equilibration_type}\n"
         if self.magnetized:
-            print(f"Magnetization Integrator Type: {self.magnetization_type}")
-        print(f"Production Integrator Type: {self.production_type}")
+            integrator_msg += f"Magnetization Integrator Type: {self.magnetization_type}\n"
+        integrator_msg += f"Production Integrator Type: {self.production_type}\n"
 
         wp_tot = norm(self.species_plasma_frequencies)
         wp_dt = wp_tot * self.dt
-
-        print(f"Time step = {self.dt:.6e} [s]")
-        print(f"Total plasma frequency = {wp_tot:.6e} [rad/s]")
-        print(f"w_p dt = {wp_dt:.4f} ~ 1/{int(1.0 / wp_dt)}")
-
+        t_wp = 2.0 * pi / wp_tot
+        time_msg = (
+            f"Time step = {self.dt:.6e} {self.units_dict['time']}\n"
+            f"Total plasma frequency = {wp_tot:.6e} {self.units_dict['frequency']}\n"
+            f"Total plasma period = {t_wp:.6e} {self.units_dict['time']}\n"
+            f"w_p dt = {wp_dt:.4e} [rad] = {wp_dt/(2.0 * pi):.4e}\n"
+            f"Timesteps per plasma cycle = {int(2.0 * pi/wp_dt)} \n"
+        )
+        integrator_msg += time_msg
         if self.potential_type == "qsp":
             wp_e = self.species_plasma_frequencies[0]
             wp_ions = norm(self.species_plasma_frequencies[1:])
-            print(f"e plasma frequency = {wp_e:.6e} [rad/s]")
-            print(f"total ion plasma frequency = {wp_ions:.6e} [rad/s]")
-            print(f"w_pe dt = {self.dt * wp_e:.4f} ~ 1/{int(1.0 / (self.dt * wp_e))}")
-            print(f"w_pi dt = {self.dt * wp_ions:.4f} ~ 1/{int(1.0 / (self.dt * wp_ions))}")
+            qsp_msg = (
+                f"e plasma frequency = {wp_e:.6e} {self.units_dict['frequency']}\n"
+                f"total ion plasma frequency = {wp_ions:.6e} {self.units_dict['frequency']}\n"
+                f"w_pe dt = {self.dt * wp_e:.4e} [rad] = {self.dt * wp_e/(2.0*pi):.4e}\n"
+                f"Timesteps per e plasma cycle = {int(2.0 * pi / (self.dt * wp_e))}\n"
+                f"w_pi dt = {self.dt * wp_ions:.4e} [rad]  = {self.dt * wp_ions/(2.0*pi):.4e}\n"
+                f"Timesteps per i plasma cycle = {int(2.0 * pi / (self.dt * wp_ions))} \n"
+            )
+            integrator_msg += qsp_msg
 
         elif self.potential_type == "lj":
-            print(f"The plasma frequency is defined as w_p = sqrt( epsilon / (sigma^2 * mass) )")
+            integrator_msg += f"The plasma frequency is defined as w_p = sqrt( epsilon / (sigma^2 * mass) )\n"
 
         if self.magnetized:
             high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
             low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
 
             if high_wc_dt > low_wc_dt:
-                print(f"Highest w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi")
-                print(f"Smallest w_c dt = {low_wc_dt:2.4f} = {low_wc_dt / pi:.4f} pi")
+                mag_msg = (
+                    f"Highest w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi\n"
+                    f"Smallest w_c dt = {low_wc_dt:2.4f} = {low_wc_dt / pi:.4f} pi\n"
+                )
             else:
-                print(f"w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi")
+                mag_msg = f"w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi\n"
+
+            integrator_msg += mag_msg
 
         if self.equilibration_type == "langevin" or self.production_type == "langevin":
-            print(f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}")
-            print(f"langevin_gamma / wp = {self.langevin_gamma / wp_tot:.4e}")
+            N = -log(0.001) / (self.langevin_gamma * self.dt)
+            Np = -log(0.001) / (self.langevin_gamma * 2.0 * pi / wp_tot)
+            lang_msg = (
+                f"langevin_gamma = {self.langevin_gamma:.4e} {self.units_dict['Hertz']}\n"
+                f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}\n"
+                f"Timestep to decay to 0.001: exp( - gamma N dt) = 0.001 ==> N = {N:.2e}\n"
+                f"langevin_gamma * (2 pi / w_p) = {self.langevin_gamma * (2.0 * pi/ wp_tot):.4e}\n"
+                f"Plasma cycles to decay to 0.001: exp( - gamma N_p dt) = 0.001 ==> N_p = {Np:.2e}"
+            )
+            integrator_msg += lang_msg
+
+        msg += integrator_msg
+        print(msg)
 
 
 @jit(void(float64[:, :], float64[:], float64[:], int64[:], float64), nopython=True)
@@ -1121,7 +1149,7 @@ def berendsen(vel, T_desired, T, species_np, tau):
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:]), nopython=True)
-def enforce_pbc(pos, cntr, box_vector) -> None:
+def enforce_pbc(pos, cntr, box_vector):
     """
     Numba'd function to enforce periodic boundary conditions.
 
@@ -1143,17 +1171,17 @@ def enforce_pbc(pos, cntr, box_vector) -> None:
         for d in arange(pos.shape[1]):
 
             # If particle is outside of box in positive direction, wrap to negative side
-            if pos[p, d] > box_vector[d]:
-                pos[p, d] -= box_vector[d]
-                cntr[p, d] += 1
+            # if pos[d,p] > box_vector[d]:
+            pos[p, d] -= box_vector[d] * (pos[p, d] > box_vector[d])
+            cntr[p, d] += 1 * (pos[p, d] > box_vector[d])
             # If particle is outside of box in negative direction, wrap to positive side
-            if pos[p, d] < 0.0:
-                pos[p, d] += box_vector[d]
-                cntr[p, d] -= 1
+            # if pos[d,p] < 0.0:
+            pos[p, d] += box_vector[d] * (pos[p, d] < 0.0)
+            cntr[p, d] -= 1 * (pos[p, d] < 0.0)
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:, :], float64[:], float64[:]), nopython=True)
-def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
+def enforce_abc(pos, vel, acc, charges, box_vector):
     """
     Numba'd function to enforce absorbing boundary conditions.
 
@@ -1169,7 +1197,7 @@ def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
         Particles' accelerations.
 
     charges : numpy.ndarray
-        Charge of each particle. Shape = (``total_num_ptcls``).
+        Charge of each particle. Shape = (:attr:`total_num_ptcls`).
 
     box_vector: numpy.ndarray
         Box Dimensions.
@@ -1195,7 +1223,7 @@ def enforce_abc(pos, vel, acc, charges, box_vector) -> None:
 
 
 @jit(void(float64[:, :], float64[:, :], float64[:], float64), nopython=True)
-def enforce_rbc(pos, vel, box_vector, dt) -> None:
+def enforce_rbc(pos, vel, box_vector, dt):
     """
     Numba'd function to enforce reflecting boundary conditions.
 
@@ -1225,38 +1253,3 @@ def enforce_rbc(pos, vel, box_vector, dt) -> None:
                 vel[p, d] *= -1.0
                 # Restore previous position assuming verlet algorithm
                 pos[p, d] += vel[p, d] * dt
-
-
-# @jit(void(float64[:, :], int64[:], float64[:]), nopython=True)
-# def remove_drift(vel, nums, masses) -> None:
-#     """
-#     Numba'd function to enforce conservation of total linear momentum.
-#     It updates :attr:`sarkas.particles.Particles.vel`.
-#
-#     Parameters
-#     ----------
-#     vel: numpy.ndarray
-#         Particles' velocities.
-#
-#     nums: numpy.ndarray
-#         Number of particles of each species.
-#
-#     masses: numpy.ndarray
-#         Mass of each species.
-#
-#     """
-#
-#     P = zeros((len(nums), vel.shape[1]))
-#     species_start = 0
-#     for ic in range(len(nums)):
-#         species_end = species_start + nums[ic]
-#         P[ic, :] = vel[species_start:species_end, :].sum(axis=0) * masses[ic]
-#         species_start = species_end
-#
-#     if P.sum(axis=0).any() > 1e-40:
-#         # Remove tot momentum
-#         species_start = 0
-#         for ic in range(len(nums)):
-#             species_end = species_start + nums[ic]
-#             vel[species_start:species_end, :] -= P[ic, :] / (float(nums[ic]) * masses[ic])
-#             species_start = species_end

@@ -1,0 +1,16 @@
+Added the calculation of rdf sum rules for qsp (deutsch only) potential
+alphabetized the modules of IO
+added a method for using multithreading to save data in the Process class
+added a method for saving potfit configuration files
+added log file writing for observables and transport
+added timestamp to log files
+removed mie energy calculation
+improved the colormap of make_pppm_color_map in PreProcess
+fixed a bug that prevented using the plot method in VACF observable.
+bug fixes
+added fmm3dpy dependency
+refactored tests for potentials and utilities modules to benefit from the pytest library
+Calculate and print to logger the sizes of the dumps directories after Simulation.run()
+Added remove drift before any stage of the simulation.
+Changed .simulations_dir to .md_simulations_dir to avoid confusion.
+Changed default directory name where to save simulations from Simulations to SarkasSimulations to avoid confusion.

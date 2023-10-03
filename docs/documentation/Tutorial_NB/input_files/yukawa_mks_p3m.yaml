@@ -45,7 +45,7 @@ Parameters:
 
 IO:
     verbose: yes                        # OPTIONAL. Default is yes
-    simulations_dir: Simulations        # OPTIONAL. Default is Simulations
+    md_simulations_dir: Simulations        # OPTIONAL. Default is Simulations
     job_dir: yocp_pppm                  # REQUIRED
     job_id: yocp                        # OPTIONAL. Default is the job_dir values
 

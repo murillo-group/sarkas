@@ -16,6 +16,7 @@ from numpy import (
     zeros_like,
 )
 from numpy.random import default_rng
+from pytest import mark
 from scipy.constants import epsilon_0
 
 from ..force_pp import create_cells_array, create_head_list_arrays
@@ -76,7 +77,8 @@ def test_create_cells_array():
     assert isclose(cells, 2).all()
     assert isclose(cell_lengths, 5.0).all()
 
-    # 2D
+
+def test_create_cells_array_2d():
     box_lengths = array([10.0, 10.0, 0.0])
     cutoff = 2.0
 
@@ -88,7 +90,8 @@ def test_create_cells_array():
     assert isclose(cells[2], 0)
     assert isclose(cell_lengths[2], 0.0)
 
-    # 1D
+
+def test_create_cells_array_1d():
     box_lengths = array([20.0, 0.0, 0.0])
     cutoff = 2.5
 
@@ -102,7 +105,8 @@ def test_create_cells_array():
     assert isclose(cells[2], 0)
     assert isclose(cell_lengths[2], 0.0)
 
-    ## 2D Hexagonal Lattice
+
+def test_create_cells_array_hex_2d():
     pos, box_lengths = create_hexagonal_lattice(4, 5, 0.1)
 
     cutoff = box_lengths[0] / 3
@@ -113,8 +117,7 @@ def test_create_cells_array():
     assert isclose(cell_lengths, array([2.3632718, 2.95408975, 0.0])).all()
 
 
-def test_create_head_list_arrays():
-    # 2D
+def test_create_head_list_arrays_2d():
     N = 10
     box_lengths = sqrt(pi * N) * array([1.0, 1.0, 0.0])
 
@@ -138,7 +141,8 @@ def test_create_head_list_arrays():
     assert (head == head_true).all()
     assert (ls_array == ls_array_true).all()
 
-    # 3D
+
+def test_create_head_list_arrays_3d():
     N = 10
     box_lengths = (4.0 * pi * N / 3.0) ** (1 / 3.0) * array([1.0, 1.0, 1.0])
 
@@ -148,8 +152,38 @@ def test_create_head_list_arrays():
     rng = default_rng(123456789)
     pos = rng.uniform(low=0.0, high=box_lengths[0], size=(N, 3))
 
-    head_true = array([5, 8, 6, -50, -50, 3, 0, 9, 7])
-    ls_array_true = array([-50, -50, -50, 2, -50, 4, -50, -50, -50, 1])
+    head_true = array(
+        [
+            5,
+            -50,
+            -50,
+            -50,
+            -50,
+            3,
+            -50,
+            -50,
+            -50,
+            4,
+            8,
+            -50,
+            -50,
+            -50,
+            -50,
+            -50,
+            -50,
+            -50,
+            -50,
+            -50,
+            6,
+            -50,
+            -50,
+            2,
+            0,
+            9,
+            7,
+        ]
+    )
+    ls_array_true = array([-50, -50, -50, -50, -50, -50, -50, -50, -50, 1])
     head, ls_array = create_head_list_arrays(pos, cell_lengths, cells)
 
     assert isinstance(head, ndarray)
@@ -158,10 +192,11 @@ def test_create_head_list_arrays():
     assert head.dtype == dtype("int64")
     assert ls_array.dtype == dtype("int64")
 
-    assert (head == head_true).all()
-    assert (ls_array == ls_array_true).all()
+    assert isclose(head, head_true).all()
+    assert isclose(ls_array, ls_array_true).all()
 
-    ## 2D Hexagonal Lattice
+
+def test_create_head_list_arrays_hex_2d():
     pos, box_lengths = create_hexagonal_lattice(4, 5, 0.1)
 
     cutoff = box_lengths[0] / 3
@@ -169,6 +204,8 @@ def test_create_head_list_arrays():
 
     head, ls_array = create_head_list_arrays(pos, cell_lengths, cells)
 
-    assert isclose(head, array([4, 6, 7, 8, 13, 15, 16, 18, 19]))
+    assert isclose(head, array([4, 6, 7, 8, 13, 15, 16, 18, 19])).all()
 
-    assert isclose(ls_array, array([-50, -50, 1, -50, 0, 2, 5, 3, -50, -50, 9, -50, -50, 10, -50, 11, 12, 14, 17, -50]))
+    assert isclose(
+        ls_array, array([-50, -50, 1, -50, 0, 2, 5, 3, -50, -50, 9, -50, -50, 10, -50, 11, 12, 14, 17, -50])
+    ).all()

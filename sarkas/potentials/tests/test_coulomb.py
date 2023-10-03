@@ -2,29 +2,27 @@ from numpy import array, isclose, pi
 
 from ..coulomb import coulomb_force, coulomb_force_pppm
 
+from pytest import mark
 
-def test_coulomb_force():
+@mark.parametrize("r,pot_mat,expected_potential,expected_force",[
+    (2.0,array([1.0, 0.0, 0.001]),0.5,0.25)
+    ],ids=["r-2;pot_mat-[1.0,0.0,0.001]"])
+def test_coulomb_force(r,pot_mat,expected_potential,expected_force):
     """Test the calculation of the bare coulomb force."""
-    r = 2.0
-    pot_mat = array([1.0, 0.0, 0.001])
-
     potential, force = coulomb_force(r, pot_mat)
 
-    assert isclose(potential, 0.5)
+    assert isclose(potential, expected_potential)
+    assert isclose(force, expected_force)
 
-    assert isclose(force, 0.25)
-
-
-def test_coulomb_force_pppm():
+@mark.parametrize("r,pot_mat,expected_potential,expected_force",[
+    (2.0,array([1.0, 0.5, 0.001]),0.07864960352514257,0.14310167611771996)
+    ],ids=["r-2;pot_mat-[1.0,0.0,0.001]"])
+def test_coulomb_force_pppm(r,pot_mat,expected_potential,expected_force):
     """Test the calculation of the pp part of the coulomb force."""
-    r = 2.0
-    pot_mat = array([1.0, 0.5, 0.001])
-
     potential, force = coulomb_force_pppm(r, pot_mat)
 
-    assert isclose(potential, 0.07864960352514257)
-
-    assert isclose(force, 0.14310167611771996)
+    assert isclose(potential, expected_potential)
+    assert isclose(force, expected_force)
 
 
 # def test_update_params():

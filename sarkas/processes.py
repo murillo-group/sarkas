@@ -2,13 +2,15 @@
 Module handling stages of an MD run: PreProcessing, Simulation, PostProcessing.
 """
 
+from importlib import import_module
 from IPython import get_ipython
 from threading import Thread
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     from tqdm import tqdm_notebook as tqdm
+    from tqdm.notebook import trange
 else:
-    from tqdm import tqdm
+    from tqdm import tqdm, trange
 
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap, ScalarMappable
@@ -18,10 +20,10 @@ from numpy import (
     array,
     int64,
     linspace,
+    log2,
     log10,
     logspace,
     meshgrid,
-    rint,
     sqrt,
     zeros,
 )
@@ -38,53 +40,38 @@ from .particles import Particles
 from .plasma import Species
 from .potentials.core import Potential
 from .time_evolution.integrators import Integrator
-from .tools.observables import (
-    CurrentCorrelationFunction,
-    DiffusionFlux,
-    DynamicStructureFactor,
-    ElectricCurrent,
-    PressureTensor,
-    RadialDistributionFunction,
-    StaticStructureFactor,
-    Thermodynamics,
-    VelocityAutoCorrelationFunction,
-    VelocityDistribution,
-)
 
 # Sarkas modules
-from .utilities.io import InputOutput
+from .utilities.io import InputOutput, print_to_logger
 from .utilities.maths import force_error_analytic_pp, force_error_approx_pppm
 from .utilities.timing import SarkasTimer
 
 
 class Process:
-    """Stage of a Molecular Dynamics simulation. \n
-    This is the parent class for PreProcess, Simulation, and PostProcess.
+    """Parent class for :class:`sarkas.process.PreProcess`, :class:`sarkas.process.Simulation`, and
+    :class:`sarkas.process.PostProcess`.
 
     Parameters
     ----------
     input_file : str
-        Path to the YAML input file.
+        Path to the YAML input file. Default = `None`
 
     Attributes
     ----------
-    potential : sarkas.potential.base.Potential
+    potential : :class:`sarkas.potential.base.Potential`
         Class handling the interaction between particles.
 
     integrator : :class:`sarkas.time_evolution.integrators.Integrator`
         Class handling the integrator.
 
-    thermostat : :class:`sarkas.time_evolution.thermostats.Thermostat`
-        Class handling the equilibration thermostat.
-
-    particles: :class:`sarkas.core.Particles`
+    particles: :class:`sarkas.particles.Particles`
         Class handling particles properties.
 
     parameters : :class:`sarkas.core.Parameters`
         Class handling simulation's parameters.
 
     species : list
-        List of :class:`sarkas.core.Species` classes.
+        List of :class:`sarkas.plasma.Species` classes.
 
     input_file : str
         Path to YAML input file.
@@ -100,17 +87,20 @@ class Process:
     def __init__(self, input_file: str = None):
         self.potential = Potential()
         self.integrator = Integrator()
-        # self.thermostat = Thermostat()
         self.parameters = Parameters()
         self.particles = Particles()
+
+        self.species = []  # Deprecated
         self.species = []
         self.threads_ls = []
-        self.observables_list = []
+        self.observables_dict = {}
+        self.transport_dict = {}
+
         self.input_file = input_file
         self.timer = SarkasTimer()
         self.io = InputOutput(process=self.__name__)
 
-    def common_parser(self, filename: str = None) -> None:
+    def common_parser(self, filename: str = None):
         """
         Parse simulation parameters from YAML file.
 
@@ -119,103 +109,250 @@ class Process:
         filename: str
             Input YAML file
 
+        Return
+        ------
+        dics : dict
+            Nested dictionary from reading the YAML input file.
         """
         if filename:
             self.input_file = filename
 
         dics = self.io.from_yaml(self.input_file)
 
-        for lkey in dics:
-            if lkey == "Particles":
-                for species in dics["Particles"]:
+        return dics
+
+    def update_subclasses_from_dict(self, nested_dict: dict):
+        """Update the subclasses parameters using a dictionary.
+
+        Parameters
+        ----------
+        nested_dict : dict
+            Nested dictionary. See example for format.
+
+        """
+        for lkey, vals in nested_dict.items():
+            if lkey not in ["Particles", "Observables", "TransportCoefficients"]:
+                self.__dict__[lkey.lower()].__dict__.update(vals)
+            elif lkey in ["Particles", "Plasma"]:
+                # Remember Particles should be a list of dict
+                # example:
+                # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
+
+                # Check if you already have a non-empty dict of species
+                if len(self.species) == 0:
+                    # If so do you want to replace or update?
+                    # Update species attributes
+
+                    for sp, species in enumerate(vals):
+                        spec = Species(species["Species"])
+                        if hasattr(spec, "replace"):
+                            self.species[sp].__dict__.update(spec.__dict__)
+                        else:
+                            self.species.append(spec)
+                    else:
+                        # Append new species
+                        for sp, species in enumerate(vals):
+                            spec = Species(species["Species"])
+                            self.species.append(spec)
+
+            elif lkey in ["Observables"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".observables", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        if inst.__long_name__ in self.observables_dict.keys():
+                            self.observables_dict[inst.__long_name__].__dict__.update(params)
+                        else:
+                            self.observables_dict[inst.__long_name__] = inst
+                            self.observables_dict[inst.__long_name__].from_dict(params)
+
+            elif lkey in ["TransportCoefficients"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".transport", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        if inst.__long_name__ in self.transport_dict.keys():
+                            self.transport_dict[inst.__long_name__].__dict__.update(params)
+                        else:
+                            self.transport_dict[inst.__long_name__] = inst
+                            self.transport_dict[inst.__long_name__].from_dict(params)
+
+        # electron properties has been moved to the Parameters class. Therefore I need to put this here.
+        if hasattr(self.potential, "electron_temperature"):
+            self.parameters.electron_temperature = self.potential.electron_temperature
+        elif hasattr(self.potential, "electron_temperature_eV"):
+            self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
+
+    def instantiate_subclasses_from_dict(self, nested_dict: dict):
+        """Instantiate the process subclasses from a dictionary."""
+
+        for lkey, vals in nested_dict.items():
+            if lkey not in ["Particles", "Observables", "TransportCoefficients"]:
+                # self.__dict__[lkey.lower()].__dict__.update(vals)
+
+                if lkey == "Potential":
+                    self.potential.from_dict(nested_dict[lkey])
+
+                elif lkey == "Integrator":
+                    self.integrator.from_dict(nested_dict[lkey])
+
+                elif lkey == "Parameters":
+                    self.parameters.from_dict(nested_dict[lkey])
+
+            elif lkey in ["Particles", "Plasma"]:
+                for sp, species in enumerate(vals):
                     spec = Species(species["Species"])
                     self.species.append(spec)
 
-            if lkey == "Potential":
-                self.potential.from_dict(dics[lkey])
+            elif lkey in ["Observables"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".observables", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        self.observables_dict[inst.__long_name__] = inst
+                        self.observables_dict[inst.__long_name__].from_dict(params)
 
-            if lkey == "Integrator":
-                self.integrator.from_dict(dics[lkey])
+            elif lkey in ["TransportCoefficients"]:
+                for obs_dict in vals:
+                    for obs, params in obs_dict.items():
+                        module = import_module(".transport", "sarkas.tools")
+                        class_ = getattr(module, obs)
+                        inst = class_()
+                        self.transport_dict[inst.__long_name__] = inst
+                        self.transport_dict[inst.__long_name__].from_dict(params)
 
-            if lkey == "Parameters":
-                self.parameters.from_dict(dics[lkey])
+        # electron properties has been moved to the Parameters class. Therefore I need to put this here.
+        if hasattr(self.potential, "electron_temperature"):
+            self.parameters.electron_temperature = self.potential.electron_temperature
+        elif hasattr(self.potential, "electron_temperature_eV"):
+            self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
 
-                # electron properties has been moved to the Parameters class. Therefore I need to put this here.
-                if hasattr(self.potential, "electron_temperature"):
-                    self.parameters.electron_temperature = self.potential.electron_temperature
-                elif hasattr(self.potential, "electron_temperature_eV"):
-                    self.parameters.electron_temperature_eV = self.potential.electron_temperature_eV
+    def directory_sizes(self):
+        """Calculate the size of the dumps directories and print them to logger."""
+        # Estimate size of dump folder
+        # Grab one file from the dump directory and get the size of it.
+        if self.parameters.equilibration_phase:
+            if not listdir(self.io.eq_dump_dir):
+                raise FileNotFoundError(
+                    "Could not estimate the size of the equilibration phase dumps"
+                    " because there are no dumps in the equilibration directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
+                )
+            else:
+                eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+                eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
+        else:
+            eq_dump_size = 0
+            eq_dump_fldr_size = 0
 
-        if self.__name__ != "simulation":
-            self.observables_list = []
+        if not listdir(self.io.prod_dump_dir):
+            raise FileNotFoundError(
+                "Could not estimate the size of the production phase dumps because"
+                " there are no dumps in the production directory."
+                "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
+            )
 
-            for observable in dics["Observables"]:
-                for key, sub_dict in observable.items():
-                    if key == "RadialDistributionFunction":
-                        self.observables_list.append("rdf")
-                        self.rdf = RadialDistributionFunction()
-                        if sub_dict:
-                            self.rdf.from_dict(sub_dict)
-                    elif key == "Thermodynamics":
-                        self.therm = Thermodynamics()
-                        self.therm.from_dict(sub_dict)
-                        self.observables_list.append("therm")
-                    elif key == "DynamicStructureFactor":
-                        self.observables_list.append("dsf")
-                        self.dsf = DynamicStructureFactor()
-                        if sub_dict:
-                            self.dsf.from_dict(sub_dict)
-                    elif key == "CurrentCorrelationFunction":
-                        self.observables_list.append("ccf")
-                        self.ccf = CurrentCorrelationFunction()
-                        if sub_dict:
-                            self.ccf.from_dict(sub_dict)
-                    elif key == "StaticStructureFactor":
-                        self.observables_list.append("ssf")
-                        self.ssf = StaticStructureFactor()
-                        if sub_dict:
-                            self.ssf.from_dict(sub_dict)
-                    elif key == "VelocityAutoCorrelationFunction":
-                        self.observables_list.append("vacf")
-                        self.vacf = VelocityAutoCorrelationFunction()
-                        if sub_dict:
-                            self.vacf.from_dict(sub_dict)
-                    elif key == "VelocityDistribution":
-                        self.observables_list.append("vd")
-                        self.vm = VelocityDistribution()
-                        if sub_dict:
-                            self.vm.from_dict(sub_dict)
-                    elif key == "ElectricCurrent":
-                        self.observables_list.append("ec")
-                        self.ec = ElectricCurrent()
-                        if sub_dict:
-                            self.ec.from_dict(sub_dict)
-                    elif key == "DiffusionFlux":
-                        self.observables_list.append("diff_flux")
-                        self.diff_flux = DiffusionFlux()
-                        if sub_dict:
-                            self.diff_flux.from_dict(sub_dict)
-                    elif key == "PressureTensor":
-                        self.observables_list.append("p_tensor")
-                        self.p_tensor = PressureTensor()
-                        if sub_dict:
-                            self.p_tensor.from_dict(sub_dict)
+        # Grab one file from the dump directory and get the size of it.
+        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+        prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
+        # Prepare arguments to pass for print out
+        sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
+        # Check for electrostatic equilibration
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
+            if not listdir(self.io.mag_dump_dir):
+                raise FileNotFoundError(
+                    "Could not estimate the size of the magnetization phase dumps because"
+                    " there are no dumps in the production directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
+                )
+            dump = self.parameters.mag_dump_step
+            mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
+            mag_dump_fldr_size = mag_dump_size * (self.parameters.magnetization_steps / self.parameters.mag_dump_step)
+            sizes = array(
+                [
+                    [eq_dump_size, eq_dump_fldr_size],
+                    [prod_dump_size, prod_dump_fldr_size],
+                    [mag_dump_size, mag_dump_fldr_size],
+                ]
+            )
 
-            if "TransportCoefficients" in dics.keys():
-                self.transport_dict = dics["TransportCoefficients"].copy()
+        self.io.directory_size_report(sizes, process=self.__name__)
 
-    def evolve_loop(self, phase, thermalization, it_start, it_end, dump_step):
+    def evolve(self, phase, thermalization, it_start, it_end, dump_step):
+        """
+        Evolve the system forward in time.
 
-        for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
+        Parameters
+        ----------
+        phase: str
+            Indicates the stage of the simulation used for saving dumps in the right directory. \n
+            Choices = ("equilibration", "production", "magnetization")
+
+        thermalization : bool
+            Indicates whether to apply the thermostat or not.
+
+        it_start: int
+            Initial timestep of the loop.
+
+        it_end: int
+            Final timestep of the loop.
+
+        dump_step: int
+            Interval for dumping data.
+
+        """
+
+        for it in trange(it_start, it_end, disable=not self.parameters.verbose):
             # Calculate the Potential energy and update particles' data
 
             self.integrator.update(self.particles)
 
             if (it + 1) % dump_step == 0:
+                self.particles.calculate_observables()
+                self.io.dump(phase, self.particles, it + 1)
 
+            if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
+                self.particles.calculate_species_kinetic_temperature()
+                self.integrator.thermostate(self.particles)
+
+    def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step):
+        """
+        Evolve the system forward in time. This method is similar to :meth:`sarkas.processes.Process.evolve_loop` with
+        the only difference that it uses `threading` for saving data, it starts a new thread to save the data.
+        In the case of small number of particles this can slow down the simulation, therefore it must be chosen by setting
+        the parameters `threading = True` in the input file or in the :class:`sarkas.core.Parameters` class.
+
+        Parameters
+        ----------
+        phase: str
+            Indicates the stage of the simulation used for saving dumps in the right directory. \n
+            Choices = ("equilibration", "production", "magnetization")
+
+        thermalization : bool
+            Indicates whether to apply the thermostat or not.
+
+        it_start: int
+            Initial timestep of the loop.
+
+        it_end: int
+            Final timestep of the loop.
+
+        dump_step: int
+            Interval for dumping data.
+
+        """
+        for it in trange(it_start, it_end, disable=not self.parameters.verbose):
+            # Calculate the Potential energy and update particles' data
+
+            self.integrator.update(self.particles)
+
+            if (it + 1) % dump_step == 0:
                 th = Thread(
                     target=self.io.dump,
-                    name=f"Sarkas_{phase.capitalize()}_Thread - {it+1}",
+                    name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
                     args=(
                         phase,
                         self.particles.__deepcopy__(),
@@ -236,29 +373,32 @@ class Process:
 
         self.threads_ls.clear()
 
-    def initialization(self) -> None:
+    def initialization(self):
         """Initialize all classes."""
 
         # initialize the directories and filenames
         self.io.setup()
 
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
-
+        self.parameters.copy_io_attrs(self.io)
         # Update parameters' dictionary with filenames and directories
-        self.parameters.from_dict(self.io.__dict__)
 
         self.parameters.potential_type = self.potential.type.lower()
-
         self.parameters.setup(self.species)
-
+        self.parameters.dt = self.integrator.dt
+        # Initialize particles
         t0 = self.timer.current()
+        self.particles.setup(self.parameters, self.species)
+        time_ptcls = self.timer.current()
+
+        # Initialize potential and calculate initial potential
         self.potential.setup(self.parameters, self.species)
+        self.potential.calc_acc_pot(self.particles)
         time_pot = self.timer.current()
         self.parameters.cutoff_radius = self.potential.rc
 
+        # Initialize Integrator
         self.integrator.setup(self.parameters, self.potential)
-        self.particles.setup(self.parameters, self.species)
-        time_ptcls = self.timer.current()
 
         # Copy needed parameters for pretty print
         self.parameters.dt = self.integrator.dt
@@ -267,6 +407,8 @@ class Process:
         if self.parameters.magnetized:
             self.parameters.magnetization_integrator = self.integrator.magnetization_type
 
+        # Copy some parameters needed for saving data
+        self.io.copy_params(self.parameters)
         # For restart and backups.
         self.io.setup_checkpoint(self.parameters)
         self.io.save_pickle(self)
@@ -275,105 +417,170 @@ class Process:
         self.io.simulation_summary(self)
         time_end = self.timer.current()
 
+        # self.evolve = self.evolve_loop_threading if self.parameters.threading else self.evolve_loop
+
         # Print timing
-        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_end - t0))
-        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - time_pot))
+        self.io.time_stamp("Particles Initialization", self.timer.time_division(time_ptcls - t0))
+        self.io.time_stamp("Potential Initialization", self.timer.time_division(time_pot - time_ptcls))
         self.io.time_stamp("Total Simulation Initialization", self.timer.time_division(time_end - t0))
 
-    def setup(self, read_yaml: bool = False, other_inputs: dict = None):
-        """Setup simulations' parameters and io subclasses.
+        self.print_initial_state()
+
+    def print_initial_state(self):
+        """Print the initial energies of the system."""
+
+        init_eng = " Initial Energies "
+        msg = f"\n\n{init_eng:-^70}\n" f"Initial temperature and kinetic energy of each species\n"
+
+        self.particles.calculate_species_kinetic_temperature()
+        self.particles.calculate_species_potential_energy()
+
+        factor = self.parameters.J2erg if self.parameters.units == "mks" else 1.0 / self.parameters.J2erg
+
+        for sp, kp, tp, pot_sp in zip(
+            self.species,
+            self.particles.species_kinetic_energy,
+            self.particles.species_temperatures,
+            self.particles.species_potential_energy,
+        ):
+            sp_msg = (
+                f"Species {sp.name} :\n"
+                f"\tTemperature = {tp:.6e} {self.parameters.units_dict['temperature']} = {tp * self.parameters.eV2K:.6e} {self.parameters.units_dict['electron volt']}\n"
+                f"\tKinetic Energy = {kp:.6e} {self.parameters.units_dict['energy']} = {kp * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+                f"\tPotential Energy = {pot_sp:.6e} {self.parameters.units_dict['energy']} = {pot_sp * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+            )
+            msg += sp_msg
+
+        tot_kin_e = self.particles.species_kinetic_energy.sum()
+        tot_pot_e = self.particles.species_potential_energy.sum()
+        tot_e = tot_kin_e + tot_pot_e
+
+        msg += (
+            f"Initial total kinetic energy = {tot_kin_e:.6e} {self.parameters.units_dict['energy']} = {tot_kin_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+            f"Initial total potential energy = {tot_pot_e:.6e} {self.parameters.units_dict['energy']} = {tot_pot_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+            f"Initial total energy = {tot_e:.6e} {self.parameters.units_dict['energy']} = {tot_e * factor / self.parameters.eV2J:.6e} {self.parameters.units_dict['electron volt']}\n"
+        )
+        self.io.write_to_logger(msg)
+
+    def setup(self, read_yaml: bool = True, input_file: str = None, other_inputs: dict = None):
+        """
+        Setup simulations' subclasses by reading the YAML input file and update them with `other_inputs`.
 
         Parameters
         ----------
         read_yaml: bool
-            Flag for reading YAML input file. Default = False.
+            Flag for reading YAML input file. Default = True.
+
+        input_file: str (optional)
+            Path to YAML file with inputs.
 
         other_inputs: dict (optional)
-            Dictionary with additional simulations options.
+            Nested dictionary with additional simulations options. This is called after reading the YAML file.
 
         """
+        if input_file:
+            self.input_file = input_file
+
         if read_yaml:
-            self.common_parser()
+            yaml_dict = self.common_parser()
+            self.instantiate_subclasses_from_dict(yaml_dict)
 
         if other_inputs:
             if not isinstance(other_inputs, dict):
-                raise TypeError("Wrong input type. " "other_inputs should be a nested dictionary")
-
-            for class_name, class_attr in other_inputs.items():
-                if class_name not in ["Particles", "Observables"]:
-                    self.__dict__[class_name.lower()].__dict__.update(class_attr)
-                elif class_name == "Particles":
-                    # Remember Particles should be a list of dict
-                    # example:
-                    # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
-
-                    # Check if you already have a non-empty list of species
-                    if isinstance(self.species, list):
-                        # If so do you want to replace or update?
-                        # Update species attributes
-                        for sp, species in enumerate(other_inputs["Particles"]):
-                            spec = Species(species["Species"])
-                            if hasattr(spec, "replace"):
-                                self.species[sp].__dict__.update(spec.__dict__)
-                            else:
-                                self.species.append(spec)
-                    else:
-                        # Append new species
-                        for sp, species in enumerate(other_inputs["Particles"]):
-                            spec = Species(species["Species"])
-                            self.species.append(spec)
-
-                if class_name == "Observables":
-
-                    for observable in class_attr:
-                        for key, sub_dict in observable.items():
-                            if key == "RadialDistributionFunction":
-                                self.rdf = RadialDistributionFunction()
-                                self.rdf.from_dict(sub_dict)
-                            if key == "Thermodynamics":
-                                self.therm = Thermodynamics()
-                                self.therm.from_dict(sub_dict)
-                            if key == "DynamicStructureFactor":
-                                self.dsf = DynamicStructureFactor()
-                                if sub_dict:
-                                    self.dsf.from_dict(sub_dict)
-                            if key == "CurrentCorrelationFunction":
-                                self.ccf = CurrentCorrelationFunction()
-                                if sub_dict:
-                                    self.ccf.from_dict(sub_dict)
-                            if key == "StaticStructureFactor":
-                                self.ssf = StaticStructureFactor()
-                                if sub_dict:
-                                    self.ssf.from_dict(sub_dict)
-                            if key == "VelocityAutoCorrelationFunction":
-                                self.vacf = VelocityAutoCorrelationFunction()
-                                if sub_dict:
-                                    self.vacf.from_dict(sub_dict)
-                            if key == "VelocityDistribution":
-                                self.vm = VelocityDistribution()
-                                if sub_dict:
-                                    self.vm.from_dict(sub_dict)
-                            if key == "ElectricCurrent":
-                                self.ec = ElectricCurrent()
-                                if sub_dict:
-                                    self.ec.from_dict(sub_dict)
+                raise TypeError("Wrong input type. other_inputs should be a nested dictionary")
+            self.update_subclasses_from_dict(other_inputs)
 
         if self.__name__ == "postprocessing":
 
             # Create the file paths without creating directories and redefining io attributes
-            self.io.create_file_paths()
+            self.io.make_directory_tree()
+            self.io.make_directories()
+            self.io.make_files_tree()
 
             # Read previously stored files
-            self.io.read_pickle(self)
+            self.io.read_pickle(self, self.io.directory_tree["simulation"]["path"])
+            self.io.copy_params(self.parameters)
+            # Print parameters to log file
+            if not exists(self.io.log_file):
+                # if the file exists do not print the file header
+                self.io.file_header()
+                self.io.simulation_summary(self)
+
+            self.io.datetime_stamp()
+
+            if self.grab_last_step:
+                # Initialize the Particles class attributes by reading the last step
+                old_method = self.parameters.load_method
+                self.parameters.load_method = "production_restart"
+                no_dumps = len(listdir(self.io.prod_dump_dir))
+                last_step = self.parameters.prod_dump_step * (no_dumps - 1)
+                if no_dumps == 0:
+                    self.parameters.load_method = "equilibration_restart"
+                    no_dumps = len(listdir(self.io.eq_dump_dir))
+                    last_step = self.parameters.eq_dump_step * (no_dumps - 1)
+                self.parameters.restart_step = last_step
+                self.particles.setup(self.parameters, self.species)
+                # Restore the original value for future use
+                self.parameters.load_method = old_method
+                # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
+                self.parameters.log_file = self.io.log_file
+        else:
+            self.initialization()
+
+        if self.parameters.plot_style:
+            plt.style.use(self.parameters.plot_style)
+
+    def setup_from_dict(self, input_dict: dict):
+        """Setup simulations' subclasses from a nested dictionary.
+
+        Parameters
+        ----------
+        input_dict: dict
+            Nested dictionary with all necessary simulations parameters.
+
+        Note
+        ----
+        This method does the same as:meth:`setup` but without reading a yaml file.
+        If you want to update the attributes of this class use :meth:`update_subclasses_from_dict`.
+        """
+
+        self.instantiate_subclasses_from_dict(input_dict)
+
+        if self.__name__ == "postprocessing":
+
+            # Create the file paths without creating directories and redefining io attributes
+            self.io.make_directory_tree()
+            self.io.make_directories()
+            self.io.make_files_tree()
+
+            # Read previously stored files
+            self.io.read_pickle(self, self.io.directory_tree["simulation"]["path"])
+            self.io.copy_params(self.parameters)
 
             # Print parameters to log file
             if not exists(self.io.log_file):
+                # if the file exists do not print the file header
+                self.io.file_header()
                 self.io.simulation_summary(self)
 
-            # Initialize the observable classes
-            # for obs in self.observables_list:
-            #     if obs in self.__dict__.keys():
-            #         self.__dict__[obs].setup(self.parameters)
+            self.io.datetime_stamp()
+
+            if self.grab_last_step:
+                # Initialize the Particles class attributes by reading the last step
+                old_method = self.parameters.load_method
+                self.parameters.load_method = "production_restart"
+                no_dumps = len(listdir(self.io.prod_dump_dir))
+                last_step = self.parameters.prod_dump_step * (no_dumps - 1)
+                if no_dumps == 0:
+                    self.parameters.load_method = "equilibration_restart"
+                    no_dumps = len(listdir(self.io.eq_dump_dir))
+                    last_step = self.parameters.eq_dump_step * (no_dumps - 1)
+                self.parameters.restart_step = last_step
+                self.particles.setup(self.parameters, self.species)
+                # Restore the original value for future use
+                self.parameters.load_method = old_method
+                # Update the log file. It is set to the simulation log in the parameters class, but it is correct in the IO class.
+                self.parameters.log_file = self.io.log_file
 
         else:
             self.initialization()
@@ -393,9 +600,40 @@ class PostProcess(Process):
 
     """
 
-    def __init__(self, input_file: str = None):
+    def __init__(self, input_file: str = None, grab_last_step: bool = False):
+
         self.__name__ = "postprocessing"
+        self.grab_last_step = grab_last_step
+
         super().__init__(input_file)
+
+    def run(self):
+        """Calculate all the observables from the YAML input file."""
+
+        if len(self.observables_dict.keys()) == 0:
+            print("No observables found in observables_dict")
+        else:
+            for obs_key, obs_class in self.observables_dict.items():
+
+                obs_class.setup(self.parameters)
+                msg = obs_class.pretty_print_msg()
+                self.io.write_to_logger(msg)
+
+                if obs_key == "Thermodynamics":
+                    # Make Temperature and Energy plots
+                    obs_class.temp_energy_plot(self)
+                else:
+                    obs_class.compute()
+
+        if len(self.transport_dict.keys()) == 0:
+            print("No transport coefficients found in tranport_dict")
+        else:
+            for obs_key, obs_class in self.transport_dict.items():
+
+                obs_class.setup(self.parameters)
+                msg = obs_class.pretty_print_msg()
+                self.io.write_to_logger(msg)
+                obs_class.compute(observable=self.observables_dict[obs_class.required_observable])
 
     def setup_from_simulation(self, simulation):
         """
@@ -403,7 +641,7 @@ class PostProcess(Process):
 
         Parameters
         ----------
-        simulation: sarkas.core.processes.Simulation
+        simulation: :class:`sarkas.core.processes.Simulation`
             Simulation object
 
         """
@@ -413,74 +651,6 @@ class PostProcess(Process):
         self.species = simulation.species.copy()
         self.io = simulation.io.__copy__()
         self.io.process = "postprocess"
-
-    def run(self):
-        """Calculate all the observables from the YAML input file."""
-
-        if len(self.observables_list) == 0:
-            # Make Temperature and Energy plots
-            self.therm = Thermodynamics()
-            self.therm.setup(self.parameters)
-            if self.parameters.equilibration_steps > 0:
-                self.therm.temp_energy_plot(self, phase="equilibration")
-            self.therm.temp_energy_plot(self, phase="production")
-            # Calculate the RDF.
-            self.rdf = RadialDistributionFunction()
-            self.rdf.setup(self.parameters)
-            self.rdf.parse()
-        else:
-            for obs in self.observables_list:
-                # Check that the observable is actually there
-                if obs in self.__dict__.keys():
-                    self.__dict__[obs].setup(self.parameters)
-                    if obs == "therm":
-                        self.therm.temp_energy_plot(self)
-                    else:
-                        self.io.postprocess_info(self, write_to_file=True, observable=obs)
-                        self.__dict__[obs].compute()
-
-                # Calculate transport coefficients
-                if hasattr(self, "transport_dict"):
-                    from .tools.transport import TransportCoefficients
-
-                    tc = TransportCoefficients(self.parameters)
-
-                    for coeff in self.transport_dict:
-
-                        for key, coeff_kwargs in coeff.items():
-
-                            if key.lower() == "diffusion":
-                                # Calculate if not already
-                                if not self.vacf:
-                                    self.vacf = VelocityAutoCorrelationFunction()
-                                    self.vacf.setup(self.parameters)
-                                    # Use parse in case you calculated it already
-                                    self.vacf.parse()
-
-                                tc.diffusion(observable=self.vacf)
-
-                            elif key.lower() == "interdiffusion":
-                                if not self.diff_flux:
-                                    self.diff_flux = DiffusionFlux()
-                                    self.diff_flux.setup(self.parameters)
-                                    self.diff_flux.parse()
-
-                                tc.interdiffusion(self.diff_flux)
-
-                            elif key.lower() == "viscosity":
-                                if not self.p_tensor:
-                                    self.p_tensor = PressureTensor()
-                                    self.p_tensor.setup(self.parameters)
-                                    self.p_tensor.parse()
-                                tc.viscosity(self.p_tensor)
-
-                            elif key.lower() == "electricalconductivity":
-                                if not self.ec:
-                                    self.ec = ElectricCurrent()
-                                    self.ec.setup(self.parameters)
-                                    self.ec.parse()
-
-                                tc.electrical_conductivity(self.ec)
 
 
 class PreProcess(Process):
@@ -516,7 +686,7 @@ class PreProcess(Process):
         self.estimate = False
         self.pm_meshes = logspace(3, 7, 12, base=2, dtype=int64)
         # array([16, 24, 32, 48, 56, 64, 72, 88, 96, 112, 128], dtype=int64)
-        self.pm_caos = arange(1, 8)
+        self.pm_caos = arange(1, 8, dtype=int64)
         self.pp_cells = arange(3, 16, dtype=int64)
         self.kappa = None
         super().__init__(input_file)
@@ -537,7 +707,10 @@ class PreProcess(Process):
         pp_force_error = zeros((len(alphas), len(rcuts)))
         total_force_error = zeros((len(alphas), len(rcuts)))
 
-        potential_copy = self.potential.__deepcopy__()
+        # TODO: Fix this hack
+        potential_copy = self.potential.__copy__()
+        potential_copy.setup(self.parameters, self.species)
+        # potential_copy = self.potential.__deepcopy__()
         for ia, alpha in enumerate(alphas):
             for ir, rc in enumerate(rcuts):
                 potential_copy.rc = rc
@@ -546,34 +719,6 @@ class PreProcess(Process):
                 total_force_error[ia, ir] = tot_err
                 pm_force_error[ia] = pm_err
                 pp_force_error[ia, ir] = pp_err
-
-        # for ia, alpha in enumerate(alphas):
-        #     somma = 0.0
-        #     for m in arange(p):
-        #         expp = 2 * (m + p)
-        #         somma += Cmp[m] * (2.0 / (1 + expp)) * betamp(m, p, alpha, kappa) * (h / 2.0) ** expp
-        #     # eq.(36) in Dharuman J Chem Phys 146 024112 (2017)
-        #     pm_force_error[ia] = sqrt(3.0 * somma) / (2.0 * pi)
-        # # eq.(35)
-        # pm_force_error *= sqrt(self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume)
-        # # Calculate the analytic PP error and the total force error
-        # if self.potential.type == "qsp":
-        #     for (ir, rc) in enumerate(rcuts):
-        #         pp_force_error[:, ir] = sqrt(2.0 * pi * kappa) * exp(-rc * kappa)
-        #         pp_force_error[:, ir] *=
-        #         for (ia, alfa) in enumerate(alphas):
-        #             # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-        #             total_force_error[ia, ir] = sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
-        # else:
-        #     for (ir, rc) in enumerate(rcuts):
-        #         for (ia, alfa) in enumerate(alphas):
-        #             # eq.(30) from Dharuman J Chem Phys 146 024112 (2017)
-        #             pp_force_error[ia, ir] = 2.0 * exp(-((0.5 * kappa / alfa) ** 2) - alfa ** 2 * rc ** 2) / sqrt(rc)
-        #             pp_force_error[ia, ir] *= sqrt(
-        #                 self.parameters.total_num_ptcls * self.parameters.a_ws ** 3 / self.parameters.box_volume
-        #             )
-        #             # eq.(42) from Dharuman J Chem Phys 146 024112 (2017)
-        #             total_force_error[ia, ir] = sqrt(pm_force_error[ia] ** 2 + pp_force_error[ia, ir] ** 2)
 
         return (
             total_force_error,
@@ -740,12 +885,27 @@ class PreProcess(Process):
         # Plot the results
         fig_path = self.pppm_plots_dir
 
-        fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 7))
+        fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(19, 7))
         linestyles = [(0, (5, 10)), "dashed", "solid", "dashdot", (0, (3, 10, 1, 10))]
         indexes = [30, 40, 50, 60, 70]
         for lns, i in zip(linestyles, indexes):
-            ax[0].plot(rcuts, total_force_error[i, :], ls=lns, label=r"$\alpha a_{ws} = " + "{:.2f}$".format(alphas[i]))
-            ax[1].plot(alphas, total_force_error[:, i], ls=lns, label=r"$r_c = {:.2f}".format(rcuts[i]) + " a_{ws}$")
+            min_rc = rcuts[total_force_error[i, :].argmin()]
+            rc_lbl = (
+                r"$\alpha a_{ws} = "
+                + "{:.2f}$".format(alphas[i])
+                + r" min @ $r_c = "
+                + "{:.2f}".format(min_rc)
+                + r" a_{\rm ws}$"
+            )
+            ax[0].plot(rcuts, total_force_error[i, :], ls=lns, label=rc_lbl)
+            min_a = alphas[total_force_error[:, i].argmin()]
+            a_lbl = (
+                r"$r_c = {:.2f}".format(rcuts[i])
+                + " a_{ws}$"
+                + r" min @ $\alpha_{\rm min} a_{ws} = "
+                + "{:.2f}$".format(min_a)
+            )
+            ax[1].plot(alphas, total_force_error[:, i], ls=lns, label=a_lbl)
 
         ax[0].set(ylabel=r"$\Delta F^{approx}_{tot}$", xlabel=r"$r_c/a_{ws}$", yscale="log")
         ax[1].set(xlabel=r"$\alpha \; a_{ws}$", yscale="log")
@@ -803,8 +963,8 @@ class PreProcess(Process):
         # else:
         #     minv = total_force_error.min()
         # total_force_error[total_force_error == 0.0] = minv
-        CS = ax.contourf(a_mesh, r_mesh, total_force_error, norm=LogNorm())
-        CS2 = ax.contour(CS, colors="w")
+        CS = ax.pcolormesh(a_mesh, r_mesh, total_force_error, shading="auto", norm=LogNorm())
+        CS2 = ax.contour(a_mesh, r_mesh, total_force_error, levels=10, colors="w", norm=LogNorm())
         ax.clabel(CS2, fmt="%1.0e", colors="w")
         ax.scatter(chosen_alpha, chosen_rcut, s=200, c="k")
         if rcuts[-1] * self.parameters.a_ws > 0.5 * self.parameters.box_lengths.min():
@@ -847,6 +1007,7 @@ class PreProcess(Process):
                 data_df = read_csv(
                     join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
                 )
+                self.dataframe = data_df.copy()
             except FileNotFoundError:
                 print(f"I could not find the data from the timing study. Running the timing study now.")
                 self.timing_study_calculation()
@@ -854,19 +1015,21 @@ class PreProcess(Process):
             data_df = self.dataframe.copy(deep=True)
 
         fig, ax = plt.subplots(1, 3, figsize=(21, 7))
-        scatterplot(data=data_df, x="pp_cells", y="pp_acc_time [ns]", hue="M_x", s=100, palette="viridis", ax=ax[0])
+        scatterplot(data=data_df, x="pp_cells", y="pp_acc_time [s]", hue="M_x", s=100, palette="viridis", ax=ax[0])
 
-        scatterplot(data=data_df, x="M_x", y="pm_acc_time [ns]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[1])
+        scatterplot(data=data_df, x="M_x", y="pm_acc_time [s]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[1])
 
-        scatterplot(data=data_df, x="M_x", y="G_k time [ns]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[2])
+        scatterplot(data=data_df, x="M_x", y="G_k time [s]", hue="pppm_cao_x", s=150, palette="viridis", ax=ax[2])
         # ax[0].legend(ncol = 2)
-        ax[0].set(yscale="log", xlabel="LCL Cells", ylabel="PP Time [ns]")
-        ax[1].set(yscale="log", xlabel="Mesh", ylabel="PM Time [ns]")
-        ax[2].set(yscale="log", xlabel="Mesh", ylabel="Green Function Time [ns]")
+        ax[0].set(yscale="log", xlabel="LCL Cells", ylabel="PP Time [s]")
+        ax[1].set(yscale="log", xlabel="Mesh", ylabel="PM Time [s]")
+        ax[2].set(yscale="log", xlabel="Mesh", ylabel="Green Function Time [s]")
         ax[1].set_xscale("log", base=2)
         ax[2].set_xscale("log", base=2)
         fig_path = self.pppm_plots_dir
         fig.savefig(join(fig_path, f"PPPM_Times_{self.io.job_id}.png"))
+
+        print(f"\nFigures can be found in {self.pppm_plots_dir}")
 
     def make_force_v_timing_plot(self, data_df: DataFrame = None):
         """Make contour maps of the force error and total acc time as functions of LCL cells and PM meshes for each
@@ -887,6 +1050,7 @@ class PreProcess(Process):
                 data_df = read_csv(
                     join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
                 )
+                self.dataframe = data_df.copy()
             except FileNotFoundError:
                 print(f"I could not find the data from the timing study. Running the timing study now.")
                 self.timing_study_calculation()
@@ -897,24 +1061,19 @@ class PreProcess(Process):
         for _, cao in enumerate(self.pm_caos):
             mask = self.dataframe["pppm_cao_x"] == cao
             df = data_df[mask][
-                [
-                    "M_x",
-                    "pp_cells",
-                    "force error [measured]",
-                    "pp_acc_time [ns]",
-                    "pm_acc_time [ns]",
-                    "tot_acc_time [ns]",
-                ]
+                ["M_x", "pp_cells", "force error [measured]", "pp_acc_time [s]", "pm_acc_time [s]", "tot_acc_time [s]"]
             ]
 
             # 2D-arrays from DataFrame
-            x1 = linspace(df["M_x"].min(), df["M_x"].max(), len(df["M_x"].unique()))
-            y1 = linspace(df["pp_cells"].min(), df["pp_cells"].max(), len(df["pp_cells"].unique()))
+            n_meshes = len(df["M_x"].unique())
+            x1 = logspace(log2(df["M_x"].min()), log2(df["M_x"].max()), 5 * n_meshes, base=2)
+            n_cells = len(df["pp_cells"].unique())
+            y1 = linspace(df["pp_cells"].min(), df["pp_cells"].max(), 5 * n_cells)
 
             m_mesh, c_mesh = meshgrid(x1, y1)
 
             # Interpolate unstructured D-dimensional data.
-            tot_time_map = griddata((df["M_x"], df["pp_cells"]), df["tot_acc_time [ns]"], (m_mesh, c_mesh))
+            tot_time_map = griddata((df["M_x"], df["pp_cells"]), df["tot_acc_time [s]"], (m_mesh, c_mesh))
             force_error_map = griddata((df["M_x"], df["pp_cells"]), df["force error [measured]"], (m_mesh, c_mesh))
 
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 9))
@@ -939,9 +1098,8 @@ class PreProcess(Process):
                 input_Nc = int(self.potential.box_lengths[0] / self.potential.rc)
                 ax1.scatter(self.potential.pppm_mesh[0], input_Nc, s=200, c="k")
 
-            ax1.set_xlabel("Mesh size")
-            ax1.set_ylabel(r"LCL Cells")
-            ax1.set_title(f"Force Error Map @ cao = {cao}")
+            ax1.set_xscale("log", base=2)
+            ax1.set(xlabel="Mesh size", ylabel=r"LCL Cells", title=f"Force Error Map @ cao = {cao}")
 
             # Timing Plot
             maxt = tot_time_map.max()
@@ -956,39 +1114,35 @@ class PreProcess(Process):
             ax2.clabel(CS2, fmt="%.2e", colors="w")
             # fig.colorbar(, ax = ax2)
             clb = fig.colorbar(ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax2)
-            clb.set_label("CPU Time [ns]", rotation=270, va="bottom")
+            clb.set_label("CPU Time [s]", rotation=270, va="bottom")
             if cao == self.potential.pppm_cao[0]:
                 input_Nc = int(self.potential.box_lengths[0] / self.potential.rc)
                 ax2.scatter(self.potential.pppm_mesh[0], input_Nc, s=200, c="k")
 
-            ax2.set_xlabel("Mesh size")
-            ax2.set_title(f"Timing Map @ cao = {cao}")
+            ax2.set_xscale("log", base=2)
+            ax2.set(xlabel="Mesh size", title=f"Timing Map @ cao = {cao}")
             fig.savefig(join(fig_path, f"ForceErrorMap_v_Timing_cao_{cao}_{self.io.job_id}.png"))
 
     def postproc_estimates(self):
 
         # POST- PROCESSING
-        self.io.postprocess_info(self, write_to_file=True, observable="header")
+        self.io.postprocess_info(self, observable="header")
+        # Header of process
+        process_title = f"{'PostProcessing':^80}"
+        msg = f"{'':*^80}\n {process_title} \n{'':*^80}"
+        print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
-        if hasattr(self, "rdf"):
-            self.rdf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="rdf")
+        for _, obs_class in self.observables_dict.items():
+            obs_class.setup(self.parameters)
+            msg += self.rdf.pretty_print_msg()
 
-        if hasattr(self, "ssf"):
-            self.ssf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="ssf")
+        print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
-        if hasattr(self, "dsf"):
-            self.dsf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="dsf")
+    def make_pppm_plots_dir(self):
+        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
 
-        if hasattr(self, "ccf"):
-            self.ccf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="ccf")
-
-        if hasattr(self, "vm"):
-            self.ccf.setup(self.parameters)
-            self.io.postprocess_info(self, write_to_file=True, observable="vm")
+        if not exists(self.pppm_plots_dir):
+            mkdir(self.pppm_plots_dir)
 
     def pppm_approximation(self):
         """
@@ -996,10 +1150,7 @@ class PreProcess(Process):
         Plot the force error in the parameter space.
         """
 
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
-
-        if not exists(self.pppm_plots_dir):
-            mkdir(self.pppm_plots_dir)
+        self.make_pppm_plots_dir()
 
         # Calculate Force error from analytic approximation given in Dharuman et al. J Chem Phys 2017
         total_force_error, pp_force_error, pm_force_error, rcuts, alphas = self.analytical_approx_pppm()
@@ -1023,7 +1174,8 @@ class PreProcess(Process):
         # Line Plot
         self.make_pppm_line_plot(rcuts, alphas, chosen_alpha, chosen_rcut, total_force_error)
 
-        print(f"\nFigures can be found in {self.pppm_plots_dir}")
+        msg = f"\nFigures can be found in {self.pppm_plots_dir}"
+        self.io.write_to_logger(msg)
 
     def remove_preproc_dumps(self):
         # Delete the energy files created during the estimation runs
@@ -1081,7 +1233,7 @@ class PreProcess(Process):
         plt.close("all")
 
         # Set the screening parameter
-        self.kappa = self.potential.matrix[1, 0, 0] if self.potential.type == "yukawa" else 0.0
+        self.kappa = self.potential.matrix[0, 0, 1] if self.potential.type == "yukawa" else 0.0
 
         if timing:
             self.time_n_space_estimates(loops=loops)
@@ -1093,7 +1245,6 @@ class PreProcess(Process):
             self.pppm_approximation()
 
         if timing_study:
-
             self.timing_study_calculation()
             self.make_timing_plots()
             self.make_force_v_timing_plot()
@@ -1116,7 +1267,7 @@ class PreProcess(Process):
 
         if self.potential.linked_list_on:
             self.pp_acc_time = zeros(loops)
-            for i in range(loops):
+            for i in trange(loops, desc="PP acceleration timer", disable=not self.parameters.verbose):
                 self.timer.start()
                 self.potential.update_linked_list(self.particles)
                 self.pp_acc_time[i] = self.timer.stop()
@@ -1129,7 +1280,7 @@ class PreProcess(Process):
         # PM acceleration
         if self.potential.pppm_on:
             self.pm_acc_time = zeros(loops)
-            for i in range(loops):
+            for i in trange(loops, desc="PM acceleration timer", disable=not self.parameters.verbose):
                 self.timer.start()
                 self.potential.update_pm(self.particles)
                 self.pm_acc_time[i] = self.timer.stop()
@@ -1156,14 +1307,14 @@ class PreProcess(Process):
 
         """
 
-        if self.io.verbose:
-            print(f"\nRunning {loops} equilibration and production steps to estimate simulation times\n")
+        msg = f"\nRunning {loops} steps for each phase to estimate simulation times\n"
+        self.io.write_to_logger(msg)
 
         # Run few equilibration steps to estimate the equilibration time
         if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
             self.timer.start()
-            self.evolve_loop("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
+            self.evolve("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
             self.eq_mean_time = self.timer.stop() / loops
             # Print the average equilibration & production times
             self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), loops)
@@ -1171,7 +1322,7 @@ class PreProcess(Process):
         if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
             self.timer.start()
-            self.evolve_loop("magnetization", self.integrator.thermalization, 0, loops, self.parameters.mag_dump_step)
+            self.evolve("magnetization", self.integrator.thermalization, 0, loops, self.parameters.mag_dump_step)
             self.mag_mean_time = self.timer.stop() / loops
             # Print the average equilibration & production times
             self.io.preprocess_timing("Magnetization", self.timer.time_division(self.mag_mean_time), loops)
@@ -1179,7 +1330,7 @@ class PreProcess(Process):
         # Run few production steps to estimate the equilibration time
         self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
         self.timer.start()
-        self.evolve_loop("production", False, 0, loops, self.parameters.prod_dump_step)
+        self.evolve("production", False, 0, loops, self.parameters.prod_dump_step)
         self.prod_mean_time = self.timer.stop() / loops
         self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), loops)
 
@@ -1223,49 +1374,7 @@ class PreProcess(Process):
 
         self.time_evolution_loop(loops)
 
-        # Estimate size of dump folder
-        # Grab one file from the dump directory and get the size of it.
-        if not listdir(self.io.eq_dump_dir):
-            raise FileNotFoundError(
-                "Could not estimate the size of the equilibration phase dumps"
-                " because there are no dumps in the equilibration directory."
-                "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
-            )
-
-        if not listdir(self.io.prod_dump_dir):
-            raise FileNotFoundError(
-                "Could not estimate the size of the production phase dumps because"
-                " there are no dumps in the production directory."
-                "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
-            )
-
-        eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
-        # Grab one file from the dump directory and get the size of it.
-        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
-        # Prepare arguments to pass for print out
-        sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
-        # Check for electrostatic equilibration
-        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
-            if not listdir(self.io.mag_dump_dir):
-                raise FileNotFoundError(
-                    "Could not estimate the size of the magnetization phase dumps because"
-                    " there are no dumps in the production directory."
-                    "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
-                )
-            dump = self.parameters.mag_dump_step
-            mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
-            mag_dump_fldr_size = mag_dump_size * (self.parameters.magnetization_steps / self.parameters.mag_dump_step)
-            sizes = array(
-                [
-                    [eq_dump_size, eq_dump_fldr_size],
-                    [prod_dump_size, prod_dump_fldr_size],
-                    [mag_dump_size, mag_dump_fldr_size],
-                ]
-            )
-
-        self.io.preprocess_sizing(sizes)
+        self.directory_sizes()
 
     def timing_study_calculation(self):
         """Estimate the best number of mesh points and cutoff radius."""
@@ -1274,7 +1383,8 @@ class PreProcess(Process):
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
 
-        print("\n\n{:=^70} \n".format(" Timing Study "))
+        msg = "\n\n{:=^70} \n".format(" Timing Study ")
+        self.io.write_to_logger(msg)
 
         self.input_rc = self.potential.rc
         self.input_mesh = self.potential.pppm_mesh.copy()
@@ -1301,14 +1411,17 @@ class PreProcess(Process):
             self.potential.pppm_mesh = m * array([1, 1, 1], dtype=int)
             self.potential.pppm_alpha_ewald = 0.3 * m / self.potential.box_lengths.min()
             self.potential.pppm_h_array = self.potential.box_lengths / self.potential.pppm_mesh
-            print(f"\n Mesh = {m, m, m}:\n\t cao = ", end="")
+            self.io.write_to_logger(f"\n Mesh = {m, m, m}:\n\t cao = ")
 
             for _, cao in enumerate(self.pm_caos):
-                print(f"{cao}, ", end="")
+                self.io.write_to_logger(f"{cao}, ")
                 self.potential.pppm_cao = cao * array([1, 1, 1], dtype=int)
 
                 # Update the potential matrix since alpha has changed
-                self.potential.pot_update_params(self.potential)
+                if self.potential.type == "qsp":
+                    self.potential.pot_update_params(self.potential, self.species)
+                else:
+                    self.potential.pot_update_params(self.potential, self.species)
                 # The Green's function depends on alpha, Mesh and cao. It also updates the pppm_pm_err
                 green_time = self.green_function_timer()
 
@@ -1332,6 +1445,7 @@ class PreProcess(Process):
                         self.potential.pppm_alpha_ewald,
                         rescaling_constant,
                     )
+
                     # Note: the PM error does not depend on rc. Only on alpha and it is given by G_k
                     self.potential.force_error = sqrt(self.potential.pppm_pp_err**2 + self.potential.pppm_pm_err**2)
 
@@ -1342,14 +1456,6 @@ class PreProcess(Process):
                         self.timer.start()
                         self.potential.update_linked_list(self.particles)
                         pp_acc_time += self.timer.stop() / 3.0
-
-                    # tot_pppm_err, pppm_pm_err, pppm_pp_err = force_error_approx_pppm(
-                    #     self.potential.matrix[1, 0, 0],
-                    #     self.potential.rc,
-                    #     self.potential.pppm_cao[0],
-                    #     self.potential.pppm_h_array[0],
-                    #     self.potential.pppm_alpha_ewald,
-                    # )
 
                     data = data.append(
                         {
@@ -1372,22 +1478,20 @@ class PreProcess(Process):
                             "h_y alpha": self.potential.pppm_h_array[1] * self.potential.pppm_alpha_ewald,
                             "h_z alpha": self.potential.pppm_h_array[2] * self.potential.pppm_alpha_ewald,
                             "h_M a_ws^3": self.potential.pppm_h_array.prod() * self.potential.pppm_alpha_ewald**3,
-                            "G_k time [ns]": green_time * 1e-9,
-                            "pp_acc_time [ns]": pp_acc_time * 1e-9,
-                            "pm_acc_time [ns]": pm_acc_time * 1e-9,
-                            "tot_acc_time [ns]": (pp_acc_time + pm_acc_time) * 1e-9,
+                            "G_k time [s]": green_time * 1.0e-9,
+                            "pp_acc_time [s]": pp_acc_time * 1.0e-9,
+                            "pm_acc_time [s]": pm_acc_time * 1.0e-9,
+                            "tot_acc_time [s]": (pp_acc_time + pm_acc_time) * 1.0e-9,
                             "pppm_pp_error [measured]": self.potential.pppm_pp_err,
                             "pppm_pm_error [measured]": self.potential.pppm_pm_err,
-                            "force error [measured]": self.potential.force_error
-                            # "pppm_pp_error [measured]": pppm_pp_err,
-                            # "pppm_pm_error [measured]": pppm_pm_err,
-                            # "force error [measured]": tot_pppm_err,
+                            "force error [measured]": self.potential.force_error,
                         },
                         ignore_index=True,
                     )
 
         self.dataframe = data
-        self.dataframe.to_csv(join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index=False)
+        csv_location = join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv")
+        self.dataframe.to_csv(csv_location, index=False)
 
         # Reset the original values.
         self.potential.rc = self.input_rc
@@ -1395,6 +1499,13 @@ class PreProcess(Process):
         self.potential.pppm_alpha_ewald = self.input_alpha
         self.potential.pppm_cao = self.input_cao.copy()
         self.potential.setup(self.parameters, self.species)
+
+        msg = (
+            f"\nThe force error and computation times can be found in a dataframe at PreProcess.dataframe "
+            f"and the corresponding csv file is saved in {csv_location}"
+        )
+        self.io.write_to_logger(msg)
+
         # pm_popt = zeros((len(self.pm_caos), 2))
         # for ic, cao in enumerate(self.pm_caos):
         #     # Fit the PM times
@@ -1544,7 +1655,7 @@ class Simulation(Process):
             self.io.dump(phase, self.particles, 0)
         return it_start
 
-    def equilibrate(self) -> None:
+    def equilibrate(self):
         """
         Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
         """
@@ -1553,7 +1664,7 @@ class Simulation(Process):
         self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
         # Start timer, equilibrate, and print run time.
         self.timer.start()
-        self.evolve_loop(
+        self.evolve(
             "equilibration",
             self.integrator.thermalization,
             it_start,
@@ -1563,38 +1674,30 @@ class Simulation(Process):
         time_eq = self.timer.stop()
         self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
 
-    # def evolve_loop(self, phase, it_start, it_end, dump_step):
+    # def check_equil_dist(self):
     #
-    #     for it in tqdm(range(it_start, it_end), disable=not self.parameters.verbose):
-    #         # Calculate the Potential energy and update particles' data
+    #     vel_dist = VelocityDistribution()
+    #     vel_dist.setup(
+    #         params=self.parameters,
+    #         phase="equilibration",
+    #         no_slices=1,
+    #         max_no_moment=6,
+    #         multi_run_average=False,
+    #         dimensional_average=False,
+    #         runs=1,
+    #     )
+    #     vel_dist.compute()
     #
-    #         self.integrator.update(self.particles)
-    #
-    #         if (it + 1) % dump_step == 0:
-    #             th = Thread(
-    #                 target=self.io.dump,
-    #                 name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
-    #                 args=(phase, self.particles.__deepcopy__(), it + 1,),
-    #             )
-    #
-    #             self.threads_ls.append(th)
-    #
-    #             th.start()
-    #
-    #     # Wait for all the threads to finish
-    #     for x in self.threads_ls:
-    #         x.join()
-    #
-    #     self.threads_ls.clear()
+    #     pass
 
-    def magnetize(self) -> None:
+    def magnetize(self):
         # Check for magnetization phase
         it_start = self.check_restart(phase="magnetization")
         # Update integrator
         self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
         # Start timer, magnetize, and print run time.
         self.timer.start()
-        self.evolve_loop(
+        self.evolve(
             "magnetization",
             self.integrator.thermalization,
             it_start,
@@ -1604,7 +1707,7 @@ class Simulation(Process):
         time_eq = self.timer.stop()
         self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
 
-    def produce(self) -> None:
+    def produce(self):
 
         it_start = self.check_restart(phase="production")
 
@@ -1612,22 +1715,31 @@ class Simulation(Process):
         # Update measurement flag for rdf.
         self.potential.measure = True
         self.timer.start()
-        self.evolve_loop("production", False, it_start, self.parameters.production_steps, self.parameters.prod_dump_step)
+        self.evolve("production", False, it_start, self.parameters.production_steps, self.parameters.prod_dump_step)
         time_eq = self.timer.stop()
         self.io.time_stamp("Production", self.timer.time_division(time_eq))
 
-    def run(self) -> None:
+    def run(self):
         """Run the simulation."""
         time0 = self.timer.current()
 
         if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
+            if self.parameters.remove_initial_drift:
+                self.particles.remove_drift()
             self.equilibrate()
 
         if self.parameters.magnetization_phase:
+            if self.parameters.remove_initial_drift:
+                self.particles.remove_drift()
             self.magnetize()
 
         if self.parameters.production_phase:
+            if self.parameters.remove_initial_drift:
+                self.particles.remove_drift()
+
             self.produce()
 
         time_tot = self.timer.current()
         self.io.time_stamp("Total", self.timer.time_division(time_tot - time0))
+
+        self.directory_sizes()

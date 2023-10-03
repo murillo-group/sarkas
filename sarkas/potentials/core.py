@@ -3,7 +3,7 @@ Module handling the potential class.
 """
 from copy import deepcopy
 from fmm3dpy import hfmm3d, lfmm3d
-from numpy import array, int64, ndarray, pi, sqrt, tanh
+from numpy import array, inf, int64, ndarray, pi, sqrt, tanh
 from warnings import warn
 
 from ..utilities.exceptions import AlgorithmWarning
@@ -171,10 +171,13 @@ class Potential:
         params : :class:`sarkas.core.Parameters`
             Simulation's parameters.
 
+        Raises
+        ------
+        _ : DeprecationWarning
         """
 
         warn(
-            "Deprecated feature. It will be removed in the v2.0.0 release. \n"
+            "Deprecated feature. It will be removed in a future release. \n"
             "Use parameters.calc_electron_properties(species). You need to pass the species list.",
             category=DeprecationWarning,
         )
@@ -277,6 +280,10 @@ class Potential:
             self.screening_length = species[-1].debye_length
         elif self.screening_length_type in ["kappa", "from_kappa"]:
             self.screening_length = self.a_ws / self.kappa
+        elif self.screening_length_type in ["qsp", "deBroglie"]:
+            self.screening_length = species[0].deBroglie_wavelength / (2.0 * pi)
+        elif self.screening_length_type in ["coulomb"]:
+            self.screening_length = inf
         elif self.screening_length_type in ["custom"]:
             if self.screening_length is None:
                 raise AttributeError("potential.screening_length not defined!")
@@ -299,6 +306,7 @@ class Potential:
 
         self.measure = params.measure
         self.units = params.units
+        self.units_dict = params.units_dict
         self.dimensions = params.dimensions
         # Copy needed parameters
         self.box_lengths = params.box_lengths.copy()
@@ -328,7 +336,7 @@ class Potential:
         if self.type == "lj":
             self.species_lj_sigmas = params.species_lj_sigmas.copy()
 
-    def from_dict(self, input_dict: dict) -> None:
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 
@@ -344,44 +352,46 @@ class Potential:
     def method_pretty_print(self):
         """Print algorithm information."""
 
-        print("\nALGORITHM: ", self.method)
+        msg = f"\nALGORITHM: {self.method}\n"
         # PP section
         if self.method != "fmm":
-            print(f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} ", end="")
-            print("[cm]" if self.units == "cgs" else "[m]")
             pp_cells = (self.box_lengths / self.rc).astype(int)
-            print(f"No. of PP cells per dimension = {pp_cells}")
             ptcls_in_loop = int(self.total_num_density * (self.dimensions * self.rc) ** self.dimensions)
-            print(f"No. of particles in PP loop = {ptcls_in_loop}")
             dim_const = (self.dimensions + 1) / 3.0 * pi
             pp_neighbors = int(self.total_num_density * dim_const * self.rc**self.dimensions)
-            print(f"No. of PP neighbors per particle = {pp_neighbors}")
+
+            fmm_msg = (
+                f"rcut = {self.rc / self.a_ws:.4f} a_ws = {self.rc:.6e} {self.units_dict['length']}\n"
+                f"No. of PP cells per dimension = {pp_cells}\n"
+                f"No. of particles in PP loop = {ptcls_in_loop}\n"
+                f"No. of PP neighbors per particle = {pp_neighbors}\n"
+            )
+
+            msg += fmm_msg
 
         if self.method == "pppm":
             # PM Section
-            print(f"Charge assignment orders: {self.pppm_cao}")
-            print(f"FFT aliases: {self.pppm_aliases}")
-            print(f"Mesh: {self.pppm_mesh}")
-            print(
-                f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} ",
-                end="",
-            )
-            print("[1/cm]" if self.units == "cgs" else "[1/m]")
             h_a = self.pppm_h_array / self.a_ws
-            print(f"Mesh width = {h_a[0]:.4f}, {h_a[1]:.4f}, {h_a[2]:.4f} a_ws")
-            print(
-                f"           = {self.pppm_h_array[0]:.4e}, {self.pppm_h_array[1]:.4e}, {self.pppm_h_array[2]:.4e} ",
-                end="",
-            )
-            print("[cm]" if self.units == "cgs" else "[m]")
             halpha = self.pppm_h_array * self.pppm_alpha_ewald
             inv_halpha = (1.0 / halpha).astype(int)
-            print(f"Mesh size * Ewald_parameter (h * alpha) = {halpha[0]:.4f}, {halpha[1]:.4f}, {halpha[2]:.4f} ")
-            print(f"                                        ~ 1/{inv_halpha[0]}, 1/{inv_halpha[1]}, 1/{inv_halpha[2]}")
-            print(f"PP Force Error = {self.pppm_pp_err:.6e}")
-            print(f"PM Force Error = {self.pppm_pm_err:.6e}")
 
-        print(f"Tot Force Error = {self.force_error:.6e}")
+            pppm_msg = (
+                f"Charge assignment orders: {self.pppm_cao}\n"
+                f"FFT aliases: {self.pppm_aliases}\n"
+                f"Mesh: {self.pppm_mesh}\n"
+                f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} {self.units_dict['inverse length']}\n"
+                f"Mesh width = {h_a[0]:.4f}, {h_a[1]:.4f}, {h_a[2]:.4f} a_ws\n"
+                f"           = {self.pppm_h_array[0]:.4e}, {self.pppm_h_array[1]:.4e}, {self.pppm_h_array[2]:.4e} {self.units_dict['length']}\n"
+                f"Mesh size * Ewald_parameter (h * alpha) = {halpha[0]:.4f}, {halpha[1]:.4f}, {halpha[2]:.4f}\n"
+                f"                                        ~ 1/{inv_halpha[0]}, 1/{inv_halpha[1]}, 1/{inv_halpha[2]}\n"
+                f"PP Force Error = {self.pppm_pp_err:.6e}\n"
+                f"PM Force Error = {self.pppm_pm_err:.6e}\n"
+            )
+            msg += pppm_msg
+
+        msg += f"Tot Force Error = {self.force_error:.6e}\n"
+
+        print(msg)
 
     def method_setup(self):
         """Setup algorithm's specific parameters."""
@@ -392,7 +402,7 @@ class Potential:
 
             mask = self.box_lengths > 0.0
             min_length = self.box_lengths[mask].min()
-
+            self.calc_acc_pot = self.update_linked_list
             if not self.rc:
                 warn(
                     f"\nThe cut-off radius is not defined. I will use the brute force method.",
@@ -400,6 +410,7 @@ class Potential:
                 )
                 self.rc = min_length / 2.0
                 self.linked_list_on = False  # linked list off
+                self.calc_acc_pot = self.update_brute
 
             if self.rc > min_length / 2.0:
                 warn(
@@ -411,6 +422,7 @@ class Potential:
 
                 self.rc = min_length / 2.0
                 self.linked_list_on = False  # linked list off
+                self.calc_acc_pot = self.update_linked_list
 
             if self.a_rs != 0.0:
                 warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
@@ -423,13 +435,16 @@ class Potential:
             if self.method == "pppm":
                 self.pppm_on = True
                 self.pppm_setup()
+                self.calc_acc_pot = self.update_pppm
         else:
             self.linked_list_on = False
             self.pppm_on = False
             if self.type == "coulomb":
                 self.force_error = self.fmm_precision
+                self.calc_acc_pot = self.update_fmm_coulomb
             else:
                 self.force_error = self.fmm_precision
+                self.calc_acc_pot = self.update_fmm_yukawa
 
     def pppm_setup(self):
         """Calculate the pppm parameters."""
@@ -496,8 +511,8 @@ class Potential:
         self.pot_pretty_print(potential=self)
         self.method_pretty_print()
 
-    def setup(self, params, species) -> None:
-        """Setup the potential class.
+    def setup(self, params, species):
+        """Set up the potential class.
 
         Parameters
         ----------
@@ -543,7 +558,7 @@ class Potential:
             self.calc_screening_length(species)
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "lj":
             # Lennard-Jones potential
@@ -563,12 +578,32 @@ class Potential:
             # QSP potential
             from .qsp import pretty_print_info, update_params
 
+            self.screening_length_type = "qsp"
+            self.calc_screening_length(species)
             self.pot_update_params = update_params
             update_params(self, species)
 
         elif self.type == "hs_yukawa":
             # Hard-Sphere Yukawa
             from .hs_yukawa import update_params
+
+            self.calc_screening_length(species)
+
+            self.pot_update_params = update_params
+            update_params(self)
+
+        elif self.type == "fitted":
+
+            from .fitted_pot import pretty_print_info, update_params
+
+            self.screening_length_type = "thomas-fermi"
+            self.calc_screening_length(species)
+            self.pot_update_params = update_params
+            update_params(self)
+
+        elif self.type == "tabulated":
+            # Tabulated potential
+            from .tabulated import pretty_print_info, update_params
 
             self.calc_screening_length(species)
 
@@ -587,8 +622,9 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial = pp_update(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial_species_tensor, ptcls.heat_flux_species_tensor = pp_update(
             ptcls.pos,
+            ptcls.vel,
             ptcls.id,
             ptcls.masses,
             self.box_lengths,
@@ -599,11 +635,11 @@ class Potential:
             ptcls.rdf_hist,
         )
 
-        if self.type != "lj":
-            # Mie Energy of charged systems
-            # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
-            dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
+        # if self.type != "lj":
+        #     # Mie Energy of charged systems
+        #     # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
+        #     dipole = ptcls.charges @ ptcls.pos
+        #     ptcls.total_potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_brute(self, ptcls):
         """
@@ -615,8 +651,9 @@ class Potential:
             Particles data.
 
         """
-        ptcls.potential_energy, ptcls.acc, ptcls.virial = pp_update_0D(
+        ptcls.potential_energy, ptcls.acc, ptcls.virial_species_tensor, ptcls.heat_flux_species_tensor = pp_update_0D(
             ptcls.pos,
+            ptcls.vel,
             ptcls.id,
             ptcls.masses,
             self.box_lengths,
@@ -626,11 +663,11 @@ class Potential:
             self.measure,
             ptcls.rdf_hist,
         )
-        if self.type != "lj":
-            # Mie Energy of charged systems
-            # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
-            dipole = ptcls.charges @ ptcls.pos
-            ptcls.potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
+        # if self.type != "lj":
+        #     # Mie Energy of charged systems
+        #     # J-M.Caillol, J Chem Phys 101 6080(1994) https: // doi.org / 10.1063 / 1.468422
+        #     dipole = ptcls.charges @ ptcls.pos
+        #     ptcls.total_potential_energy += 2.0 * pi * (dipole**2).sum() / (3.0 * self.box_volume * self.fourpie0)
 
     def update_pm(self, ptcls):
         """Calculate the pm part of the potential and acceleration.
@@ -655,10 +692,12 @@ class Potential:
             self.pppm_kz,
             self.pppm_cao,
         )
+
         # Ewald Self-energy
         U_long += self.QFactor * self.pppm_alpha_ewald / sqrt(pi)
+
         # Neutrality condition
-        U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
+        # U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)
 
         ptcls.potential_energy += U_long
 
@@ -681,25 +720,22 @@ class Potential:
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.particles.Particles`
             Particles' data
 
         """
 
         out_fmm = lfmm3d(eps=self.fmm_precision, sources=ptcls.pos.transpose(), charges=ptcls.charges, pg=2)
-
-        potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
+        ptcls.potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
-        ptcls.acc = acc.transpose()
-
-        return potential_energy
+        ptcls.acc = acc.transpose().copy()
 
     def update_fmm_yukawa(self, ptcls):
         """Calculate particles' potential and accelerations using FMM method.
 
         Parameters
         ----------
-        ptcls : sarkas.core.Particles
+        ptcls : :class:`sarkas.particles.Particles`
             Particles' data
 
         """
@@ -711,8 +747,6 @@ class Potential:
             pg=2,
         )
 
-        potential_energy = ptcls.charges @ out_fmm.pot.real / self.fourpie0
+        ptcls.potential_energy = ptcls.charges * out_fmm.pot.real / self.fourpie0
         acc = -(ptcls.charges * out_fmm.grad.real / ptcls.masses) / self.fourpie0
-        ptcls.acc = acc.transpose()
-
-        return potential_energy
+        ptcls.acc = acc.transpose().copy()

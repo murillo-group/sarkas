@@ -38,7 +38,7 @@ Parameters:
 
 IO:
     verbose: yes
-    simulations_dir: Simulations
+    md_simulations_dir: Simulations
 
 Observables:
   - RadialDistributionFunction:

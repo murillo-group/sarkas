@@ -70,8 +70,7 @@ Then run the following
 
         $ make clean && make html
 
-The first command removes all the content in ``_build/html``. This command is not necessary, but suggested
-so to avoid any conflicts.
+The first command removes all the content in ``_build/html``. This command is not necessary, but suggested to avoid any conflicts.
 
 The second command updates the documentation with your changes and creates html files in the folder ``_build/html``.
 Fix any Error and/or Warning messages. You might need to run the command few times.

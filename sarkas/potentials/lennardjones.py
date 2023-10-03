@@ -41,7 +41,7 @@ which we approximate with the first term only
 Potential Attributes
 ********************
 
-The elements of the :attr:`sarkas.potentials.core.Potential.pot_matrix` are:
+The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 
 .. code-block::
 
@@ -57,49 +57,6 @@ from numba.core.types import float64, UniTuple
 from numpy import array, pi, sqrt, zeros
 
 from ..utilities.maths import force_error_analytic_lcl
-
-
-def update_params(potential):
-    """
-    Assign potential dependent simulation's parameters.
-
-    Parameters
-    ----------
-    potential : :class:`sarkas.potentials.core.Potential`
-        Class handling potential form.
-    """
-    potential.matrix = zeros((5, potential.num_species, potential.num_species))
-    # See Lima Physica A 391 4281 (2012) for the following definitions
-    if not hasattr(potential, "powers"):
-        potential.powers = array([12, 6])
-
-    exponent = potential.powers[0] / (potential.powers[1] - potential.powers[0])
-    lj_constant = potential.powers[1] / (potential.powers[0] - potential.powers[1])
-    lj_constant *= (potential.powers[1] / potential.powers[0]) ** exponent
-
-    # Use the Lorentz-Berthelot mixing rules.
-    # Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)
-    # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
-    potential.epsilon_tot = 0.0
-    # Recall that species_charges contains sqrt(epsilon)
-    for i, q1 in enumerate(potential.species_charges):
-        for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[0, i, j] = lj_constant * q1 * q2
-            potential.matrix[1, i, j] = 0.5 * (potential.species_lj_sigmas[i] + potential.species_lj_sigmas[j])
-            potential.matrix[2, i, j] = potential.powers[0]
-            potential.matrix[3, i, j] = potential.powers[1]
-
-            potential.epsilon_tot += q1 * q2
-
-    potential.sigma_avg = potential.species_lj_sigmas.mean()
-    potential.matrix[4, :, :] = potential.a_rs
-
-    potential.force = lj_force
-
-    # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
-    potential.force_error = force_error_analytic_lcl(
-        potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
-    )
 
 
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)
@@ -118,10 +75,10 @@ def lj_force(r_in, pot_matrix):
 
     Returns
     -------
-    U : float
+    u_r : float
         Potential.
 
-    force : float
+    f_r : float
         Force.
 
     Examples
@@ -147,10 +104,55 @@ def lj_force(r_in, pot_matrix):
     s_over_r_high = s_over_r ** pot_matrix[2]
     s_over_r_low = s_over_r ** pot_matrix[3]
 
-    U = epsilon * (s_over_r_high - s_over_r_low)
-    force = epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
+    u_r = epsilon * (s_over_r_high - s_over_r_low)
+    f_r = epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
 
-    return U, force
+    return u_r, f_r
+
+
+def potential_derivatives(r, pot_matrix):
+    """Calculate the first and second derivatives of the potential.
+
+    Parameters
+    ----------
+    r_in : float
+        Distance between two particles.
+
+    pot_matrix : numpy.ndarray
+        It contains potential dependent variables.
+
+    Returns
+    -------
+    u_r : float, numpy.ndarray
+        Potential value.
+
+    dv_dr : float, numpy.ndarray
+        First derivative of the potential.
+
+    d2v_dr2 : float, numpy.ndarray
+        Second derivative of the potential.
+
+
+    """
+
+    epsilon = pot_matrix[0]
+    sigma = pot_matrix[1]
+    s_over_r = sigma / r
+    s_over_r_high = s_over_r ** pot_matrix[2]
+    s_over_r_low = s_over_r ** pot_matrix[3]
+
+    r2 = r * r
+
+    u_r = epsilon * (s_over_r_high - s_over_r_low)
+    dv_dr = -epsilon * (pot_matrix[2] * s_over_r_high - pot_matrix[3] * s_over_r_low) / r
+
+    d2v_dr2 = (
+        epsilon
+        * (pot_matrix[2] * (pot_matrix[2] + 1) * s_over_r_high - pot_matrix[3] * (pot_matrix[3] + 1) * s_over_r_low)
+        / r2
+    )
+
+    return u_r, dv_dr, d2v_dr2
 
 
 def pretty_print_info(potential):
@@ -164,9 +166,54 @@ def pretty_print_info(potential):
 
     """
 
-    print(f"epsilon_tot = {potential.epsilon_tot:.6e}")
-    print(f"sigma_avg = {potential.sigma_avg:.6e}")
+    print(f"epsilon_tot = {potential.epsilon_tot/potential.eV2J:.6e} [eV] = {potential.epsilon_tot:6e} ", end="")
+    print("[erg]" if potential.units == "cgs" else "[J]")
+    print(f"sigma_avg = {potential.sigma_avg/potential.a_ws:.6e} a_ws =  {potential.sigma_avg:6e} ", end="")
+    print("[cm]" if potential.units == "cgs" else "[m]")
     rho = potential.sigma_avg**3 * potential.total_num_density
     tau = potential.kB * potential.T_desired / potential.epsilon_tot
     print(f"reduced density = {rho:.6e}")
     print(f"reduced temperature = {tau:.6e}")
+
+
+def update_params(potential):
+    """
+    Assign potential dependent simulation's parameters.
+
+    Parameters
+    ----------
+    potential : :class:`sarkas.potentials.core.Potential`
+        Class handling potential form.
+    """
+    potential.matrix = zeros((potential.num_species, potential.num_species, 5))
+    # See Lima Physica A 391 4281 (2012) for the following definitions
+    if not hasattr(potential, "powers"):
+        potential.powers = array([12, 6])
+
+    exponent = potential.powers[0] / (potential.powers[1] - potential.powers[0])
+    lj_constant = potential.powers[1] / (potential.powers[0] - potential.powers[1])
+    lj_constant *= (potential.powers[1] / potential.powers[0]) ** exponent
+
+    # Use the Lorentz-Berthelot mixing rules.
+    # Lorentz: sigma_12 = 0.5 * (sigma_1 + sigma_2)
+    # Berthelot: epsilon_12 = sqrt( eps_1 eps2)
+    potential.epsilon_tot = 0.0
+    # Recall that species_charges contains sqrt(epsilon)
+    for i, q1 in enumerate(potential.species_charges):
+        for j, q2 in enumerate(potential.species_charges):
+            potential.matrix[i, j, 0] = lj_constant * q1 * q2
+            potential.matrix[i, j, 1] = 0.5 * (potential.species_lj_sigmas[i] + potential.species_lj_sigmas[j])
+            potential.matrix[i, j, 2] = potential.powers[0]
+            potential.matrix[i, j, 3] = potential.powers[1]
+
+            potential.epsilon_tot += q1 * q2
+
+    potential.sigma_avg = potential.species_lj_sigmas.mean()
+    potential.matrix[:, :, 4] = potential.a_rs
+
+    potential.force = lj_force
+
+    # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
+    potential.force_error = force_error_analytic_lcl(
+        potential.type, potential.rc, potential.matrix, sqrt(3.0 * potential.a_ws / (4.0 * pi))
+    )

@@ -36,7 +36,7 @@ Parameters:
 
 IO:
   verbose: yes
-  simulations_dir: UCP_DIH_N10k
+  md_simulations_dir: UCP_DIH_N10k
 
 Observables:
   - RadialDistributionFunction:

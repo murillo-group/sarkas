@@ -175,7 +175,7 @@ class Parameters:
     verbose : bool
         Flag for screen output.
 
-    simulations_dir : str
+    md_simulations_dir : str
         Name of directory where to store simulations.
 
     job_dir : str
@@ -207,14 +207,16 @@ class Parameters:
 
     np_per_side : numpy.ndarray
         Number of particles per simulation's box side.
-        The product of its components should be equal to ``total_num_ptcls``.
+        The product of its components should be equal to :attr:`total_num_ptcls`.
 
     pre_run : bool
         Flag for preprocessing phase.
 
+    units_dict : dict
+        Strings of the units used in the simulation.
     """
 
-    def __init__(self, dic: dict = None) -> None:
+    def __init__(self, dic: dict = None):
 
         self.particles_input_file = None
         self.load_perturb = 0.0
@@ -226,7 +228,7 @@ class Parameters:
         self.units = None
         self.electron_magnetic_energy = None
         self.input_file = None
-
+        self.units_dict = {}
         # Sim box geometry
         self.Lx = 0.0
         self.Ly = 0.0
@@ -283,9 +285,11 @@ class Parameters:
         self.log_file = None
         self.measure = False
         self.magnetized = False
+        self.remove_initial_drift = True
         self.plot_style = None
         self.pre_run = False
-        self.simulations_dir = "Simulations"
+        self.threading = False
+        self.md_simulations_dir = "Simulations"
         self.production_dir = "Production"
         self.magnetization_dir = "Magnetization"
         self.equilibration_dir = "Equilibration"
@@ -299,6 +303,7 @@ class Parameters:
         self.np_per_side = None
         self.num_species = 1
         self.magnetic_field = None
+        self.observables_list = None
         self.species_lj_sigmas = None
         self.species_names = None
         self.species_num = None
@@ -511,7 +516,7 @@ class Parameters:
             sp.beta_c = sp.cyclotron_frequency / sp.plasma_frequency
             self.species_cyclotron_frequencies[i] = sp.cyclotron_frequency
 
-    def check_units(self) -> None:
+    def check_units(self):
         """Adjust default physical constants for cgs unit system and check for LJ potential."""
         # Physical constants
         if self.units == "cgs":
@@ -531,6 +536,57 @@ class Parameters:
         if self.potential_type == "lj":
             self.fourpie0 = 1.0
             self.species_lj_sigmas = zeros(self.num_species)
+
+        self.create_unit_dict()
+
+    def copy_io_attrs(self, io):
+        """Copy the directories and filenames from io
+
+        Parameters
+        ----------
+        io : :class:`sarkas.utilities.io.InputOutput`
+            IO class
+        """
+        self.directory_tree = deepcopy(io.directory_tree)
+        self.filenames_tree = deepcopy(io.filenames_tree)
+        self.thermodynamics_to_save = io.thermodynamics_to_save
+        self.verbose = io.verbose
+        self.md_simulations_dir = io.md_simulations_dir
+        self.job_dir = io.job_dir
+        self.job_id = io.job_id
+        self.eq_dump_dir = io.eq_dump_dir
+        self.prod_dump_dir = io.prod_dump_dir
+        self.mag_dump_dir = io.mag_dump_dir
+
+    def create_unit_dict(self):
+        """Make a dictionary whose values are strings of the units. It is used in pretty_print methods."""
+
+        if self.units == "cgs":
+            self.units_dict["number density"] = "[N/cc]" if self.dimensions == 3 else "[N/cm^2]"
+            self.units_dict["weight"] = "[g]"
+            self.units_dict["mass density"] = "[g/cc]" if self.dimensions == 3 else "[g/cm^2]"
+            self.units_dict["charge"] = "[esu]"
+            self.units_dict["energy"] = "[erg]"
+            self.units_dict["length"] = "[cm]"
+            self.units_dict["volume"] = "[cm^3]" if self.dimensions == 3 else "[cm^2]"
+            self.units_dict["inverse length"] = "[1/cm]"
+            self.units_dict["magnetic field strength"] = "[Gauss]"
+        else:
+            self.units_dict["density"] = "[N/m^3]" if self.dimensions == 3 else "[N/m^2]"
+            self.units_dict["weight"] = "[kg]"
+            self.units_dict["mass density"] = "[kg/cc]" if self.dimensions == 3 else "[kg/m^2]"
+            self.units_dict["charge"] = "[C]"
+            self.units_dict["energy"] = "[J]"
+            self.units_dict["length"] = "[m]"
+            self.units_dict["volume"] = "[m^3]" if self.dimensions == 3 else "[m^2]"
+            self.units_dict["inverse length"] = "[1/m]"
+            self.units_dict["magnetic field strength"] = "[Tesla]"
+
+        self.units_dict["temperature"] = "[K]"
+        self.units_dict["Hertz"] = "[1/s]"
+        self.units_dict["frequency"] = "[rad/s]"
+        self.units_dict["time"] = "[s]"
+        self.units_dict["electron volt"] = "[eV]"
 
     def create_species_arrays(self, species: list):
         """
@@ -605,7 +661,7 @@ class Parameters:
             4.0 * pi * self.average_charge**2 * self.total_num_density / (self.fourpie0 * self.average_mass)
         )
 
-    def from_dict(self, input_dict: dict) -> None:
+    def from_dict(self, input_dict: dict):
         """
         Update attributes from input dictionary.
 
@@ -621,50 +677,36 @@ class Parameters:
         """
         Print simulation parameters in a user-friendly way.
         """
-        print("\nSIMULATION AND INITIAL PARTICLE BOX:")
-        if hasattr(self, "rand_seed"):
-            print("Random Seed = ", self.rand_seed)
 
-        print(f"Units: {self.units}")
-        print(f"No. of non-zero box dimensions = {self.dimensions}")
-        print(f"Wigner-Seitz radius = {self.a_ws:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
         box_a = self.box_lengths / self.a_ws
-        print(f"Box side along x axis = {box_a[0]:.6e} a_ws = {self.box_lengths[0]:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(f"Box side along y axis = {box_a[1]:.6e} a_ws = {self.box_lengths[1]:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(f"Box side along z axis = {box_a[2]:.6e} a_ws = {self.box_lengths[2]:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(f"Box Volume = {self.box_volume:.6e} ", end="")
-        if self.dimensions == 3:
-            print("[cm^3]" if self.units == "cgs" else "[m^3]")
-        else:
-            print("[cm^2]" if self.units == "cgs" else "[m^2]")
-
         pbox_a = self.pbox_lengths / self.a_ws
-        print(f"Initial particle box side along x axis = {pbox_a[0]:.6e} a_ws = {self.pbox_lengths[0]:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(f"Initial particle box side along y axis = {pbox_a[1]:.6e} a_ws = {self.pbox_lengths[1]:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(f"Initial particle box side along z axis = {pbox_a[2]:.6e} a_ws = {self.pbox_lengths[2]:.6e} ", end="")
-        print("[cm]" if self.units == "cgs" else "[m]")
-        print(f"Initial particle box Volume = {self.pbox_volume:.6e} ", end="")
-        if self.dimensions == 3:
-            print("[cm^3]" if self.units == "cgs" else "[m^3]")
-        else:
-            print("[cm^2]" if self.units == "cgs" else "[m^2]")
-
-        print(f"Boundary conditions: {self.boundary_conditions}")
+        msg = (
+            f"\nSIMULATION AND INITIAL PARTICLE BOX:\n"
+            f"Units: {self.units}\n"
+            f"No. of non-zero box dimensions = {self.dimensions}\n"
+            f"Wigner-Seitz radius = {self.a_ws:.6e} {self.units_dict['length']}\n"
+            f"Box side along x axis = {box_a[0]:.6e} a_ws = {self.box_lengths[0]:.6e} {self.units_dict['length']}\n"
+            f"Box side along y axis = {box_a[1]:.6e} a_ws = {self.box_lengths[1]:.6e} {self.units_dict['length']}\n"
+            f"Box side along z axis = {box_a[2]:.6e} a_ws = {self.box_lengths[2]:.6e} {self.units_dict['length']}\n"
+            f"Box Volume = {self.box_volume:.6e} {self.units_dict['volume']}\n"
+            f"Initial particle box side along x axis = {pbox_a[0]:.6e} a_ws = {self.pbox_lengths[0]:.6e} {self.units_dict['length']}\n"
+            f"Initial particle box side along y axis = {pbox_a[1]:.6e} a_ws = {self.pbox_lengths[1]:.6e} {self.units_dict['length']}\n"
+            f"Initial particle box side along z axis = {pbox_a[2]:.6e} a_ws = {self.pbox_lengths[2]:.6e} {self.units_dict['length']}\n"
+            f"Initial particle box Volume = {self.pbox_volume:.6e} {self.units_dict['volume']}\n"
+            f"Boundary conditions: {self.boundary_conditions}\n"
+        )
+        if hasattr(self, "rand_seed"):
+            msg += f"Random Seed = {self.rand_seed}\n"
 
         if self.magnetized:
-            print("\nMAGNETIC FIELD:")
-            print(f"Magnetic Field = {self.magnetic_field}", end="")
-            print("[Tesla]" if self.units == "mks" else "[Gauss]")
-            print(f"Magnetic Field Magnitude = {norm(self.magnetic_field):.4e} ", end="")
-            print("[Tesla]" if self.units == "mks" else "[Gauss]")
-            print(f"Magnetic Field Unit Vector = {self.magnetic_field / norm(self.magnetic_field)}")
+            mag_msg = (
+                f"\nMAGNETIC FIELD:\n"
+                f"Magnetic Field = {self.magnetic_field} {self.units_dict['magnetic field strength']}\n"
+                f"Magnetic Field Magnitude = {norm(self.magnetic_field):.4e} {self.units_dict['magnetic field strength']}\n"
+                f"Magnetic Field Unit Vector = {self.magnetic_field / norm(self.magnetic_field)}\n"
+            )
 
+            msg += mag_msg
         restart = self.load_method
         restart_step = self.restart_step if self.restart_step else 0
         wp_dt = self.total_plasma_frequency * self.dt
@@ -675,32 +717,45 @@ class Parameters:
             "pr": ["production", "production_steps", "prod_dump_step"],
         }
         # Check for restart simulations
+        phase_msg = "\nSIMULATION PHASES:"
         if restart[-7:] == "restart":
             phase_ls = phase_dict[restart[:2]]
             phase = phase_ls[0]
             steps = self.__dict__[phase_ls[1]]
             dump_step = self.__dict__[phase_ls[2]]
 
-            print(f"Restart step: {restart_step}")
-            print(f"Total {phase} steps = {steps}")
-            print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_prod ")
-            print(f"snapshot interval step = {dump_step}")
-            print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
-            print(f"Total number of snapshots = {int(steps / dump_step)}")
+            phs_msg = (
+                f"\nRestart step: {restart_step}\n"
+                f"Total {phase} steps = {steps}\n"
+                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                f"snapshot interval step = {dump_step}\n"
+                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                f"Total number of snapshots = {int(steps / dump_step)}"
+            )
 
         else:
+            phs_msg = ""
             for (key, phase_ls) in phase_dict.items():
                 phase = phase_ls[0]
                 steps = self.__dict__[phase_ls[1]]
                 dump_step = self.__dict__[phase_ls[2]]
-                if key == "mg" and not self.magnetized:
+                if key == "eq" and not self.equilibration_phase:
+                    continue
+                elif key == "ma" and not self.magnetization_phase:
                     continue
                 else:
-                    print(f"\n{phase.capitalize()}: \nNo. of {phase} steps = {steps}")
-                    print(f"Total {phase} time = {steps * self.dt:.4e} [s] ~ {int(steps * wp_dt)} w_p T_eq")
-                    print(f"snapshot interval step = {dump_step}")
-                    print(f"snapshot interval time = {dump_step * self.dt:.4e} [s] = {dump_step * wp_dt:.4f} w_p T_snap")
-                    print(f"Total number of snapshots = {int(steps / dump_step)}")
+                    phs_msg += (
+                        f"\n{phase.capitalize()}:\n"
+                        f"\tNo. of {phase} steps = {steps}\n"
+                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                        f"\tsnapshot interval step = {dump_step}\n"
+                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                        f"\tTotal number of snapshots = {int(steps / dump_step)}"
+                    )
+
+        phase_msg += phs_msg
+        msg += phase_msg
+        print(msg)
 
     def set_species_attributes(self, species: list):
         """
@@ -771,7 +826,7 @@ class Parameters:
         for i, sp in enumerate(species):
             sp.concentration = float(sp.num / tot_num_ptcls)
 
-    def setup(self, species) -> None:
+    def setup(self, species):
         """
         Setup simulations' parameters.
 

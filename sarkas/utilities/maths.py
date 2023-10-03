@@ -85,7 +85,7 @@ def fast_integral_loop(time, integrand):
     return integral
 
 
-def yukawa_green_function(k: float, alpha: float, kappa: float) -> float:
+def yukawa_green_function(k: float, alpha: float, kappa: float):
     """
     Evaluate the Green's function of Coulomb/Yukawa potential.
 
@@ -121,7 +121,7 @@ def yukawa_green_function(k: float, alpha: float, kappa: float) -> float:
     return 4.0 * pi * exp(-(k**2 + kappa**2) / (2 * alpha) ** 2) / (kappa**2 + k**2)
 
 
-def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
+def betamp(m: int, p: int, alpha: float, kappa: float):
     """
     Calculate the integral of the Yukawa Green's function using :func:`scipy.integrate.quad`.
 
@@ -158,8 +158,8 @@ def betamp(m: int, p: int, alpha: float, kappa: float) -> float:
 
 def force_error_approx_pppm(potential):
     r"""
-    Calculates the force error, :math:`\Delta F_{\rm pm}`, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
-    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.
+    Calculates the force error, :math:`\Delta F_{\rm {pm}}`, for the PPPM algorithm using approximations given in :cite:`Dharuman2017`.
+    The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
@@ -178,13 +178,13 @@ def force_error_approx_pppm(potential):
         PM force error.
     """
 
-    if potential.type in ["yukawa"]:
+    if potential.type == "yukawa":
         kappa = potential.a_ws / potential.screening_length
         alpha = potential.pppm_alpha_ewald * potential.a_ws
         ha = potential.pppm_h_array[0] / potential.a_ws
         pppm_pm_err = force_error_approx_pm(kappa, potential.pppm_cao[0], ha, alpha)
 
-    elif potential.type == "coulomb":
+    elif potential.type in ["coulomb", "qsp"]:
         alpha = potential.pppm_alpha_ewald * potential.a_ws
         ha = potential.pppm_h_array[0] / potential.a_ws
         pppm_pm_err = force_error_approx_pm(0.0, potential.pppm_cao[0], ha, alpha)
@@ -201,8 +201,8 @@ def force_error_approx_pppm(potential):
 
 def force_error_approx_pm(kappa: float, p: int, h: float, alpha: float):
     r"""
-    Calculates the PM part of the force error, :math:`\Delta F_{\rm pm}`,  for a given value of the PPPM parameters.
-    The formula for :math:`\Delta F_{\rm pm}` can be found in :ref:`force_error`.
+    Calculates the PM part of the force error, :math:`\Delta F_{\rm {pm}}`,  for a given value of the PPPM parameters.
+    The formula for :math:`\Delta F_{\rm {pm}}` can be found in :ref:`force_error`.
 
     Parameters
     ----------
@@ -418,6 +418,8 @@ def force_error_analytic_lcl(
         force_error_tmp /= exponent
         force_error = sqrt(force_error_tmp)
 
+    elif potential_type == "fitted":
+        force_error = sqrt(TWOPI * potential_matrix[1, 0, 0]) * exp(-cutoff_length * potential_matrix[1, 0, 0])
     # Renormalize
     force_error *= rescaling_const
 

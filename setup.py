@@ -64,12 +64,12 @@ BASE_DEPENDENCIES = [
     "tables",
     "tqdm",
     "pyfiglet==0.8.post1",
-    "pickle5",
     "jupyter",
     "jupyterlab",
     "notebook",
     "matplotlib",
     "seaborn",
+    "fmm3dpy"
 ]
 
 # Get some values from the setup.cfg

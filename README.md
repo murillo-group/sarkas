@@ -1,4 +1,7 @@
 # Sarkas
+
+![Tests](https://github.com/murillo-group/sarkas/actions/workflows/tests.yml/badge.svg)
+
 A Pure Python Molecular Dynamics package for Non-Ideal Plasmas
 
 Sarkas aims at lowering the entry barrier for computational plasma physics by providing a comprehensive MD suite complete with pre- and post-processing tools commonly found in plasma physics.
