@@ -1079,7 +1079,7 @@ class Observable:
 
             msg += (
                 f"\n\nACF Data:\n"
-                f"If you choose to set equal_number_time_samples=True in compute_acf() then the following applies. Otherwise, the above applies."
+                f"If you choose to set equal_number_time_samples=True in compute_acf() then the following applies. \nOtherwise, the above applies.\n"
                 f"No. of acf slices = {self.no_slices}\n"
                 f"No. dumps per slice = {int(self.acf_slice_steps)}\n"
                 f"Largest time lag of the autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n\n"

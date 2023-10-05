@@ -18,12 +18,13 @@ The elements of the :attr:`sarkas.potentials.core.Potential.matrix` are:
 """
 from numba import jit
 from numba.core.types import float64, UniTuple
-from numpy import inf, interp, loadtxt, pi, sqrt, where, zeros
+from numpy import inf, interp, array, loadtxt, pi, argmin, sqrt, where, zeros, interp, finfo, dtype
 from scipy.integrate import quad
 
 
-@jit(UniTuple(float64, 2)(float64, float64[:, :]), nopython=True)
-def tab_force(r, pot_matrix):
+# @jit(UniTuple(float64, 2)(float64, float64[:, :]), nopython=True)
+@jit(nopython = True)
+def tab_force_nn(r, pot_matrix):
     """
     Numba'd function to calculate the PP force between particles using the Moliere Potential.
 
@@ -46,15 +47,76 @@ def tab_force(r, pot_matrix):
     """
 
     # Unpack the parameters
-    # r_tab = pot_matrix[0, :]
-    # u_tab = pot_matrix[1, :]
-    # f_tab = pot_matrix[2, :]
+    r_tab = pot_matrix[0, :]
+    u_tab = pot_matrix[1, :]
+    f_tab = pot_matrix[2, :]
     dr = pot_matrix[0, 0]
     rbin = int(r / dr)
+    if rbin > 0:
+        bin_array = array([rbin - 1, rbin , rbin + 1])
+        rbin_array = array([abs(r - r_tab[rbin - 1]), abs(r - r_tab[rbin]), abs(r - r_tab[rbin + 1])])
+        rb = bin_array[ argmin(rbin_array) ]
+    else:
+        rb = 0
     # The following branchless programming is needed because numba grabs the wrong element when rbin > rc.
-    u_r = pot_matrix[1, rbin] * (rbin < pot_matrix.shape[1]) + 0.0
-    f_r = pot_matrix[2, rbin] * (rbin < pot_matrix.shape[1]) + 0.0
+    u_r = (u_tab[rb] - 0.0 * (r - r_tab[-1]) * f_tab[-1] - 0.0*u_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
+    f_r = (f_tab[rb] - 0.0*f_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
 
+    return u_r, f_r
+
+# @jit(UniTuple(float64, 2)(float64, float64[:, :]), nopython=True)
+@jit(nopython = True)
+def tab_force_lin_interp(r, pot_matrix):
+    """
+    Numba'd function to calculate the PP force between particles using the Moliere Potential.
+
+    Parameters
+    ----------
+    r : float
+        Particles' distance.
+
+    pot_matrix : numpy.ndarray
+        Slice of `sarkas.potentials.Potential.matrix` containing the potential parameters.
+
+    Returns
+    -------
+    u_r : float
+        Potential.
+
+    f_r : float
+        Force between two particles.
+
+    """
+
+    # Unpack the parameters
+    r_tab = pot_matrix[0, :]
+    u_tab = pot_matrix[1, :]
+    f_tab = pot_matrix[2, :]
+
+    if r < r_tab[-1]:
+        dr = pot_matrix[0, 0]
+        rbin = int(r / dr)
+        # If rbin is bigger than 0, the left bin is bin - 1 otherwise is 0
+        bin0 = (rbin - 1)*( rbin > 0) + 0
+        # The right bin is rbin + 1 if rbin is less then the max length - 1 
+        bin1 = rbin + 1*( rbin < len(r_tab) - 2)
+
+        r0 = r_tab[bin0]
+        r1 = r_tab[bin1]
+
+        u0 = u_tab[bin0]
+        u1 = u_tab[bin1]
+
+        f0 = f_tab[bin0]
+        f1 = f_tab[bin1]
+
+        u_r = u0 + (r - r0) * ( u1 - u0)/(r1 - r0)
+
+        f_r = f0 + (r - r0) * ( f1 - f0)/(r1 - r0)
+    else:
+        u_r = 0.0
+        f_r = 0.0
+        rbin = 0
     return u_r, f_r
 
 
@@ -126,19 +188,28 @@ def update_params(potential):
     """
     r, u, f, f2 = loadtxt(potential.tabulated_file, skiprows=1, unpack=True, delimiter=",")
     dr = r[1] - r[2]
+    # Select all the indices for which r is less than the cutoff radius
     mask = where(r < potential.rc + dr)[0]
     params_len = len(r[mask])
 
     potential.matrix = zeros((potential.num_species, potential.num_species, 4, params_len))
     beta = 1.0 / (potential.kB * potential.electron_temperature)
-
-    for i, q1 in enumerate(potential.species_charges):
-        for j, q2 in enumerate(potential.species_charges):
-            potential.matrix[i, j, 0, :] = r[mask]
+    
+    for i, _ in enumerate(potential.species_charges):
+        for j, _ in enumerate(potential.species_charges):
+            # Increase the r array by epsilon so that you are certain to get the right bin later in tab_force
+            potential.matrix[i, j, 0, :] = r[mask] + finfo(dtype(r[0])).eps
             potential.matrix[i, j, 1, :] = u[mask]
             potential.matrix[i, j, 2, :] = f[mask]
             potential.matrix[i, j, 3, :] = f2[mask]
-    potential.force = tab_force
+            
+        
+    if hasattr(potential,"interpolation_type"):
+        if potential.interpolation_type in ["linear", "lin"]:
+           potential.force = tab_force_lin_interp
+    else:
+        potential.force = tab_force_nn
+    
     potential.potential_derivatives = potential_derivatives
     potential.force_error = calc_force_error_quad(potential.a_ws, beta, potential.rc, potential.matrix[0, 0])
 
