@@ -16,6 +16,8 @@
 Examples
 ********
 
+To add your example notebook to this gallery see the related section in the `Contributing page <../contributing/dev_docs.rst#add-notebook-to-the-example-gallery>`_.
+
 .. nbgallery:: 
 
     OCP/OCP

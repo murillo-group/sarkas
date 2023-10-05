@@ -48,6 +48,11 @@ Sphinx uses these docstrings to auto-generate the `API documentation <../api/api
     Please make sure that you have correctly formatted the docstrings by checking how the corresponding module's API looks
     once you build the documentation.
 
+Add Notebook To The Example Gallery
+-----------------------------------
+
+*to be filled in*
+
 
 Building Documentation
 ----------------------

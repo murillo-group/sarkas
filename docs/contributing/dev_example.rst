@@ -12,7 +12,9 @@ This shows the state of your local repository. Assuming no changes have been mad
 
 .. code-block:: console
 
-    Your branch is up to date with 'origin/master'.
+    Your branch is up to date with 'origin/dev'.
+
+Make sure you are in the ``dev`` branch. 
 
 It is good practice to create a new branch for each modification to the code. For example, let us say you want to create a new branch called ``plot_style``.
 This can be done by
@@ -22,7 +24,9 @@ This can be done by
     $ git checkout -b plot_style
     Switched to a new branch 'plot_style'
 
-Now you are ready to modify the code or add files, always according to our coding guidelines. For this example, say you want to add four logo files.
+Now you are ready to modify the code or add files, always according to our coding guidelines. If you make changes to the code, make sure you have activated the ``sarkas`` environment. 
+
+For this example, say you want to add four logo files.
 Once you are done, review the changes by
 
 .. code-block:: console
@@ -90,5 +94,5 @@ In this case, there is no ``plot_style`` branch in your GitHub repository (``ups
 
 The output of the ``git push`` command will be different depending on your changes.
 
-Finally, you need to make a Pull Request (PR) for your changes to be included in the SARKAS main repository.
+Finally, you need to make a Pull Request (PR) do the ``dev`` branch for your changes to be included in the SARKAS main repository.
 You can do this by following the instructions on this `link <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request>`_.

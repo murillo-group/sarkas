@@ -62,7 +62,7 @@ The next section of the input file defines our interaction potential's parameter
 
 The instance ``type`` defines the interaction potential. Currently Sarkas supports the following interaction potentials:
 Coulomb, Yukawa, Exact-gradient corrected Yukawa, Quantum Statistical Potentials, Moliere, Lennard-Jones 6-12. More info
-on each of these potential can be found in :doc:`Potentials <../theory/potentials>`. Next we define the type of
+on each of these potential can be found in `Potentials <./Features_files/potentials.rst>`_. Next we define the type of
 screening we desire. The available choices are [`kappa`, `thomas-fermi`, `debye-huckel`, `custom`]. In our case we chose
 `kappa` which means that the screening length will be calculated from :math:`\lambda = a_{ws}/\kappa` where
 :math:`a_{ws}` is the Wigner-Seitz radius and :math:`kappa` is the value of the next attribute `kappa`.
@@ -117,7 +117,7 @@ Next we find information for our thermostat. If we do not wish to thermalize our
 ``thermalization: no``. The default value is ``yes`` and it could be omitted, however, we must define the ``thermostat_type``
 and ``thermalization_timestep`` if we are using a thermostat. ``thermalization_timestep`` indicates the timestep number
 at which the Berendsen thermostat will be turned on and the instance ``berendsen_tau`` indicates the relaxation rate of
-the Berendsen thermostat, see :doc:`../theory/Berendsen_NB/Berendsen_Thermostat` for more details. These last two
+the Berendsen thermostat, see `Berendsen Thermostat <./Features_files/Berendsen_NB/Berendsen_Thermostat.ipynb>`_ for more details. These last two
 instances have no default value and as such they must be defined. Currently Sarkas supports only the Berendsen thermostat.
 
 The last instance defines the temperature at which the system is to be thermalized (be careful with units!) .
