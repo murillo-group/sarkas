@@ -33,7 +33,7 @@ intersphinx_mapping = {
 # -- Project information -----------------------------------------------------
 project = "Sarkas"
 author = "MurilloGroup"
-copyright = "2019-2022, " + author
+copyright = "2019-2023, " + author
 
 # The full version, including alpha/beta/rc tags
 release = sarkas.__version__
@@ -62,6 +62,15 @@ extensions = [
     # "sphinx_codeautolink" #Automatic links from code examples to reference documentation --- it does not work properly at the moment
     # "myst_nb",
 ]
+
+# Sphinx Warnings
+# suppress_warnings = [
+#     'ref.ref', #undefined label
+#     'ref.doc', #unknown document
+#     'autosectionlabel', #duplicate label
+#     'toc'
+# ]
+
 # MyST configuration
 # myst_enable_extensions = [
 #     "amsmath",
@@ -71,8 +80,8 @@ extensions = [
 #     "html_image",
 # ]
 # myst_url_schemes = ("http", "https", "mailto")
-nb_execution_mode = "off"
-nbsphinx_allow_errors=True
+# nb_execution_mode = "off"
+nbsphinx_allow_errors=True # PreSimulation Testing throws an error caused by PUBstyle
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -112,7 +121,6 @@ bibtex_reference_style = "author_year"
 autodoc_mock_imports = ["yaml", "numba", "scipy", "optparse", "time", "pyfftw", "pyfiglet", "tqdm", "fmm3dpy"]
 
 
-html_last_updated_fmt = "%b %d, %Y"
 html_logo = os.path.join("graphics", os.path.join("logo", "logo_s_orange.png"))
 
 # source_suffix = {
@@ -126,6 +134,9 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "notebooks", "scripts", "h
 
 
 # -- Options for HTML output -------------------------------------------------
+
+# specifying the natural language populates some key tags
+language = "en"
 
 html_last_updated_fmt = "%b %d, %Y"
 html_logo = os.path.join("graphics", os.path.join("logo", "Sarkas_v1_for_dark_bg.svg"))
@@ -152,7 +163,7 @@ html_theme_options = {
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_css_files = [
-    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css",
     "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap"
 ]
 
