@@ -43,7 +43,10 @@ body {
   max-width: 200px !important;
   max-height: 200px !important;
 }
-
+.nbsphinx-gallery > a:hover, .nbsphinx-gallery > a:focus-within, .sd-card:hover, .sd-card:focus-within {
+    box-shadow: 0 0.125rem 0.125rem 0.25rem var(--sd-color-card-border-hover);
+    outline: transparent;
+}
 /*******************************************/
 
 code {
