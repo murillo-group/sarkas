@@ -15,35 +15,33 @@ If you haven't worked with Sphinx_ before, you should first read their
 Install Required Packages
 -------------------------
 
-Sarkas documentation build requires additional packages. Open a Teminal window and activate your sarkas environment
+Sarkas documentation build requires additional packages. Open a Terminal window and activate your sarkas environment
 
     .. code-block:: console
 
         $ conda activate sarkas
 
-Move into the ``sarkas-master/docs/`` directory, using ``cd`` commands, and type the following
+Move into the root directory ``sarkas/`` directory, using ``cd`` commands, and type the following
 
     .. code-block:: console
 
-        $ conda install --file requirements.txt -c conda-forge
+        (sarkas) $ conda env update -f sarkas_env.yaml
 
-The above command will install the packages listed in ``requirements.txt`` using the conda channel ``conda-forge``.
-If your changes require the installation of a new package please add to the ``requirements.txt`` file.
+The above command will update if necessary and install the newer packages. 
+If your changes require the installation of a new package or a different version of an existing package please add it to ``sarkas/sarkas_env.yaml`` and to the ``docs/requirements.txt``. Remember that ``pip`` uses two equal signs while ``conda`` uses only one.
 
 Writing Documentation
 ---------------------
 
-When making or adding changes to Sarkas source code an example ``.ipynb`` notebook and/or an ``.rst`` file
-should be created to demonstrate how it works.
-A good example are the notebooks in the `tutorial page <https://murillo-group.github.io/sarkas/documentation/tutorial.html>`_.
+When making or adding changes to Sarkas source code an example ``.ipynb`` notebook and/or an ``.rst`` file should be created to demonstrate how it works.
+A good example are the notebooks in the `tutorial page <../documentation/tutorial.rst>`_.
 
 You will also need to add the ``.rst`` file and/or ``.ipynb`` notebook's path in the relevant section in the
-``index.rst`` file (you can find this in ``sarkas-master/docs/``).
+``index.rst`` file (you can find this in ``sarkas/docs/``).
 
 Besides this, the functions and classes in your code must always contain **docstrings**.
 
-Sphinx uses these docstrings to auto-generate the `API documentation <https://murillo-group.github.io/sarkas/api/api.html>`_
-for the entire Sarkas package.
+Sphinx uses these docstrings to auto-generate the `API documentation <../api/api.rst>`_ for the entire Sarkas package.
 
 .. note::
 
@@ -68,7 +66,7 @@ Then run the following
 
     .. code-block:: console
 
-        $ make clean && make html
+        (sarkas) $ make clean && make html
 
 The first command removes all the content in ``_build/html``. This command is not necessary, but suggested to avoid any conflicts.
 

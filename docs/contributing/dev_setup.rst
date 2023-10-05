@@ -52,12 +52,12 @@ affecting the original project.
 
 #. Depending on your choice above
 
-        * a. Unzip the folder and enter the ``sarkas-master`` folder. Jump to point 8.
+        * a. Unzip the folder and enter the ``sarkas`` folder. Jump to point 8.
         * b. Open a terminal window and ``cd`` into the folder where you want to store your copy of Sarkas. Then type
 
         .. code-block:: console
 
-            $ git clone https://github.com/murillo-group/sarkas.git
+            $ git clone https://github.com/<yourGitHubUsername>/sarkas
 
 #. At this point we need to create a virtual environment for you work
 
@@ -66,10 +66,12 @@ Create a virtual environment
 ----------------------------
 
 It is good practice to create virtual environment for each of your programming projects. This way any changes made
-to Sarkas or any other code will remain in this environment and won't affect your python packages.
+to Sarkas or any other code will remain in this environment and will not affect your python packages.
 Below are instructions for creating the ``sarkas`` virtual environment.
 
 #. Enter the unzipped folder ``sarkas`` and open a terminal window (or command prompt in Windows).
+
+#. Switch to the development branch with ``git checkout dev`` as it has the up-to-date (and possibly buggy) code.
 
 #. Check if you have ``conda`` installed
 
@@ -79,6 +81,28 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
     This command will print the path of your ``conda`` binaries. If nothing is printed then you need to install it. Visit
     Anaconda.org and download_ their Python 3.* installer.
+
+#. *(optional)* Update your ``conda`` version with
+
+    .. code-block::console
+
+        $ conda update -n base conda -y
+
+    It is possible that the above command does not update ``conda`` at all. It is a common issue: checkout [issue #9469](https://github.com/conda/conda/issues/9469) and [issue #12718](https://github.com/conda/conda/issues/12718). In this case try the following:
+
+    .. code-block::console
+
+        $ conda update -n base -c defaults conda --repodata-fn=repodata.json
+    
+    Note that it might take a while. Once it is done check that it actually updated ``conda`` with ``conda --version``.
+
+#. *(optional)* Install the newer and **faster** anaconda solver `libmamba`
+
+    .. code-block::console
+
+        $ conda install -n base conda-libmamba-solver
+        $ conda config --set solver libmamba
+    
 
 #. Create your virtual environment via
 
@@ -115,13 +139,12 @@ Once the environment has been activated you can install Sarkas in Development mo
     .. note::
         Don't forget the final dot ``.`` after ``-e`` as that is the location ``pip`` will look for a ``setup.py``
 
-The development mode is useful so that you don't need to reinstall Sarkas everytime you change something in the source code.
-In more detail, ``pip`` will create a symlink to Sarkas' files in this folder, instead of copying the source code
-in your python directory.
+The development mode is useful so that you do not need to reinstall Sarkas everytime you change something in the source code.
+In more detail, ``pip`` will create a symlink to Sarkas' files in this folder, instead of copying the source code in your python directory.
 
 For example: If you are using Anaconda the path to the directory will look something like this
-``path_to_directory/anaconda3/envs/sarkas/lib/python3.7/site-packages/``. In here you will find ``sarkas.egg-link``
-if in development mode or ``sarkas-0.1.0-py3.7.egg`` if default installation. Note that the ``0-1-0-py3.7``
+``path_to_directory/anaconda3/envs/sarkas/lib/python3.9/site-packages/``. In here you will find ``sarkas.egg-link``
+if in development mode or ``sarkas-1.0.0-py3.9.egg`` if default installation. Note that the ``1-0-0-py3.9``
 refers to Sarkas version and python version.
 
 To uninstall Sarkas you can run
