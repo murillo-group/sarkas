@@ -30,36 +30,44 @@ SARKAS: Python MD code for plasma physics
 =========================================
 
 
-.. raw:: html
+.. grid:: 1 1 1 1
+    :gutter: 1
 
-   <div class="full-width p-0 m-0">
-      <div class="jumbotron jumbotron-fluid p-0 bg-white">
-         <div class="container-fluid p-0 m-0">
-            <div class="row justify-content-center">
-               <div class="col-xs-12 col-sm-12 col-lg-8 text-center">
-                  <h2 class="display-2 font-weight-bold text-break">SARKAS</h2>
-                  <h3 class="lead font-weight-bold">Python MD code for plasma physics</h3>
-               </div>
-                  <img src="_static/Sarkas_v1_for_light_bg.svg" alt="logo" class="float-lg-right float-xs-none float-sm-none" width="25%">
-                  <span class="float-none"></span>
-            </div>
-         </div>
-      </div>
+    .. grid-item::
+        :class: text-center
 
+        .. grid:: 1 2 2 2
+            :gutter: 1
 
-.. grid:: 1 1 2 2
-   :gutter: 1
+            .. grid-item::
 
-   .. grid-item-card::
-      :class-card: border-0
-      :shadow: none
-      :img-top: _static/codesnippet.png
+                .. raw:: html
+                    
+                    <h2>SARKAS</h2>
+                    <h3>Python MD code for plasma physics</h3>
 
-   .. grid-item-card::
-      :class-card: border-0
-      :shadow: none
-      :img-top: _static/BYU.gif
+            .. grid-item::
 
+                .. raw:: html
+
+                    <picture>
+                        <source srcset="_static/Sarkas_v1_for_dark_bg.svg" type="image/svg.xml">
+                        <img src="_static/Sarkas_v1_for_dark_bg.svg" alt="logo">
+                    </picture>
+
+    .. grid-item::
+
+        
+        .. grid:: 1 2 2 2
+            :gutter: 1
+
+            .. grid-item::
+                
+                .. image:: _static/BYU.gif
+
+            .. grid-item:: 
+
+                .. image:: _static/codesnippet.png
 
 .. grid:: 1 1 2 2
 
@@ -205,7 +213,4 @@ SARKAS: Python MD code for plasma physics
       * :ref:`genindex`
       * :ref:`modindex`
       * :ref:`search`
-
-.. raw::html
-
-   </div>
+      

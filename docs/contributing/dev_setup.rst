@@ -84,26 +84,27 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
 #. *(optional)* Update your ``conda`` version with
 
-    .. code-block::console
+    .. code-block:: console
 
         $ conda update -n base conda -y
 
-    It is possible that the above command does not update ``conda`` at all. It is a common issue: checkout [issue #9469](https://github.com/conda/conda/issues/9469) and [issue #12718](https://github.com/conda/conda/issues/12718). In this case try the following:
+    It is possible that the above command does not update ``conda`` at all. It is a common issue: checkout `issue #9469 <https://github.com/conda/conda/issues/9469>`_ and `issue #12718 <https://github.com/conda/conda/issues/12718>`_. In this case try the following:
 
-    .. code-block::console
+    .. code-block:: console
 
         $ conda update -n base -c defaults conda --repodata-fn=repodata.json
     
     Note that it might take a while. Once it is done check that it actually updated ``conda`` with ``conda --version``.
 
-#. *(optional)* Install the newer and **faster** anaconda solver `libmamba`
+#. *(optional)* Install the newer and **faster** anaconda solver ``libmamba``:
 
-    .. code-block::console
-
+    .. code-block:: console
+        
         $ conda install -n base conda-libmamba-solver
         $ conda config --set solver libmamba
     
-
+    learn more at `Conda Blog <https://www.anaconda.com/blog/a-faster-conda-for-a-growing-community>`_.
+    
 #. Create your virtual environment via
 
     .. code-block:: console
