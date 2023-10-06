@@ -50,17 +50,20 @@ def tab_force_nn(r, pot_matrix):
     r_tab = pot_matrix[0, :]
     u_tab = pot_matrix[1, :]
     f_tab = pot_matrix[2, :]
-    dr = pot_matrix[0, 0]
-    rbin = int(r / dr)
-    if rbin > 0:
-        bin_array = array([rbin - 1, rbin , rbin + 1])
-        rbin_array = array([abs(r - r_tab[rbin - 1]), abs(r - r_tab[rbin]), abs(r - r_tab[rbin + 1])])
-        rb = bin_array[ argmin(rbin_array) ]
+    # dr = abs(r_tab[1] - r_tab[0])
+    if r <= r_tab[-1]:
+        dr = abs(r_tab[1] - r_tab[0])
+        if r < r_tab[0]:
+            rb = 0
+        else:
+            rb = int(r / dr)  - int(r_tab[0]/dr) * (r >= r_tab[0])
+
+        # The following branchless programming is needed because numba grabs the wrong element when rbin > rc.
+        u_r = (u_tab[rb] - 0.0 * (r - r_tab[-1]) * f_tab[-1] - 0.0*u_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
+        f_r = (f_tab[rb] - 0.0*f_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
     else:
-        rb = 0
-    # The following branchless programming is needed because numba grabs the wrong element when rbin > rc.
-    u_r = (u_tab[rb] - 0.0 * (r - r_tab[-1]) * f_tab[-1] - 0.0*u_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
-    f_r = (f_tab[rb] - 0.0*f_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
+        # rb = 0
+        u_r, f_r = 0.0, 0.0
 
     return u_r, f_r
 
@@ -88,16 +91,19 @@ def tab_force_lin_interp(r, pot_matrix):
 
     """
 
-    # Unpack the parameters
+        # Unpack the parameters
     r_tab = pot_matrix[0, :]
     u_tab = pot_matrix[1, :]
     f_tab = pot_matrix[2, :]
 
-    if r < r_tab[-1]:
-        dr = pot_matrix[0, 0]
-        rbin = int(r / dr)
+    if r <= r_tab[-1]:
+        dr = abs(r_tab[1] - r_tab[0])
+        if r < r_tab[0]:
+            rbin = 0
+        else:
+            rbin = int(r / dr)  - int(r_tab[0]/dr) * (r >= r_tab[0])
         # If rbin is bigger than 0, the left bin is bin - 1 otherwise is 0
-        bin0 = (rbin - 1)*( rbin > 0) + 0
+        bin0 = (rbin - 1) * (rbin > 0) + 0
         # The right bin is rbin + 1 if rbin is less then the max length - 1 
         bin1 = rbin + 1*( rbin < len(r_tab) - 2)
 
@@ -116,8 +122,10 @@ def tab_force_lin_interp(r, pot_matrix):
     else:
         u_r = 0.0
         f_r = 0.0
-        rbin = 0
+        # rbin = 0
+        # bin0, bin1 = 0,0
     return u_r, f_r
+
 
 
 def potential_derivatives(r, pot_matrix):
@@ -189,7 +197,7 @@ def update_params(potential):
     r, u, f, f2 = loadtxt(potential.tabulated_file, skiprows=1, unpack=True, delimiter=",")
     dr = r[1] - r[2]
     # Select all the indices for which r is less than the cutoff radius
-    mask = where(r < potential.rc + dr)[0]
+    mask = where(r <= potential.rc)[0]
     params_len = len(r[mask])
 
     potential.matrix = zeros((potential.num_species, potential.num_species, 4, params_len))
@@ -198,7 +206,7 @@ def update_params(potential):
     for i, _ in enumerate(potential.species_charges):
         for j, _ in enumerate(potential.species_charges):
             # Increase the r array by epsilon so that you are certain to get the right bin later in tab_force
-            potential.matrix[i, j, 0, :] = r[mask] + finfo(dtype(r[0])).eps
+            potential.matrix[i, j, 0, :] = r[mask]
             potential.matrix[i, j, 1, :] = u[mask]
             potential.matrix[i, j, 2, :] = f[mask]
             potential.matrix[i, j, 3, :] = f2[mask]
