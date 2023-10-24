@@ -8,9 +8,9 @@
 
    .. autosummary::
       :toctree:
-   {% for item in attributes %}
-      {{ item }}
-   {%- endfor %}
+    {% for item in attributes %}
+        {{ item }}
+    {%- endfor %}
    {% endif %}
    {% endblock %}
 
@@ -20,9 +20,9 @@
 
    .. autosummary::
       :toctree:
-   {% for item in functions %}
-      {{ item }}
-   {%- endfor %}
+    {% for item in functions %}
+        {{ item }}
+    {%- endfor %}
    {% endif %}
    {% endblock %}
 
@@ -32,10 +32,10 @@
 
    .. autosummary::
       :toctree:
-      :template: custom-class-template.rst
-   {% for item in classes %}
-      {{ item }}
-   {%- endfor %}
+      :template: autosummary/class.rst
+    {% for item in classes %}
+        {{ item }}
+    {%- endfor %}
    {% endif %}
    {% endblock %}
 
@@ -45,9 +45,9 @@
 
    .. autosummary::
       :toctree:
-   {% for item in exceptions %}
-      {{ item }}
-   {%- endfor %}
+    {% for item in exceptions %}
+        {{ item }}
+    {%- endfor %}
    {% endif %}
    {% endblock %}
 
@@ -57,10 +57,12 @@
 
 .. autosummary::
    :toctree:
-   :template: custom-module-template.rst
+   :template: autosummary/module.rst
    :recursive:
-{% for item in modules %}
-   {{ item }}
-{%- endfor %}
+    {% for item in modules %}
+    {% if not item.endswith('tests') %} # do not document Test modules
+        {{ item }}
+    {%- endif %}
+    {%- endfor %}
 {% endif %}
 {% endblock %}

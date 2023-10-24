@@ -6,7 +6,7 @@ Dev Team
 .. grid:: 1 2 2 3
     :gutter: 3
 
-    .. grid-item-card:: Principal Investigator
+    .. grid-item-card:: Michael S. Murillo
         :img-top: ../_static/team/murillo_m.jpg
         :img-alt: Murillo's headshot
         :shadow: none
@@ -16,15 +16,15 @@ Dev Team
         :class-img-top: sd-rounded-circle img-team img-thumbnail
         :class-footer: sd-fs-6
 
-        Michael S. Murillo
+        Principal Investigator
         ^^^
         +++
         :fas:`envelope`  `murillo@msu.edu <murillo@msu.edu>`_
         
-        :fas:`globe` `https://murillogroupmsu.com/dr-michael-murillo <https://murillogroupmsu.com/dr-michael-murillo>`_
+        :fas:`globe` `murillogroupmsu.com/dr-michael-murillo <https://murillogroupmsu.com/dr-michael-murillo>`_
 
 
-    .. grid-item-card:: Core Developer
+    .. grid-item-card:: Yongjun Choi
         :img-top: ../_static/team/choi_y.png
         :img-alt: Choi's headshot
         :shadow: none
@@ -34,12 +34,12 @@ Dev Team
         :class-img-top: sd-rounded-circle img-team img-thumbnail
         :class-footer: sd-fs-6
 
-        Youngjun Choi
+        Core Developer
         ^^^
         +++
         :fas:`envelope` `choiyj@msu.edu <choiyj@msu.edu>`_
         
-        :fas:`globe` `https://murillogroupmsu.com/dr-youngjun-choi <https://murillogroupmsu.com/dr-youngjun-choi>`_
+        :fas:`globe` `murillogroupmsu.com/dr-yongjun-choi <https://murillogroupmsu.com/dr-yongjun-choi/>`_
 
 
     .. grid-item-card:: Gautham Dharuman
@@ -55,9 +55,9 @@ Dev Team
         Core Developer
         ^^^
         +++
-        :fas:`envelope` `dharuman1@llnl.gov <dharuman1@llnl.gov>`_
+        :fas:`envelope` `?dharuman1@anl.gov <dharuman1@anl.gov>`_
         
-        :fas:`globe` `https://pls.llnl.gov/people/staff-bios/msd/dharuman-g <https://pls.llnl.gov/people/staff-bios/msd/dharuman-g>`_
+        :fas:`globe` `anl.gov/profile/gautham-dharuman <https://www.anl.gov/profile/gautham-dharuman>`_
     
     .. grid-item-card:: Luciano G. Silvestri
         :img-top: ../_static/team/silvestri_l.jpeg
@@ -74,7 +74,7 @@ Dev Team
         +++
         :fas:`envelope` `silves28@msu.edu <silves28@msu.edu>`_
         
-        :fas:`globe` `https://lucianogsilvestri.github.io <https://lucianogsilvestri.github.io>`_
+        :fas:`globe` `lucianogsilvestri.github.io <https://lucianogsilvestri.github.io>`_
     
     .. grid-item-card:: Lucas J. Stanek
         :img-top: ../_static/team/stanek_l.jpeg
@@ -91,7 +91,7 @@ Dev Team
         +++
         :fas:`envelope` `staneklu@msu.edu <staneklu@msu.edu>`_
         
-        :fas:`globe` `https://murillogroupmsu.com/lucas-j-stanek/ <https://murillogroupmsu.com/lucas-j-stanek/>`_
+        :fas:`globe` `murillogroupmsu.com/lucas-j-stanek <https://murillogroupmsu.com/lucas-j-stanek/>`_
     
     .. grid-item-card:: Stefano Silvestri
         :img-top: ../_static/team/silvestri_s.jpeg
@@ -106,6 +106,6 @@ Dev Team
         Web Developer
         ^^^
         +++
-        :fas:`envelope` `silvestri.dev@mgmail.com <silvestri.dev@mgmail.com>`_
+        :fas:`envelope` `silvestri.dev@mgmail.com <silvestri.dev@gmail.com>`_
         
-        :fas:`globe` `https://silvestristefano.github.io <https://silvestristefano.github.io>`_
+        :fas:`globe` `silvestristefano.github.io <https://silvestristefano.github.io>`_

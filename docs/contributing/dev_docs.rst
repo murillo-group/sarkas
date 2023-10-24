@@ -51,7 +51,7 @@ Sphinx uses these docstrings to auto-generate the `API documentation <../api/api
 Add Notebook To The Example Gallery
 -----------------------------------
 
-Create a folder inside ``sarkas/docs/examples/`` following the structure of the the other examples. The folder structure should look like the following::
+Create a folder inside ``sarkas/docs/examples/`` following the structure of the other examples. The folder structure should look like the following::
 
     docs/
         examples/
@@ -66,7 +66,7 @@ Link your notebook in the file ``examples.rst`` underneath the ``.. nbgallery::`
         
         New_Example/CoolStuff
 
-By default, the last image output of a notebook will be used as its thumbnail. Without an image output, a placeholder will be used. However, if you want a particular output to be used as the thumbnail, you need to insert the following cell tag ``nbsphinx-thumbnail``.
+By default, the Sarkas logo will be used as the thumbnail of a notebook. However, if you want a particular output to be used as the thumbnail, you need to insert the following cell tag ``nbsphinx-thumbnail``.
 
 If you do not know how to add cell tags to your Jupyter notebook, you can follow the `official guide <https://jupyterbook.org/en/stable/content/metadata.html>`_. If you use VS Code: 
 

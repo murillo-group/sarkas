@@ -125,7 +125,7 @@ Below are instructions for creating the ``sarkas`` virtual environment.
 
     .. code-block:: console
 
-        $ conda deactivate
+        (sarkas) $ conda deactivate
 
 
 Install Sarkas in development mode
@@ -133,12 +133,12 @@ Install Sarkas in development mode
 
 Once the environment has been activated you can install Sarkas in Development mode via
 
-    .. code-block:: console
+.. code-block:: console
 
-        $ pip install -e .
+    $ pip install -e .
 
-    .. note::
-        Don't forget the final dot ``.`` after ``-e`` as that is the location ``pip`` will look for a ``setup.py``
+.. note::
+    Don't forget the final dot ``.`` after ``-e`` as that is the location ``pip`` will look for a ``setup.py``
 
 The development mode is useful so that you do not need to reinstall Sarkas everytime you change something in the source code.
 In more detail, ``pip`` will create a symlink to Sarkas' files in this folder, instead of copying the source code in your python directory.
@@ -150,9 +150,9 @@ refers to Sarkas version and python version.
 
 To uninstall Sarkas you can run
 
-    .. code-block:: console
+.. code-block:: console
 
-        $ pip uninstall sarkas
+    $ pip uninstall sarkas
 
 
 .. _Anaconda: https://www.anaconda.org

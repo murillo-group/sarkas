@@ -10,7 +10,7 @@ Core modules
 ------------
 .. autosummary::
     :toctree: core_pckg
-    :template: custom-module-template.rst
+    :template: autosummary/module.rst
     :recursive:
     :nosignatures:
 
@@ -25,7 +25,7 @@ Potentials Subpackage
 
 .. autosummary::
     :toctree: potentials_subpckg
-    :template: custom-module-template.rst
+    :template: autosummary/module.rst
     :recursive:
 
     potentials
@@ -37,7 +37,7 @@ Time Evolution Subpackage
 
 .. autosummary::
     :toctree: time_evolution_subpckg
-    :template: custom-module-template.rst
+    :template: autosummary/module.rst
     :recursive:
     :nosignatures:
 
@@ -51,7 +51,7 @@ Tools Subpackage
 
 .. autosummary::
     :toctree: tools_subpckg
-    :template: custom-module-template.rst
+    :template: autosummary/module.rst
     :recursive:
     :nosignatures:
 
@@ -65,7 +65,7 @@ Utilities Subpackage
 
 .. autosummary::
     :toctree: util_subpckg
-    :template: custom-module-template.rst
+    :template: autosummary/module.rst
     :recursive:
     :nosignatures:
 

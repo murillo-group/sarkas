@@ -15,6 +15,8 @@ import sys
 
 import sarkas
 
+# os.environ["DISABLE_JIT"] = '1'
+
 sys.path.insert(0, os.path.abspath("../sarkas"))
 sys.path.insert(0, os.path.abspath("../sarkas/time_evolution"))
 sys.path.insert(0, os.path.abspath("../sarkas/utilities"))
@@ -82,24 +84,13 @@ extensions = [
 # myst_url_schemes = ("http", "https", "mailto")
 # nb_execution_mode = "off"
 nbsphinx_allow_errors=True # PreSimulation Testing throws an error caused by PUBstyle
+nbsphinx_thumbnails = { #if no thumbnail is specified it defaults to this, rather than the last output.
+    'examples/*/*': '_static/assets/logos/Sarkas_v1_for_dark_bg.svg',
+}
 
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
-
-# Napoleon settings
-napoleon_google_docstring = False
-napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = False
-napoleon_include_private_with_doc = False
-napoleon_include_special_with_doc = True
-napoleon_use_admonition_for_examples = False
-napoleon_use_admonition_for_notes = False
-napoleon_use_admonition_for_references = False
-napoleon_use_ivar = True
-napoleon_use_param = False
-napoleon_use_rtype = False
-
 
 # # Equation Numbering
 # mathjax_config = {
@@ -118,10 +109,7 @@ latex_elements = {"preamble": r"\usepackage{physics}"}
 bibtex_bibfiles = ["references.bib", "credits/publications.bib"]
 bibtex_reference_style = "author_year"
 
-autodoc_mock_imports = ["yaml", "numba", "scipy", "optparse", "time", "pyfftw", "pyfiglet", "tqdm", "fmm3dpy"]
 
-
-html_logo = os.path.join("graphics", os.path.join("logo", "logo_s_orange.png"))
 
 # source_suffix = {
 #     ".rst": "restructuredtext",
@@ -139,7 +127,7 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "notebooks", "scripts", "h
 language = "en"
 
 html_last_updated_fmt = "%b %d, %Y"
-html_logo = os.path.join("graphics", os.path.join("logo", "Sarkas_v1_for_dark_bg.svg"))
+html_logo = os.path.join("_static", os.path.join("assets", os.path.join("logos", "Sarkas_v1_for_dark_bg.svg")))
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -152,9 +140,6 @@ html_theme_options = {
     "logo_only": True,
     "show_navbar_depth": 1,
     "use_download_button": True,
-    # "extra_navbar": "<p>Your HTML</p>",
-    # sidebar properties below
-    "toc_title": "Content",
     "show_toc_level": 3,
 }
 
@@ -167,7 +152,6 @@ html_css_files = [
     "https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap"
 ]
 
-# panels_add_fontawesome_latex = True
 
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
@@ -175,9 +159,7 @@ html_show_sourcelink = False
 # Suffix to be appended to source links, unless they have this suffix already. Default is .txt
 html_sourcelink_suffix = ""
 
-# html_js_files = [
-#     "js/myscript.js",
-# ]
+# html_js_files = ["js/myscript.js"]
 
 
 # Open Graph metadata (social media link previews which improve SEO)
@@ -190,7 +172,9 @@ ogp_custom_meta_tags = [
     '<meta property="twitter:description" content="A fast pure-Python molecular dynamics suite for non-ideal plasmas.">',
 ]
 
-# -- APIDoc configuration -----------------------------------------------------
+# -- API Documentation configuration -----------------------------------------------------
+
+autodoc_mock_imports = ["yaml", "numba", "scipy", "optparse", "time", "pyfftw", "pyfiglet", "tqdm", "fmm3dpy"]
 
 # Generate the API documentation when building
 autosummary_generate = True
@@ -200,3 +184,16 @@ modindex_common_prefix = ["sarkas."]
 
 # Make sure the target is unique
 autosectionlabel_prefix_document = True
+
+# Napoleon settings
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = True
+napoleon_use_param = False
+napoleon_use_rtype = False

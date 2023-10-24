@@ -2,13 +2,7 @@
 
 
   {# Custom CSS overrides #}
-  {% set css_files = css_files + ['_static/my-styles.css'] %}
-
-
-  {%- block scripts %}
-    {{ super() }}
-    <script type="text/javascript" src="{{ pathto('_static/language_data.js', 1) }}"></script>
-  {% endblock %}
+  {% set css_files = css_files + ['_static/css/my-styles.css'] %}
 
 
   {% block footer %} 

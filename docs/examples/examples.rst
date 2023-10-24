@@ -7,6 +7,7 @@
    :keywords: sarkas, plasma physics, plasma, physics, python, jupyter, md, molecular dynamics, OCP, One Component Plasma, Interdiffusion BIM, H-He Mixture, QSP, Quantum Statistical Potential, Magnetized Plasma, Yukawa, Yukawa Potential, Yukawa EGS, YOCP Viscosity, Moliere Potential, Ultracold Neutral Plasma, Ultrafast Electron Cooling
    :author: Stefano Silvestri, Ph.D.
    :designer: Stefano Silvestri, Ph.D.
+   :html_theme.sidebar_secondary.remove:
 
 
 
