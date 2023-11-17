@@ -726,7 +726,7 @@ class Observable:
 
         if self.k_observable:
             # Create paths for files
-            self.k_space_dir = os_path_join(self.postprocessing_dir, "k_space_data")
+            self.k_space_dir = os_path_join(self.directory_tree["postprocessing"]["path"], "k_space_data")
             self.k_file = os_path_join(self.k_space_dir, "k_arrays.npz")
             self.nkt_hdf_file = os_path_join(self.k_space_dir, "nkt.h5")
             self.vkt_hdf_file = os_path_join(self.k_space_dir, "vkt.h5")
@@ -2473,7 +2473,8 @@ class HeatFlux(Observable):
             # Take two slice data
             start_slice_step = 0
             end_slice_step = int(2 * self.acf_slice_steps * self.dump_step)
-            time = zeros(self.acf_slice_steps)
+            data_storage_size = int(2 * self.acf_slice_steps)
+            time = zeros(data_storage_size)
 
             # Temporarily store two consecutive slice data
             heat_flux_species_tensor = zeros((3, self.num_species, 2 * self.acf_slice_steps))
