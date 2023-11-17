@@ -63,7 +63,8 @@ def tab_force_nn(r, pot_matrix):
         f_r = (f_tab[rb] - 0.0*f_tab[-1]) * (rb < pot_matrix.shape[1]) + 0.0
     else:
         # rb = 0
-        u_r, f_r = 0.0, 0.0
+        u_r = 0.0
+        f_r = 0.0
 
     return u_r, f_r
 

@@ -3085,7 +3085,7 @@ class PressureTensor(Observable):
 
             # Let's compute
             start_slice_step = 0
-            end_slice_step = int(self.acf_slice_steps * self.dump_step)
+            end_slice_step = int(self.slice_steps * self.dump_step)
             # Unfortunately I haven't found a better way to grab the data than to re-read it from file.
             for isl in tqdm(
                 range(self.no_slices),
