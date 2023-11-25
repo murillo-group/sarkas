@@ -34,7 +34,6 @@ class TransportCoefficients:
     """Transport Coefficients parent."""
 
     def __init__(self):
-
         self.time_array = None
         self.dataframe = None
         self.dataframe_slices = None
@@ -88,7 +87,6 @@ class TransportCoefficients:
         self.pretty_print()
 
     def copy_params(self, params):
-
         for i, val in params.__dict__.items():
             if not inspect.ismethod(val):
                 if isinstance(val, dict):
@@ -311,7 +309,7 @@ class TransportCoefficients:
         ax4 = ax2.twiny()
 
         # Calculate axis multipliers and labels
-        xmul, ymul, _, _, xlbl, ylbl = plot_labels(time, tc_data[:, 0], "Time", tc_name, self.units)
+        xmul, ymul, _, _, xlbl, ylbl = plot_labels(time, tc_data[:, 0], "Time", self.__long_name__, self.units)
 
         # ACF
         ax1.plot(xmul * time, acf_data[:, 0] / acf_data[0, 0])
@@ -419,7 +417,6 @@ class TransportCoefficients:
         # redirect printing to file
         sys.stdout = f_log
         while repeat > 0:
-
             if t_hrs == 0 and t_min == 0 and t_sec <= 2:
                 print(f"\n{message} Time: {int(t_sec)} sec {int(t_msec)} msec {int(t_usec)} usec {int(t_nsec)} nsec")
             else:
@@ -480,7 +477,6 @@ class Diffusion(TransportCoefficients):
         if not observable.magnetized:
             # Loop over time slices
             for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
-
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
                     sp_vacf_str = f"{sp} " + vacf_str
@@ -504,7 +500,6 @@ class Diffusion(TransportCoefficients):
         else:
             # Loop over time slices
             for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
-
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
                     sp_vacf_str = f"{sp} " + vacf_str
@@ -993,7 +988,7 @@ class Viscosity(TransportCoefficients):
         figs = []
         axes = []
         # Make the plot
-        for ipq, pq in enumerate(plot_quantities):
+        for _, pq in enumerate(plot_quantities):
             if pq == "Bulk Viscosity":
                 acf_str = "Pressure Bulk ACF"
                 acf_avg = observable.dataframe_acf[("Pressure Bulk ACF", "Mean")]
@@ -1092,7 +1087,6 @@ class ElectricalConductivity(TransportCoefficients):
             self.dataframe = add_col_to_df(self.dataframe, col_data, col_name)
 
         else:
-
             for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
                 # Parallel
                 par_str = (jc_str, "Z", f"slice {isl}")
@@ -1212,7 +1206,6 @@ class ElectricalConductivity(TransportCoefficients):
             figs.append[fig]
             axes.append[(ax1, ax2, ax3, ax4)]
         else:
-
             acf_avg = observable.dataframe_acf[(jc_str, "Parallel", "Mean")].to_numpy()
             acf_std = observable.dataframe_acf[(jc_str, "Parallel", "Std")].to_numpy()
 
@@ -1296,7 +1289,6 @@ class ThermalConductivity(TransportCoefficients):
 
         # Loop over time slices
         for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
-
             # Iterate over the number of species
             for isp, sp1 in enumerate(species_list):
                 for _, sp2 in enumerate(species_list[isp:], isp):
@@ -1363,7 +1355,6 @@ class ThermalConductivity(TransportCoefficients):
 
         for isp, sp1 in enumerate(species_list):
             for _, sp2 in enumerate(species_list[isp:], isp):
-
                 acf_avg = observable.dataframe_acf[(sp_vacf_str, f"{sp1}-{sp2}", "Total", "Mean")].to_numpy()
                 acf_std = observable.dataframe_acf[(sp_vacf_str, f"{sp1}-{sp2}", "Total", "Std")].to_numpy()
 
