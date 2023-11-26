@@ -1596,32 +1596,32 @@ title="Print to PDF"
 <dl class="field-list simple">
 <dt class="field-odd">Variables</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>a_rs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Short-range cutoff to deal with divergence of the potential for r -&gt; 0.</p></li>
+<li><p><strong>a_rs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Short-range cutoff to deal with divergence of the potential for r -&gt; 0.</p></li>
 <li><p><strong>box_lengths</strong> (<em>array</em>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_lengths</span></code>.</p></li>
-<li><p><strong>box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_volume</span></code>.</p></li>
-<li><p><strong>force_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Force error due to the choice of the algorithm.</p></li>
-<li><p><strong>fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Coulomb constant <span class="math notranslate nohighlight">\(4 \pi \epsilon_0\)</span>.</p></li>
-<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Inverse screening length.</p></li>
-<li><p><strong>linked_list_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Flag for choosing the Linked cell list algorithm.</p></li>
+<li><p><strong>box_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.box_volume</span></code>.</p></li>
+<li><p><strong>force_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Force error due to the choice of the algorithm.</p></li>
+<li><p><strong>fourpie0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Coulomb constant <span class="math notranslate nohighlight">\(4 \pi \epsilon_0\)</span>.</p></li>
+<li><p><strong>kappa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Inverse screening length.</p></li>
+<li><p><strong>linked_list_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Flag for choosing the Linked cell list algorithm.</p></li>
 <li><p><strong>matrix</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – Matrix of potential’s parameters.</p></li>
-<li><p><strong>measure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Flag for calculating the histogram for the radial distribution function.
+<li><p><strong>measure</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Flag for calculating the histogram for the radial distribution function.
 It is set to <cite>False</cite> during equilibration phase and changed to <cite>True</cite> during production phase.</p></li>
-<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Algorithm method. Choices = <cite>[“PP”, “PPPM”, “FMM”, “Brute”]</cite>. n
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Algorithm method. Choices = <cite>[“PP”, “PPPM”, “FMM”, “Brute”]</cite>. n
 <cite>“PP”</cite> = Linked Cell List (default).
 <cite>“PPPM”</cite> = Particle-Particle Particle-Mesh.
 <cite>“FMM”</cite> = Fast Multipole Method.
 <cite>“Brute”</cite> = corresponds to calculating the distance between all pair of particles within a distance <span class="math notranslate nohighlight">\(L/2\)</span>.</p></li>
 <li><p><strong>pbox_lengths</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
-<li><p><strong>pbox_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
-<li><p><strong>pppm_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Flag for turning on the PPPM algorithm.</p></li>
-<li><p><strong>QFactor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Sum of the squared of the charges.</p></li>
-<li><p><strong>rc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Cutoff radius for the Linked Cell List algorithm.</p></li>
-<li><p><strong>screening_length_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Choice of ways to calculate the screening length. n
+<li><p><strong>pbox_volume</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Pointer to <code class="xref py py-attr docutils literal notranslate"><span class="pre">sarkas.core.Parameters.pbox_lengths</span></code></p></li>
+<li><p><strong>pppm_on</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Flag for turning on the PPPM algorithm.</p></li>
+<li><p><strong>QFactor</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Sum of the squared of the charges.</p></li>
+<li><p><strong>rc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Cutoff radius for the Linked Cell List algorithm.</p></li>
+<li><p><strong>screening_length_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Choice of ways to calculate the screening length. n
 Choices = <cite>[thomas-fermi, tf, debye, debye-huckel, db, moliere, custom, unscreened]</cite>. n
 Default = thomas-fermi</p></li>
-<li><p><strong>screening_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Value of the screening length.</p></li>
-<li><p><strong>total_net_charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Sum of all the charges.</p></li>
-<li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Type of potential. n
+<li><p><strong>screening_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Value of the screening length.</p></li>
+<li><p><strong>total_net_charge</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Sum of all the charges.</p></li>
+<li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Type of potential. n
 Choices = [<cite>“coulomb”</cite>, <cite>“egs”</cite>, <cite>“lennardjones”</cite>, <cite>“moliere”</cite>, <cite>“qsp”</cite>].</p></li>
 </ul>
 </dd>
@@ -1722,7 +1722,7 @@ Choices = [<cite>“coulomb”</cite>, <cite>“egs”</cite>, <cite>“lennardj
     By MurilloGroup<br/>
   
       &copy; Copyright 2019-2022, MurilloGroup.<br/>
-    Last updated on Sep 20, 2023.<br/>
+    Last updated on Nov 26, 2023.<br/>
 </p>
         </footer>
     </div>
