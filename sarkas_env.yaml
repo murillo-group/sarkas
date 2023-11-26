@@ -46,5 +46,6 @@ dependencies:
       - nbsphinx==0.8.9
       - sphinxext-opengraph==0.6.3
       - fmm3dpy
+      - ./
 
 
