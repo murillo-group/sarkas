@@ -15,6 +15,8 @@ Core modules
     :nosignatures:
 
     core
+    particles
+    plasma
     processes
 
 

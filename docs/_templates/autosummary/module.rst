@@ -60,7 +60,7 @@
    :template: autosummary/module.rst
    :recursive:
     {% for item in modules %}
-    {% if not item.endswith('tests') %} # do not document Test modules
+    {% if not item.endswith('tests') %} 
         {{ item }}
     {%- endif %}
     {%- endfor %}

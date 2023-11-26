@@ -15,13 +15,13 @@ import sys
 
 import sarkas
 
-# os.environ["DISABLE_JIT"] = '1'
-
 sys.path.insert(0, os.path.abspath("../sarkas"))
 sys.path.insert(0, os.path.abspath("../sarkas/time_evolution"))
 sys.path.insert(0, os.path.abspath("../sarkas/utilities"))
 sys.path.insert(0, os.path.abspath("../sarkas/potentials"))
 sys.path.insert(0, os.path.abspath("../sarkas/tools"))
+sys.path.insert(0, os.path.abspath("./_ext"))
+
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
@@ -61,6 +61,7 @@ extensions = [
     "sphinx_design",  # For creating cards, grid layout, drop-downs, tabs
     "sphinxext.opengraph",  # to add Open Graph metadata
     "sphinx_copybutton",  # Add a "copy" button to code blocks
+    "numbadecoratordoc", # custom extension to parse the docstring of decorated functions
     # "sphinx_codeautolink" #Automatic links from code examples to reference documentation --- it does not work properly at the moment
     # "myst_nb",
 ]
