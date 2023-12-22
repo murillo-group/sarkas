@@ -204,13 +204,17 @@ def update_params(potential):
     potential.matrix = zeros((potential.num_species, potential.num_species, 4, params_len))
     beta = 1.0 / (potential.kB * potential.electron_temperature)
     
+    # Shift the potential to zero at the cutoff radius
+    u_tab = u[mask] - (r[mask] - r[mask][-1]) * f[mask][-1] - u[mask][-1]
+    f_tab = f[mask] - f[mask][-1]
+
     for i, _ in enumerate(potential.species_charges):
         for j, _ in enumerate(potential.species_charges):
             # Increase the r array by epsilon so that you are certain to get the right bin later in tab_force
             potential.matrix[i, j, 0, :] = r[mask]
-            potential.matrix[i, j, 1, :] = u[mask]
-            potential.matrix[i, j, 2, :] = f[mask]
-            potential.matrix[i, j, 3, :] = f2[mask]
+            potential.matrix[i, j, 1, :] = u_tab
+            potential.matrix[i, j, 2, :] = f_tab
+            potential.matrix[i, j, 3, :] = f2[mask] - f2[mask][-1]
             
         
     if hasattr(potential,"interpolation_type"):
