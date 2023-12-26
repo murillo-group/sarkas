@@ -934,19 +934,19 @@ class Particles:
 
         """
         if phase == "equilibration":
-            file_name = join(self.eq_dump_dir, "checkpoint_" + str(it) + ".npz")
+            file_name = join(self.eq_dump_dir, f"checkpoint_{it}.npz")
 
         elif phase == "production":
-            file_name = join(self.prod_dump_dir, "checkpoint_" + str(it) + ".npz")
+            file_name = join(self.prod_dump_dir, f"checkpoint_{it}.npz")
 
         elif phase == "magnetization":
-            file_name = join(self.mag_dump_dir, "checkpoint_" + str(it) + ".npz")
+            file_name = join(self.mag_dump_dir, f"checkpoint_{it}.npz")
 
         data = np_load(file_name, allow_pickle=True)
 
         self.pos = data["pos"]
         self.vel = data["vel"]
-        self.acc = data["acc"]
+        # self.acc = data["acc"]
 
         self.rdf_hist = data["rdf_hist"]
 

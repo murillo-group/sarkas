@@ -2415,9 +2415,9 @@ class HeatFlux(Observable):
         self.update_finish()
 
     @compute_doc
-    def compute(self, calculate_acf: bool = False):
+    def compute(self, calculate_acf: bool = False, acf_plasma_periods: int = None, lag_plasma_periods: int = None):
         t0 = self.timer.current()
-        self.calc_slices_data()
+        self.calc_slices_data(acf_plasma_periods=acf_plasma_periods, lag_plasma_periods=lag_plasma_periods)
         self.average_slices_data()
         self.save_hdf()
         tend = self.timer.current()
@@ -2428,7 +2428,7 @@ class HeatFlux(Observable):
             self.verbose,
         )
         if calculate_acf:
-            self.compute_acf()
+            self.compute_acf(acf_plasma_periods=acf_plasma_periods, lag_plasma_periods=lag_plasma_periods)
 
     @compute_acf_doc
     def compute_acf(self, acf_plasma_periods: int = None, lag_plasma_periods: int = None):
@@ -2445,22 +2445,30 @@ class HeatFlux(Observable):
         )
 
     @calc_slices_doc
-    def calc_slices_data(self):
-        time = zeros(self.slice_steps)
+    def calc_slices_data(self, acf_plasma_periods: int = None, lag_plasma_periods: int = None): 
+        if acf_plasma_periods is not None:
+            self.acf_plasma_periods = acf_plasma_periods
+        if lag_plasma_periods is not None:
+            self.lag_plasma_periods = lag_plasma_periods
 
-        # Let's compute
-        start_slice_step = 0
-        end_slice_step = self.slice_steps * self.dump_step
+        # Need to update these attributes if inputs were not None
+        self.update_acf_times_attributes()
+
+        start_dump_no = 0  # Dump number to start the acf calculation
+        end_dump_no = self.acf_timesteps  # # Dump number to end the acf calculation
+
+        time = zeros(self.acf_slice_steps)
         ### Slices loop
         for isl in tqdm(
-            range(self.no_slices),
+            range(self.no_slices_acf),
             desc=f"\nCalculating {self.__long_name__} for slice ",
             disable=not self.verbose,
             position=0,
         ):
             # Parse the particles from the dump files
-            heat_flux_species_tensor = zeros((3, self.num_species, self.slice_steps))
-            for it, dump in enumerate(range(start_slice_step, end_slice_step, self.dump_step)):
+            heat_flux_species_tensor = zeros((3, self.num_species, self.acf_slice_steps))
+            # Parse the particles from the dump files
+            for it, dump in enumerate(range(start_dump_no, end_dump_no, self.dump_step)):
                 datap = load_from_restart(self.dump_dir, dump)
                 time[it] = datap["time"]
                 heat_flux_species_tensor[:, :, it] = datap["species_heat_flux"]
@@ -2477,8 +2485,9 @@ class HeatFlux(Observable):
                     col_name = f"{self.__long_name__}_{sp1}_{ax}_slice {isl}"
                     self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
-            start_slice_step += self.slice_steps * self.dump_step
-            end_slice_step += self.slice_steps * self.dump_step
+            # Advance by only one slice at a time.
+            start_dump_no += self.lag_plasma_periods * self.timesteps_per_plasma_period
+            end_dump_no += self.lag_plasma_periods * self.timesteps_per_plasma_period
             # end of slice loop
 
     @calc_acf_slices_doc
