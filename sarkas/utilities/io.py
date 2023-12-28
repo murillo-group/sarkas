@@ -1179,80 +1179,65 @@ class InputOutput:
 
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
+            # Header of process
+            process_title = f"{self.process.capitalize():^80}"
+            print(f"\n\n{'':*^80}")
+            print(process_title)
+            print(f"{'':*^80}")
+
+            print(f"\nJob ID: {self.job_id}")
+            print(f"Job directory: {self.job_dir}")
+            print(
+                f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
+            )
+
+            print(
+                f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
+            )
+            print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
+
+            print(
+                f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
+            )
+            print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
 
             if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
                 print(f"\n\n{' Production Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
                 print(f"\n\n{' Equilibration Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
                 print(f"\n\n{' Magnetization Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
-            elif self.process == "postprocessing":
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"\n\n{'':*^80}")
-                print(process_title)
-                print(f"{'':*^80}")
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(
-                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
-                )
-
-                print(
-                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
-                )
-                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
-
-                print(
-                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
-                )
-                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
-
-            else:
-
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"\n\n{'':*^80}")
-                print(process_title)
-                print(f"{'':*^80}")
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(
-                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
-                )
-
-                print(
-                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
-                )
-                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
-
-                print(
-                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
-                )
-                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
-
+            elif self.process in ["simulation", "preprocessing"]:
+    
                 print("\nPARTICLES:")
                 print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
 
                 print(f"No. of species = {len(simulation.parameters.species_num)}")
-                # This line below is to prevent printing electron background in the case of LJ potential
+                # The line below is to prevent printing electron background in the case of LJ potential
                 species_to_print = simulation.species[:-1] if simulation.potential.type == "lj" else simulation.species
                 for isp, sp in enumerate(species_to_print):
                     if sp.name != "electron_background":

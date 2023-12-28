@@ -755,7 +755,10 @@ class Parameters:
 
         phase_msg += phs_msg
         msg += phase_msg
-        print(msg)
+        if restart[-7:] == "restart":
+            print(phase_msg)
+        else:
+            print(msg)
 
     def set_species_attributes(self, species: list):
         """
