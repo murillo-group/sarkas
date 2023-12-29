@@ -13,12 +13,13 @@ else:
 
 import sys
 from matplotlib.pyplot import subplots
-from numpy import array, column_stack, ndarray, pi, trapz
+from numpy import array, column_stack, ndarray, pi, rint
 from os import mkdir as os_mkdir
 from os import remove as os_remove
 from os.path import exists as os_path_exists
 from os.path import join as os_path_join
 from pandas import DataFrame, MultiIndex, read_hdf
+from scipy.integrate import cumulative_trapezoid
 from warnings import warn
 
 from ..utilities.io import print_to_logger
@@ -52,7 +53,6 @@ class TransportCoefficients:
         self.pbox_volume = None
         self.phase = None
         self.no_slices = None
-        self.acf_slice_steps = None
         self.dump_step = None
 
         self.kB = 0.0
@@ -62,7 +62,7 @@ class TransportCoefficients:
         self.df_fnames = {}
         self.timer = SarkasTimer()
 
-    def setup(self, params, observable, thermodynamics=None):
+    def setup(self, params, observable, thermodynamics):
         """
         Set up the necessary parameters and structures for computing transport coefficients.
         This includes copying simulation parameters, creating directories, and initializing dataframes.
@@ -76,7 +76,7 @@ class TransportCoefficients:
             An instance of the Observable class. This class is used for obtaining the autocorrelation
             function datasets necessary for the transport coefficient calculations.
 
-        thermodynamics : :class:`sarkas.tools.observables.Thermodynamics`, optional
+        thermodynamics : :class:`sarkas.tools.observables.Thermodynamics`
             An instance of the Thermodynamics class, which is used for calculating the average temperature
             of each block in the simulation. If not provided, the average temperature is calculated using
             the :meth:`calculate_average_temperature` method.
@@ -98,11 +98,9 @@ class TransportCoefficients:
         self.copy_params(params=params)
         self.postprocessing_dir = self.directory_tree["postprocessing"]["path"]
         self.get_observable_data(observable)
-        if thermodynamics:
-            thermodynamics.calculate_beta_slices()
-            self.beta_slices = thermodynamics.beta_slices.copy()
-        else:
-            self.calculate_average_temperature(params)
+
+        thermodynamics.calculate_beta_slices()
+        self.beta_slices = thermodynamics.beta_slices.copy()
 
         self.make_directories()
         self.create_df_filenames()
@@ -147,7 +145,7 @@ class TransportCoefficients:
         """
 
         energy = Thermodynamics()
-        energy.setup(params, phase=self.phase, no_slices=self.no_slices)
+        energy.setup(params, phase=self.phase)
         energy.parse(acf_data=False)
         energy.calculate_beta_slices()
         # self.T_avg = energy.dataframe["Temperature"].mean()
@@ -290,7 +288,11 @@ class TransportCoefficients:
 
         self.phase = observable.phase
         self.no_slices = observable.no_slices
-        self.acf_slice_steps = observable.acf_slice_steps
+        self.block_length = observable.block_length
+        self.timesteps_per_block = observable.timesteps_per_block
+        self.timesteps_per_plasma_period = observable.timesteps_per_plasma_period
+        self.plasma_period = observable.plasma_period
+
         self.dump_step = observable.dump_step
 
     def parse(self):
@@ -421,9 +423,9 @@ class TransportCoefficients:
 
         # Create the message to print
         dtau = self.dt * self.dump_step
-        tau = dtau * self.acf_slice_steps
-        t_wp = 2.0 * pi / self.total_plasma_frequency  # Plasma period
-        tau_wp = int(tau / t_wp)
+        tau = dtau * self.block_length
+        # t_wp = 2.0 * pi / self.total_plasma_frequency  # Plasma period
+        tau_wp = rint(tau / self.plasma_period).astype(int)
         if info:
             msg = info
         else:
@@ -431,9 +433,9 @@ class TransportCoefficients:
                 f"\n\n {tc_name:=^70} \n"
                 f"Data saved in: \n {self.df_fnames['dataframe']} \n {self.df_fnames['dataframe_slices']} \n"
                 f"No. of slices = {self.no_slices}\n"
-                f"No. dumps per slice = {int(self.acf_slice_steps)}\n"
+                f"No. dumps per block = {self.block_length}\n"
                 f"Total time interval of autocorrelation function: tau = {tau:.4e} {self.units_dict['time']} ~ {tau_wp} plasma periods\n"
-                f"Time interval step: dtau = {dtau:.4e} ~ {dtau / t_wp:.4e} plasma periods"
+                f"Time interval step: dtau = {dtau:.4e} ~ {dtau / self.plasma_period:.4e} plasma periods"
             )
             if append_info:
                 msg += append_info
@@ -984,7 +986,7 @@ class Viscosity(TransportCoefficients):
 
     def __init__(self):
         self.__name__ = "Viscosities"
-        self.__long_name__ = "Viscosity Coefficients"
+        self.__long_name__ = "Viscosity"
         self.required_observable = "Pressure Tensor"
         super().__init__()
 
@@ -1040,7 +1042,7 @@ class Viscosity(TransportCoefficients):
             integrand = observable.dataframe_acf_slices[(f"Pressure Bulk ACF", f"slice {isl}")].to_numpy()
 
             col_name = f"Bulk Viscosity_slice {isl}"
-            col_data = const * fast_integral_loop(self.time_array, integrand)
+            col_data = const * cumulative_trapezoid(integrand, x=self.time_array, initial=0.0)
             self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             # Calculate the Shear Viscosity Elements
@@ -1050,7 +1052,9 @@ class Viscosity(TransportCoefficients):
                         pt_str_temp = (pt_str + f" {ax1}{ax2}{ax1}{ax2}", f"slice {isl}")
                         integrand = observable.dataframe_acf_slices[pt_str_temp].to_numpy()
                         col_name = eta_str + f" {ax1}{ax2}_slice {isl}"
-                        col_data = const * fast_integral_loop(self.time_array, integrand)
+                        col_data = const * cumulative_trapezoid(
+                            integrand, x=self.time_array, initial=0.0
+                        )  # fast_integral_loop(self.time_array, integrand)
                         self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
             start_steps += time_steps
@@ -1411,7 +1415,7 @@ class ThermalConductivity(TransportCoefficients):
             Flag for displaying the plot if using the IPython. Default = False
 
         """
-        observable.parse_acf()
+        observable.load_hdf_acf()
         self.initialize_dataframes(observable)
         # Initialize Timer
         t0 = self.timer.current()
@@ -1434,9 +1438,11 @@ class ThermalConductivity(TransportCoefficients):
                         (sp_vacf_str, f"{sp1}-{sp2}", "Total", f"slice {isl}")
                     ].values
                     df_str = f"{self.__long_name__}_{sp1}-{sp2}_slice {isl}"
-                    self.dataframe_slices[df_str] = const[isl] * fast_integral_loop(
-                        time=self.time_array, integrand=integrand
-                    )
+                    # self.dataframe_slices[df_str] = const[isl] * fast_integral_loop(
+                    #     time=self.time_array, integrand=integrand
+                    # )
+                    data = const[isl] * cumulative_trapezoid(integrand, self.time_array, initial=0)
+                    self.dataframe_slices = add_col_to_df(self.dataframe_slices, data, df_str)
 
         # Average and std of each transport coefficient.
         for isp, sp1 in enumerate(species_list):
