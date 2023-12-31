@@ -2626,15 +2626,15 @@ class HeatFlux(Observable):
             time_ = datap["time"]
             heat_flux_species_tensor = datap["species_heat_flux"]
             # Initialize the data dictionary with the time_ value
-            data = {f"{self.__long_name__}_Species_Time": time_}
+            data.update( [ (f"{self.__long_name__}_Species_Time", time_) ] )
 
             # Add heat flux data for each species and axis to the dictionary
             data.update(
-                {
-                    f"{self.__long_name__}_{sp}_{axis}": heat_flux_species_tensor[iax, isp]
+                [
+                    (f"{self.__long_name__}_{sp}_{axis}", heat_flux_species_tensor[iax, isp])
                     for isp, sp in enumerate(self.species_names)
                     for iax, axis in enumerate(self.dim_labels)
-                }
+                ]
             )
             dataset = concat([dataset, DataFrame(data, index=[it])])
 
@@ -3578,31 +3578,37 @@ class PressureTensor(Observable):
             for isp in range(self.num_species):
                 species_pressure[isp] = (pt_temp[:, :, isp]).trace() / self.dimensions
 
-            data = {f"Quantity_Time": time_}
+            data.update(
+                [(f"Quantity_Time", time_)]
+                )
+            
             # Add the total pressure data to the dictionary
-            data = {f"Total_Pressure": species_pressure.sum()}
+            data.update(
+                [(f"Total_Pressure", species_pressure.sum())]
+                )
 
             # Add pressure tensor for each axis pair
             data.update(
-                {
-                    f"Total_Pressure Tensor {ax1}{ax2}": pt_temp[iax1, iax2, :].sum()
+                [(f"Total_Pressure Tensor {ax1}{ax2}", pt_temp[iax1, iax2, :].sum())
                     for iax1, ax1 in enumerate(self.dim_labels)
                     for iax2, ax2 in enumerate(self.dim_labels[iax1:], iax1)
-                }
+                ]
             )
 
             if self.num_species > 1:
                 # Add the pressure of each species
-                data.update({f"{sp}_Pressure": species_pressure[isp] for isp, sp in enumerate(self.species_names)})
+                data.update(
+                    [(f"{sp}_Pressure", species_pressure[isp]) for isp, sp in enumerate(self.species_names)]
+                    )
 
                 # Add the pressure tensor of each species
                 data.update(
-                    {
-                        f"{sp}_Pressure Tensor {ax1}{ax2}": pt_temp[iax1, iax2, isp]
+                    [
+                        (f"{sp}_Pressure Tensor {ax1}{ax2}", pt_temp[iax1, iax2, isp])
                         for isp, sp in enumerate(self.species_names)
                         for iax1, ax1 in enumerate(self.dim_labels)
                         for iax2, ax2 in enumerate(self.dim_labels[iax1:], iax1)
-                    }
+                    ]
                 )
 
             # Append row to the dataset
