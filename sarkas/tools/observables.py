@@ -18,7 +18,7 @@ import sys
 import warnings
 from matplotlib.gridspec import GridSpec
 from numba import njit
-from numpy import append as np_append
+from numpy import append as np_append, triu_indices
 from numpy import (
     argsort,
     array,
@@ -2607,9 +2607,9 @@ class HeatFlux(Observable):
         columns = [f"{self.__long_name__}_Species_Time"]
         columns.extend(cols)
 
-        dataset = DataFrame(columns=columns)
-        data = dict.fromkeys(columns, [])
-
+        # dataset = DataFrame(columns=columns)
+        # data = dict.fromkeys(columns, [])
+        data = zeros((self.no_dumps, len(columns)))
         # Parse the particles from the dump files
         # heat_flux_species_tensor = zeros((3, self.num_species))
         # Parse the particles from the dump files
@@ -2626,19 +2626,22 @@ class HeatFlux(Observable):
             time_ = datap["time"]
             heat_flux_species_tensor = datap["species_heat_flux"]
             # Initialize the data dictionary with the time_ value
-            data.update( [ (f"{self.__long_name__}_Species_Time", time_) ] )
+            # data.update( [ (f"{self.__long_name__}_Species_Time", time_) ] )
+            data[it, 0] = time_
 
-            # Add heat flux data for each species and axis to the dictionary
-            data.update(
-                [
-                    (f"{self.__long_name__}_{sp}_{axis}", heat_flux_species_tensor[iax, isp])
-                    for isp, sp in enumerate(self.species_names)
-                    for iax, axis in enumerate(self.dim_labels)
-                ]
-            )
-            dataset = concat([dataset, DataFrame(data, index=[it])])
+            # # Add heat flux data for each species and axis to the dictionary
+            # data.update(
+            #     [
+            #         (f"{self.__long_name__}_{sp}_{axis}", heat_flux_species_tensor[iax, isp])
+            #         for isp, sp in enumerate(self.species_names)
+            #         for iax, axis in enumerate(self.dim_labels)
+            #     ]
+            # )
+            data[it, 1:] = [heat_flux_species_tensor[iax, isp] for isp, sp in enumerate(self.species_names) for iax, axis in enumerate(self.dim_labels)]
 
-        self.simulation_dataframe = dataset
+            # dataset = concat([dataset, DataFrame(data, index=[it])])
+
+        self.simulation_dataframe = DataFrame(data, columns=columns)
 
     @compute_acf_doc
     def compute_acf(self, plasma_periods_per_block: int = None, lag_plasma_periods: int = None):
@@ -3550,9 +3553,9 @@ class PressureTensor(Observable):
             columns.extend(sp_pressure_cols)
             columns.extend(sp_tensor_cols)
 
-        dataset = DataFrame(columns=columns)
-        data = dict.fromkeys(columns, [])
-
+        # dataset = DataFrame(columns=columns)
+        # data = dict.fromkeys(columns, [])
+        data = zeros((self.no_dumps, len(columns)))
         # Parse the particles from the dump files
         # pressure = zeros(self.block_length)
         # pt_kin_temp = zeros((self.dimensions, self.dimensions, self.num_species))
@@ -3578,22 +3581,25 @@ class PressureTensor(Observable):
             for isp in range(self.num_species):
                 species_pressure[isp] = (pt_temp[:, :, isp]).trace() / self.dimensions
 
-            data.update(
-                [(f"Quantity_Time", time_)]
-                )
+            data[it, 0] = time_
+            data[it, 1] = species_pressure.sum()
+            data[it, 2:] = pt_temp.sum(axis=-1)[triu_indices(self.dimensions)]
+            # data.update(
+            #     [(f"Quantity_Time", time_)]
+            #     )
             
-            # Add the total pressure data to the dictionary
-            data.update(
-                [(f"Total_Pressure", species_pressure.sum())]
-                )
+            # # Add the total pressure data to the dictionary
+            # data.update(
+            #     [(f"Total_Pressure", species_pressure.sum())]
+            #     )
 
-            # Add pressure tensor for each axis pair
-            data.update(
-                [(f"Total_Pressure Tensor {ax1}{ax2}", pt_temp[iax1, iax2, :].sum())
-                    for iax1, ax1 in enumerate(self.dim_labels)
-                    for iax2, ax2 in enumerate(self.dim_labels[iax1:], iax1)
-                ]
-            )
+            # # Add pressure tensor for each axis pair
+            # data.update(
+            #     [(f"Total_Pressure Tensor {ax1}{ax2}", pt_temp[iax1, iax2, :].sum())
+            #         for iax1, ax1 in enumerate(self.dim_labels)
+            #         for iax2, ax2 in enumerate(self.dim_labels[iax1:], iax1)
+            #     ]
+            # )
 
             if self.num_species > 1:
                 # Add the pressure of each species
@@ -3612,9 +3618,9 @@ class PressureTensor(Observable):
                 )
 
             # Append row to the dataset
-            dataset = concat([dataset, DataFrame(data, index=[it])])
+            # dataset = concat([dataset, DataFrame(data, index=[it])])
 
-        self.simulation_dataframe = dataset
+        self.simulation_dataframe = DataFrame(data, columns=columns)
 
     def sum_rule(self, beta, rdf, potential):
         r"""
