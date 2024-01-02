@@ -419,7 +419,7 @@ class TransportCoefficients:
             details of the simulation.
         """
 
-        tc_name = self.__long_name__
+        tc_name = f" {self.__long_name__} "
 
         # Create the message to print
         dtau = self.dt * self.dump_step
@@ -430,7 +430,7 @@ class TransportCoefficients:
             msg = info
         else:
             msg = (
-                f"\n\n {tc_name:=^70} \n"
+                f"\n\n{tc_name:=^70}\n"
                 f"Data saved in: \n {self.df_fnames['dataframe']} \n {self.df_fnames['dataframe_slices']} \n"
                 f"No. of slices = {self.no_slices}\n"
                 f"No. dumps per block = {self.block_length}\n"
@@ -502,9 +502,11 @@ class TransportCoefficients:
         if os_path_exists(self.df_fnames["dataframe_slices"]):
             os_remove(self.df_fnames["dataframe_slices"])
 
-        self.dataframe_slices.columns = MultiIndex.from_tuples(
-            [tuple(c.split("_")) for c in self.dataframe_slices.columns]
-        )
+        self.ensure_multiindex(self.dataframe_slices)
+        # self.dataframe_slices.columns = MultiIndex.from_tuples(
+        #     [tuple(c.split("_")) for c in self.dataframe_slices.columns]
+        # )
+
         self.dataframe_slices = self.dataframe_slices.sort_index()
         self.dataframe_slices.to_hdf(self.df_fnames["dataframe_slices"], mode="w", key=self.__name__, index=False)
 
@@ -512,9 +514,25 @@ class TransportCoefficients:
         if os_path_exists(self.df_fnames["dataframe"]):
             os_remove(self.df_fnames["dataframe"])
 
-        self.dataframe.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
+        self.ensure_multiindex(self.dataframe)
+        # self.dataframe.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in self.dataframe.columns])
         self.dataframe = self.dataframe.sort_index()
         self.dataframe.to_hdf(self.df_fnames["dataframe"], mode="w", key=self.__name__, index=False)
+
+    def ensure_multiindex(self, dataframe):
+        """
+        Ensure that the columns of the given dataframe are a MultiIndex.
+
+        This method checks if the columns of the given dataframe are already a MultiIndex.
+        If not, it converts the columns to a MultiIndex by splitting each column name on the underscore character.
+
+        Parameters
+        ----------
+        dataframe : pd.DataFrame
+            The dataframe to process.
+        """
+        if not isinstance(dataframe.columns, MultiIndex):
+            dataframe.columns = MultiIndex.from_tuples([tuple(c.split("_")) for c in dataframe.columns])
 
     def time_stamp(self, message: str, timing: tuple):
         """

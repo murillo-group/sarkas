@@ -2040,7 +2040,7 @@ class CurrentCorrelationFunction(Observable):
     def setup(
         self, params, phase: str = None, plasma_periods_per_block: int = None, lag_plasma_periods: int = None, **kwargs
     ):
-        super().setup_init(params, phase=phase, no_slices=no_slices)
+        super().setup_init(params, phase=phase, plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods, **kwargs)
 
         self.update_args(**kwargs)
 
@@ -2139,7 +2139,7 @@ class DiffusionFlux(Observable):
     def setup(
         self, params, phase: str = None, plasma_periods_per_block: int = None, lag_plasma_periods: int = None, **kwargs
     ):
-        super().setup_init(params, phase, no_slices)
+        super().setup_init(params, phase, plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods, **kwargs)
         self.update_args(**kwargs)
 
     @arg_update_doc
@@ -4681,7 +4681,7 @@ class VelocityAutoCorrelationFunction(Observable):
     def setup(
         self, params, phase: str = None, plasma_periods_per_block: int = None, lag_plasma_periods: int = None, **kwargs
     ):
-        super().setup_init(params, phase=phase, no_slices=no_slices)
+        super().setup_init(params, phase=phase, plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods, **kwargs)
         self.update_args(**kwargs)
 
     @arg_update_doc
@@ -4775,7 +4775,7 @@ class VelocityAutoCorrelationFunction(Observable):
 
         vel: numpy.ndarray
             Array in which to store the collected velocities.
-            Shape = (:attr:`dimensions`, `len(`:attr:`no_ptcls_per_species``)`, `2`:attr:`block_length`)
+            Shape = (:attr:`dimensions`, `len(`:attr:`no_ptcls_per_species` `)`, `2`:attr:`block_length`)
 
         time: numpy.ndarray
             Array in which to store the time collected from the dump.
