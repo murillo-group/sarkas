@@ -2601,7 +2601,7 @@ class HeatFlux(Observable):
 
         """
         start_dump_no = 0
-        end_dump_no = self.no_steps
+        end_dump_no = self.no_steps + 1 # +1 because range() does not include the last number
         step = self.dump_step
         cols = [f"{self.__long_name__}_{sp}_{axis}" for sp in self.species_names for axis in self.dim_labels]
         columns = [f"{self.__long_name__}_Species_Time"]
@@ -2663,6 +2663,8 @@ class HeatFlux(Observable):
         self.update_block_attributes(
             plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods
         )
+        self.dataframe = DataFrame()
+        self.dataframe_slices = DataFrame()
 
         start_index = 0  # Dump number to start the acf calculation
         end_index = self.block_length  # # Dump number to end the acf calculation
@@ -2700,7 +2702,9 @@ class HeatFlux(Observable):
         self.update_block_attributes(
             plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods
         )
-
+        self.dataframe_acf = DataFrame()
+        self.dataframe_acf_slices = DataFrame()
+        
         start_index = 0  # Dump number to start the acf calculation
         end_index = self.block_length  # Dump number to end the acf calculation
 
@@ -2963,6 +2967,9 @@ class PressureTensor(Observable):
         self.update_block_attributes(
             plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods
         )
+        self.dataframe = DataFrame()
+        self.dataframe_slices = DataFrame()
+        
         # Prepare columns names
         tensor_cols = [
             (f"Total", f"Pressure Tensor {ax1}{ax2}")
@@ -3112,7 +3119,9 @@ class PressureTensor(Observable):
         self.update_block_attributes(
             plasma_periods_per_block=plasma_periods_per_block, lag_plasma_periods=lag_plasma_periods
         )
-
+        self.dataframe_acf = DataFrame()
+        self.dataframe_acf_slices = DataFrame()
+        
         columns = [
             (f"Total", f"Pressure Tensor {ax1}{ax2}")
             for iax1, ax1 in enumerate(self.dim_labels)
@@ -3530,7 +3539,7 @@ class PressureTensor(Observable):
 
         """
         start_dump_no = 0
-        end_dump_no = self.no_steps
+        end_dump_no = self.no_steps + 1 # because the last dump is not included in the range otherwise
         step = self.dump_step
         tensor_cols = [
             f"Total_Pressure Tensor {ax1}{ax2}"
@@ -3555,6 +3564,7 @@ class PressureTensor(Observable):
 
         # dataset = DataFrame(columns=columns)
         # data = dict.fromkeys(columns, [])
+        # Storing the data into a numpy array and then creating a dataframe is much faster than appending to a dataframe
         data = zeros((self.no_dumps, len(columns)))
         # Parse the particles from the dump files
         # pressure = zeros(self.block_length)
