@@ -302,7 +302,7 @@ class TransportCoefficients:
         self.dataframe_slices = read_hdf(self.df_fnames["dataframe_slices"], mode="r", index_col=False)
 
         # Print some info
-        self.pretty_print()
+        # self.pretty_print()
 
     def plot_tc(self, time, acf_data, tc_data, acf_name, tc_name, figname, show: bool = False):
         """
