@@ -446,9 +446,8 @@ class Parameters:
         e_species.relativistic_parameter = self.hbar * e_species.Fermi_wavenumber / (self.me * self.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        e_species.coupling = e_species.charge**2 / (
-            self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(1.0 + e_species.degeneracy_parameter**2)
-        )
+        e_species.coupling = e_species.charge**2 / (e_species.a_ws * self.fourpie0 * self.kB * e_species.temperature)
+        e_species.coupling *= 1.0/( 1 + (1.5 * e_species.degeneracy_parameter)**(-9/5))**(5/9)
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
         e_species.wdm_parameter = 2.0 / (e_species.degeneracy_parameter + 1.0 / e_species.degeneracy_parameter)
