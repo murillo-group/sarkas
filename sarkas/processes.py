@@ -1139,7 +1139,7 @@ class PreProcess(Process):
         print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
     def make_pppm_plots_dir(self):
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+        self.pppm_plots_dir = join(self.io.directory_tree["preprocessing"]["path"], "PPPM_Plots")
 
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
@@ -1379,7 +1379,7 @@ class PreProcess(Process):
     def timing_study_calculation(self):
         """Estimate the best number of mesh points and cutoff radius."""
 
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+        self.pppm_plots_dir = join(self.io.directory_tree["preprocessing"]["path"], "PPPM_Plots")
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
 
