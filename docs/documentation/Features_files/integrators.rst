@@ -15,8 +15,8 @@ Currently the available ones are:
 - Cyclotronic
 
 The choice of integrator is provided in the input file and the method
-:doc:`type_setup() <../../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.type_setup>`
-links the chosen integrator to the :doc:`update() <../../api/time_evolution_subpckg/Integrator_mthds/sarkas.time_evolution.integrators.Integrator.update>` method which evolves
+`type_setup() <../../api/time_evolution_subpckg/Integrator_methods/sarkas.time_evolution.integrators.Integrator.type_setup.rst>`_
+links the chosen integrator to the `update() <../../api/time_evolution_subpckg/Integrator_methods/sarkas.time_evolution.integrators.Integrator.update.rst>`_ method which evolves
 particles' positions, velocities, and accelerations in time.
 
 The Velocity Verlet algorithm is the most common integrator used in MD plasma codes.

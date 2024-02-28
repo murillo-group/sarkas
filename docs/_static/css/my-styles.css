@@ -1,7 +1,5 @@
 
-body {
-    font-size:18px;
-}
+body {font-size:18px;}
 
 /********go back to the layout of sphinx-book-theme v0.1.4************/
 
@@ -22,19 +20,19 @@ body {
 /*******************************************************/
 
 :root {
-  --clr-nav_primary: rgb(68, 102, 63);
-  --clr-nav_secondary: rgb(184,86,182);
-  --clr-nav_accent: rgb(255, 177, 68);
-  --clr-nav_text: rgb(236, 240, 241);
+  --msu_primary: 68, 102, 63;
+  --msu_secondary: 184,86,182;
+  --msu_accent: 255, 177, 68;
+  --msu_text: 236, 240, 241;
   
   --pst-color-link: 24, 188, 156; /*68, 102, 63;*/
-  --pst-color-link-hover: 68, 102, 63;/*255, 177, 68;*/
-  --pst-color-active-navigation: 184, 86, 182;
-  --pst-color-preformatted-background: 236, 240, 241;
+  --pst-color-link-hover: var(--msu_primary);/*255, 177, 68;*/
+  --pst-color-active-navigation: var(--msu_secondary);
+  --pst-color-preformatted-background: var(--msu_text);
 
-  --pst-color-sidebar-caption: 255,177,68 /*deafault 77,77,77*/;
+  --pst-color-sidebar-caption: var(--msu_accent); /*deafault 77,77,77*/
 
-  --sd-color-card-border-hover: rgb(24, 188, 156);
+  --sd-color-card-border-hover: rgb(var(--pst-color-link));
 }
 
 /********credits thumbcontainer************/
@@ -43,30 +41,27 @@ body {
   max-width: 200px !important;
   max-height: 200px !important;
 }
-
+.nbsphinx-gallery {gap:1.5rem;}
+.nbsphinx-gallery > a:hover,
+.nbsphinx-gallery > a:focus-within,
+.sd-card:hover,
+.sd-card:focus-within {
+    box-shadow: 0 0.125rem 0.125rem 0.25rem var(--sd-color-card-border-hover);
+    outline: transparent;
+}
 /*******************************************/
 
-code {
-  color:#e0855e;
- }
+code {color:#e0855e;}
 
-pre {
-   color: #3a3a39;
- }
+pre {color: #3a3a39;}
 
-#site-navigation {
- background-color: var(--clr-nav_primary);
-}
+#site-navigation {background-color: rgb(var(--msu_primary));}
 
 #site-navigation nav ul.nav li a, 
 #site-navigation nav ul.nav ul li a, 
-#site-navigation div.navbar_extra_footer {
- color:var(--clr-nav_text);
-}
+#site-navigation div.navbar_extra_footer {color:rgb(var(--msu_text));}
 
-.bd-sidebar label:hover{
- background-color: rgb(var(--pst-color-link-hover));
-}
+.bd-sidebar label:hover{background-color: rgb(var(--pst-color-link-hover));}
 
 /* From https://github.com/twbs/bootstrap/issues/1768 */
 *[id]:before {

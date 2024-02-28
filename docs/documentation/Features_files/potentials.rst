@@ -19,7 +19,7 @@ All the equations will be given in cgs units, however, for easy conversion, we d
 
 which when substituted in gives the equivalent mks formula.
 
-Electron parameters and thermodynamic formulas are given in :doc:`here <electron_properties>`.
+Electron parameters and thermodynamic formulas are given in `here <../../theory/electron_properties.rst>`_.
 
 .. _coulomb_pot:
 

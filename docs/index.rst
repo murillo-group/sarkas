@@ -22,7 +22,10 @@
 
    <style media="screen" type="text/css">
      h1 { display:none; }
-     h2, h3 { font-family: 'RocknRoll One', sans-serif; }
+     h2, h3 { 
+     --pst-font-size-h2: calc(var(--pst-font-size-h1,36px)*1.5);
+     font-family: 'RocknRoll One', sans-serif;
+     }
    </style>
 
 
@@ -30,38 +33,48 @@ SARKAS: Python MD code for plasma physics
 =========================================
 
 
-.. raw:: html
+.. grid:: 1 1 1 1
+    :gutter: 1
+    :class-row: full-width
 
-   <div class="full-width p-0 m-0">
-      <div class="jumbotron jumbotron-fluid p-0 bg-white">
-         <div class="container-fluid p-0 m-0">
-            <div class="row justify-content-center">
-               <div class="col-xs-12 col-sm-12 col-lg-8 text-center">
-                  <h2 class="display-2 font-weight-bold text-break">SARKAS</h2>
-                  <h3 class="lead font-weight-bold">Python MD code for plasma physics</h3>
-               </div>
-                  <img src="_static/Sarkas_v1_for_light_bg.svg" alt="logo" class="float-lg-right float-xs-none float-sm-none" width="25%">
-                  <span class="float-none"></span>
-            </div>
-         </div>
-      </div>
+    .. grid-item::
+        :class: text-center
 
+        .. grid:: 1 2 2 2
+            :gutter: 1
+
+            .. grid-item::
+
+                .. raw:: html
+                    
+                    <h2>SARKAS</h2>
+                    <h3>Python MD code for plasma physics</h3>
+
+            .. grid-item::
+
+                .. raw:: html
+
+                    <picture>
+                        <source srcset="_static/assets/logos/Sarkas_v1_for_light_bg.svg" type="image/svg.xml">
+                        <img src="_static/assets/logos/Sarkas_v1_for_light_bg.svg" alt="logo">
+                    </picture>
+
+    .. grid-item::
+
+        
+        .. grid:: 1 2 2 2
+            :gutter: 1
+
+            .. grid-item::
+                
+                .. image:: _static/assets/BYU.gif
+
+            .. grid-item:: 
+
+                .. image:: _static/assets/codesnippet.png
 
 .. grid:: 1 1 2 2
-   :gutter: 1
-
-   .. grid-item-card::
-      :class-card: border-0
-      :shadow: none
-      :img-top: _static/codesnippet.png
-
-   .. grid-item-card::
-      :class-card: border-0
-      :shadow: none
-      :img-top: _static/BYU.gif
-
-
-.. grid:: 1 1 2 2
+   :class-row: full-width
 
    .. grid-item-card:: User Friendly
       :class-card: border-0
@@ -146,7 +159,7 @@ SARKAS: Python MD code for plasma physics
       :class-header: sd-text-center sd-border-0
       :class-title: sd-text-center sd-fs-4
       
-      :fa:`github;fa-3x mb-3 text-muted` 
+      :fa:`code-compare;fa-3x mb-3 text-muted` 
       ^^^
       
       Sarkas is released under the MIT License and maintained by the community on GitHub.
@@ -154,7 +167,7 @@ SARKAS: Python MD code for plasma physics
 
 .. grid:: 1 1 2 2
    :class-container: bg-light text-left
-   :class-row: bg-light border-0
+   :class-row: full-width bg-light border-0
 
    .. grid-item-card::
 
@@ -205,7 +218,4 @@ SARKAS: Python MD code for plasma physics
       * :ref:`genindex`
       * :ref:`modindex`
       * :ref:`search`
-
-.. raw::html
-
-   </div>
+      

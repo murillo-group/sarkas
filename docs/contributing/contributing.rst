@@ -34,7 +34,7 @@ And you do not just have to write code. You can help out by writing documentatio
 made it OPEN for anyone to use!)
 
 How can I contribute?
-----------------------------
+---------------------
 
 There are multiple ways in which you can help us:
 
@@ -70,13 +70,13 @@ If not, do not worry - just pick an `issue <https://github.com/murillo-group/sar
 
 To contribute your code to Sarkas, you will need to make a `pull request <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests>`_
 from your fork of Sarkas repository. This development workflow using Git may look daunting at first, but it is not if
-you follow `this guide <dev_example>`_ that we have prepared for you.
+you follow `this guide <./dev_example.rst>`_ that we have prepared for you.
 
 When you make a pull request, please provide all the necessary information requested by prompts in the pull request body.
 Also, make sure that the code you are submitting always accounts for the following three:
 
 - **Maintaining code quality:** Your code must follow the PEP8 style guide, should cover edge cases, etc.
-- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in Sarkas docs and make sure docs get built correctly.
+- **Documenting the code:** You must write docstrings in functions/classes, put a relevant example in Sarkas docs and make sure docs get built correctly.  Docstrings should adhere to the `NumPy docstring convention <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html>`_.
 - **Testing the code:** There should be unit-tests for most of the functions/methods and they must pass our testing framework.
 
 Spreading the word of mouth
