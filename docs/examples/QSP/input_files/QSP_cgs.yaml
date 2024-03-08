@@ -41,6 +41,7 @@ Parameters:
     units: cgs                        # units
     load_method: random_reject
     load_rejection_radius: 10.0e-10
+    boundary_conditions: periodic
 
 IO:
     verbose: True

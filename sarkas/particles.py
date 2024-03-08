@@ -219,7 +219,6 @@ class Particles:
         id_self = id(self)  # memorization avoids unnecessary recursion
         _copy = memodict.get(id_self)
         if _copy is None:
-
             # Make a shallow copy of all attributes
             _copy = type(self)()
             # Make a deepcopy of the mutable arrays using numpy copy function
@@ -414,7 +413,6 @@ class Particles:
 
         # Loop over all particles
         while i < self.total_num_ptcls:
-
             # Increment particle counter
             n = k
             m = k
@@ -449,7 +447,6 @@ class Particles:
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
-
                 # Flag for if particle is outside of cutoff radius (1 -> not inside rejection radius)
                 flag = 1
 
@@ -780,7 +777,6 @@ class Particles:
             self.pos[:, 2] = 0.0
 
         elif self.lattice_type in ["hexagonal", "triangular"]:
-
             # Determining number of particles per side of simple cubic lattice
             part_per_side = round(sqrt(self.total_num_ptcls))  # Number of particles per side of cubic lattice
 
@@ -992,8 +988,7 @@ class Particles:
     #     self.pressure /= self.box_volume
 
     def calculate_species_electric_current(self):
-        """Calculate the energy current of each species from :attr:`heat_flux_species_tensor` and stores it into :attr:`species_heat_flux`.\n
-        Note that :attr:`heat_flux_species_tensor` is calculated in the force loop if requested."""
+        """Calculate the electric current of each species from :attr:`vel` and stores it into :attr:`species_electric_current`."""
         self.species_electric_current = self.species_charges * vector_species_loop(self.vel, self.species_num)
 
     def calculate_species_heat_flux(self):
@@ -1002,7 +997,6 @@ class Particles:
         self.species_heat_flux = vector_cross_species_loop(self.heat_flux_species_tensor, self.species_num)
 
     def calculate_species_enthalpy(self):
-
         energy = scalar_species_loop(self.kinetic_energy + self.potential_energy, self.species_num)
         self.enthalpy = energy + self.species_pressure * self.box_volume
 
@@ -1039,7 +1033,6 @@ class Particles:
         # return K, T
 
     def calculate_species_momentum(self):
-
         velocity = vector_species_loop(self.vel.transpose(), self.species_num)
         self.species_momentum = self.species_masses * velocity
 
@@ -1095,7 +1088,6 @@ class Particles:
         self.total_kinetic_energy = self.species_kinetic_energy.sum()
 
     def calculate_total_momentum(self):
-
         self.calculate_species_momentum()
         self.total_momentum = self.species_momentum.sum()
 
@@ -1105,7 +1097,6 @@ class Particles:
         self.total_potential_energy = self.species_potential_energy.sum()
 
     def calculate_total_pressure(self):
-
         self.calculate_species_pressure_tensor()
         self.total_pressure = self.species_pressure.sum()
 
@@ -1213,7 +1204,6 @@ class Particles:
         cntr_total = 0
         # Loop to place particles
         while i < self.total_num_ptcls:
-
             # Set x, y, and z positions
             x_new = self.rnd_gen.uniform(0.0, self.pbox_lengths[0])
             y_new = self.rnd_gen.uniform(0.0, self.pbox_lengths[1])
@@ -1221,7 +1211,6 @@ class Particles:
 
             # Check if particle was place too close relative to all other current particles
             for j in range(len(x)):
-
                 # Flag for if particle is outside of cutoff radius (True -> not inside rejection radius)
                 flag = 1
 
@@ -1496,7 +1485,6 @@ def calc_pressure_tensor(vel, virial_species_tensor, species_masses, species_num
 # Dev note: Because I want to use numba I need to separate between a scalar and a vector quantity. Numba compiles the function to return either a scalar or a vector. not all.
 @njit
 def scalar_species_loop(observable, species_num):
-
     sp_start = 0
     sp_end = 0
     sp_obs = zeros(species_num.shape[0])
@@ -1510,7 +1498,21 @@ def scalar_species_loop(observable, species_num):
 
 @njit
 def vector_species_loop(observable, species_num):
+    """
+    Calculate the sum over species of the given observable.
 
+    Parameters:
+    -----------
+    observable : numpy.ndarray
+        The observable array of shape (`N`, 3), where `N` is the total number of particles.
+    species_num : numpy.ndarray
+        The array of shape (`num_species`,) containing the number of particles for each species.
+
+    Returns:
+    --------
+    sp_obs: numpy.ndarray
+        An array of shape (`num_species`, 3) with the sum over species of the observable.
+    """
     sp_start = 0
     sp_end = 0
     sp_obs = zeros((species_num.shape[0], 3))
@@ -1524,7 +1526,6 @@ def vector_species_loop(observable, species_num):
 
 @njit
 def vector_cross_species_loop(observable, species_num):
-
     sp_obs = zeros((3, species_num.shape[0]))
     for sp in range(species_num.shape[0]):
         sp_obs[:, sp] = observable[:, sp, :].sum(axis=-1)
@@ -1534,7 +1535,6 @@ def vector_cross_species_loop(observable, species_num):
 
 @njit
 def tensor_species_loop(observable, species_num):
-
     sp_start = 0
     sp_end = 0
     sp_obs = zeros((3, 3, species_num.shape[0]))
@@ -1548,7 +1548,6 @@ def tensor_species_loop(observable, species_num):
 
 @njit
 def tensor_cross_species_loop(observable, species_num):
-
     sp_obs = zeros((3, 3, species_num.shape[0]))
     for sp in range(species_num.shape[0]):
         sp_obs[:, :, sp] = observable[:, :, sp, :].sum(axis=-1)
