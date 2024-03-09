@@ -45,4 +45,4 @@ Funding
 -------
 Sarkas was developed under the auspices of the Air Force Office of Scientific Research (AFOSR) Grant No. FA9550-17-1-0394
 
-.. figure:: ../graphics/logo/AFOSR_logo.jpeg
+.. figure:: ../_static/assets/logos/AFOSR_logo.jpeg

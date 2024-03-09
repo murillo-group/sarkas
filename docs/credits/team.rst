@@ -2,137 +2,110 @@
 Dev Team
 ********
 
-.. raw:: html
 
-  <div class="full-width pt-2 pr-2 pl-2">
-    <div class="row">
+.. grid:: 1 2 2 3
+    :gutter: 3
 
-      <div class="d-flex col-md-4 col-sm-6 col-xs-12 p-2">
+    .. grid-item-card:: Michael S. Murillo
+        :img-top: ../_static/team/murillo_m.jpg
+        :img-alt: Murillo's headshot
+        :shadow: none
+        :class-card: sd-border-0 sd-align-minor-center
+        :class-header: sd-text-center
+        :class-title: sd-text-center
+        :class-img-top: sd-rounded-circle img-team img-thumbnail
+        :class-footer: sd-fs-6
+
+        Principal Investigator
+        ^^^
+        +++
+        :fas:`envelope`  `murillo@msu.edu <murillo@msu.edu>`_
         
-        <div class="card w-100 rounded">
-          <img class="card-img-top img-team rounded-circle mx-auto" src="../_static/team/murillo_m.jpg" alt="Michael S. Murillo">
-          <div class="card-body text-center">
-            <h2>
-              <a href="https://murillogroupmsu.com/dr-michael-murillo/">
-                Michael S.<br/> Murillo
-              </a>
-            </h2>
-            <p class="card-text">Principal Investigator</p>
-            <p class="card-text">
-              <a href="mailto:murillom@msu.edu">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-              </a>
-            </p>
-          </div>
-        </div>
-      
-      </div>
+        :fas:`globe` `murillogroupmsu.com/dr-michael-murillo <https://murillogroupmsu.com/dr-michael-murillo>`_
 
-      <div class="d-flex col-md-4 col-sm-6 col-xs-12 p-2">
+
+    .. grid-item-card:: Yongjun Choi
+        :img-top: ../_static/team/choi_y.png
+        :img-alt: Choi's headshot
+        :shadow: none
+        :class-card: sd-border-0 sd-align-minor-center
+        :class-header: sd-text-center
+        :class-title: sd-text-center
+        :class-img-top: sd-rounded-circle img-team img-thumbnail
+        :class-footer: sd-fs-6
+
+        Core Developer
+        ^^^
+        +++
+        :fas:`envelope` `choiyj@msu.edu <choiyj@msu.edu>`_
         
-        <div class="card w-100 rounded">
-          <img class="card-img-top img-team rounded-circle mx-auto" src="../_static/team/choi_y.png" alt="Youngjun Choi">
-          <div class="card-body text-center">
-            <h2>
-              <a href="https://murillogroupmsu.com/dr-yongjun-choi/">
-                Youngjun <br /> Choi
-              </a>
-            </h2>
-            <p class="card-text">Core Developer</p>
-            <p class="card-text">
-              <a href="mailto:choiyj@msu.edu">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-              </a>
-            </p>
-          </div>
-        </div>
+        :fas:`globe` `murillogroupmsu.com/dr-yongjun-choi <https://murillogroupmsu.com/dr-yongjun-choi/>`_
 
-      </div>
 
-      <div class="d-flex col-md-4 col-sm-6 col-xs-12 p-2">
+    .. grid-item-card:: Gautham Dharuman
+        :img-top: ../_static/team/dharuman_g.jpg
+        :img-alt: Dharuman's headshot
+        :shadow: none
+        :class-card: sd-border-0 sd-align-minor-center
+        :class-header: sd-text-center
+        :class-title: sd-text-center
+        :class-img-top: sd-rounded-circle img-team img-thumbnail
+        :class-footer: sd-fs-6
 
-        <div class="card w-100 rounded">
-          <img class="card-img-top img-team rounded-circle mx-auto" src="../_static/team/dharuman_g.jpg" alt="Gautham Dharuman">
-          <div class="card-body text-center">
-            <h2>
-              <a href="https://pls.llnl.gov/people/staff-bios/msd/dharuman-g">
-                Gautham <br /> Dharuman
-              </a>
-            </h2>
-            <p class="card-text">Core Developer</p>
-            <p class="card-text">
-              <a href="mailto:dharuman1@llnl.gov">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-              </a>
-            </p>
-          </div>
-        </div>
+        Core Developer
+        ^^^
+        +++
+        :fas:`envelope` `?dharuman1@anl.gov <dharuman1@anl.gov>`_
+        
+        :fas:`globe` `anl.gov/profile/gautham-dharuman <https://www.anl.gov/profile/gautham-dharuman>`_
+    
+    .. grid-item-card:: Luciano G. Silvestri
+        :img-top: ../_static/team/silvestri_l.jpeg
+        :img-alt: Luciano's headshot
+        :shadow: none
+        :class-card: sd-border-0 sd-align-minor-center
+        :class-header: sd-text-center
+        :class-title: sd-text-center
+        :class-img-top: sd-rounded-circle img-team img-thumbnail
+        :class-footer: sd-fs-6
 
-      </div>
+        Core Developer
+        ^^^
+        +++
+        :fas:`envelope` `silves28@msu.edu <silves28@msu.edu>`_
+        
+        :fas:`globe` `lucianogsilvestri.github.io <https://lucianogsilvestri.github.io>`_
+    
+    .. grid-item-card:: Lucas J. Stanek
+        :img-top: ../_static/team/stanek_l.jpeg
+        :img-alt: Lucas' headshot
+        :shadow: none
+        :class-card: sd-border-0 sd-align-minor-center
+        :class-header: sd-text-center
+        :class-title: sd-text-center
+        :class-img-top: sd-rounded-circle img-team img-thumbnail
+        :class-footer: sd-fs-6
 
-      <div class="d-flex col-md-4 col-sm-6 col-xs-12 p-2">
+        Core Developer
+        ^^^
+        +++
+        :fas:`envelope` `staneklu@msu.edu <staneklu@msu.edu>`_
+        
+        :fas:`globe` `murillogroupmsu.com/lucas-j-stanek <https://murillogroupmsu.com/lucas-j-stanek/>`_
+    
+    .. grid-item-card:: Stefano Silvestri
+        :img-top: ../_static/team/silvestri_s.jpeg
+        :img-alt: Stefano's headshot
+        :shadow: none
+        :class-card: sd-border-0 sd-align-minor-center
+        :class-header: sd-text-center
+        :class-title: sd-text-center
+        :class-img-top: sd-rounded-circle img-team img-thumbnail
+        :class-footer: sd-fs-6
 
-        <div class="card w-100 rounded">
-          <img class="card-img-top img-team rounded-circle mx-auto" src="../_static/team/silvestri_l.jpeg" alt="Luciano G. Silvestri">
-          <div class="card-body text-center">
-            <h2>
-              <a href="https://lucianogsilvestri.github.io/">
-                Luciano G.<br/> Silvestri
-              </a>
-            </h2>
-            <p class="card-text">Core Developer</p>
-            <p class="card-text">
-              <a href="mailto:silves28@msu.org">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-              </a>
-            </p>
-          </div>
-        </div>
-
-      </div>
-      
-      <div class="d-flex col-md-4 col-sm-6 col-xs-12 p-2">
-
-        <div class="card w-100 rounded">
-          <img class="card-img-top img-team rounded-circle mx-auto" src="../_static/team/stanek_l.jpeg" alt="Lucas J. Stanek">
-          <div class="card-body text-center">
-            <h2>
-              <a href="https://murillogroupmsu.com/lucas-j-stanek/">
-                Lucas J.<br /> Stanek
-              </a>
-            </h2>
-            <p class="card-text">Core Developer</p>
-            <p class="card-text">
-              <a href="mailto:staneklu@msu.edu">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-              </a>
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="d-flex col-md-4 col-sm-6 col-xs-12 p-2">
-
-        <div class="card w-100 rounded">
-          <img class="card-img-top img-team rounded-circle mx-auto" src="../_static/team/silvestri_s.jpeg" alt="Stefano Silvestri<">
-          <div class="card-body text-center">
-            <h2>
-              <a href="https://silvestristefano.github.io/">
-                Stefano <br /> Silvestri
-              </a>
-            </h2>
-            <p class="card-text">Web Developer</p>
-            <p class="card-text">
-              <a href="mailto:silvestri.dev@gmail.com">
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-              </a>
-            </p>
-          </div>
-        </div>
-      
-      </div>
-      
-
-    </div>
-  </div>
+        Web Developer
+        ^^^
+        +++
+        :fas:`envelope` `silvestri.dev@mgmail.com <silvestri.dev@gmail.com>`_
+        
+        :fas:`globe` `silvestristefano.github.io <https://silvestristefano.github.io>`_

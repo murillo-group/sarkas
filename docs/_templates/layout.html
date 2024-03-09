@@ -2,44 +2,9 @@
 
 
   {# Custom CSS overrides #}
-  {% set css_files = css_files + ['_static/my-styles.css'] %}
+  {% set css_files = css_files + ['_static/css/my-styles.css'] %}
 
 
-  {%- block scripts %}
+  {% block footer %} 
     {{ super() }}
-    <script type="text/javascript" src="{{ pathto('_static/language_data.js', 1) }}"></script>
   {% endblock %}
-
-
-  {% block footer %} {{ super() }}
-
-  <script type="text/javascript">
-    jQuery(function () {
-        SphinxRtdTheme.Navigation.enable({{ 'true' if true|tobool else 'false' }});
-      })
-  </script>
-
-  <style>
-    /* Sidebar header (and topbar for mobile) */
-    /* .wy-side-nav-search,  */
-    .wy-nav-top {
-      background: #18453b;
-    }
-    /* Sidebar */
-    .wy-nav-side {
-      background: #535054;
-    }
-    .wy-menu-vertical p.caption {
-	  color: #fff;
-    }
-    .wy-menu-vertical a {
-      color: #eee;
-    }
-    .wy-menu-vertical a:hover {
-      background-color: #18453b;
-    }
-    /* .wy-nav-content {
-      max-width: 900px !important;
-    } */
-  </style>
-{% endblock %}

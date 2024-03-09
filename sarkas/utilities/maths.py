@@ -169,7 +169,7 @@ def force_error_approx_pppm(potential):
     Returns
     -------
     tot_force_error: float
-        Total force error given by the L2 norm of the PP and PM force errors.
+       Total force error given by the L2 norm of the PP and PM force errors.
 
     pppm_pm_err: float
         PM force error.

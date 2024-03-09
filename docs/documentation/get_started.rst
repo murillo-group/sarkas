@@ -22,13 +22,13 @@ for creating the ``sarkas`` virtual environment. Otherwise you can jump to the n
 Step 1. Virtual Environment
 ===========================
 
-Anaconda Navigator
-------------------
-You can create a new environment with python 3.7 using Anaconda Navigator.
+Using Anaconda Navigator
+------------------------
+You can create a new environment with python 3.7+ using Anaconda Navigator.
 Follow the instructions in this `link <https://docs.anaconda.com/anaconda/navigator/getting-started/#managing-environments>`_
 
-Command Line Interface (UNIX systems)
--------------------------------------
+Using The Command Line Interface (UNIX systems)
+-----------------------------------------------
 Open a Terminal and check if you have ``conda`` installed
 
 .. code-block:: bash
@@ -42,9 +42,9 @@ You can create a virtual environment via
 
 .. code-block:: bash
 
-    $ conda create --name sarkas python=3.7 pip
+    $ conda create --name sarkas python=3.9 pip
 
-This command will create the virtual environment ``sarkas`` with python 3.7 and ``pip`` installed.
+This command will create the virtual environment ``sarkas`` with Python 3.9 and ``pip`` installed.
 The environment can be found in the ``envs`` directory of your conda directory (the one printed above by the command ``which``).
 
 Once the environment has been created you can activate it by
@@ -57,7 +57,7 @@ and deactivate it by
 
 .. code-block:: bash
 
-    $ conda deactivate
+    (sarkas) $ conda deactivate
 
 
 .. _sec_installation:
@@ -65,22 +65,22 @@ and deactivate it by
 Step 2. Installation
 ====================
 
-Anaconda Navigator
-------------------
+Via Anaconda Navigator
+----------------------
 Once you created the environment you can activate it by clicking on it. Note that an arrow next to the name indicates
 that the environment is active. See figure below
 
 .. figure:: an_env_active.PNG
     :alt: Figure an_env_active.PNG not found
 
-Click on the arrow and select `Open in Terminal`. In Terminal you can install sarkas system wide via
+Click on the arrow and select ``Open in Terminal``. In Terminal you can install sarkas system wide via
 
 .. code-block:: bash
 
     $ pip install sarkas
 
-Command Line Interface (UNIX systems)
--------------------------------------
+Via Command Line Interface (UNIX systems)
+-----------------------------------------
 Activate the sarkas environment, if not already active, via
 you can install sarkas system wide via
 
@@ -91,7 +91,7 @@ you can install sarkas system wide via
 You can now install sarkas system wide via
 .. code-block:: bash
 
-    $ pip install sarkas
+    (sarkas) $ pip install sarkas
 
 .. note::
 
@@ -112,12 +112,37 @@ You can find their `section <https://fmm3d.readthedocs.io/en/latest/install.html
 Known Issues
 ============
 
+Pyfftw Runtime error
+--------------------
+
+The following error message could appear while running Sarkas for the first time
+
+ .. code-block:: python
+    
+    RuntimeError                              Traceback (most recent call last)
+    RuntimeError: Undefined plan with nthreads. This is a bug
+    Exception ignored in: 'pyfftw.pyfftw._fftw_plan_with_nthreads_null'
+    RuntimeError: Undefined plan with nthreads. This is a bug
+    ---------------------------------------------------------------------------
+
+Note that this won't stop the simulation and Sarkas will still be running. 
+The error message is due to a package conflict. It happens if the version of your ``pyfftw`` package is newer than ``0.12.0``. 
+A quick hack is to revert your ``pyfftw`` version to ``0.12.0`` via 
+
+.. code-block:: bash
+
+    $ pip install pyfftw==0.12.0
+
+
+Matplotlib style not found
+--------------------------
+
 Sarkas contains two matplotlib configuration files,
 `MSUstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/MSUstyle.mplstyle>`_
 and `PUBstyle <https://raw.githubusercontent.com/murillo-group/sarkas/929f73adfc4539bc6fedc69bf99eb8c7a63fc517/sarkas/mplstyles/PUBstyle.mplstyle>`_.
 However, they are not installed by default. Therefore, if you want to use our styles, you need to manually copy
 the mpl styles in the correct folder. Here is a sample python script for installing the mpl styles.
-Remember to point to the right STYLE_PATH.
+Remember to point to the right ``STYLE_PATH``.
 
 .. code-block:: python
 

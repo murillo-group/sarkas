@@ -22,7 +22,10 @@
 
    <style media="screen" type="text/css">
      h1 { display:none; }
-     h2, h3 { font-family: 'RocknRoll One', sans-serif; }
+     h2, h3 { 
+     --pst-font-size-h2: calc(var(--pst-font-size-h1,36px)*1.5);
+     font-family: 'RocknRoll One', sans-serif;
+     }
    </style>
 
 
@@ -30,98 +33,141 @@ SARKAS: Python MD code for plasma physics
 =========================================
 
 
-.. raw:: html
+.. grid:: 1 1 1 1
+    :gutter: 1
+    :class-row: full-width
 
-   <div class="full-width p-0 m-0">
-      <div class="jumbotron jumbotron-fluid p-0 bg-white">
-         <div class="container-fluid p-0 m-0">
-            <div class="row justify-content-center">
-               <div class="col-xs-12 col-sm-12 col-lg-8 text-center">
-                  <h2 class="display-2 font-weight-bold text-break">SARKAS</h2>
-                  <h3 class="lead font-weight-bold">Python MD code for plasma physics</h3>
-               </div>
-                  <img src="_static/Sarkas_v1_for_light_bg.svg" alt="logo" class="float-lg-right float-xs-none float-sm-none" width="25%">
-                  <span class="float-none"></span>
-            </div>
-         </div>
-      </div>
+    .. grid-item::
+        :class: text-center
 
-      <div class="row justify-content-center">
-         <div id="slideshow" class="carousel slide" data-ride="carousel">
-            <ol class="carousel-indicators">
-               <li data-target="#slideshow" data-slide-to="0" class="active"></li>
-               <li data-target="#slideshow" data-slide-to="1"></li>
-            </ol>
-            <div class="carousel-inner">
-               <div class="carousel-item active mw-50">
-                  <img src="_static/codesnippet.png" alt="Code Snippet">
-               </div>
-               <div class="carousel-item mw-25">
-                  <img src="_static/BYU.gif" alt="BYU">
-               </div>
-            </div>
-            <a class="carousel-control-prev" href="#slideshow" role="button" data-slide="prev">
-               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-               <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#slideshow" role="button" data-slide="next">
-               <span class="carousel-control-next-icon" aria-hidden="true"></span>
-               <span class="sr-only">Next</span>
-            </a>
-         </div>
-      </div>
+        .. grid:: 1 2 2 2
+            :gutter: 1
 
-      <div class="row">
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="far fa-smile fa-3x mb-3 text-muted"></i><br>User Friendly</h4>
-            <p>Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines
-               of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.</p>
-         </div>
+            .. grid-item::
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-rocket fa-3x mb-3 text-muted"></i><br>Fast Pure Python</h4>
-            <p>Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable
-            to that of compiled languages.</p>
-         </div>
+                .. raw:: html
+                    
+                    <h2>SARKAS</h2>
+                    <h3>Python MD code for plasma physics</h3>
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-flask fa-3x mb-3 text-muted"></i><br>Plasma Potentials</h4>
-            <p>Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only
-            MD code to support electrons as dynamical particles.</p>
-         </div>
+            .. grid-item::
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-database fa-3x mb-3 text-muted"></i><br>Data Science</h4>
-            <p>Sarkas has been developed for data science. You can run multiple simulations and store data with a simple for loop.</p>
-         </div>
+                .. raw:: html
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-chart-area fa-3x mb-3 text-muted"></i><br>Publications</h4>
-            <p>Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get
-            publication-grade results in less time.</p>
-         </div>
+                    <picture>
+                        <source srcset="_static/assets/logos/Sarkas_v1_for_light_bg.svg" type="image/svg.xml">
+                        <img src="_static/assets/logos/Sarkas_v1_for_light_bg.svg" alt="logo">
+                    </picture>
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-cogs fa-3x mb-3 text-muted"></i><br>Highly Customizable</h4>
-            <p>Sarkas is built in a modular fashion to allow easy implementation of additional features.</p>
-         </div>
+    .. grid-item::
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-users fa-3x mb-3 text-muted"></i><br>Collaborative Effort</h4>
-            <p>Sarkas wants to be a common platform for the development of new algorithms to study the most challenging
-            open problems in plasma physics.</p>
-         </div>
+        
+        .. grid:: 1 2 2 2
+            :gutter: 1
 
-         <div class="text-center col-xs-12 col-sm-12 col-md-6">
-            <h4 class="text-center"><i class="fa fa-github fa-3x mb-3 text-muted"></i><br>Open Source</h4>
-            <p>Sarkas is released under the MIT License and maintained by the community on GitHub.</p>
-         </div>
+            .. grid-item::
+                
+                .. image:: _static/assets/BYU.gif
 
-      </div>
+            .. grid-item:: 
+
+                .. image:: _static/assets/codesnippet.png
+
+.. grid:: 1 1 2 2
+   :class-row: full-width
+
+   .. grid-item-card:: User Friendly
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+
+      :fa:`smile;fa-3x mb-3 text-muted`
+      ^^^
+
+      Run interactively in Jupyter notebook or via script. Set-up a simulation with only 3 lines of code. Run your simulation with 3 more lines. Calculate physics observables with final 3 lines.
+
+   .. grid-item-card::  Fast Pure Python
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`rocket;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Sarkas offers the ease of use of Python while being highly performant with execution speeds comparable to that of compiled languages.
+
+   .. grid-item-card::  Plasma Potentials
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`flask;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Sarkas offers a variety of interaction potentials commonly used in plasma physics. It is the only MD code to support electrons as dynamical particles.
+
+   .. grid-item-card::  Data Science
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`database;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Sarkas has been developed for data science. You can run multiple simulations and store data with a simple for loop.
+
+   .. grid-item-card::  Publications
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`chart-area;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Building upon a set of well-tested primitives and on a solid infrastructure, researchers can get publication-grade results in less time.
+
+   .. grid-item-card::  Highly Customizable
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`cogs;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Sarkas is built in a modular fashion to allow easy implementation of additional features.
+
+   .. grid-item-card::  Collaborative Effort
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`users;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Sarkas wants to be a common platform for the development of new algorithms to study the most challenging open problems in plasma physics.
+
+   .. grid-item-card::  Open Source
+      :class-card: border-0
+      :shadow: none
+      :class-header: sd-text-center sd-border-0
+      :class-title: sd-text-center sd-fs-4
+      
+      :fa:`code-compare;fa-3x mb-3 text-muted` 
+      ^^^
+      
+      Sarkas is released under the MIT License and maintained by the community on GitHub.
+
 
 .. grid:: 1 1 2 2
    :class-container: bg-light text-left
-   :class-row: bg-light border-0
+   :class-row: full-width bg-light border-0
 
    .. grid-item-card::
 
@@ -142,9 +188,9 @@ SARKAS: Python MD code for plasma physics
 
       .. toctree::
          :maxdepth: 1
-         :caption: Code Dev:
+         :caption: Contributing:
 
-         code_development/code_dev
+         contributing/contributing
 
 
       .. toctree::
@@ -172,7 +218,4 @@ SARKAS: Python MD code for plasma physics
       * :ref:`genindex`
       * :ref:`modindex`
       * :ref:`search`
-
-.. raw::html
-
-   </div>
+      
