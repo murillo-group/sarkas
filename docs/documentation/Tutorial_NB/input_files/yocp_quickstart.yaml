@@ -13,7 +13,7 @@ Particles:
 Potential:
     type: Yukawa                            # potential type
     method: PP
-    rc: 6.0e-8  # 7.6838e-08                              # cm, cut-off radius
+    rc: 6.0e-8                              # cm, cut-off radius
     screening_length_type: thomas-fermi
     electron_temperature: 5.0e+03
 

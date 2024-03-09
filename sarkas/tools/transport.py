@@ -88,6 +88,7 @@ class TransportCoefficients:
         - It also sets up logging and prints initial information about the setup process.
         - If `thermodynamics` is not provided, it calculates the average temperature using available data.
 
+        
         See Also
         --------
         `get_observable_data` : Method to retrieve autocorrelation function datasets.
@@ -464,10 +465,12 @@ class TransportCoefficients:
         -----
         - The message is printed to the log file specified in `self.log_file`.
         - The verbosity of the printing to the screen is controlled by `self.verbose`.
+        
         If `self.verbose` is `True`, the message will also be printed to the screen;
         otherwise, it will only be logged to the file.
-
+        
         """
+
         msg = self.pretty_print_msg(info, append_info)
         # Print the message to log file and screen
         print_to_logger(message=msg, log_file=self.log_file, print_to_screen=self.verbose)
@@ -494,7 +497,8 @@ class TransportCoefficients:
         - This method will overwrite any existing HDF files with the same names in the
         specified save location.
         - It assumes the column names in the dataframes are structured in a specific
-        format suitable for splitting into tuples for MultiIndex.
+        format suitable for splitting into tuples for `MultiIndex`.
+
         """
 
         # TODO: Fix this hack. We should be able to add data to HDF instead of removing it and rewriting it.

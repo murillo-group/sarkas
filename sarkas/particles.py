@@ -1501,15 +1501,15 @@ def vector_species_loop(observable, species_num):
     """
     Calculate the sum over species of the given observable.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     observable : numpy.ndarray
         The observable array of shape (`N`, 3), where `N` is the total number of particles.
     species_num : numpy.ndarray
         The array of shape (`num_species`,) containing the number of particles for each species.
 
-    Returns:
-    --------
+    Returns
+    -------
     sp_obs: numpy.ndarray
         An array of shape (`num_species`, 3) with the sum over species of the observable.
     """
