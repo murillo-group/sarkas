@@ -88,7 +88,7 @@ class TransportCoefficients:
         - It also sets up logging and prints initial information about the setup process.
         - If `thermodynamics` is not provided, it calculates the average temperature using available data.
 
-        
+
         See Also
         --------
         `get_observable_data` : Method to retrieve autocorrelation function datasets.
@@ -290,7 +290,7 @@ class TransportCoefficients:
         self.phase = observable.phase
         self.no_slices = observable.no_slices
         self.block_length = observable.block_length
-        self.timesteps_per_block = observable.timesteps_per_block
+        self.timesteps_per_slice = observable.timesteps_per_slice
         self.timesteps_per_plasma_period = observable.timesteps_per_plasma_period
         self.plasma_period = observable.plasma_period
 
@@ -465,10 +465,10 @@ class TransportCoefficients:
         -----
         - The message is printed to the log file specified in `self.log_file`.
         - The verbosity of the printing to the screen is controlled by `self.verbose`.
-        
+
         If `self.verbose` is `True`, the message will also be printed to the screen;
         otherwise, it will only be logged to the file.
-        
+
         """
 
         msg = self.pretty_print_msg(info, append_info)
@@ -640,9 +640,9 @@ class Diffusion(TransportCoefficients):
             for isl in tqdm(range(self.no_slices), disable=not observable.verbose):
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
-                    sp_vacf_str = f"{sp} " + vacf_str
+                    # sp_vacf_str = f"{sp} " + vacf_str
                     # Grab vacf data of each slice
-                    integrand = observable.dataframe_acf_slices[(sp_vacf_str, "Total", f"slice {isl}")].values
+                    integrand = observable.dataframe_acf_slices[(vacf_str, sp, "Total", f"slice {isl}")].values
                     df_str = f"{sp} Diffusion_slice {isl}"
                     self.dataframe_slices[df_str] = const * fast_integral_loop(time=self.time_array, integrand=integrand)
 
@@ -663,10 +663,10 @@ class Diffusion(TransportCoefficients):
             for isl in tqdm(range(observable.no_slices), disable=not observable.verbose):
                 # Iterate over the number of species
                 for i, sp in enumerate(observable.species_names):
-                    sp_vacf_str = f"{sp} " + vacf_str
+                    # sp_vacf_str = f"{sp} " + vacf_str
 
                     # Parallel
-                    par_vacf_str = (sp_vacf_str, "Z", f"slice {isl}")
+                    par_vacf_str = (vacf_str, sp, "Z", f"slice {isl}")
                     integrand_par = observable.dataframe_acf_slices[par_vacf_str].to_numpy()
 
                     col_data = fast_integral_loop(time=self.time_array, integrand=integrand_par)
@@ -674,8 +674,8 @@ class Diffusion(TransportCoefficients):
                     self.dataframe_slices = add_col_to_df(self.dataframe_slices, col_data, col_name)
 
                     # Perpendicular
-                    x_vacf_str = (sp_vacf_str, "X", f"slice {isl}")
-                    y_vacf_str = (sp_vacf_str, "Y", f"slice {isl}")
+                    x_vacf_str = (vacf_str, sp, "X", f"slice {isl}")
+                    y_vacf_str = (vacf_str, sp, "Y", f"slice {isl}")
 
                     integrand_perp = 0.5 * (
                         observable.dataframe_acf_slices[x_vacf_str].to_numpy()
@@ -687,26 +687,26 @@ class Diffusion(TransportCoefficients):
 
             # Add the average and std of perp and par VACF to its dataframe
             for isp, sp in enumerate(observable.species_names):
-                sp_vacf_str = f"{sp} " + vacf_str
+                # sp_vacf_str = f"{sp} " + vacf_str
                 sp_diff_str = f"{sp} " + "Diffusion"
-                par_col_str = [(sp_vacf_str, "Z", f"slice {isl}") for isl in range(self.no_slices)]
+                par_col_str = [(vacf_str, sp, "Z", f"slice {isl}") for isl in range(self.no_slices)]
 
-                observable.dataframe_acf[(sp_vacf_str, "Parallel", "Mean")] = observable.dataframe_acf_slices[
+                observable.dataframe_acf[(vacf_str, sp, "Parallel", "Mean")] = observable.dataframe_acf_slices[
                     par_col_str
                 ].mean(axis=1)
-                observable.dataframe_acf[(sp_vacf_str, "Parallel", "Std")] = observable.dataframe_acf_slices[
+                observable.dataframe_acf[(vacf_str, sp, "Parallel", "Std")] = observable.dataframe_acf_slices[
                     par_col_str
                 ].std(axis=1)
 
-                x_col_str = [(sp_vacf_str, "X", f"slice {isl}") for isl in range(self.no_slices)]
-                y_col_str = [(sp_vacf_str, "Y", f"slice {isl}") for isl in range(self.no_slices)]
+                x_col_str = [(vacf_str, sp, "X", f"slice {isl}") for isl in range(self.no_slices)]
+                y_col_str = [(vacf_str, sp, "Y", f"slice {isl}") for isl in range(self.no_slices)]
 
                 perp_vacf = 0.5 * (
                     observable.dataframe_acf_slices[x_col_str].to_numpy()
                     + observable.dataframe_acf_slices[y_col_str].to_numpy()
                 )
-                observable.dataframe_acf[(sp_vacf_str, "Perpendicular", "Mean")] = perp_vacf.mean(axis=1)
-                observable.dataframe_acf[(sp_vacf_str, "Perpendicular", "Std")] = perp_vacf.std(axis=1)
+                observable.dataframe_acf[(vacf_str, sp, "Perpendicular", "Mean")] = perp_vacf.mean(axis=1)
+                observable.dataframe_acf[(vacf_str, sp, "Perpendicular", "Std")] = perp_vacf.std(axis=1)
 
                 # Average and std of each diffusion coefficient.
                 par_col_str = [sp_diff_str + f"_Parallel_slice {isl}" for isl in range(self.no_slices)]
@@ -776,12 +776,12 @@ class Diffusion(TransportCoefficients):
 
         if observable.magnetized:
             for isp, sp in enumerate(observable.species_names):
-                sp_vacf_str = f"{sp} " + vacf_str
+                # sp_vacf_str = f"{sp} " + vacf_str
                 sp_diff_str = f"{sp} Diffusion"
 
                 # Parallel
-                acf_avg = observable.dataframe_acf[(sp_vacf_str, "Parallel", "Mean")].to_numpy()
-                acf_std = observable.dataframe_acf[(sp_vacf_str, "Parallel", "Std")].to_numpy()
+                acf_avg = observable.dataframe_acf[(vacf_str, sp, "Parallel", "Mean")].to_numpy()
+                acf_std = observable.dataframe_acf[(vacf_str, sp, "Parallel", "Std")].to_numpy()
 
                 tc_avg = self.dataframe[(sp_diff_str, "Parallel", "Mean")].to_numpy()
                 tc_std = self.dataframe[(sp_diff_str, "Parallel", "Std")].to_numpy()
@@ -790,7 +790,7 @@ class Diffusion(TransportCoefficients):
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
-                    acf_name=sp_vacf_str + " Parallel",
+                    acf_name=f"{sp} {vacf_str} Parallel",
                     tc_name=sp_diff_str + " Parallel",
                     figname=f"{sp}_Parallel_Diffusion_Plot.png",
                     show=display_plot,
@@ -798,8 +798,8 @@ class Diffusion(TransportCoefficients):
                 figs[sp] = {"Parallel": fig}
                 axes[sp] = {"Parallel": (ax1, ax2, ax3, ax4)}
                 # Perpendicular
-                acf_avg = observable.dataframe_acf[(sp_vacf_str, "Perpendicular", "Mean")]
-                acf_std = observable.dataframe_acf[(sp_vacf_str, "Perpendicular", "Std")]
+                acf_avg = observable.dataframe_acf[(vacf_str, sp, "Perpendicular", "Mean")]
+                acf_std = observable.dataframe_acf[(vacf_str, sp, "Perpendicular", "Std")]
 
                 tc_avg = self.dataframe[(sp_diff_str, "Perpendicular", "Mean")]
                 tc_std = self.dataframe[(sp_diff_str, "Perpendicular", "Std")]
@@ -808,7 +808,7 @@ class Diffusion(TransportCoefficients):
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
-                    acf_name=sp_vacf_str + " Perpendicular",
+                    acf_name=f"{sp} {vacf_str} Perpendicular",
                     tc_name=sp_diff_str + " Perpendicular",
                     figname=f"{sp}_Perpendicular_Diffusion_Plot.png",
                     show=display_plot,
@@ -817,9 +817,8 @@ class Diffusion(TransportCoefficients):
                 axes[sp]["Perpendicular"] = (ax1, ax2, ax3, ax4)
         else:
             for isp, sp in enumerate(observable.species_names):
-                sp_vacf_str = f"{sp} " + vacf_str
-                acf_avg = observable.dataframe_acf[(sp_vacf_str, "Total", "Mean")].to_numpy()
-                acf_std = observable.dataframe_acf[(sp_vacf_str, "Total", "Std")].to_numpy()
+                acf_avg = observable.dataframe_acf[(vacf_str, sp, "Total", "Mean")].to_numpy()
+                acf_std = observable.dataframe_acf[(vacf_str, sp, "Total", "Std")].to_numpy()
 
                 d_str = f"{sp} Diffusion"
                 tc_avg = self.dataframe[(d_str, "Mean")].to_numpy()
@@ -829,7 +828,7 @@ class Diffusion(TransportCoefficients):
                     time=self.time_array,
                     acf_data=column_stack((acf_avg, acf_std)),
                     tc_data=column_stack((tc_avg, tc_std)),
-                    acf_name=sp_vacf_str,
+                    acf_name=f"{sp} {vacf_str}",
                     tc_name=d_str,
                     figname=f"{sp}_Diffusion_Plot.png",
                     show=display_plot,

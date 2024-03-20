@@ -24,6 +24,7 @@ from numpy.random import Generator, PCG64
 from os.path import join
 from scipy.linalg import norm
 from scipy.spatial.distance import pdist
+from scipy.stats import moment, qmc
 from warnings import warn
 
 from .utilities.exceptions import ParticlesError, ParticlesWarning
@@ -158,6 +159,7 @@ class Particles:
         self.species_thermostat_temperatures = None
         self.species_masses = None
         self.species_charges = None
+        self.species_velocity_moments = None
 
         self.no_grs = None
         self.rdf_hist = None
@@ -170,6 +172,7 @@ class Particles:
             "Kinetic Energy": self.calculate_species_kinetic_temperature,
             "Potential Energy": self.calculate_species_potential_energy,
             "Momentum": self.calculate_species_momentum,
+            "Velocity Moments": self.calculate_species_velocity_moments,
             "Electric Current": self.calculate_species_electric_current,
             "Pressure Tensor": self.calculate_species_pressure_tensor,
             "Enthalpy": self.calculate_species_enthalpy,
@@ -185,6 +188,9 @@ class Particles:
             "Enthalpy": self.calculate_species_enthalpy,
             "Heat Flux": self.calculate_species_heat_flux,
         }
+        self.qmc_sequence = None
+        self.available_qmc_sequences = ["halton", "sobol", "poissondisk", "latinhypercube"]
+        self.max_velocity_distribution_moment = 6
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -297,6 +303,14 @@ class Particles:
         self.box_volume = params.box_volume
         self.pbox_volume = params.pbox_volume
         self.load_method = params.load_method
+
+        if hasattr(params, "qmc_sequence"):
+            self.qmc_sequence = params.qmc_sequence
+
+        if hasattr(params, "max_velocity_distribution_moment"):
+            self.max_velocity_distribution_moment = params.max_velocity_distribution_moment
+            self.species_velocity_moments = zeros((self.num_species, self.max_velocity_distribution_moment))
+
         self.restart_step = params.restart_step
         self.particles_input_file = params.particles_input_file
         self.load_perturb = params.load_perturb
@@ -590,8 +604,81 @@ class Particles:
                     self.box_lengths[0] / 2.0, self.load_gauss_sigma[sp], (sp_num, 3)
                 )
                 sp_start += sp_num
+        elif self.load_method in ["qmc", "quasi_monte_carlo"]:
+            # Ensure that we are not making silly typos
+            self.qmc_sequence = self.qmc_sequence.lower()
+
+            if self.qmc_sequence not in self.available_qmc_sequences:
+                raise AttributeError(
+                    f"Quasi Monte Carlo sequence not recognized. Please choose from {self.available_qmc_sequences}"
+                )
+
+            self.pos = self.quasi_monte_carlo(self.qmc_sequence, self.total_num_ptcls, self.dimensions, self.box_lengths)
         else:
             raise AttributeError("Incorrect particle placement scheme specified.")
+
+    @staticmethod
+    def quasi_monte_carlo(
+        sequence: str = "sobol", num_ptcls: int = 2**10, dimensions: int = 3, box_lengths: ndarray = None
+    ):
+        """
+        Place particles according to a quasi-Monte Carlo sequence.
+
+        This method uses the classes in the Quasi Monte Carlo module of `scipy` to place particles in a simulation box
+        according to a quasi-Monte Carlo sequence. The sequence can be chosen from the following options: Halton, Sobol,
+        PoissonDisk, LatinHypercube.
+
+        Parameters
+        ----------
+        sequence : str, optional
+            Name of the sequence to use. Options: Halton, Sobol, PoissonDisk, LatinHypercube. Default is "Sobol".
+
+        num_ptcls : int, optional
+            Number of particles to place. Default is 2**10.
+
+        dimensions : int, optional
+            Number of dimensions. Default is 3.
+
+        box_lengths : array-like, optional
+            Lengths of the simulation box in each dimension. Default is None.
+
+        Returns
+        -------
+        array-like
+            Randomly generated positions of the particles, scaled by the box lengths.
+
+        Raises
+        ------
+        ValueError
+            If an invalid sequence name is provided.
+
+        Notes
+        -----
+        The `quasi_monte_carlo` method initializes a quasi-Monte Carlo sequence generator based on the provided sequence
+        name. It then generates random positions for the specified number of particles in the specified number of
+        dimensions. The generated positions are scaled by the box lengths of the simulation.
+
+        Examples
+        --------
+        >>> positions = quasi_monte_carlo("Halton", 100, 3, [10, 10, 10])
+
+        """
+        if sequence == "sobol":
+            qmc_sampler = qmc.Sobol(dimensions)
+        elif sequence == "latinhypercube":
+            qmc_sampler = qmc.LatinHypercube(dimensions)
+        elif sequence == "poissondisk":
+            qmc_sampler = qmc.PoissonDisk(dimensions)
+        elif sequence == "halton":
+            qmc_sampler = qmc.Halton(dimensions)
+        else:
+            raise ValueError("Invalid sequence name.")
+
+        positions = qmc_sampler.random(num_ptcls)
+        if box_lengths is not None:
+            positions *= box_lengths
+
+        return positions
 
     def initialize_velocities(self, species):
         """
@@ -1036,6 +1123,19 @@ class Particles:
         velocity = vector_species_loop(self.vel.transpose(), self.species_num)
         self.species_momentum = self.species_masses * velocity
 
+    def calculate_species_velocity_moments(self):
+        """Calculate the moments of the velocity distribution using the velocity of each species and stores them into :attr:`species_velocity_moments`."""
+        species_start = 0
+        species_end = 0
+
+        for i, num in enumerate(self.species_num):
+            species_end += num
+            for mom in range(self.max_velocity_distribution_moment):
+                self.species_velocity_moments[i, mom] = moment(
+                    self.vel[species_start:species_end, :], moment=mom + 1, axis=0
+                )
+            species_start += num
+
     def calculate_species_potential_energy(self):
         """Calculate the potential energy of each species from :attr:`potential_energy`, calculated in the force loop, and stores it into :attr:`species_potential_energy`."""
         self.species_potential_energy = scalar_species_loop(self.potential_energy, self.species_num)
@@ -1351,7 +1451,7 @@ class Particles:
             self.initialize_velocities(species)
             self.initialize_accelerations()
 
-        if len(self.observables_list) > 2:
+        if len(self.observables_list) > 3:
             self.calculate_thermodynamic_quantities = self.calculate_thermodynamic_quantities_full
             self.make_thermodynamics_dictionary = self.make_thermodynamics_dictionary_full
         else:

@@ -791,7 +791,6 @@ class Observable:
         data_all = zeros((self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls))
         time = zeros(self.no_dumps)
 
-        print("\nCollecting data from snapshots ...")
         if self.dimensional_average:
             # Loop over the runs
             for r, dump_dir_r in enumerate(tqdm(self.dump_dirs_list, disable=(not self.verbose), desc="Runs Loop")):
@@ -3079,7 +3078,7 @@ class HeatFlux(Observable):
         start_index = 0  # Dump number to start the acf calculation
         end_index = self.block_length  # Dump number to end the acf calculation
 
-        step = rint(self.plasma_periods_shift * self.timesteps_per_plasma_period / self.dump_step).astype(int)
+        step = int(self.timesteps_shift // self.dump_step)
 
         self.dataframe_acf[f"{self.__long_name__} ACF_Species_Axis_Time"] = self.simulation_dataframe.iloc[:end_index, 0]
         self.dataframe_acf_slices[f"{self.__long_name__} ACF_Species_Axis_Time"] = self.simulation_dataframe.iloc[
@@ -5129,6 +5128,10 @@ class VelocityAutoCorrelationFunction(Observable):
         params,
         phase: str = None,
         no_ptcls_per_species: list = None,
+        independent_slices: bool = None,
+        no_slices: int = None,
+        timesteps_per_slice: int = None,
+        timesteps_shift: int = None,
         plasma_periods_per_slice: int = None,
         plasma_periods_shift: int = None,
         **kwargs,
@@ -5136,10 +5139,15 @@ class VelocityAutoCorrelationFunction(Observable):
         super().setup_init(
             params,
             phase=phase,
+            independent_slices=independent_slices,
+            no_slices=no_slices,
+            timesteps_per_slice=timesteps_per_slice,
+            timesteps_shift=timesteps_shift,
             plasma_periods_per_slice=plasma_periods_per_slice,
             plasma_periods_shift=plasma_periods_shift,
             **kwargs,
         )
+
         if no_ptcls_per_species:
             self.select_random_indices(no_ptcls_per_species)
 
@@ -5161,19 +5169,10 @@ class VelocityAutoCorrelationFunction(Observable):
         raise DeprecationWarning("VACF does not have a `compute` method anymore. Use `compute_acf()`.")
 
     @compute_acf_doc
-    def compute_acf(
-        self, no_ptcls_per_species=None, plasma_periods_per_slice: int = None, plasma_periods_shift: int = None, **kwargs
-    ):
-        if no_ptcls_per_species and no_ptcls_per_species != self.no_ptcls_per_species:
-            # The second statement is for those cases in which you want to calculate the vacf again, but with a different number of particles.
-            self.read_data_from_dumps(no_ptcls_per_species=no_ptcls_per_species)
-            self.save_simulation_hdf()
-
+    def compute_acf(self):
         self.load_simulation_dataframe()
         t0 = self.timer.current()
-        self.calc_acf_slices_data(
-            plasma_periods_per_slice=plasma_periods_per_slice, plasma_periods_shift=plasma_periods_shift
-        )
+        self.calc_acf_slices_data()
         self.average_acf_slices_data()
         self.save_acf_hdf()
         tend = self.timer.current()
@@ -5225,18 +5224,14 @@ class VelocityAutoCorrelationFunction(Observable):
         self.simulation_dataframe = DataFrame(data, columns=columns)
 
     @calc_acf_slices_doc
-    def calc_acf_slices_data(self, plasma_periods_per_slice: int = None, plasma_periods_shift: int = None):
-        # Need to update these attributes if inputs were not None
-        self.update_block_attributes(
-            plasma_periods_per_slice=plasma_periods_per_slice, plasma_periods_shift=plasma_periods_shift
-        )
+    def calc_acf_slices_data(self):
         self.dataframe_acf = DataFrame()
         self.dataframe_acf_slices = DataFrame()
 
         start_index = 0  # Dump number to start the acf calculation
         end_index = self.block_length  # Dump number to end the acf calculation
 
-        step = rint(self.plasma_periods_shift * self.timesteps_per_plasma_period / self.dump_step).astype(int)
+        step = int(self.timesteps_shift // self.dump_step)
 
         self.dataframe_acf[f"{self.__name__.swapcase()}_Species_Axis_Time"] = self.simulation_dataframe.iloc[
             :end_index, 0
@@ -5529,7 +5524,12 @@ class VelocityDistribution(Observable):
         self,
         params,
         phase: str = None,
+        independent_slices: bool = None,
         no_slices: int = None,
+        timesteps_per_slice: int = None,
+        timesteps_shift: int = None,
+        plasma_periods_per_slice: int = None,
+        plasma_periods_shift: int = None,
         hist_kwargs: dict = None,
         max_no_moment: int = None,
         multi_run_average: bool = None,
@@ -5573,10 +5573,15 @@ class VelocityDistribution(Observable):
         super().setup_init(
             params,
             phase=phase,
-            dimensional_average=dimensional_average,
-            multi_run_average=multi_run_average,
-            runs=runs,
+            independent_slices=independent_slices,
             no_slices=no_slices,
+            timesteps_per_slice=timesteps_per_slice,
+            timesteps_shift=timesteps_shift,
+            plasma_periods_per_slice=plasma_periods_per_slice,
+            plasma_periods_shift=plasma_periods_shift,
+            multi_run_average=multi_run_average,
+            dimensional_average=dimensional_average,
+            runs=runs,
         )
         self.update_args(hist_kwargs, max_no_moment, curve_fit_kwargs, **kwargs)
 
@@ -5614,6 +5619,7 @@ class VelocityDistribution(Observable):
 
         # Paths where to store the dataframes
         if self.multi_run_average:
+            # TODO: Update these paths in Observable.create_dirs_filenames()
             self.filename_csv = os_path_join(self.saving_dir, "VelocityDistribution.csv")
             self.filename_hdf = os_path_join(self.saving_dir, "VelocityDistribution.h5")
         else:
@@ -5640,7 +5646,7 @@ class VelocityDistribution(Observable):
         # range(inv_dim) for the loop over dimension
         self.inv_dim = self.dimensions if self.dimensional_average else 1
 
-        self.prepare_histogram_args()
+        # self.prepare_histogram_args()
 
         self.save_pickle()
 
@@ -5661,7 +5667,7 @@ class VelocityDistribution(Observable):
         """
 
         # Print info to screen
-        self.pretty_print()
+        # self.pretty_print()
 
         # Grab simulation data
         time, vel_raw = self.grab_sim_data(pva="vel")
@@ -5669,7 +5675,7 @@ class VelocityDistribution(Observable):
         self.normality_tests(time=time, vel_data=vel_raw)
 
         # Make the velocity distribution
-        self.create_distribution(vel_raw, time)
+        # self.create_distribution(vel_raw, time)
 
         # Calculate velocity moments
         if compute_moments:
@@ -5911,9 +5917,8 @@ class VelocityDistribution(Observable):
         if parse_data:
             time, vel_raw = self.grab_sim_data()
 
-        self.moments_dataframe["Time"] = time
+        self.moments_hdf_dataframe[f"Species_Dimension_Time"] = time
 
-        print("\nCalculating velocity moments ...")
         tinit = self.timer.current()
         moments, ratios = calc_moments(vel_raw, self.max_no_moment, self.species_index_start)
         tend = self.timer.current()
@@ -5931,26 +5936,26 @@ class VelocityDistribution(Observable):
                     self.moments_hdf_dataframe[f"{sp}_X_{m + 1}-2 ratio"] = ratios[i, :, 0, m]
         else:
             for i, sp in enumerate(self.species_names):
-                for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    self.moments_hdf_dataframe[f"{sp}_{ds}_Time"] = time
+                for d, ds in enumerate(self.dim_labels):
                     for m in range(self.max_no_moment):
-                        self.moments_dataframe[f"{sp} {m + 1} moment axis {ds}"] = moments[i, :, d, m]
-                        self.moments_hdf_dataframe[f"{sp}_{ds}_{m + 1} moment"] = moments[i, :, d, m]
+                        col_data = moments[i, :, d, m]
+                        col_name = f"{sp}_{ds}_{m + 1} moment"
+                        self.moments_hdf_dataframe = add_col_to_df(self.moments_hdf_dataframe, col_data, col_name)
 
-                for d, ds in zip(range(self.dim), ["X", "Y", "Z"]):
-                    self.moments_hdf_dataframe[f"{sp}_{ds}_Time"] = time
+                for d, ds in enumerate(self.dim_labels):
                     for m in range(self.max_no_moment):
-                        self.moments_dataframe[f"{sp} {m + 1} moment ratio axis {ds}"] = ratios[i, :, d, m]
-                        self.moments_hdf_dataframe[f"{sp}_{ds}_{m + 1}-2 ratio"] = ratios[i, :, d, m]
+                        col_data = ratios[i, :, d, m]
+                        col_name = f"{sp}_{ds}_{m + 1}-2 ratio"
+                        self.moments_hdf_dataframe = add_col_to_df(self.moments_hdf_dataframe, col_data, col_name)
 
-        self.moments_dataframe.to_csv(self.filename_csv, index=False, encoding="utf-8")
         # Hierarchical DF Save
         # Make the columns
         self.moments_hdf_dataframe.columns = MultiIndex.from_tuples(
             [tuple(c.split("_")) for c in self.moments_hdf_dataframe.columns]
         )
+        self.moments_filename_hdf = os_path_join(self.saving_dir, f"VelocityMoments_{self.job_id}.h5")
         # Save the df in the hierarchical df with a new key/group
-        self.moments_hdf_dataframe.to_hdf(self.filename_hdf, mode="a", key="velocity_moments", encoding="utf-8")
+        self.moments_hdf_dataframe.to_hdf(self.moments_filename_hdf, mode="a", key="velocity_moments", encoding="utf-8")
 
     def compute_hermite_expansion(self, compute_moments: bool = False):
         """
@@ -6061,7 +6066,7 @@ class VelocityDistribution(Observable):
         """Print information in a user-friendly way."""
 
         print("\n\n{:=^70} \n".format(" " + self.__long_name__ + " "))
-        print("CSV dataframe saved in:\n\t ", self.filename_csv)
+
         print("HDF5 dataframe saved in:\n\t ", self.filename_hdf)
         print("Data accessible at: self.dataframe, self.hierarchical_dataframe, self.species_bin_edges")
         print("\nMulti run average: ", self.multi_run_average)
@@ -6071,32 +6076,31 @@ class VelocityDistribution(Observable):
                 self.no_dumps, self.dim, self.runs * self.inv_dim * self.total_num_ptcls
             )
         )
-        print("\nHistograms Information:")
-        for sp, (sp_name, dics) in enumerate(zip(self.species_names, self.list_hist_kwargs)):
-            if sp == 0:
-                print("Species: {}".format(sp_name))
-            else:
-                print("\nSpecies: {}".format(sp_name))
-            print("No. of samples = {}".format(self.species_num[sp] * self.inv_dim * self.runs))
-            print("Thermal speed: v_th = {:.6e} ".format(self.vth[sp]), end="")
-            print("[cm/s]" if self.units == "cgs" else "[m/s]")
-            for key, values in dics.items():
-                if key == "range":
-                    print(
-                        "{} : ( {:.2f}, {:.2f} ) v_th,"
-                        "\n\t( {:.4e}, {:.4e} ) ".format(key, *values / self.vth[sp], *values),
-                        end="",
-                    )
-                    print("[cm/s]" if self.units == "cgs" else "[m/s]")
-                else:
-                    print("{}: {}".format(key, values))
-            bin_width = abs(dics["range"][1] - dics["range"][0]) / (self.vth[sp] * dics["bins"])
-            print("Bin Width = {:.4f}".format(bin_width))
+        # print("\nHistograms Information:")
+        # for sp, (sp_name, dics) in enumerate(zip(self.species_names, self.list_hist_kwargs)):
+        #     if sp == 0:
+        #         print("Species: {}".format(sp_name))
+        #     else:
+        #         print("\nSpecies: {}".format(sp_name))
+        #     print("No. of samples = {}".format(self.species_num[sp] * self.inv_dim * self.runs))
+        #     print("Thermal speed: v_th = {:.6e} ".format(self.vth[sp]), end="")
+        #     print("[cm/s]" if self.units == "cgs" else "[m/s]")
+        #     for key, values in dics.items():
+        #         if key == "range":
+        #             print(
+        #                 "{} : ( {:.2f}, {:.2f} ) v_th,"
+        #                 "\n\t( {:.4e}, {:.4e} ) ".format(key, *values / self.vth[sp], *values),
+        #                 end="",
+        #             )
+        #             print("[cm/s]" if self.units == "cgs" else "[m/s]")
+        #         else:
+        #             print("{}: {}".format(key, values))
+        #     bin_width = abs(dics["range"][1] - dics["range"][0]) / (self.vth[sp] * dics["bins"])
+        #     print("Bin Width = {:.4f}".format(bin_width))
 
         if hasattr(self, "max_no_moment"):
             print("\nMoments Information:")
-            print("CSV dataframe saved in:\n\t ", self.mom_df_filename_csv)
-            print("Data accessible at: self.moments_dataframe, self.moments_hdf_dataframe")
+            print("Data accessible at: self.moments_hdf_dataframe")
             print("Highest moment to calculate: {}".format(self.max_no_moment))
 
         if hasattr(self, "max_hermite_order"):
