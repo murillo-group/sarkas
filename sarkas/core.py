@@ -726,9 +726,9 @@ class Parameters:
             phs_msg = (
                 f"\nRestart step: {restart_step}\n"
                 f"Total {phase} steps = {steps}\n"
-                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt)} w_p = {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
                 f"snapshot interval step = {dump_step}\n"
-                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4e} w_p = {dump_step * wp_dt/(2.0 * pi):.4e} plasma periods\n"
                 f"Total number of snapshots = {int(steps / dump_step)}"
             )
 
@@ -746,9 +746,9 @@ class Parameters:
                     phs_msg += (
                         f"\n{phase.capitalize()}:\n"
                         f"\tNo. of {phase} steps = {steps}\n"
-                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt)} w_p = {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
                         f"\tsnapshot interval step = {dump_step}\n"
-                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4e} w_p = {dump_step * wp_dt/(2.0 * pi):.4e} plasma periods\n"
                         f"\tTotal number of snapshots = {int(steps / dump_step)}"
                     )
 

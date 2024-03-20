@@ -184,7 +184,7 @@ class Integrator:
             params.equilibration_steps = self.equilibration_steps
 
         if hasattr(self, "magnetization_steps"):
-            params.equilibration_steps = self.magnetization_steps
+            params.magnetization_steps = self.magnetization_steps
 
         if hasattr(self, "production_steps"):
             params.production_steps = self.production_steps
