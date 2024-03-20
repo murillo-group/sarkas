@@ -139,7 +139,7 @@ class Process:
                 # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
 
                 # Check if you already have a non-empty dict of species
-                if len(self.species) == 0:
+                if len(self.species) > 0:
                     # If so do you want to replace or update?
                     # Update species attributes
 
@@ -149,11 +149,11 @@ class Process:
                             self.species[sp].__dict__.update(spec.__dict__)
                         else:
                             self.species.append(spec)
-                    else:
-                        # Append new species
-                        for sp, species in enumerate(vals):
-                            spec = Species(species["Species"])
-                            self.species.append(spec)
+                else:
+                    # Append new species
+                    for sp, species in enumerate(vals):
+                        spec = Species(species["Species"])
+                        self.species.append(spec)
 
             elif lkey in ["Observables"]:
                 for obs_dict in vals:
@@ -491,7 +491,6 @@ class Process:
             self.update_subclasses_from_dict(other_inputs)
 
         if self.__name__ == "postprocessing":
-
             # Create the file paths without creating directories and redefining io attributes
             self.io.make_directory_tree()
             self.io.make_directories()
@@ -547,7 +546,6 @@ class Process:
         self.instantiate_subclasses_from_dict(input_dict)
 
         if self.__name__ == "postprocessing":
-
             # Create the file paths without creating directories and redefining io attributes
             self.io.make_directory_tree()
             self.io.make_directories()
@@ -601,7 +599,6 @@ class PostProcess(Process):
     """
 
     def __init__(self, input_file: str = None, grab_last_step: bool = False):
-
         self.__name__ = "postprocessing"
         self.grab_last_step = grab_last_step
 
@@ -614,7 +611,6 @@ class PostProcess(Process):
             print("No observables found in observables_dict")
         else:
             for obs_key, obs_class in self.observables_dict.items():
-
                 obs_class.setup(self.parameters)
                 msg = obs_class.pretty_print_msg()
                 self.io.write_to_logger(msg)
@@ -629,7 +625,6 @@ class PostProcess(Process):
             print("No transport coefficients found in tranport_dict")
         else:
             for obs_key, obs_class in self.transport_dict.items():
-
                 obs_class.setup(self.parameters)
                 msg = obs_class.pretty_print_msg()
                 self.io.write_to_logger(msg)
@@ -1124,7 +1119,6 @@ class PreProcess(Process):
             fig.savefig(join(fig_path, f"ForceErrorMap_v_Timing_cao_{cao}_{self.io.job_id}.png"))
 
     def postproc_estimates(self):
-
         # POST- PROCESSING
         self.io.postprocess_info(self, observable="header")
         # Header of process
@@ -1406,7 +1400,6 @@ class PreProcess(Process):
         for _, m in enumerate(
             tqdm(self.pm_meshes, desc="Looping over the PM meshes", disable=not self.parameters.verbose)
         ):
-
             # Setup PM params
             self.potential.pppm_mesh = m * array([1, 1, 1], dtype=int)
             self.potential.pppm_alpha_ewald = 0.3 * m / self.potential.box_lengths.min()
@@ -1708,7 +1701,6 @@ class Simulation(Process):
         self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
 
     def produce(self):
-
         it_start = self.check_restart(phase="production")
 
         self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
