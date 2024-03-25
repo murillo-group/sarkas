@@ -84,42 +84,89 @@ class Process:
 
     """
 
-    def __init__(self, input_file: str = None):
-        self.potential = Potential()
-        self.integrator = Integrator()
-        self.parameters = Parameters()
-        self.particles = Particles()
+    from .potentials.core import Potential
 
-        self.species = []  # Deprecated
-        self.species = []
+    def __init__(self, 
+                 input_file: str = None, 
+                 potential_class: Potential = None,
+                 integrator_class: Integrator = None,
+                 particles_class: Particles = None,
+                 parameters_class: Parameters = None,
+                 io_class: InputOutput = None,
+                 species: list = None,
+                 
+                 ):
+        
+        if potential_class is not None:
+            self.potential = potential_class
+        else:
+            self.potential = Potential()
+
+        if integrator_class is not None:
+            self.integrator = integrator_class
+        else:
+            self.integrator = Integrator()
+
+        if particles_class is not None:
+            self.particles = particles_class
+        else:   
+            self.particles = Particles()
+        
+        if parameters_class is not None:
+            self.parameters = parameters_class
+        else:
+            self.parameters = Parameters()
+        
+        if io_class is not None:
+            self.io = io_class
+        else:
+            self.io = InputOutput(process=self.__name__)
+
+        if species is not None:
+            self.species = species
+        else:
+            self.species = []
+    
         self.threads_ls = []
         self.observables_dict = {}
         self.transport_dict = {}
 
         self.input_file = input_file
         self.timer = SarkasTimer()
-        self.io = InputOutput(process=self.__name__)
 
     def common_parser(self, filename: str = None):
         """
-        Parse simulation parameters from YAML file.
+        Parse simulation parameters from a YAML file.
 
         Parameters
         ----------
-        filename: str
-            Input YAML file
+        filename : str, optional
+            Path to the YAML input file. If not provided, the input file path specified during object initialization will be used.
 
-        Return
-        ------
-        dics : dict
-            Nested dictionary from reading the YAML input file.
+        Returns
+        -------
+        dict
+            A nested dictionary containing the parsed simulation parameters.
+
+        Notes
+        -----
+        This method reads the simulation parameters from a YAML file and returns them as a nested dictionary. 
+        It uses the :meth:`sarkas.utilities.io.InputOutput.from_yaml` to read the YAML file.
+
+        If the `filename` parameter is provided, it will override the input file path specified during object initialization.
+
+        Examples
+        --------
+        >>> process = Process(input_file='/path/to/input.yaml')
+        >>> params_dict = process.common_parser()
+        
         """
         if filename:
             self.input_file = filename
 
-        dics = self.io.from_yaml(self.input_file)
+        params_dict = self.io.from_yaml(self.input_file)
 
-        return dics
+        return params_dict
 
     def update_subclasses_from_dict(self, nested_dict: dict):
         """Update the subclasses parameters using a dictionary.
@@ -139,7 +186,7 @@ class Process:
                 # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
 
                 # Check if you already have a non-empty dict of species
-                if len(self.species) == 0:
+                if len(self.species) > 0:
                     # If so do you want to replace or update?
                     # Update species attributes
 
@@ -149,11 +196,11 @@ class Process:
                             self.species[sp].__dict__.update(spec.__dict__)
                         else:
                             self.species.append(spec)
-                    else:
-                        # Append new species
-                        for sp, species in enumerate(vals):
-                            spec = Species(species["Species"])
-                            self.species.append(spec)
+                else:
+                    # Append new species
+                    for sp, species in enumerate(vals):
+                        spec = Species(species["Species"])
+                        self.species.append(spec)
 
             elif lkey in ["Observables"]:
                 for obs_dict in vals:
@@ -256,7 +303,7 @@ class Process:
             )
 
         # Grab one file from the dump directory and get the size of it.
-        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+        prod_dump_size = os_stat(join(self.io.prod_dump_dir, listdir(self.io.prod_dump_dir)[0])).st_size
         prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
         # Prepare arguments to pass for print out
         sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
@@ -380,8 +427,8 @@ class Process:
         self.io.setup()
 
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+        # it updates parameters' dictionary with filenames and directories
         self.parameters.copy_io_attrs(self.io)
-        # Update parameters' dictionary with filenames and directories
 
         self.parameters.potential_type = self.potential.type.lower()
         self.parameters.setup(self.species)
@@ -491,7 +538,6 @@ class Process:
             self.update_subclasses_from_dict(other_inputs)
 
         if self.__name__ == "postprocessing":
-
             # Create the file paths without creating directories and redefining io attributes
             self.io.make_directory_tree()
             self.io.make_directories()
@@ -547,7 +593,6 @@ class Process:
         self.instantiate_subclasses_from_dict(input_dict)
 
         if self.__name__ == "postprocessing":
-
             # Create the file paths without creating directories and redefining io attributes
             self.io.make_directory_tree()
             self.io.make_directories()
@@ -601,7 +646,6 @@ class PostProcess(Process):
     """
 
     def __init__(self, input_file: str = None, grab_last_step: bool = False):
-
         self.__name__ = "postprocessing"
         self.grab_last_step = grab_last_step
 
@@ -614,7 +658,6 @@ class PostProcess(Process):
             print("No observables found in observables_dict")
         else:
             for obs_key, obs_class in self.observables_dict.items():
-
                 obs_class.setup(self.parameters)
                 msg = obs_class.pretty_print_msg()
                 self.io.write_to_logger(msg)
@@ -629,7 +672,6 @@ class PostProcess(Process):
             print("No transport coefficients found in tranport_dict")
         else:
             for obs_key, obs_class in self.transport_dict.items():
-
                 obs_class.setup(self.parameters)
                 msg = obs_class.pretty_print_msg()
                 self.io.write_to_logger(msg)
@@ -1124,7 +1166,6 @@ class PreProcess(Process):
             fig.savefig(join(fig_path, f"ForceErrorMap_v_Timing_cao_{cao}_{self.io.job_id}.png"))
 
     def postproc_estimates(self):
-
         # POST- PROCESSING
         self.io.postprocess_info(self, observable="header")
         # Header of process
@@ -1139,7 +1180,7 @@ class PreProcess(Process):
         print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
     def make_pppm_plots_dir(self):
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+        self.pppm_plots_dir = join(self.io.directory_tree["preprocessing"]["path"], "PPPM_Plots")
 
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
@@ -1379,7 +1420,7 @@ class PreProcess(Process):
     def timing_study_calculation(self):
         """Estimate the best number of mesh points and cutoff radius."""
 
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+        self.pppm_plots_dir = join(self.io.directory_tree["preprocessing"]["path"], "PPPM_Plots")
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
 
@@ -1406,7 +1447,6 @@ class PreProcess(Process):
         for _, m in enumerate(
             tqdm(self.pm_meshes, desc="Looping over the PM meshes", disable=not self.parameters.verbose)
         ):
-
             # Setup PM params
             self.potential.pppm_mesh = m * array([1, 1, 1], dtype=int)
             self.potential.pppm_alpha_ewald = 0.3 * m / self.potential.box_lengths.min()
@@ -1708,7 +1748,6 @@ class Simulation(Process):
         self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
 
     def produce(self):
-
         it_start = self.check_restart(phase="production")
 
         self.integrator.update = self.integrator.type_setup(self.integrator.production_type)

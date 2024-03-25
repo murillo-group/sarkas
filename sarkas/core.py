@@ -446,9 +446,8 @@ class Parameters:
         e_species.relativistic_parameter = self.hbar * e_species.Fermi_wavenumber / (self.me * self.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        e_species.coupling = e_species.charge**2 / (
-            self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(1.0 + e_species.degeneracy_parameter**2)
-        )
+        e_species.coupling = e_species.charge**2 / (e_species.a_ws * self.fourpie0 * self.kB * e_species.temperature)
+        e_species.coupling *= 1.0/( 1 + (1.5 * e_species.degeneracy_parameter)**(-9/5))**(5/9)
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
         e_species.wdm_parameter = 2.0 / (e_species.degeneracy_parameter + 1.0 / e_species.degeneracy_parameter)
@@ -727,9 +726,9 @@ class Parameters:
             phs_msg = (
                 f"\nRestart step: {restart_step}\n"
                 f"Total {phase} steps = {steps}\n"
-                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt)} w_p = {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
                 f"snapshot interval step = {dump_step}\n"
-                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4e} w_p = {dump_step * wp_dt/(2.0 * pi):.4e} plasma periods\n"
                 f"Total number of snapshots = {int(steps / dump_step)}"
             )
 
@@ -747,15 +746,18 @@ class Parameters:
                     phs_msg += (
                         f"\n{phase.capitalize()}:\n"
                         f"\tNo. of {phase} steps = {steps}\n"
-                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt)} w_p = {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
                         f"\tsnapshot interval step = {dump_step}\n"
-                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4e} w_p = {dump_step * wp_dt/(2.0 * pi):.4e} plasma periods\n"
                         f"\tTotal number of snapshots = {int(steps / dump_step)}"
                     )
 
         phase_msg += phs_msg
         msg += phase_msg
-        print(msg)
+        if restart[-7:] == "restart":
+            print(phase_msg)
+        else:
+            print(msg)
 
     def set_species_attributes(self, species: list):
         """
@@ -767,6 +769,11 @@ class Parameters:
             List of :class:`sarkas.plasma.Species`.
 
         """
+
+        # DEV NOTE: This method could be defined in the Particles class, however, it is more convenient to have it here because it uses the correct unit system. 
+        # If I were to move it to the Particles class, I would need to pass the units as an argument. 
+        # TODO: It could be moved in the future. 
+
         # Loop over species and assign missing attributes
         # Collect species properties in single arrays
 

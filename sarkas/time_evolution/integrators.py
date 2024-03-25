@@ -4,7 +4,7 @@ Module of various types of time_evolution
 
 from copy import deepcopy
 from numba import float64, int64, jit, void
-from numpy import arange, array, cos, cross, log, pi, sin, sqrt, zeros
+from numpy import arange, array, cos, cross, log, pi, rint, sin, sqrt, zeros
 from scipy.linalg import norm
 
 
@@ -184,7 +184,7 @@ class Integrator:
             params.equilibration_steps = self.equilibration_steps
 
         if hasattr(self, "magnetization_steps"):
-            params.equilibration_steps = self.magnetization_steps
+            params.magnetization_steps = self.magnetization_steps
 
         if hasattr(self, "production_steps"):
             params.production_steps = self.production_steps
@@ -1057,21 +1057,29 @@ class Integrator:
         time_msg = (
             f"Time step = {self.dt:.6e} {self.units_dict['time']}\n"
             f"Total plasma frequency = {wp_tot:.6e} {self.units_dict['frequency']}\n"
-            f"Total plasma period = {t_wp:.6e} {self.units_dict['time']}\n"
-            f"w_p dt = {wp_dt:.4e} [rad] = {wp_dt/(2.0 * pi):.4e}\n"
-            f"Timesteps per plasma cycle = {int(2.0 * pi/wp_dt)} \n"
+            f"w_p dt = {wp_dt:.2e} [rad]\n"
+            f"Total plasma period (T) = {t_wp:.6e} {self.units_dict['time']}\n"
+            f"dt/T = = {self.dt/t_wp:.2e}\n"
+            f"Timesteps per plasma cycle ~ {int(t_wp/self.dt)} \n"
         )
         integrator_msg += time_msg
         if self.potential_type == "qsp":
             wp_e = self.species_plasma_frequencies[0]
+            t_we = (2.0 * pi)/wp_e
             wp_ions = norm(self.species_plasma_frequencies[1:])
+            t_wi = (2.0 * pi)/wp_ions
             qsp_msg = (
                 f"e plasma frequency = {wp_e:.6e} {self.units_dict['frequency']}\n"
+                f"w_pe dt = {self.dt * wp_e:.2e} [rad]\n"
+                f"e plasma period (T_e) = {t_we:.6e} {self.units_dict['time']}\n"
+                f"dt/T_e = {self.dt/t_we:.2e}\n"
+                f"Timesteps per e plasma cycle ~ {int(t_we/self.dt)}\n"
                 f"total ion plasma frequency = {wp_ions:.6e} {self.units_dict['frequency']}\n"
-                f"w_pe dt = {self.dt * wp_e:.4e} [rad] = {self.dt * wp_e/(2.0*pi):.4e}\n"
-                f"Timesteps per e plasma cycle = {int(2.0 * pi / (self.dt * wp_e))}\n"
-                f"w_pi dt = {self.dt * wp_ions:.4e} [rad]  = {self.dt * wp_ions/(2.0*pi):.4e}\n"
-                f"Timesteps per i plasma cycle = {int(2.0 * pi / (self.dt * wp_ions))} \n"
+                f"w_i dt = {self.dt * wp_ions:.2e} [rad]\n"
+                f"ions plasma period (T_i) = {t_wi:.6e} {self.units_dict['time']}\n"
+                f"dt/T_i = {self.dt/t_wi:.2e}\n"
+                f"Timesteps per ion plasma cycle ~ {int(t_wi/self.dt)}\n"
+
             )
             integrator_msg += qsp_msg
 
@@ -1079,16 +1087,32 @@ class Integrator:
             integrator_msg += f"The plasma frequency is defined as w_p = sqrt( epsilon / (sigma^2 * mass) )\n"
 
         if self.magnetized:
-            high_wc_dt = abs(self.species_cyclotron_frequencies).max() * self.dt
-            low_wc_dt = abs(self.species_cyclotron_frequencies).min() * self.dt
-
-            if high_wc_dt > low_wc_dt:
-                mag_msg = (
-                    f"Highest w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi\n"
-                    f"Smallest w_c dt = {low_wc_dt:2.4f} = {low_wc_dt / pi:.4f} pi\n"
-                )
+            high_wc = abs(self.species_cyclotron_frequencies).max() 
+            low_wc = abs(self.species_cyclotron_frequencies).min() 
+            t_wc_high = 2.0 * pi/high_wc
+            t_wc_low = 2.0 * pi/low_wc
+            mag_msg = "\nMagnetic Timescales:\n"
+            if high_wc > low_wc:
+                mag_msg += (
+                    f"Largest cyclotron frequency (w_c) = {high_wc:.6e} {self.units_dict['frequency']}\n"
+                    f"w_c dt = {high_wc * self.dt:.2e} [rad]\n"
+                    f"Cyclotron period (T) = {t_wc_high:.6e} {self.units_dict['time']}\n"
+                    f"dt/T = = {self.dt/t_wc_high:.2e}\n"
+                    f"Timesteps per plasma cycle ~ {int(t_wc_high/self.dt)}\n"
+                    f"Smallest cyclotron frequency (w_c) = {low_wc:.6e} {self.units_dict['frequency']}\n"
+                    f"w_c dt = {low_wc * self.dt:.2e} [rad]\n"
+                    f"Cyclotron period (T) = {t_wc_low:.6e} {self.units_dict['time']}\n"
+                    f"dt/T = = {self.dt/t_wc_low:.2e}\n"
+                    f"Timesteps per plasma cycle ~ {int(t_wc_low/self.dt)}\n"
+                        )
             else:
-                mag_msg = f"w_c dt = {high_wc_dt:2.4f} = {high_wc_dt / pi:.4f} pi\n"
+                mag_msg += (
+                    f"Cyclotron frequency (w_c) = {high_wc:.6e} {self.units_dict['frequency']}\n"
+                    f"w_c dt = {high_wc * self.dt:.2e} [rad]\n"
+                    f"Cyclotron period (T) = {t_wc_high:.6e} {self.units_dict['time']}\n"
+                    f"dt/T = = {self.dt/t_wc_high:.2e}\n"
+                    f"Timesteps per plasma cycle ~ {int(t_wc_high/self.dt)}\n"
+                )
 
             integrator_msg += mag_msg
 
@@ -1097,16 +1121,15 @@ class Integrator:
             Np = -log(0.001) / (self.langevin_gamma * 2.0 * pi / wp_tot)
             lang_msg = (
                 f"langevin_gamma = {self.langevin_gamma:.4e} {self.units_dict['Hertz']}\n"
-                f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.4e}\n"
+                f"langevin_gamma * dt = {self.langevin_gamma * self.dt:.2e}\n"
                 f"Timestep to decay to 0.001: exp( - gamma N dt) = 0.001 ==> N = {N:.2e}\n"
-                f"langevin_gamma * (2 pi / w_p) = {self.langevin_gamma * (2.0 * pi/ wp_tot):.4e}\n"
-                f"Plasma cycles to decay to 0.001: exp( - gamma N_p dt) = 0.001 ==> N_p = {Np:.2e}"
+                f"langevin_gamma * (2 pi / w_p) = {self.langevin_gamma * (2.0 * pi/ wp_tot):.2e}\n"
+                f"Plasma cycles to decay to 0.001: exp( - gamma N_p dt) = 0.001 ==> N_p = {Np:.2e}\n"
             )
             integrator_msg += lang_msg
 
         msg += integrator_msg
         print(msg)
-
 
 @jit(void(float64[:, :], float64[:], float64[:], int64[:], float64), nopython=True)
 def berendsen(vel, T_desired, T, species_np, tau):

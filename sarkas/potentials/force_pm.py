@@ -167,14 +167,14 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_
 
     for ipart, q_m in enumerate(q_over_m):
 
-        ix = mesh_points[0, ipart]
-        x = mesh_pos[0, ipart] - (ix + mid[0])
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart,0 ] - (ix + mid[0])
 
-        iy = mesh_points[1, ipart]
-        y = mesh_pos[1, ipart] - (iy + mid[1])
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iz = mesh_points[2, ipart]
-        z = mesh_pos[2, ipart] - (iz + mid[2])
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
 
         wx = assgnmnt_func(cao[0], x)
         wy = assgnmnt_func(cao[1], y)
@@ -228,9 +228,9 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_
 
             izn += 1
 
-    acc[0, :] = E_x_p
-    acc[1, :] = E_y_p
-    acc[2, :] = E_z_p
+    acc[:,0] = E_x_p
+    acc[:,1] = E_y_p
+    acc[:,2] = E_z_p
 
     return acc
 
@@ -277,14 +277,14 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
 
     for ipart in range(len(charges)):
 
-        ix = mesh_points[0, ipart]
-        delta_x = mesh_pos[0, ipart] - (ix + mid[0])
+        ix = mesh_points[ipart, 0]
+        delta_x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        iy = mesh_points[1, ipart]
-        delta_y = mesh_pos[1, ipart] - (iy + mid[1])
+        iy = mesh_points[ipart, 1]
+        delta_y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iz = mesh_points[2, ipart]
-        delta_z = mesh_pos[2, ipart] - (iz + mid[2])
+        iz = mesh_points[ipart, 2]
+        delta_z = mesh_pos[ipart, 2] - (iz + mid[2])
         # delta_x, delta_y, delta_z = particle's distances to the closest (mid)-point of the mesh
 
         wx = assgnmnt_func(cao[0], delta_x)
@@ -473,14 +473,14 @@ def calc_pot_pm(phi_r, mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift
 
     for ipart, q in enumerate(charges):
 
-        ix = mesh_points[0, ipart]
-        x = mesh_pos[0, ipart] - (ix + mid[0])
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        iy = mesh_points[1, ipart]
-        y = mesh_pos[1, ipart] - (iy + mid[1])
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iz = mesh_points[2, ipart]
-        z = mesh_pos[2, ipart] - (iz + mid[2])
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
 
         wx = assgnmnt_func(cao[0], x)
         wy = assgnmnt_func(cao[1], y)

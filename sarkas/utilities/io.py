@@ -278,6 +278,8 @@ class InputOutput:
             Interval of dumps to skip. Default is 1
 
         """
+        # TODO: Find a way so that the user can pass strings of the information to save for OVITO.
+        # For example. the user might want to save pos, vel, acc and the kinetic energy or total energy of each particle.
 
         if phase == "equilibration":
             self.xyz_filename = join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
@@ -294,10 +296,13 @@ class InputOutput:
             dump_dir = self.prod_dump_dir
             dump_step = self.prod_dump_step
 
+        # Get particles info
+        params = self.read_pickle_single("parameters")
+
         # Rescale constants. This is needed since OVITO has a small number limit.
-        pscale = 1.0 / self.a_ws
-        vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
-        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
+        pscale = 1.0 / params.a_ws
+        vscale = 1.0 / (params.a_ws * params.total_plasma_frequency)
+        ascale = 1.0 / (params.a_ws * params.total_plasma_frequency**2)
 
         f_xyz = open(self.xyz_filename, "w+")
 
@@ -317,7 +322,10 @@ class InputOutput:
 
         for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
             dump = dumps_dict[i]
-            data = self.read_npz(dump_dir, dump)
+            
+            # TODO: Do we really need to use read_particles_npz ? Can we find a way to save the .xyz file in a different way?
+            # I need a structured array for np.c_[], 
+            data = self.read_particles_npz(dump_dir, dump)
             data["pos_x"] *= pscale
             data["pos_y"] *= pscale
             data["pos_z"] *= pscale
@@ -325,7 +333,8 @@ class InputOutput:
             data["vel_x"] *= vscale
             data["vel_y"] *= vscale
             data["vel_z"] *= vscale
-
+            # TODO: This rescale the acceleration. However, OVITO prefers the Force.
+            # Find a way to generalize the force rescaling and save the forces instead of the accelerations
             data["acc_x"] *= ascale
             data["acc_y"] *= ascale
             data["acc_z"] *= ascale
@@ -405,11 +414,13 @@ class InputOutput:
 
         for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
             dump = dumps_dict[i]
-            data = self.read_npz(dump_dir, dump)
+            file_name = join(dump_dir, dump)
+            data = np_load(file_name, allow_pickle=True)
 
-            data["acc_x"] *= masses
-            data["acc_y"] *= masses
-            data["acc_z"] *= masses
+            # TODO: Find a more pythonic way of doing this
+            data["acc"][:,0] *= masses
+            data["acc"][:,1] *= masses
+            data["acc"][:,2] *= masses
 
             fname = join(pot_fit_dir, f"config_{i}.out")
             f_xyz = open(fname, "w")
@@ -423,7 +434,7 @@ class InputOutput:
 
             savetxt(
                 f_xyz,
-                c_[data["id"], data["pos_x"], data["pos_y"], data["pos_z"], data["acc_x"], data["acc_y"], data["acc_z"]],
+                c_[data["id"], data["pos"], data["acc"]],
                 fmt="%i %.6e %.6e %.6e %.6e %.6e %.6e",
             )
 
@@ -884,7 +895,7 @@ class InputOutput:
         f_log.close()
 
     @staticmethod
-    def read_npz(fldr: str, filename: str):
+    def read_npz(self, fldr: str, filename: str):
         """
         Load particles' data from dumps.
 
@@ -907,9 +918,10 @@ class InputOutput:
         """
 
         warn(
-            "Deprecated feature. It will be removed in a future release.\nUse :meth:`make_files_tree`.",
+            "Deprecated feature. It will be removed in a future release.\nUse :meth:`read_particles_npz`.",
             category=DeprecationWarning,
         )
+        return InputOutput.read_particles_npz(fldr, filename)
 
     @staticmethod
     def read_particles_npz(fldr: str, filename: str):
@@ -936,7 +948,7 @@ class InputOutput:
         # Dev Notes: the old way of saving the xyz file by
         # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
         # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-        # was not working, because the columns of np.c_[] all have the same data type <U32
+        # was not working, because the columns of np.c_[] all have the data type <U32
         # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
         # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
         struct_array = zeros(
@@ -1167,80 +1179,65 @@ class InputOutput:
 
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
+            # Header of process
+            process_title = f"{self.process.capitalize():^80}"
+            print(f"\n\n{'':*^80}")
+            print(process_title)
+            print(f"{'':*^80}")
+
+            print(f"\nJob ID: {self.job_id}")
+            print(f"Job directory: {self.job_dir}")
+            print(
+                f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
+            )
+
+            print(
+                f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
+            )
+            print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
+
+            print(
+                f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
+            )
+            print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
 
             if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
                 print(f"\n\n{' Production Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
                 print(f"\n\n{' Equilibration Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
                 print(f"\n\n{' Magnetization Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
-            elif self.process == "postprocessing":
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"\n\n{'':*^80}")
-                print(process_title)
-                print(f"{'':*^80}")
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(
-                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
-                )
-
-                print(
-                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
-                )
-                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
-
-                print(
-                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
-                )
-                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
-
-            else:
-
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"\n\n{'':*^80}")
-                print(process_title)
-                print(f"{'':*^80}")
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(
-                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
-                )
-
-                print(
-                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
-                )
-                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
-
-                print(
-                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
-                )
-                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
-
+            elif self.process in ["simulation", "preprocessing"]:
+    
                 print("\nPARTICLES:")
                 print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
 
                 print(f"No. of species = {len(simulation.parameters.species_num)}")
-                # This line below is to prevent printing electron background in the case of LJ potential
+                # The line below is to prevent printing electron background in the case of LJ potential
                 species_to_print = simulation.species[:-1] if simulation.potential.type == "lj" else simulation.species
                 for isp, sp in enumerate(species_to_print):
                     if sp.name != "electron_background":

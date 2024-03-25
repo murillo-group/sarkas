@@ -33,16 +33,15 @@ Integrator:
     eq_dump_step: 10
     production_steps: 400000
     prod_dump_step: 6
-
-Thermostat:
-    type: Berendsen                   #  thermostat type
-    relaxation_timestep: 500
-    berendsen_tau: 5.0
+    thermostat_type: Berendsen       # thermostat type
+    thermalization_timestep: 500     # time step at which the thermostat is applied
+    berendsen_tau: 5.0               # relaxation constant for the thermostat
 
 Parameters:
     units: cgs                        # units
     load_method: random_reject
     load_rejection_radius: 10.0e-10
+    boundary_conditions: periodic
 
 IO:
     verbose: True
