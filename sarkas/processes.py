@@ -84,42 +84,89 @@ class Process:
 
     """
 
-    def __init__(self, input_file: str = None):
-        self.potential = Potential()
-        self.integrator = Integrator()
-        self.parameters = Parameters()
-        self.particles = Particles()
+    from .potentials.core import Potential
 
-        self.species = []  # Deprecated
-        self.species = []
+    def __init__(self, 
+                 input_file: str = None, 
+                 potential_class: Potential = None,
+                 integrator_class: Integrator = None,
+                 particles_class: Particles = None,
+                 parameters_class: Parameters = None,
+                 io_class: InputOutput = None,
+                 species: list = None,
+                 
+                 ):
+        
+        if potential_class is not None:
+            self.potential = potential_class
+        else:
+            self.potential = Potential()
+
+        if integrator_class is not None:
+            self.integrator = integrator_class
+        else:
+            self.integrator = Integrator()
+
+        if particles_class is not None:
+            self.particles = particles_class
+        else:   
+            self.particles = Particles()
+        
+        if parameters_class is not None:
+            self.parameters = parameters_class
+        else:
+            self.parameters = Parameters()
+        
+        if io_class is not None:
+            self.io = io_class
+        else:
+            self.io = InputOutput(process=self.__name__)
+
+        if species is not None:
+            self.species = species
+        else:
+            self.species = []
+    
         self.threads_ls = []
         self.observables_dict = {}
         self.transport_dict = {}
 
         self.input_file = input_file
         self.timer = SarkasTimer()
-        self.io = InputOutput(process=self.__name__)
 
     def common_parser(self, filename: str = None):
         """
-        Parse simulation parameters from YAML file.
+        Parse simulation parameters from a YAML file.
 
         Parameters
         ----------
-        filename: str
-            Input YAML file
+        filename : str, optional
+            Path to the YAML input file. If not provided, the input file path specified during object initialization will be used.
 
-        Return
-        ------
-        dics : dict
-            Nested dictionary from reading the YAML input file.
+        Returns
+        -------
+        dict
+            A nested dictionary containing the parsed simulation parameters.
+
+        Notes
+        -----
+        This method reads the simulation parameters from a YAML file and returns them as a nested dictionary. 
+        It uses the :meth:`sarkas.utilities.io.InputOutput.from_yaml` to read the YAML file.
+
+        If the `filename` parameter is provided, it will override the input file path specified during object initialization.
+
+        Examples
+        --------
+        >>> process = Process(input_file='/path/to/input.yaml')
+        >>> params_dict = process.common_parser()
+        
         """
         if filename:
             self.input_file = filename
 
-        dics = self.io.from_yaml(self.input_file)
+        params_dict = self.io.from_yaml(self.input_file)
 
-        return dics
+        return params_dict
 
     def update_subclasses_from_dict(self, nested_dict: dict):
         """Update the subclasses parameters using a dictionary.
@@ -256,7 +303,7 @@ class Process:
             )
 
         # Grab one file from the dump directory and get the size of it.
-        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+        prod_dump_size = os_stat(join(self.io.prod_dump_dir, listdir(self.io.prod_dump_dir)[0])).st_size
         prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
         # Prepare arguments to pass for print out
         sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
@@ -380,8 +427,8 @@ class Process:
         self.io.setup()
 
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+        # it updates parameters' dictionary with filenames and directories
         self.parameters.copy_io_attrs(self.io)
-        # Update parameters' dictionary with filenames and directories
 
         self.parameters.potential_type = self.potential.type.lower()
         self.parameters.setup(self.species)

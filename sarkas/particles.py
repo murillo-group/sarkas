@@ -6,7 +6,7 @@ import csv
 from copy import deepcopy
 from h5py import File as h5File
 from numba import float64, int64, jit, njit, void
-from numpy import arange, array, empty, floor, int64
+from numpy import arange, array, empty, floor, full, int64
 from numpy import load as np_load
 from numpy import (
     loadtxt,
@@ -536,6 +536,9 @@ class Particles:
 
         self.species_initial_velocity = zeros((self.num_species, 3))
         self.species_thermal_velocity = zeros((self.num_species, 3))
+        
+        self.species_initial_spatial_distribution = empty((self.num_species, 3), dtype=str)
+        self.species_initial_velocity_distribution = empty((self.num_species, 3), dtype=str)
 
         self.species_kinetic_energy = zeros(self.num_species)
         self.species_potential_energy = zeros(self.num_species)
@@ -569,25 +572,25 @@ class Particles:
             self.heat_flux_species_tensor = zeros((3, self.num_species, self.num_species))
             self.species_heat_flux = zeros((self.num_species, 3))
 
-    def initialize_positions(self):
+    def initialize_positions(self, species: list = None):
         """
         Initialize particles' positions based on the load method.
         """
 
-        # position distribution.
+        # TODO: Break this method into smaller methods. It is too long.
         if self.load_method == "lattice":
             self.lattice(self.load_perturb)
 
         elif self.load_method == "random_reject":
             # check
             if not hasattr(self, "load_rejection_radius"):
-                raise AttributeError("Rejection radius not defined. " "Please define Parameters.load_rejection_radius.")
+                raise AttributeError("Rejection radius not defined. Please define Parameters.load_rejection_radius.")
             self.random_reject(self.load_rejection_radius)
 
         elif self.load_method == "halton_reject":
             # check
             if not hasattr(self, "load_rejection_radius"):
-                raise AttributeError("Rejection radius not defined. " "Please define Parameters.load_rejection_radius.")
+                raise AttributeError("Rejection radius not defined. Please define Parameters.load_rejection_radius.")
             self.halton_reject(self.load_halton_bases, self.load_rejection_radius)
 
         elif self.load_method in ["uniform", "random_no_reject"]:
@@ -596,6 +599,10 @@ class Particles:
             )
 
         elif self.load_method == "gaussian":
+
+            if self.load_gauss_sigma is None:
+                raise AttributeError("Gaussian sigma not defined. Please define Parameters.load_gauss_sigma.")
+            
             sp_start = 0
             sp_end = 0
             for sp, sp_num in enumerate(self.species_num):
@@ -604,6 +611,7 @@ class Particles:
                     self.box_lengths[0] / 2.0, self.load_gauss_sigma[sp], (sp_num, 3)
                 )
                 sp_start += sp_num
+
         elif self.load_method in ["qmc", "quasi_monte_carlo"]:
             # Ensure that we are not making silly typos
             self.qmc_sequence = self.qmc_sequence.lower()
@@ -614,12 +622,81 @@ class Particles:
                 )
 
             self.pos = self.quasi_monte_carlo(self.qmc_sequence, self.total_num_ptcls, self.dimensions, self.box_lengths)
+        
+        elif self.load_method == "species_specific":
+            sp_start = 0
+            sp_end = 0
+            for ic, sp in enumerate(species):
+                # TODO: Add the read_from_file option
+                if sp.name != "electron_background":
+                    sp_end += sp.num
+                    if sp.initial_spatial_distribution in ["uniform", "random_no_reject"]:
+                        self.pos[sp_start:sp_end, :] = self.uniform_no_reject(
+                            0.5 * self.box_lengths - 0.5 * self.pbox_lengths, 0.5 * self.box_lengths + 0.5 * self.pbox_lengths
+                        )
+                    elif sp.initial_spatial_distribution == "gaussian":
+                        
+                        if sp.gaussian_sigma is None:
+                            raise AttributeError("Gaussian sigma not defined. Please define Species.gaussian_sigma.")
+                        
+                        if sp.gaussian_mean is None:
+                            raise AttributeError("Gaussian mean not defined. Please define Species.gaussian_mean.")
+
+                        # Set the mean and sigma for the species
+                        if sp.gaussian_mean == "center":
+                            sp_mean = self.box_lengths / 2.0
+                        else:
+                            if isinstance(sp.gaussian_mean, (int, float)):
+                                sp_mean = full(self.dimensions, sp.gaussian_mean)
+                            elif isinstance(sp.gaussian_mean, (list, ndarray)):
+                                # Check that it has length 3
+                                if len(sp.gaussian_mean) != 3 and self.dimensions == 3:
+                                    raise AttributeError("Gaussian mean must be a list or array of length 3.")
+                                elif len(sp.gaussian_mean) != 2 and self.dimensions == 2:
+                                    raise AttributeError("Gaussian mean must be a list or array of length 2.")
+                                else:
+                                    sp_mean = sp.gaussian_mean
+
+                        if isinstance(sp.gaussian_sigma, (int, float)):
+                            sp_sigma = full(self.dimensions, sp.gaussian_sigma)
+                        else:  
+                            # Check that it has the correct dimensions
+                            if len(sp.gaussian_sigma) != 3 and self.dimensions == 3:
+                                raise AttributeError("Gaussian sigma must be a list or array of length 3.")
+                            elif len(sp.gaussian_sigma) != 2 and self.dimensions == 2:
+                                raise AttributeError("Gaussian sigma must be a list or array of length 2.")
+                            else:
+                                sp_sigma = sp.gaussian_sigma
+                        
+                        for dim in range(self.dimensions):
+                            self.pos[sp_start:sp_end, dim] = self.gaussian(sp_mean[dim], sp_sigma[dim], (sp.num, 1))
+                    elif sp.initial_spatial_distribution in ["quasi_monte_carlo", "qmc"]:
+                        if sp.qmc_sequence not in self.available_qmc_sequences:
+                            raise AttributeError(
+                                f"Quasi Monte Carlo sequence not recognized. Please choose from {self.available_qmc_sequences}"
+                            )
+                        self.pos[sp_start:sp_end, :] = self.quasi_monte_carlo(
+                            sp.qmc_sequence, sp.num, self.dimensions, self.box_lengths
+                        )
+                    elif sp.initial_spatial_distribution in ["quasi_monte_carlo_rejection", "qmc_reject"]:
+                        if self.qmc_sequence not in self.available_qmc_sequences:
+                            raise AttributeError(
+                                f"Quasi Monte Carlo sequence not recognized. Please choose from {self.available_qmc_sequences}"
+                            )
+                        self.pos[sp_start:sp_end, :] = self.quasi_monte_carlo_rejection(
+                                sp.qmc_sequence, sp_num, self.dimensions, self.load_rejection_radius, self.box_lengths
+                            )
+                    sp_start += sp.num
         else:
             raise AttributeError("Incorrect particle placement scheme specified.")
 
     @staticmethod
     def quasi_monte_carlo(
-        sequence: str = "sobol", num_ptcls: int = 2**10, dimensions: int = 3, box_lengths: ndarray = None
+        sequence: str = "sobol",
+        num_ptcls: int = 2**10,
+        dimensions: int = 3,
+        box_lengths: ndarray = None,
+        **kwargs
     ):
         """
         Place particles according to a quasi-Monte Carlo sequence.
@@ -642,6 +719,8 @@ class Particles:
         box_lengths : array-like, optional
             Lengths of the simulation box in each dimension. Default is None.
 
+        kwargs : dict, optional
+            Additional keyword arguments to pass for the initialization of the `scipy.stats.qmc` class.
         Returns
         -------
         array-like
@@ -664,22 +743,75 @@ class Particles:
 
         """
         if sequence == "sobol":
-            qmc_sampler = qmc.Sobol(dimensions)
+            qmc_sampler = qmc.Sobol(d= dimensions, **kwargs)
         elif sequence == "latinhypercube":
-            qmc_sampler = qmc.LatinHypercube(dimensions)
-        elif sequence == "poissondisk":
-            qmc_sampler = qmc.PoissonDisk(dimensions)
+            qmc_sampler = qmc.LatinHypercube(d =dimensions, **kwargs)
         elif sequence == "halton":
-            qmc_sampler = qmc.Halton(dimensions)
+            qmc_sampler = qmc.Halton(d=dimensions, **kwargs)
         else:
             raise ValueError("Invalid sequence name.")
 
         positions = qmc_sampler.random(num_ptcls)
-        if box_lengths is not None:
-            positions *= box_lengths
+        positions = qmc.scale(positions, l_bounds=[0.0, 0.0, 0.0], u_bounds=box_lengths)
 
         return positions
 
+    @staticmethod
+    def quasi_monte_carlo_rejection(sequence: str = "poissondisk", num_ptcls: int = 2**10, dimensions: int = 3, rejection_radius: float = 0.5,  box_lengths=None, **kwargs):
+        """
+        Place particles according to a quasi-Monte Carlo sequence with rejection.
+
+        Parameters
+        ----------
+        sequence : str, optional
+            Name of the sequence to use. Options: PoissonDisk. Default is "PoissonDisk".
+        
+        num_ptcls : int, optional
+            Number of particles to place. Default is 2**10.
+        
+        dimensions : int, optional
+            Number of dimensions. Default is 3.
+        
+        rejection_radius : float, optional
+            Value of rejection radius. Default is 0.5. 
+        
+        box_lengths : array-like, optional
+            Lengths of the simulation box in each dimension. Default is None.
+        
+        kwargs : dict, optional
+            Additional keyword arguments to pass for the initialization of the `scipy.stats.qmc.PoissonDisk` class.
+
+        Returns
+        -------
+        array-like
+            Randomly generated positions of the particles, scaled by the box lengths.
+        
+        Raises
+        ------
+        ValueError
+            If an invalid sequence name is provided.
+        
+        Notes
+        -----
+        The `quasi_monte_carlo_rejection` method initializes a quasi-Monte Carlo sequence generator based on the provided sequence
+        name. It then generates random positions for the specified number of particles in the specified number of
+        dimensions. The generated positions are scaled by the box lengths of the simulation.
+
+        Examples
+        --------
+        >>> positions = quasi_monte_carlo_rejection("poissondisk", 100, 3, 0.5, [10, 10, 10])
+
+        """
+        if sequence == "poissondisk":
+            qmc_sampler = qmc.poisson(d=dimensions, radius = rejection_radius, **kwargs)
+        else:
+            raise ValueError("Invalid sequence name.")
+
+        positions = qmc_sampler.random(num_ptcls)
+        positions = qmc.scale(positions, l_bounds=[0.0, 0.0, 0.0], u_bounds=box_lengths)
+
+        return positions
+    
     def initialize_velocities(self, species):
         """
         Initialize particles' velocities based on the species input values. The velocities can be initialized from a
@@ -706,13 +838,13 @@ class Particles:
 
                     self.species_thermal_velocity[ic] = sqrt(self.kB * sp_temperature / sp.mass)
                     # Note gaussian(0.0, 0.0, N) = array of zeros
-                    self.vel[species_start:species_end, :] = self.gaussian(
-                        sp.initial_velocity, self.species_thermal_velocity[ic], (sp.num, 3)
+                    self.vel[species_start:species_end, :self.dimensions] = self.gaussian(
+                        sp.initial_velocity, self.species_thermal_velocity[ic], (sp.num, self.dimensions)
                     )
 
                 elif sp.initial_velocity_distribution == "monochromatic":
                     vrms = sqrt(self.dimensions * self.kB * sp.temperature / sp.mass)
-                    self.vel[species_start:species_end, :] = vrms * self.random_unit_vectors(sp.num, self.dimensions)
+                    self.vel[species_start:species_end, :self.dimensions] = vrms * self.random_unit_vectors(sp.num, self.dimensions)
 
                 species_start += sp.num
 
@@ -1056,23 +1188,6 @@ class Particles:
 
         for i in self.observables_list:
             self.species_observables_calculator_dict[i]()
-
-    # def calculate_pressure(self):
-    #     """Calculate the pressure of each particle.
-
-    #     Return
-    #     ------
-    #     pressure : numpy.ndarray
-    #         Pressure of each particle. Shape = (:attr:`total_num_ptcls`)
-
-    #     Notes
-    #     -----
-    #     It does not calculate the tensor since that could lead to very large arrays.
-
-    #     """
-
-    #     self.pressure = 2.0 * self.kinetic_energy + self.virial_species_tensor[0, 0] + self.virial_species_tensor[1, 1] + self.virial_species_tensor[2, 2]
-    #     self.pressure /= self.box_volume
 
     def calculate_species_electric_current(self):
         """Calculate the electric current of each species from :attr:`vel` and stores it into :attr:`species_electric_current`."""
@@ -1425,7 +1540,7 @@ class Particles:
         ]:
             # checks
             if self.restart_step is None:
-                raise AttributeError("Restart step not defined." "Please define Parameters.restart_step.")
+                raise AttributeError("Restart step not defined. Please define Parameters.restart_step.")
 
             if type(self.restart_step) is not int:
                 self.restart_step = int(self.restart_step)
@@ -1447,8 +1562,8 @@ class Particles:
             else:
                 self.load_from_file(self.particles_input_file)
         else:
-            self.initialize_positions()
-            self.initialize_velocities(species)
+            self.initialize_positions(species=species)
+            self.initialize_velocities(species=species)
             self.initialize_accelerations()
 
         if len(self.observables_list) > 3:

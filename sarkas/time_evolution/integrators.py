@@ -1091,13 +1091,13 @@ class Integrator:
             low_wc = abs(self.species_cyclotron_frequencies).min() 
             t_wc_high = 2.0 * pi/high_wc
             t_wc_low = 2.0 * pi/low_wc
-
+            mag_msg = "\nMagnetic Timescales:\n"
             if high_wc > low_wc:
-                mag_msg = (
+                mag_msg += (
                     f"Largest cyclotron frequency (w_c) = {high_wc:.6e} {self.units_dict['frequency']}\n"
                     f"w_c dt = {high_wc * self.dt:.2e} [rad]\n"
                     f"Cyclotron period (T) = {t_wc_high:.6e} {self.units_dict['time']}\n"
-                    f"dt/T = = {self.dt/t_wc_high:.2e}"
+                    f"dt/T = = {self.dt/t_wc_high:.2e}\n"
                     f"Timesteps per plasma cycle ~ {int(t_wc_high/self.dt)}\n"
                     f"Smallest cyclotron frequency (w_c) = {low_wc:.6e} {self.units_dict['frequency']}\n"
                     f"w_c dt = {low_wc * self.dt:.2e} [rad]\n"
@@ -1106,7 +1106,7 @@ class Integrator:
                     f"Timesteps per plasma cycle ~ {int(t_wc_low/self.dt)}\n"
                         )
             else:
-                mag_msg = (
+                mag_msg += (
                     f"Cyclotron frequency (w_c) = {high_wc:.6e} {self.units_dict['frequency']}\n"
                     f"w_c dt = {high_wc * self.dt:.2e} [rad]\n"
                     f"Cyclotron period (T) = {t_wc_high:.6e} {self.units_dict['time']}\n"

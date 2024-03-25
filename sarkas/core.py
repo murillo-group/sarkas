@@ -769,6 +769,11 @@ class Parameters:
             List of :class:`sarkas.plasma.Species`.
 
         """
+
+        # DEV NOTE: This method could be defined in the Particles class, however, it is more convenient to have it here because it uses the correct unit system. 
+        # If I were to move it to the Particles class, I would need to pass the units as an argument. 
+        # TODO: It could be moved in the future. 
+
         # Loop over species and assign missing attributes
         # Collect species properties in single arrays
 
