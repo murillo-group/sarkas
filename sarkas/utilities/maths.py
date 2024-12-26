@@ -397,13 +397,13 @@ def force_error_analytic_lcl(
     """
 
     if potential_type in ["yukawa", "egs", "qsp", "hs_yukawa"]:
-        force_error = sqrt(TWOPI * potential_matrix[1, 0, 0]) * exp(-cutoff_length * potential_matrix[1, 0, 0])
+        force_error = sqrt(TWOPI * potential_matrix[0, 0, 1]) * exp(-cutoff_length * potential_matrix[0, 0, 1])
     elif potential_type == "moliere":
         # The first column of the potential matrix is 2*p + 1 long, where p is the
         # number of screening lengths.
         # The inverse of the screening_lengths is stored starting from p + 1.
         # Find p
-        p = int((len(potential_matrix[:, 0, 0]) - 1) / 2)
+        p = int((len(potential_matrix[0, 0, :]) - 1) / 2)
         # Choose the smallest screening length ( i.e. max kappa) for force error calculation
         kappa = potential_matrix[p + 1 :, 0, 0].max()
 
@@ -411,15 +411,15 @@ def force_error_analytic_lcl(
 
     elif potential_type == "lj":
         # choose the highest sigma in case of multispecies
-        sigma = potential_matrix[1, :, :].max()
-        high_pow = potential_matrix[2, 0, 0]
+        sigma = potential_matrix[:, :, 1].max()
+        high_pow = potential_matrix[0, 0, 2]
         exponent = 2 * high_pow - 1
         force_error_tmp = high_pow**2 * sigma ** (2 * high_pow) / cutoff_length**exponent
         force_error_tmp /= exponent
         force_error = sqrt(force_error_tmp)
 
     elif potential_type == "fitted":
-        force_error = sqrt(TWOPI * potential_matrix[1, 0, 0]) * exp(-cutoff_length * potential_matrix[1, 0, 0])
+        force_error = sqrt(TWOPI * potential_matrix[0, 0, 1]) * exp(-cutoff_length * potential_matrix[0, 0, 1])
     # Renormalize
     force_error *= rescaling_const
 

@@ -1,21 +1,19 @@
 # keywords: YOCP, Yukawa, PP, mks, random_no_reject
 Particles:
     - Species:
-        name: C
-        number_density: 1.13666931822e+23   # N/cc
-        mass: 2.0089e-23                    # g
-        # atomic_weight: 1.0                # OPTIONAL/REQUIRED if mass_density is used
-        # mass_density: 2.710260e+05
-        num: 1000                            # total number of particles
-        Z: 1.976599                         # degree of ionization
-        temperature: 5.0e+03                 # T = 0.5 eV
+        name: Al
+        number_density: 6.03e+22
+        mass: 4.513068464544e-23
+        Z: 3.0
+        temperature_eV: 1.0
+        num: 4096                # T = 0.5 eV
 
 Potential:
-    type: Yukawa                            # potential type
+    type: Yukawa-Friedel                           # potential type
     method: PP
-    rc: 6.0e-8  # 7.6838e-08                              # cm, cut-off radius
+    rc: 10.0e-8                              # cm, cut-off radius
     screening_length_type: thomas-fermi
-    electron_temperature: 5.0e+03
+    ft_params: [5.643048e-17, 3.449355e+08, 3.529030e-36, 0.000000e+00, 3.742168e+08, -6.724320e+00]
 
 Integrator:
     type: Verlet
@@ -28,15 +26,16 @@ Parameters:
     rand_seed: 314159265
     units: cgs                              # units
     boundary_conditions: periodic
-    load_method: random_no_reject
+    load_method: qmc
+    qmc_sequence: sobol
     equilibration_steps: 10000              # number of timesteps for the equilibrium
     production_steps: 10000                # number of timesteps after the equilibrium
-    eq_dump_step: 10
-    prod_dump_step: 10
+    eq_dump_step: 100
+    prod_dump_step: 100
 
 IO:
     verbose: yes
-    job_dir: yocp_quickstart            # dir name to save data. The default is "Checkpoint"
+    job_dir: Al_rho2.7_T1eV_yft            # dir name to save data. The default is "Checkpoint"
     data_to_save: ["id", "names", "pos", "vel", "acc", "rdf_hist"]
 
 Observables:

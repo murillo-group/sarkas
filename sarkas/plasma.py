@@ -142,7 +142,6 @@ class Species:
         id_self = id(self)  # memorization avoids unnecessary recursion
         _copy = memodict.get(id_self)
         if _copy is None:
-
             # Make a shallow copy of all attributes
             _copy = type(self)()
             # Make a deepcopy of the mutable arrays using numpy copy function
@@ -386,6 +385,7 @@ class Species:
                 f"\tCharge number/ionization degree = {self.Z:.4f}\n"
                 f"\tCharge = {self.charge:.6e} {charge_units}\n"
                 f"\tTemperature = {self.temperature:.6e} [K] = {self.temperature_eV:.6e} [eV]\n"
+                f"\tWigner-Seitz radius = {self.ai:.6e} {length_units}\n"
             )
             msg = msg + pot_msg + mag_msg
         print(msg)

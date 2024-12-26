@@ -1,0 +1,59 @@
+# J.P. Hansen and I.R. McDonald Phys Rev A 23 2041 (1981)
+Particles:
+    - Species:
+        name: e
+        number_density: 1.0e+20       # N/cc
+        mass: 9.1093837015e-28        # g, electron mass
+        num: 1024
+        Z: -1.0                       # degree of ionization
+        temperature_eV: 10
+
+    - Species:
+        name: p
+        number_density: 1.0e+20       # N/cc
+        mass: 9.1093837015e-28        # g, electron mass
+        # mass: 1.67262192369e-24       # g
+        num: 1024                     # total number of particles of ion1
+        Z: 1.0                        # degree of ionization
+        temperature_eV: 20
+
+Potential:
+    type: QSP                         # potential type
+    qsp_type: Deutsch
+    method: pppm
+    rc: 8.8119964e-07                  # cut-off radius, cm
+    pppm_mesh: [64,64,64]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 6
+    pppm_alpha_ewald: 4.619223e+06
+
+Integrator:
+    type: verlet
+    dt: 5.0e-20                    # sec
+    equilibration_steps: 100000
+    eq_dump_step: 10
+    production_steps: 200
+    prod_dump_step: 1
+    thermostat_type: Berendsen       # thermostat type
+    thermalization_timestep: 500     # time step at which the thermostat is applied
+    berendsen_tau: 5.0               # relaxation constant for the thermostat
+
+Parameters:
+    units: cgs                        # units
+    load_method: random_reject
+    load_rejection_radius: 10.0e-10
+    boundary_conditions: periodic
+
+IO:
+    verbose: True
+    job_dir: qsp_cgs        # dir name to save data.
+
+Observables:
+  - Thermodynamics:
+      phase: production
+
+  - RadialDistributionFunction:
+      no_bins: 51
+
+  - StaticStructureFactor:
+      max_k_harmonics: 5

@@ -44,7 +44,7 @@ from numpy import array, exp, inf, pi, sqrt, zeros
 from scipy.integrate import quad
 
 
-def update_params(potential):
+def update_params(potential,species):
     """
     Assign potential dependent simulation's parameters.
 

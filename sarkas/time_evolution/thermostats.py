@@ -175,7 +175,7 @@ class Thermostat:
         elif self.K_temp_flag:
             self.temperatures_eV = self.temperatures.copy() / self.eV2K
         else:
-            self.temperatures = params.species_temperatures.copy()
+            self.temperatures = params.species_temperature.copy()
             self.temperatures_eV = self.temperatures.copy() / self.eV2K
 
         if self.berendsen_tau:
@@ -184,7 +184,7 @@ class Thermostat:
             self.berendsen_tau = 1.0 / self.relaxation_rate
 
         if not self.temperatures.all():
-            self.temperatures = params.species_temperatures.copy()
+            self.temperatures = params.species_temperature.copy()
 
         self.kB = params.kB
         self.species_num = params.species_num.copy()

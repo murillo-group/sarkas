@@ -32,8 +32,8 @@ and their physical attributes.
             initial_velocity_distribution: boltzmann    # OPTIONAL
 
 In the case of a multi-component plasma we need only add another ``Species`` attribute with corresponding physical
-parameters, see the H-He mixture in the example page. The attributes of ``Species`` take only numerical values,
-apart from ``name``, in the correct choice of units which is defined in the block ``Parameters``, see below.
+parameters, see the H-He mixture in the example page. The numerical values of ``Species`` should be in your choice of units 
+which is defined in the block ``Parameters``, see below.
 Notice that in this section we also define the mass of the particles, ``mass``, and their charge number ``Z``.
 Future developments of Sarkas are aiming to automatically calculate the degree of ionization given by the density and
 temperature of the system, but for now we need to define it. The parameters given here are not the only options,

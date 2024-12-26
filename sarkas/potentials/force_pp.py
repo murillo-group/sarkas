@@ -66,9 +66,9 @@ def update_0D(pos, vel, p_id, p_mass, box_lengths, rc, potential_matrix, force, 
     # Energy current
     j_e = zeros((N, 3))
     # Virial term for the viscosity calculation
-    virial_species_tensor = zeros((3, 3, N))
+    virial_species_tensor = zeros((potential_matrix.shape[0], potential_matrix.shape[0], 3, 3))
 
-    rdf_nbins = rdf_hist.shape[0]
+    rdf_nbins = rdf_hist.shape[-1]
     dr_rdf = Lh[:actual_dimensions].prod() ** (1.0 / actual_dimensions) / float(rdf_nbins)
 
     for i in range(N):
@@ -103,7 +103,7 @@ def update_0D(pos, vel, p_id, p_mass, box_lengths, rc, potential_matrix, force, 
             # These definitions are needed due to numba
             # see https://github.com/numba/numba/issues/5881
             if measure and rdf_bin < rdf_nbins:
-                rdf_hist[rdf_bin, id_j, id_j] += 1
+                rdf_hist[id_j, id_j, rdf_bin] += 1
 
             if 0.0 < r < rc:
                 mass_i = p_mass[i]
@@ -137,31 +137,40 @@ def update_0D(pos, vel, p_id, p_mass, box_lengths, rc, potential_matrix, force, 
                 ptcl_pot_energy[j] += 0.5 * pot
 
                 # Since we have the info already calculate the virial_species_tensor
-                virial_species_tensor[0, 0, i] += dx2 * dx2 * fr
-                virial_species_tensor[0, 1, i] += dx2 * dy2 * fr
-                virial_species_tensor[0, 2, i] += dx2 * dz2 * fr
-                virial_species_tensor[1, 0, i] += dy2 * dx2 * fr
-                virial_species_tensor[1, 1, i] += dy2 * dy2 * fr
-                virial_species_tensor[1, 2, i] += dy2 * dz2 * fr
-                virial_species_tensor[2, 0, i] += dz2 * dx2 * fr
-                virial_species_tensor[2, 1, i] += dz2 * dy2 * fr
-                virial_species_tensor[2, 2, i] += dz2 * dz2 * fr
+                virial_species_tensor[id_i, id_j, 0, 0] += dx2 * dx2 * fr
+                virial_species_tensor[id_i, id_j, 0, 1] += dx2 * dy2 * fr
+                virial_species_tensor[id_i, id_j, 0, 2] += dx2 * dz2 * fr
+                virial_species_tensor[id_i, id_j, 1, 0] += dy2 * dx2 * fr
+                virial_species_tensor[id_i, id_j, 1, 1] += dy2 * dy2 * fr
+                virial_species_tensor[id_i, id_j, 1, 2] += dy2 * dz2 * fr
+                virial_species_tensor[id_i, id_j, 2, 0] += dz2 * dx2 * fr
+                virial_species_tensor[id_i, id_j, 2, 1] += dz2 * dy2 * fr
+                virial_species_tensor[id_i, id_j, 2, 2] += dz2 * dz2 * fr
 
+                virial_species_tensor[id_j, id_i, 0, 0] += dx2 * dx2 * fr
+                virial_species_tensor[id_j, id_i, 0, 1] += dx2 * dy2 * fr
+                virial_species_tensor[id_j, id_i, 0, 2] += dx2 * dz2 * fr
+                virial_species_tensor[id_j, id_i, 1, 0] += dy2 * dx2 * fr
+                virial_species_tensor[id_j, id_i, 1, 1] += dy2 * dy2 * fr
+                virial_species_tensor[id_j, id_i, 1, 2] += dy2 * dz2 * fr
+                virial_species_tensor[id_j, id_i, 2, 0] += dz2 * dx2 * fr
+                virial_species_tensor[id_j, id_i, 2, 1] += dz2 * dy2 * fr
+                virial_species_tensor[id_j, id_i, 2, 2] += dz2 * dz2 * fr
                 fij_vij = dx * fr * vx + dy * fr * vy + dz * fr * vz
 
-                j_e[i, 0] += 0.25 * (vx * pot + dx * fij_vij)
-                j_e[i, 1] += 0.25 * (vy * pot + dy * fij_vij)
-                j_e[i, 2] += 0.25 * (vz * pot + dz * fij_vij)
+                j_e[id_i, id_j, 0] += 0.25 * (vx * pot + dx * fij_vij)
+                j_e[id_i, id_j, 1] += 0.25 * (vy * pot + dy * fij_vij)
+                j_e[id_i, id_j, 2] += 0.25 * (vz * pot + dz * fij_vij)
 
-                j_e[j, 0] += 0.25 * (vx * pot + dx * fij_vij)
-                j_e[j, 1] += 0.25 * (vy * pot + dy * fij_vij)
-                j_e[j, 2] += 0.25 * (vz * pot + dz * fij_vij)
+                j_e[id_j, id_i, 0] += 0.25 * (vx * pot + dx * fij_vij)
+                j_e[id_j, id_i, 1] += 0.25 * (vy * pot + dy * fij_vij)
+                j_e[id_j, id_i, 2] += 0.25 * (vz * pot + dz * fij_vij)
 
     # Add the first term of the energy current
     for i in range(pos.shape[0]):
-        j_e[i, 0] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 0]
-        j_e[i, 1] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 1]
-        j_e[i, 2] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 2]
+        j_e[id_i, id_i, 0] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 0]
+        j_e[id_i, id_i, 1] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 1]
+        j_e[id_i, id_i, 2] += (0.5 * p_mass[i] * (vel[i, :] ** 2).sum(axis=-1) + ptcl_pot_energy[i]) * vel[i, 2]
 
     return ptcl_pot_energy, acc_s_r, virial_species_tensor, j_e
 
@@ -306,14 +315,14 @@ def particles_interaction_loop(
     rshift = zeros(3)  # Shifts for array flattening
     acc_s_r = zeros_like(pos)
     # energy current
-    j_e = zeros((3, potential_matrix.shape[0], potential_matrix.shape[0]))
+    j_e = zeros((potential_matrix.shape[0], potential_matrix.shape[0], 3))
     # Virial term for the viscosity calculation
-    virial_species_tensor = zeros((3, 3, potential_matrix.shape[0], potential_matrix.shape[0]))
+    virial_species_tensor = zeros((potential_matrix.shape[0], potential_matrix.shape[0], 3, 3))
     # Initialize
     ptcl_pot_energy = zeros(pos.shape[0])  # Short-ranges potential energy of each particle
     # Pair distribution function
 
-    rdf_nbins = rdf_hist.shape[0]
+    rdf_nbins = rdf_hist.shape[-1]
     dr_rdf = rc / float(rdf_nbins)
 
     d3_min = min(cells_per_dim[2], 1)
@@ -435,7 +444,7 @@ def particles_interaction_loop(
                                         # see https://github.com/numba/numba/issues/5881
 
                                         # if measure and rdf_bin < rdf_nbins:
-                                        rdf_hist[rdf_bin, id_i, id_j] += measure * (rdf_bin < rdf_nbins)
+                                        rdf_hist[id_i, id_j,rdf_bin] += measure * (rdf_bin < rdf_nbins)
 
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
@@ -446,8 +455,8 @@ def particles_interaction_loop(
                                             pot, fr = force(r, p_matrix)
                                             fr /= r
                                             # Need to add the same pot to each particle pair.
-                                            ptcl_pot_energy[i] += 0.5 * pot
-                                            ptcl_pot_energy[j] += 0.5 * pot
+                                            ptcl_pot_energy[i] += ( 0.25 * (id_i == id_j) + 0.5* (id_i != id_j) )* pot
+                                            ptcl_pot_energy[j] += ( 0.25 * (id_i == id_j) + 0.5* (id_i != id_j) )* pot
 
                                             # Update the acceleration for i particles in each dimension
 
@@ -463,38 +472,38 @@ def particles_interaction_loop(
                                             # Since we have the info already calculate the virial_species_tensor
                                             # This factor is to avoid double counting in the case of same species
                                             factor = 0.5  # * (id_i != id_j) + 0.25*( id_i == id_j)
-                                            virial_species_tensor[0, 0, id_i, id_j] += factor * dx * dx * fr
-                                            virial_species_tensor[0, 1, id_i, id_j] += factor * dx * dy * fr
-                                            virial_species_tensor[0, 2, id_i, id_j] += factor * dx * dz * fr
-                                            virial_species_tensor[1, 0, id_i, id_j] += factor * dy * dx * fr
-                                            virial_species_tensor[1, 1, id_i, id_j] += factor * dy * dy * fr
-                                            virial_species_tensor[1, 2, id_i, id_j] += factor * dy * dz * fr
-                                            virial_species_tensor[2, 0, id_i, id_j] += factor * dz * dx * fr
-                                            virial_species_tensor[2, 1, id_i, id_j] += factor * dz * dy * fr
-                                            virial_species_tensor[2, 2, id_i, id_j] += factor * dz * dz * fr
+                                            virial_species_tensor[id_i, id_j, 0, 0] += factor * dx * dx * fr
+                                            virial_species_tensor[id_i, id_j, 0, 1] += factor * dx * dy * fr
+                                            virial_species_tensor[id_i, id_j, 0, 2] += factor * dx * dz * fr
+                                            virial_species_tensor[id_i, id_j, 1, 0] += factor * dy * dx * fr
+                                            virial_species_tensor[id_i, id_j, 1, 1] += factor * dy * dy * fr
+                                            virial_species_tensor[id_i, id_j, 1, 2] += factor * dy * dz * fr
+                                            virial_species_tensor[id_i, id_j, 2, 0] += factor * dz * dx * fr
+                                            virial_species_tensor[id_i, id_j, 2, 1] += factor * dz * dy * fr
+                                            virial_species_tensor[id_i, id_j, 2, 2] += factor * dz * dz * fr
                                             # This is where the double counting could happen.
-                                            virial_species_tensor[0, 0, id_j, id_i] += factor * dx * dx * fr
-                                            virial_species_tensor[0, 1, id_j, id_i] += factor * dx * dy * fr
-                                            virial_species_tensor[0, 2, id_j, id_i] += factor * dx * dz * fr
-                                            virial_species_tensor[1, 0, id_j, id_i] += factor * dy * dx * fr
-                                            virial_species_tensor[1, 1, id_j, id_i] += factor * dy * dy * fr
-                                            virial_species_tensor[1, 2, id_j, id_i] += factor * dy * dz * fr
-                                            virial_species_tensor[2, 0, id_j, id_i] += factor * dz * dx * fr
-                                            virial_species_tensor[2, 1, id_j, id_i] += factor * dz * dy * fr
-                                            virial_species_tensor[2, 2, id_j, id_i] += factor * dz * dz * fr
+                                            virial_species_tensor[id_j, id_i, 0, 0] += factor * dx * dx * fr
+                                            virial_species_tensor[id_j, id_i, 0, 1] += factor * dx * dy * fr
+                                            virial_species_tensor[id_j, id_i, 0, 2] += factor * dx * dz * fr
+                                            virial_species_tensor[id_j, id_i, 1, 0] += factor * dy * dx * fr
+                                            virial_species_tensor[id_j, id_i, 1, 1] += factor * dy * dy * fr
+                                            virial_species_tensor[id_j, id_i, 1, 2] += factor * dy * dz * fr
+                                            virial_species_tensor[id_j, id_i, 2, 0] += factor * dz * dx * fr
+                                            virial_species_tensor[id_j, id_i, 2, 1] += factor * dz * dy * fr
+                                            virial_species_tensor[id_j, id_i, 2, 2] += factor * dz * dz * fr
 
                                             fij_vij = dx * fr * vx + dy * fr * vy + dz * fr * vz
 
                                             # For this further factor of 1/2 see eq.(5) in https://doi.org/10.1016/j.cpc.2013.01.008
                                             factor *= 0.5
 
-                                            j_e[0, id_i, id_j] += factor * dx * fij_vij
-                                            j_e[1, id_i, id_j] += factor * dy * fij_vij
-                                            j_e[2, id_i, id_j] += factor * dz * fij_vij
+                                            j_e[id_i, id_j, 0] += factor * dx * fij_vij
+                                            j_e[id_i, id_j, 1] += factor * dy * fij_vij
+                                            j_e[id_i, id_j, 2] += factor * dz * fij_vij
 
-                                            j_e[0, id_j, id_i] += factor * dx * fij_vij
-                                            j_e[1, id_j, id_i] += factor * dy * fij_vij
-                                            j_e[2, id_j, id_i] += factor * dz * fij_vij
+                                            j_e[id_j, id_i, 0] += factor * dx * fij_vij
+                                            j_e[id_j, id_i, 1] += factor * dy * fij_vij
+                                            j_e[id_j, id_i, 2] += factor * dz * fij_vij
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls_array[j]
@@ -504,9 +513,9 @@ def particles_interaction_loop(
     # Add the ideal term of the energy current
     for i in range(pos.shape[0]):
         id_i = p_id[i]
-        j_e[0, id_i, id_i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 0]
-        j_e[1, id_i, id_i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 1]
-        j_e[2, id_i, id_i] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 2]
+        j_e[id_i, id_i, 0] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 0]
+        j_e[id_i, id_i, 1] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 1]
+        j_e[id_i, id_i, 2] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 2]
 
     return ptcl_pot_energy, acc_s_r, virial_species_tensor, j_e
 
@@ -610,25 +619,36 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
 
     """
     # Declare parameters
-    N = pos.shape[0]  # Number of particles
+    
     rshift = zeros(3)  # Shifts for array flattening
+    
     # Virial term for the viscosity calculation
-    virial_species_tensor = zeros((3, 3, N))
+    virial_species_tensor = zeros((potential_matrix.shape[0], potential_matrix.shape[0], 3, 3))
+
+    d3_min = min(cells_per_dim[2], 1)
+    d3_max = max(cells_per_dim[2], 1)
+    d2_min = min(cells_per_dim[1], 1)
+    d2_max = max(cells_per_dim[1], 1)
+    d1_min = min(cells_per_dim[0], 1)
+    d1_max = max(cells_per_dim[0], 1)
+
     # Total number of cells in volume
     cells_per_dim, cell_lengths = create_cells_array(box_lengths, rc)
 
     head, ls_array = create_head_list_arrays(pos, cell_lengths, cells_per_dim)
 
     # Loop over all cells in x, y, and z direction
-    for cx in range(cells_per_dim[0]):
-        for cy in range(cells_per_dim[1]):
-            for cz in range(cells_per_dim[2]):
-
+    # Loop over all cells in x, y, and z direction
+    for cz in range(d3_max):
+        for cy in range(d2_max):
+            for cx in range(d1_max):
                 # Compute the cell in 3D volume
                 c = cx + cy * cells_per_dim[0] + cz * cells_per_dim[0] * cells_per_dim[1]
 
                 # Loop over all cell pairs (N-1 and N+1)
-                for cz_N in range(cz - 1, cz + 2):
+                for cz_N in range(cz - 1, (cz + 2) * d3_min):
+                    # if d3_min = 0 -> range( -1, 0). This ensures that when the z-dimension is 0 we only loop once here
+
                     # z cells
                     # Check periodicity: needed for 0th cell
                     # if cz_N < 0:
@@ -641,10 +661,13 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                     # else:
                     #     cz_shift = 0
                     #     rshift[2] = 0.0
-                    cz_shift = 0 + cells_per_dim[2] * (cz_N < 0) - cells_per_dim[2] * (cz_N >= cells_per_dim[2])
+                    cz_shift = 0 + d3_max * (cz_N < 0) - cells_per_dim[2] * (cz_N >= cells_per_dim[2])
                     rshift[2] = 0.0 - box_lengths[2] * (cz_N < 0) + box_lengths[2] * (cz_N >= cells_per_dim[2])
+                    # Note: In lower dimension systems (2D, 1D)
+                    # cz_shift will be 1, 0, -1. This will cancel later on when cz_N + cz_shift = (-1 + 1, 0 + 0, 1 - 1)
+                    # Similarly rshift[2] = 0.0 in all cases since box_lengths[2] == 0
 
-                    for cy_N in range(cy - 1, cy + 2):
+                    for cy_N in range(cy - 1, (cy + 2) * d2_min):
                         # y cells
                         # Check periodicity
                         # if cy_N < 0:
@@ -657,10 +680,10 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                         #     cy_shift = 0
                         #     rshift[1] = 0.0
 
-                        cy_shift = 0 + cells_per_dim[1] * (cy_N < 0) - cells_per_dim[1] * (cy_N >= cells_per_dim[1])
+                        cy_shift = 0 + d2_max * (cy_N < 0) - cells_per_dim[1] * (cy_N >= cells_per_dim[1])
                         rshift[1] = 0.0 - box_lengths[1] * (cy_N < 0) + box_lengths[1] * (cy_N >= cells_per_dim[1])
 
-                        for cx_N in range(cx - 1, cx + 2):
+                        for cx_N in range(cx - 1, (cx + 2) * d1_min):
                             # x cells
                             # Check periodicity
                             # if cx_N < 0:
@@ -684,43 +707,66 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
                             )
 
                             i = head[c]
+                            # print(cx_N, cy_N, cz_N, "head cell", c, "p1", i)
                             # First compute interaction of head particle with neighboring cell head particles
                             # Then compute interactions of head particle within a specific cell
-                            while i > 0:
+                            while i >= 0:
 
                                 # Check neighboring head particle interactions
                                 j = head[c_N]
 
-                                while j > 0:
+                                while j >= 0:
+                                    # print("cell", c, "p1", i, "cell", c_N, "p2", j)
 
                                     # Only compute particles beyond i-th particle (Newton's 3rd Law)
                                     if i < j:
+                                        # neighbors[i, j] = -1
+                                        # print("         rshift", rshift)
 
                                         # Compute the difference in positions for the i-th and j-th particles
                                         dx = pos[i, 0] - (pos[j, 0] + rshift[0])
                                         dy = pos[i, 1] - (pos[j, 1] + rshift[1])
                                         dz = pos[i, 2] - (pos[j, 2] + rshift[2])
-
+                                    
                                         # Compute distance between particles i and j
                                         r = sqrt(dx**2 + dy**2 + dz**2)
 
+                                        # These definitions are needed due to numba
+                                        # see https://github.com/numba/numba/issues/5881
+                                        id_i = p_id[i]
+                                        id_j = p_id[j]
+
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
-                                            p_matrix = potential_matrix[p_id[i], p_id[j]]
+                                            p_matrix = potential_matrix[id_i, id_j]
+                                            # neighbors[i, j] = j
 
                                             # Compute the short-ranged force
-                                            pot, fr = force(r, p_matrix)
+                                            _, fr = force(r, p_matrix)
                                             fr /= r
-
-                                            virial_species_tensor[0, 0, i] += dx * dx * fr
-                                            virial_species_tensor[0, 1, i] += dx * dy * fr
-                                            virial_species_tensor[0, 2, i] += dx * dz * fr
-                                            virial_species_tensor[1, 0, i] += dy * dx * fr
-                                            virial_species_tensor[1, 1, i] += dy * dy * fr
-                                            virial_species_tensor[1, 2, i] += dy * dz * fr
-                                            virial_species_tensor[2, 0, i] += dz * dx * fr
-                                            virial_species_tensor[2, 1, i] += dz * dy * fr
-                                            virial_species_tensor[2, 2, i] += dz * dz * fr
+                                            
+                                            # Since we have the info already calculate the virial_species_tensor
+                                            # This factor is to avoid double counting in the case of same species
+                                            factor = 0.5  # * (id_i != id_j) + 0.25*( id_i == id_j)
+                                            virial_species_tensor[id_i, id_j, 0, 0] += factor * dx * dx * fr
+                                            virial_species_tensor[id_i, id_j, 0, 1] += factor * dx * dy * fr
+                                            virial_species_tensor[id_i, id_j, 0, 2] += factor * dx * dz * fr
+                                            virial_species_tensor[id_i, id_j, 1, 0] += factor * dy * dx * fr
+                                            virial_species_tensor[id_i, id_j, 1, 1] += factor * dy * dy * fr
+                                            virial_species_tensor[id_i, id_j, 1, 2] += factor * dy * dz * fr
+                                            virial_species_tensor[id_i, id_j, 2, 0] += factor * dz * dx * fr
+                                            virial_species_tensor[id_i, id_j, 2, 1] += factor * dz * dy * fr
+                                            virial_species_tensor[id_i, id_j, 2, 2] += factor * dz * dz * fr
+                                            # This is where the double counting could happen.
+                                            virial_species_tensor[id_j, id_i, 0, 0] += factor * dx * dx * fr
+                                            virial_species_tensor[id_j, id_i, 0, 1] += factor * dx * dy * fr
+                                            virial_species_tensor[id_j, id_i, 0, 2] += factor * dx * dz * fr
+                                            virial_species_tensor[id_j, id_i, 1, 0] += factor * dy * dx * fr
+                                            virial_species_tensor[id_j, id_i, 1, 1] += factor * dy * dy * fr
+                                            virial_species_tensor[id_j, id_i, 1, 2] += factor * dy * dz * fr
+                                            virial_species_tensor[id_j, id_i, 2, 0] += factor * dz * dx * fr
+                                            virial_species_tensor[id_j, id_i, 2, 1] += factor * dz * dy * fr
+                                            virial_species_tensor[id_j, id_i, 2, 2] += factor * dz * dz * fr
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls_array[j]
@@ -731,7 +777,7 @@ def calculate_virial(pos, p_id, box_lengths, rc, potential_matrix, force):
 
 
 @jit(nopython=True)
-def calculate_heat_flux(pos, vel, p_id, box_lengths, rc, potential_matrix, force):
+def calculate_heat_flux(pos, vel, p_mass, p_id, box_lengths, rc, potential_matrix, force):
     """
     Update the force on the particles based on a linked cell-list (LCL) algorithm.
 
@@ -765,25 +811,44 @@ def calculate_heat_flux(pos, vel, p_id, box_lengths, rc, potential_matrix, force
 
     """
     # Declare parameters
-    N = pos.shape[0]  # Number of particles
     rshift = zeros(3)  # Shifts for array flattening
+
     # energy current
-    j_e = zeros((3, N))
+    j_e = zeros((potential_matrix.shape[0], potential_matrix.shape[0], 3))
+
+    # Initialize
+    ptcl_pot_energy = zeros(pos.shape[0])  # Short-ranges potential energy of each particle
+    
     # Total number of cells in volume
     cells_per_dim, cell_lengths = create_cells_array(box_lengths, rc)
 
     head, ls_array = create_head_list_arrays(pos, cell_lengths, cells_per_dim)
 
-    # Loop over all cells in x, y, and z direction
-    for cx in range(cells_per_dim[0]):
-        for cy in range(cells_per_dim[1]):
-            for cz in range(cells_per_dim[2]):
+    d3_min = min(cells_per_dim[2], 1)
+    d3_max = max(cells_per_dim[2], 1)
+    d2_min = min(cells_per_dim[1], 1)
+    d2_max = max(cells_per_dim[1], 1)
+    d1_min = min(cells_per_dim[0], 1)
+    d1_max = max(cells_per_dim[0], 1)
 
+    # Dev Note: the array neighbors should be used for testing. This array is used to see if all the particles interact
+    # with each other. The array is a NxN matrix initialized to empty. If two particles interact (r < rc) then the
+    # matrix element (p1, p2) will be updated with p2. You can use the same array for checking if the loops go over
+    # every particle in the case of small rc. If two particle see each other than the p1,p2 position is updated to -1.
+    # neighbors = zeros((N, N), dtype=int64)
+    # neighbors.fill(-50)
+
+    # Loop over all cells in x, y, and z direction
+    for cz in range(d3_max):
+        for cy in range(d2_max):
+            for cx in range(d1_max):
                 # Compute the cell in 3D volume
                 c = cx + cy * cells_per_dim[0] + cz * cells_per_dim[0] * cells_per_dim[1]
 
                 # Loop over all cell pairs (N-1 and N+1)
-                for cz_N in range(cz - 1, cz + 2):
+                for cz_N in range(cz - 1, (cz + 2) * d3_min):
+                    # if d3_min = 0 -> range( -1, 0). This ensures that when the z-dimension is 0 we only loop once here
+
                     # z cells
                     # Check periodicity: needed for 0th cell
                     # if cz_N < 0:
@@ -796,10 +861,13 @@ def calculate_heat_flux(pos, vel, p_id, box_lengths, rc, potential_matrix, force
                     # else:
                     #     cz_shift = 0
                     #     rshift[2] = 0.0
-                    cz_shift = 0 + cells_per_dim[2] * (cz_N < 0) - cells_per_dim[2] * (cz_N >= cells_per_dim[2])
+                    cz_shift = 0 + d3_max * (cz_N < 0) - cells_per_dim[2] * (cz_N >= cells_per_dim[2])
                     rshift[2] = 0.0 - box_lengths[2] * (cz_N < 0) + box_lengths[2] * (cz_N >= cells_per_dim[2])
+                    # Note: In lower dimension systems (2D, 1D)
+                    # cz_shift will be 1, 0, -1. This will cancel later on when cz_N + cz_shift = (-1 + 1, 0 + 0, 1 - 1)
+                    # Similarly rshift[2] = 0.0 in all cases since box_lengths[2] == 0
 
-                    for cy_N in range(cy - 1, cy + 2):
+                    for cy_N in range(cy - 1, (cy + 2) * d2_min):
                         # y cells
                         # Check periodicity
                         # if cy_N < 0:
@@ -812,10 +880,10 @@ def calculate_heat_flux(pos, vel, p_id, box_lengths, rc, potential_matrix, force
                         #     cy_shift = 0
                         #     rshift[1] = 0.0
 
-                        cy_shift = 0 + cells_per_dim[1] * (cy_N < 0) - cells_per_dim[1] * (cy_N >= cells_per_dim[1])
+                        cy_shift = 0 + d2_max * (cy_N < 0) - cells_per_dim[1] * (cy_N >= cells_per_dim[1])
                         rshift[1] = 0.0 - box_lengths[1] * (cy_N < 0) + box_lengths[1] * (cy_N >= cells_per_dim[1])
 
-                        for cx_N in range(cx - 1, cx + 2):
+                        for cx_N in range(cx - 1, (cx + 2) * d1_min):
                             # x cells
                             # Check periodicity
                             # if cx_N < 0:
@@ -839,22 +907,27 @@ def calculate_heat_flux(pos, vel, p_id, box_lengths, rc, potential_matrix, force
                             )
 
                             i = head[c]
+                            # print(cx_N, cy_N, cz_N, "head cell", c, "p1", i)
                             # First compute interaction of head particle with neighboring cell head particles
                             # Then compute interactions of head particle within a specific cell
-                            while i > 0:
+                            while i >= 0:
 
                                 # Check neighboring head particle interactions
                                 j = head[c_N]
 
-                                while j > 0:
+                                while j >= 0:
+                                    # print("cell", c, "p1", i, "cell", c_N, "p2", j)
 
                                     # Only compute particles beyond i-th particle (Newton's 3rd Law)
                                     if i < j:
+                                        # neighbors[i, j] = -1
+                                        # print("         rshift", rshift)
 
                                         # Compute the difference in positions for the i-th and j-th particles
                                         dx = pos[i, 0] - (pos[j, 0] + rshift[0])
                                         dy = pos[i, 1] - (pos[j, 1] + rshift[1])
                                         dz = pos[i, 2] - (pos[j, 2] + rshift[2])
+                                        # print("         distances", dx, dy, dz)
 
                                         vx = vel[i, 0] + vel[j, 0]
                                         vy = vel[i, 1] + vel[j, 1]
@@ -863,27 +936,50 @@ def calculate_heat_flux(pos, vel, p_id, box_lengths, rc, potential_matrix, force
                                         # Compute distance between particles i and j
                                         r = sqrt(dx**2 + dy**2 + dz**2)
 
+                                        # These definitions are needed due to numba
+                                        # see https://github.com/numba/numba/issues/5881
+                                        id_i = p_id[i]
+                                        id_j = p_id[j]
+
                                         # If below the cutoff radius, compute the force
                                         if r < rc:
-                                            p_matrix = potential_matrix[p_id[i], p_id[j]]
+                                            p_matrix = potential_matrix[id_i, id_j]
+                                            # neighbors[i, j] = j
 
                                             # Compute the short-ranged force
-                                            uij, fr = force(r, p_matrix)
+                                            pot, fr = force(r, p_matrix)
                                             fr /= r
+                                            # Need to add the same pot to each particle pair.
+                                            ptcl_pot_energy[i] += 0.5 * pot
+                                            ptcl_pot_energy[j] += 0.5 * pot
+
+
+                                            # Since we have the info already calculate the virial_species_tensor
+                                            # This factor is to avoid double counting in the case of same species
+
                                             fij_vij = dx * fr * vx + dy * fr * vy + dz * fr * vz
 
-                                            j_e[0, i] += 0.25 * (vx * uij + dx * fij_vij)
-                                            j_e[1, i] += 0.25 * (vy * uij + dy * fij_vij)
-                                            j_e[2, i] += 0.25 * (vz * uij + dz * fij_vij)
+                                            # For this further factor of 1/2 see eq.(5) in https://doi.org/10.1016/j.cpc.2013.01.008
+                                            factor = 0.25
 
-                                            j_e[0, j] += 0.25 * (vx * uij + dx * fij_vij)
-                                            j_e[1, j] += 0.25 * (vy * uij + dy * fij_vij)
-                                            j_e[2, j] += 0.25 * (vz * uij + dz * fij_vij)
+                                            j_e[id_i, id_j, 0] += factor * dx * fij_vij
+                                            j_e[id_i, id_j, 1] += factor * dy * fij_vij
+                                            j_e[id_i, id_j, 2] += factor * dz * fij_vij
+
+                                            j_e[id_j, id_i, 0] += factor * dx * fij_vij
+                                            j_e[id_j, id_i, 1] += factor * dy * fij_vij
+                                            j_e[id_j, id_i, 2] += factor * dz * fij_vij
 
                                     # Move down list (ls) of particles for cell interactions with a head particle
                                     j = ls_array[j]
 
                                 # Check if head particle interacts with other cells
                                 i = ls_array[i]
+    # Add the ideal term of the energy current
+    for i in range(pos.shape[0]):
+        id_i = p_id[i]
+        j_e[id_i, id_i, 0] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 0]
+        j_e[id_i, id_i, 1] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 1]
+        j_e[id_i, id_i, 2] += (0.5 * p_mass[i] * (vel[i] ** 2).sum() + ptcl_pot_energy[i]) * vel[i, 2]
 
     return j_e

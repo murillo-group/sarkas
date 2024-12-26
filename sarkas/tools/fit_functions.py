@@ -28,7 +28,7 @@ def cf_third(t, t1, t2, w1, w2, C):
 
 
 def rse(t, tau0, tauE, beta):
-
+    """Rounded stretched exponential function"""
     argument = (tau0 / tauE) ** beta * (1 - (1 + (t / tau0) ** 2) ** (0.5 * beta))
     return exp(argument)
 

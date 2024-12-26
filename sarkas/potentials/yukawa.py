@@ -195,14 +195,14 @@ def potential_derivatives(r, pot_matrix):
     kappa = pot_matrix[1]
     kappa_r = kappa * r
     u_r = exp(-kappa_r) / r
-    dv_dr = -(1.0 + kappa_r) * u_r / r
-    d2v_dr2 = -(1.0 / r + kappa) * dv_dr + u_r / r**2
+    du_dr = -(1.0 + kappa_r) * u_r / r
+    d2u_dr2 = -(1.0 / r + kappa) * du_dr + u_r / r**2
 
     u_r *= pot_matrix[0]
-    dv_dr *= pot_matrix[0]
-    d2v_dr2 *= pot_matrix[0]
+    du_dr *= pot_matrix[0]
+    d2u_dr2 *= pot_matrix[0]
 
-    return u_r, dv_dr, d2v_dr2
+    return u_r, du_dr, d2u_dr2
 
 
 def pretty_print_info(potential):
@@ -224,7 +224,7 @@ def pretty_print_info(potential):
     print(msg)
 
 
-def update_params(potential):
+def update_params(potential, species):
     """
     Assign potential dependent simulation's parameters.
 

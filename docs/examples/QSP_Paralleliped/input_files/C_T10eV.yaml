@@ -1,0 +1,57 @@
+# J.P. Hansen and I.R. McDonald Phys Rev A 23 2041 (1981)
+Particles:
+    - Species:
+        name: e
+        number_density: 3.306480000915123e+23       # N/cc
+        mass: 9.1093837015e-28        # g, electron mass
+        num: 6000
+        Z: -1.0                       # degree of ionization
+        temperature: 116045.250061598
+    - Species:
+        name: C
+        number_density: 1.102160000305041e+23      # N/cc
+        mass: 2.007146308428e-23       # g
+        num: 2000                     # total number of particles of ion1
+        Z: 3.0                        # degree of ionization
+        temperature: 116045.250061598
+Potential:
+    type: qsp                         # potential type
+    qsp_type: Deutsch
+    method: pppm
+    rc: 4.665002e-08    # cut-off radius, cm
+    pppm_mesh: [128,64,64]
+    pppm_aliases: [3,3,3]
+    pppm_cao: 7
+    pppm_alpha_ewald: 7.802783e+07
+Integrator:
+    type: verlet
+    dt: 7.0208e-20                    # sec
+    equilibration_steps: 50000
+    eq_dump_step: 10
+    production_steps: 400000
+    prod_dump_step: 10
+    thermostat_type: Berendsen                   #  thermostat type
+    thermalization_timestep: 500
+    berendsen_tau: 5.0
+Parameters:
+    units: cgs                        # units
+    load_method: random_no_reject
+    load_rejection_radius: 10.0e-10
+    boundary_conditions: periodic
+    # np_per_side: [32, 16, 16]
+    Lx: 4.1713994591e-07        # [cm]
+    # Lx: 2.0856997295554438e-07    # [cm]
+    Ly: 2.0856997295554438e-07
+    Lz: 2.0856997295554438e-07
+    observables_list: [Pressure Tensor]
+IO:
+    verbose: True
+    job_dir: doubleC10eV       # dir name to save data.
+    data_to_save: [names, id, pos, vel, rdf_hist, species_pressure_kin_tensor, species_pressure_pot_tensor]
+
+
+
+
+
+
+

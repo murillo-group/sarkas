@@ -84,42 +84,88 @@ class Process:
 
     """
 
-    def __init__(self, input_file: str = None):
-        self.potential = Potential()
-        self.integrator = Integrator()
-        self.parameters = Parameters()
-        self.particles = Particles()
+    from .potentials.core import Potential
 
-        self.species = []  # Deprecated
-        self.species = []
+    def __init__(
+        self,
+        input_file: str = None,
+        potential_class: Potential = None,
+        integrator_class: Integrator = None,
+        particles_class: Particles = None,
+        parameters_class: Parameters = None,
+        io_class: InputOutput = None,
+        species: list = None,
+    ):
+        if potential_class is not None:
+            self.potential = potential_class
+        else:
+            self.potential = Potential()
+
+        if integrator_class is not None:
+            self.integrator = integrator_class
+        else:
+            self.integrator = Integrator()
+
+        if particles_class is not None:
+            self.particles = particles_class
+        else:
+            self.particles = Particles()
+
+        if parameters_class is not None:
+            self.parameters = parameters_class
+        else:
+            self.parameters = Parameters()
+
+        if io_class is not None:
+            self.io = io_class
+        else:
+            self.io = InputOutput(process=self.__name__)
+
+        if species is not None:
+            self.species = species
+        else:
+            self.species = []
+
         self.threads_ls = []
         self.observables_dict = {}
         self.transport_dict = {}
 
         self.input_file = input_file
         self.timer = SarkasTimer()
-        self.io = InputOutput(process=self.__name__)
 
     def common_parser(self, filename: str = None):
         """
-        Parse simulation parameters from YAML file.
+        Parse simulation parameters from a YAML file.
 
         Parameters
         ----------
-        filename: str
-            Input YAML file
+        filename : str, optional
+            Path to the YAML input file. If not provided, the input file path specified during object initialization will be used.
 
-        Return
-        ------
-        dics : dict
-            Nested dictionary from reading the YAML input file.
+        Returns
+        -------
+        dict
+            A nested dictionary containing the parsed simulation parameters.
+
+        Notes
+        -----
+        This method reads the simulation parameters from a YAML file and returns them as a nested dictionary.
+        It uses the :meth:`sarkas.utilities.io.InputOutput.from_yaml` to read the YAML file.
+
+        If the `filename` parameter is provided, it will override the input file path specified during object initialization.
+
+        Examples
+        --------
+        >>> process = Process(input_file='/path/to/input.yaml')
+        >>> params_dict = process.common_parser()
+
         """
         if filename:
             self.input_file = filename
 
-        dics = self.io.from_yaml(self.input_file)
+        params_dict = self.io.from_yaml(self.input_file)
 
-        return dics
+        return params_dict
 
     def update_subclasses_from_dict(self, nested_dict: dict):
         """Update the subclasses parameters using a dictionary.
@@ -139,7 +185,7 @@ class Process:
                 # args = {"Particles" : [ { "Species" : { "name": "O" } } ] }
 
                 # Check if you already have a non-empty dict of species
-                if len(self.species) == 0:
+                if len(self.species) > 0:
                     # If so do you want to replace or update?
                     # Update species attributes
 
@@ -149,11 +195,11 @@ class Process:
                             self.species[sp].__dict__.update(spec.__dict__)
                         else:
                             self.species.append(spec)
-                    else:
-                        # Append new species
-                        for sp, species in enumerate(vals):
-                            spec = Species(species["Species"])
-                            self.species.append(spec)
+                else:
+                    # Append new species
+                    for sp, species in enumerate(vals):
+                        spec = Species(species["Species"])
+                        self.species.append(spec)
 
             elif lkey in ["Observables"]:
                 for obs_dict in vals:
@@ -233,53 +279,60 @@ class Process:
     def directory_sizes(self):
         """Calculate the size of the dumps directories and print them to logger."""
         # Estimate size of dump folder
-        # Grab one file from the dump directory and get the size of it.
-        if self.parameters.equilibration_phase:
-            if not listdir(self.io.eq_dump_dir):
-                raise FileNotFoundError(
-                    "Could not estimate the size of the equilibration phase dumps"
-                    " because there are no dumps in the equilibration directory."
-                    "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
-                )
+        if self.__name__ == "preprocessing":
+            
+            if self.parameters.equilibration_phase:
+                eq_dump_size = self.io.estimate_existing_file_size("equilibration")
             else:
-                eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-                eq_dump_fldr_size = eq_dump_size * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
+                eq_dump_size = 0
+                
+            prod_dump_size = self.io.estimate_existing_file_size("production")
+            
+            sizes = array([eq_dump_size, prod_dump_size])
+
+            if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
+                mag_dump_size = self.io.estimate_existing_file_size("magnetization")
+                sizes = array([eq_dump_size, prod_dump_size, mag_dump_size])
         else:
-            eq_dump_size = 0
-            eq_dump_fldr_size = 0
+            # Grab one file from the dump directory and get the size of it.
+            if self.parameters.equilibration_phase:
+                if not listdir(self.io.eq_dump_dir):
+                    raise FileNotFoundError(
+                        "Could not estimate the size of the equilibration phase dumps"
+                        " because there are no dumps in the equilibration directory."
+                        "Re-run .time_n_space_estimate(loops) with loops > eq_dump_step"
+                    )
+                else:
+                    eq_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
+                    # eq_dump_fldr_size = eq_dump_size # * (self.parameters.equilibration_steps / self.parameters.eq_dump_step)
+            else:
+                eq_dump_size = 0
+                
 
-        if not listdir(self.io.prod_dump_dir):
-            raise FileNotFoundError(
-                "Could not estimate the size of the production phase dumps because"
-                " there are no dumps in the production directory."
-                "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
-            )
-
-        # Grab one file from the dump directory and get the size of it.
-        prod_dump_size = os_stat(join(self.io.eq_dump_dir, listdir(self.io.eq_dump_dir)[0])).st_size
-        prod_dump_fldr_size = prod_dump_size * (self.parameters.production_steps / self.parameters.prod_dump_step)
-        # Prepare arguments to pass for print out
-        sizes = array([[eq_dump_size, eq_dump_fldr_size], [prod_dump_size, prod_dump_fldr_size]])
-        # Check for electrostatic equilibration
-        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
-            if not listdir(self.io.mag_dump_dir):
+            if not listdir(self.io.directory_tree[self.__name__]["production"]["path"]):
                 raise FileNotFoundError(
-                    "Could not estimate the size of the magnetization phase dumps because"
-                    " there are no dumps in the production directory."
-                    "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
+                    "Could not estimate the size of the production phase because there are no files in the production directory."
+                    "Re-run .time_n_space_estimate(loops) with loops > prod_dump_step"
                 )
-            dump = self.parameters.mag_dump_step
-            mag_dump_size = os_stat(join(self.io.mag_dump_dir, "checkpoint_" + str(dump) + ".npz")).st_size
-            mag_dump_fldr_size = mag_dump_size * (self.parameters.magnetization_steps / self.parameters.mag_dump_step)
-            sizes = array(
-                [
-                    [eq_dump_size, eq_dump_fldr_size],
-                    [prod_dump_size, prod_dump_fldr_size],
-                    [mag_dump_size, mag_dump_fldr_size],
-                ]
-            )
 
+            # Grab one file from the dump directory and get the size of it.
+            prod_dump_size = os_stat(join(self.io.prod_dump_dir, listdir(self.io.prod_dump_dir)[0])).st_size
+            
+            # Prepare arguments to pass for print out
+            sizes = array([eq_dump_size, prod_dump_size])
+            # Check for electrostatic equilibration
+            if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
+                if not listdir(self.io.mag_dump_dir):
+                    raise FileNotFoundError(
+                        "Could not estimate the size of the magnetization phase dumps because"
+                        " there are no dumps in the production directory."
+                        "Re-run .time_n_space_estimate(loops) with loops > mag_dump_step"
+                    )
+                # dump = self.parameters.mag_dump_step
+                mag_dump_size = os_stat(join(self.io.mag_dump_dir,  listdir(self.io.mag_dump_dir)[0])).st_size
+                sizes = array([eq_dump_size, prod_dump_size, mag_dump_size])            
         self.io.directory_size_report(sizes, process=self.__name__)
+        
 
     def evolve(self, phase, thermalization, it_start, it_end, dump_step):
         """
@@ -312,66 +365,68 @@ class Process:
 
             if (it + 1) % dump_step == 0:
                 self.particles.calculate_observables()
-                self.io.dump(phase, self.particles, it + 1)
+                # self.io.dump(phase, self.particles, it + 1)
+                time = self.integrator.dt * (it + 1)
+                self.io.save_timestep_data(it + 1, dump_step, time, self.particles)
 
             if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
                 self.particles.calculate_species_kinetic_temperature()
                 self.integrator.thermostate(self.particles)
 
-    def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step):
-        """
-        Evolve the system forward in time. This method is similar to :meth:`sarkas.processes.Process.evolve_loop` with
-        the only difference that it uses `threading` for saving data, it starts a new thread to save the data.
-        In the case of small number of particles this can slow down the simulation, therefore it must be chosen by setting
-        the parameters `threading = True` in the input file or in the :class:`sarkas.core.Parameters` class.
+    # def evolve_loop_threading(self, phase, thermalization, it_start, it_end, dump_step):
+    #     """
+    #     Evolve the system forward in time. This method is similar to :meth:`sarkas.processes.Process.evolve_loop` with
+    #     the only difference that it uses `threading` for saving data, it starts a new thread to save the data.
+    #     In the case of small number of particles this can slow down the simulation, therefore it must be chosen by setting
+    #     the parameters `threading = True` in the input file or in the :class:`sarkas.core.Parameters` class.
 
-        Parameters
-        ----------
-        phase: str
-            Indicates the stage of the simulation used for saving dumps in the right directory. \n
-            Choices = ("equilibration", "production", "magnetization")
+    #     Parameters
+    #     ----------
+    #     phase: str
+    #         Indicates the stage of the simulation used for saving dumps in the right directory. \n
+    #         Choices = ("equilibration", "production", "magnetization")
 
-        thermalization : bool
-            Indicates whether to apply the thermostat or not.
+    #     thermalization : bool
+    #         Indicates whether to apply the thermostat or not.
 
-        it_start: int
-            Initial timestep of the loop.
+    #     it_start: int
+    #         Initial timestep of the loop.
 
-        it_end: int
-            Final timestep of the loop.
+    #     it_end: int
+    #         Final timestep of the loop.
 
-        dump_step: int
-            Interval for dumping data.
+    #     dump_step: int
+    #         Interval for dumping data.
 
-        """
-        for it in trange(it_start, it_end, disable=not self.parameters.verbose):
-            # Calculate the Potential energy and update particles' data
+    #     """
+    #     for it in trange(it_start, it_end, disable=not self.parameters.verbose):
+    #         # Calculate the Potential energy and update particles' data
 
-            self.integrator.update(self.particles)
+    #         self.integrator.update(self.particles)
 
-            if (it + 1) % dump_step == 0:
-                th = Thread(
-                    target=self.io.dump,
-                    name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
-                    args=(
-                        phase,
-                        self.particles.__deepcopy__(),
-                        it + 1,
-                    ),
-                )
+    #         if (it + 1) % dump_step == 0:
+    #             th = Thread(
+    #                 target=self.io.dump,
+    #                 name=f"Sarkas_{phase.capitalize()}_Thread - {it + 1}",
+    #                 args=(
+    #                     phase,
+    #                     self.particles.__deepcopy__(),
+    #                     it + 1,
+    #                 ),
+    #             )
 
-                self.threads_ls.append(th)
+    #             self.threads_ls.append(th)
 
-                th.start()
+    #             th.start()
 
-            if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
-                self.integrator.thermostate(self.particles)
+    #         if thermalization and (it + 1 >= self.integrator.thermalization_timestep):
+    #             self.integrator.thermostate(self.particles)
 
-        # Wait for all the threads to finish
-        for x in self.threads_ls:
-            x.join()
+    #     # Wait for all the threads to finish
+    #     for x in self.threads_ls:
+    #         x.join()
 
-        self.threads_ls.clear()
+    #     self.threads_ls.clear()
 
     def initialization(self):
         """Initialize all classes."""
@@ -380,17 +435,18 @@ class Process:
         self.io.setup()
 
         # Copy relevant subsclasses attributes into parameters class. This is needed for post-processing.
+        # it updates parameters' dictionary with filenames and directories
         self.parameters.copy_io_attrs(self.io)
-        # Update parameters' dictionary with filenames and directories
 
         self.parameters.potential_type = self.potential.type.lower()
         self.parameters.setup(self.species)
-        self.parameters.dt = self.integrator.dt
+
         # Initialize particles
         t0 = self.timer.current()
         self.particles.setup(self.parameters, self.species)
         time_ptcls = self.timer.current()
-
+        self.parameters.particles_initialization_time = time_ptcls - t0
+        
         # Initialize potential and calculate initial potential
         self.potential.setup(self.parameters, self.species)
         self.potential.calc_acc_pot(self.particles)
@@ -399,7 +455,6 @@ class Process:
 
         # Initialize Integrator
         self.integrator.setup(self.parameters, self.potential)
-
         # Copy needed parameters for pretty print
         self.parameters.dt = self.integrator.dt
         self.parameters.equilibration_integrator = self.integrator.equilibration_type
@@ -410,7 +465,11 @@ class Process:
         # Copy some parameters needed for saving data
         self.io.copy_params(self.parameters)
         # For restart and backups.
-        self.io.setup_checkpoint(self.parameters)
+        self.io.setup_checkpoint(self.parameters, self.particles, phase = "equilibration")
+        if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
+            self.io.setup_checkpoint(self.parameters, self.particles, phase = "magnetization")
+        self.io.setup_checkpoint(self.parameters, self.particles, phase = "production")
+
         self.io.save_pickle(self)
 
         # Print Process summary to file and screen
@@ -440,7 +499,7 @@ class Process:
         for sp, kp, tp, pot_sp in zip(
             self.species,
             self.particles.species_kinetic_energy,
-            self.particles.species_temperatures,
+            self.particles.species_temperature,
             self.particles.species_potential_energy,
         ):
             sp_msg = (
@@ -491,7 +550,6 @@ class Process:
             self.update_subclasses_from_dict(other_inputs)
 
         if self.__name__ == "postprocessing":
-
             # Create the file paths without creating directories and redefining io attributes
             self.io.make_directory_tree()
             self.io.make_directories()
@@ -547,7 +605,6 @@ class Process:
         self.instantiate_subclasses_from_dict(input_dict)
 
         if self.__name__ == "postprocessing":
-
             # Create the file paths without creating directories and redefining io attributes
             self.io.make_directory_tree()
             self.io.make_directories()
@@ -601,7 +658,6 @@ class PostProcess(Process):
     """
 
     def __init__(self, input_file: str = None, grab_last_step: bool = False):
-
         self.__name__ = "postprocessing"
         self.grab_last_step = grab_last_step
 
@@ -614,7 +670,6 @@ class PostProcess(Process):
             print("No observables found in observables_dict")
         else:
             for obs_key, obs_class in self.observables_dict.items():
-
                 obs_class.setup(self.parameters)
                 msg = obs_class.pretty_print_msg()
                 self.io.write_to_logger(msg)
@@ -629,7 +684,6 @@ class PostProcess(Process):
             print("No transport coefficients found in tranport_dict")
         else:
             for obs_key, obs_class in self.transport_dict.items():
-
                 obs_class.setup(self.parameters)
                 msg = obs_class.pretty_print_msg()
                 self.io.write_to_logger(msg)
@@ -855,7 +909,7 @@ class PreProcess(Process):
         ax.set_xlabel("Mesh size")
         ax.set_ylabel(r"Cells = $L/r_c$")
         ax.set_title("2D Lagrangian")
-        fig.savefig(join(self.io.preprocessing_dir, "2D_Lagrangian.png"))
+        fig.savefig(join(self.io.directory_tree["preprocessing"]["path"], "2D_Lagrangian.png"))
 
         # ax[1].set_xticks([8, 16, 32, 64, 128])
         # ax[1].set_xticklabels([8, 16, 32, 64, 128])
@@ -1005,14 +1059,15 @@ class PreProcess(Process):
         if not data_df:
             try:
                 data_df = read_csv(
-                    join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
+                    join(self.io.directory_tree["preprocessing"]["path"], f"TimingStudy_data_{self.io.job_id}.csv"),
+                    index_col=False,
                 )
-                self.dataframe = data_df.copy()
+                self.dataframe = data_df
             except FileNotFoundError:
                 print(f"I could not find the data from the timing study. Running the timing study now.")
                 self.timing_study_calculation()
         else:
-            data_df = self.dataframe.copy(deep=True)
+            data_df = self.dataframe
 
         fig, ax = plt.subplots(1, 3, figsize=(21, 7))
         scatterplot(data=data_df, x="pp_cells", y="pp_acc_time [s]", hue="M_x", s=100, palette="viridis", ax=ax[0])
@@ -1029,7 +1084,8 @@ class PreProcess(Process):
         fig_path = self.pppm_plots_dir
         fig.savefig(join(fig_path, f"PPPM_Times_{self.io.job_id}.png"))
 
-        print(f"\nFigures can be found in {self.pppm_plots_dir}")
+        msg = f"\nFigures can be found in {self.pppm_plots_dir}"
+        self.io.write_to_logger(msg)
 
     def make_force_v_timing_plot(self, data_df: DataFrame = None):
         """Make contour maps of the force error and total acc time as functions of LCL cells and PM meshes for each
@@ -1048,7 +1104,8 @@ class PreProcess(Process):
         if not data_df:
             try:
                 data_df = read_csv(
-                    join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv"), index_col=False
+                    join(self.io.directory_tree["preprocessing"]["path"], f"TimingStudy_data_{self.io.job_id}.csv"),
+                    index_col=False,
                 )
                 self.dataframe = data_df.copy()
             except FileNotFoundError:
@@ -1090,13 +1147,13 @@ class PreProcess(Process):
             luxnorm = LogNorm(vmin=minv, vmax=maxt)
             CS = ax1.contourf(m_mesh, c_mesh, force_error_map, levels=lvls, cmap=luxmap, norm=luxnorm)
             clb = fig.colorbar(ScalarMappable(norm=luxnorm, cmap=luxmap), ax=ax1)
-            clb.set_label(r"Force Error  [$Q^2/ a_{\rm ws}^2$] " + f"@ cao = {cao}", rotation=270, va="bottom")
+            clb.set_label(r"Force Error [$Q^2/ a_{\rm ws}^2$]", rotation=270, va="bottom")
             CS2 = ax1.contour(CS, colors="w")
             ax1.clabel(CS2, fmt="%1.0e", colors="w")
 
             if cao == self.potential.pppm_cao[0]:
                 input_Nc = int(self.potential.box_lengths[0] / self.potential.rc)
-                ax1.scatter(self.potential.pppm_mesh[0], input_Nc, s=200, c="k")
+                ax1.scatter(self.potential.pppm_mesh[0], input_Nc, s=200, c="w")
 
             ax1.set_xscale("log", base=2)
             ax1.set(xlabel="Mesh size", ylabel=r"LCL Cells", title=f"Force Error Map @ cao = {cao}")
@@ -1124,7 +1181,6 @@ class PreProcess(Process):
             fig.savefig(join(fig_path, f"ForceErrorMap_v_Timing_cao_{cao}_{self.io.job_id}.png"))
 
     def postproc_estimates(self):
-
         # POST- PROCESSING
         self.io.postprocess_info(self, observable="header")
         # Header of process
@@ -1139,7 +1195,7 @@ class PreProcess(Process):
         print_to_logger(msg, self.parameters.log_file, self.parameters.verbose)
 
     def make_pppm_plots_dir(self):
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+        self.pppm_plots_dir = join(self.io.directory_tree["preprocessing"]["path"], "PPPM_Plots")
 
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
@@ -1178,9 +1234,6 @@ class PreProcess(Process):
         self.io.write_to_logger(msg)
 
     def remove_preproc_dumps(self):
-        # Delete the energy files created during the estimation runs
-        os_remove(self.io.eq_energy_filename)
-        os_remove(self.io.prod_energy_filename)
 
         # Delete dumps created during the estimation runs
         for npz in listdir(self.io.eq_dump_dir):
@@ -1313,24 +1366,31 @@ class PreProcess(Process):
         # Run few equilibration steps to estimate the equilibration time
         if self.parameters.equilibration_phase and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
+            self.io.open_h5md_file(phase="equilibration")
             self.timer.start()
             self.evolve("equilibration", self.integrator.thermalization, 0, loops, self.parameters.eq_dump_step)
-            self.eq_mean_time = self.timer.stop() / loops
+            self.io.close_h5md_file()
             # Print the average equilibration & production times
+            self.eq_mean_time = self.timer.stop() / loops
             self.io.preprocess_timing("Equilibration", self.timer.time_division(self.eq_mean_time), loops)
 
         if self.parameters.magnetized and self.parameters.electrostatic_equilibration:
             self.integrator.update = self.integrator.type_setup(self.integrator.magnetization_type)
+            self.io.open_h5md_file(phase = 'magnetization')
             self.timer.start()
             self.evolve("magnetization", self.integrator.thermalization, 0, loops, self.parameters.mag_dump_step)
+            self.io.close_h5md_file()
             self.mag_mean_time = self.timer.stop() / loops
             # Print the average equilibration & production times
             self.io.preprocess_timing("Magnetization", self.timer.time_division(self.mag_mean_time), loops)
 
         # Run few production steps to estimate the equilibration time
         self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
+        self.potential_measure = True
+        self.io.open_h5md_file(phase="production")
         self.timer.start()
         self.evolve("production", False, 0, loops, self.parameters.prod_dump_step)
+        self.io.close_h5md_file()
         self.prod_mean_time = self.timer.stop() / loops
         self.io.preprocess_timing("Production", self.timer.time_division(self.prod_mean_time), loops)
 
@@ -1379,7 +1439,7 @@ class PreProcess(Process):
     def timing_study_calculation(self):
         """Estimate the best number of mesh points and cutoff radius."""
 
-        self.pppm_plots_dir = join(self.io.preprocessing_dir, "PPPM_Plots")
+        self.pppm_plots_dir = join(self.io.directory_tree["preprocessing"]["path"], "PPPM_Plots")
         if not exists(self.pppm_plots_dir):
             mkdir(self.pppm_plots_dir)
 
@@ -1391,7 +1451,7 @@ class PreProcess(Process):
         self.input_alpha = self.potential.pppm_alpha_ewald
         self.input_cao = self.potential.pppm_cao.copy()
 
-        data = DataFrame()
+        data = []
         # Rescaling constant to calculate the PP force error
         rescaling_constant = (
             sqrt(self.potential.total_num_ptcls) * self.potential.a_ws**2 / sqrt(self.potential.pbox_volume)
@@ -1406,7 +1466,6 @@ class PreProcess(Process):
         for _, m in enumerate(
             tqdm(self.pm_meshes, desc="Looping over the PM meshes", disable=not self.parameters.verbose)
         ):
-
             # Setup PM params
             self.potential.pppm_mesh = m * array([1, 1, 1], dtype=int)
             self.potential.pppm_alpha_ewald = 0.3 * m / self.potential.box_lengths.min()
@@ -1418,10 +1477,10 @@ class PreProcess(Process):
                 self.potential.pppm_cao = cao * array([1, 1, 1], dtype=int)
 
                 # Update the potential matrix since alpha has changed
-                if self.potential.type == "qsp":
-                    self.potential.pot_update_params(self.potential, self.species)
-                else:
-                    self.potential.pot_update_params(self.potential, self.species)
+                # if self.potential.type == "qsp":
+                #     self.potential.pot_update_params(self.potential, self.species)
+                # else:
+                self.potential.pot_update_params(self.potential, self.species)
                 # The Green's function depends on alpha, Mesh and cao. It also updates the pppm_pm_err
                 green_time = self.green_function_timer()
 
@@ -1457,40 +1516,65 @@ class PreProcess(Process):
                         self.potential.update_linked_list(self.particles)
                         pp_acc_time += self.timer.stop() / 3.0
 
-                    data = data.append(
-                        {
-                            "pp_cells": cell,
-                            "r_cut": self.potential.rc,
-                            "pppm_alpha_ewald": self.potential.pppm_alpha_ewald,
-                            "pppm_cao_x": self.potential.pppm_cao[0],
-                            "pppm_cao_y": self.potential.pppm_cao[1],
-                            "pppm_cao_z": self.potential.pppm_cao[2],
-                            "M_x": self.potential.pppm_mesh[0],
-                            "M_y": self.potential.pppm_mesh[1],
-                            "M_z": self.potential.pppm_mesh[2],
-                            "Mesh volume": self.potential.pppm_mesh.prod(),
-                            "Mesh": f"{self.potential.pppm_mesh[0], self.potential.pppm_mesh[1], self.potential.pppm_mesh[2]}",
-                            "h_x": self.potential.pppm_h_array[0],
-                            "h_y": self.potential.pppm_h_array[1],
-                            "h_z": self.potential.pppm_h_array[2],
-                            "h_M volume": self.potential.pppm_h_array.prod(),
-                            "h_x alpha": self.potential.pppm_h_array[0] * self.potential.pppm_alpha_ewald,
-                            "h_y alpha": self.potential.pppm_h_array[1] * self.potential.pppm_alpha_ewald,
-                            "h_z alpha": self.potential.pppm_h_array[2] * self.potential.pppm_alpha_ewald,
-                            "h_M a_ws^3": self.potential.pppm_h_array.prod() * self.potential.pppm_alpha_ewald**3,
-                            "G_k time [s]": green_time * 1.0e-9,
-                            "pp_acc_time [s]": pp_acc_time * 1.0e-9,
-                            "pm_acc_time [s]": pm_acc_time * 1.0e-9,
-                            "tot_acc_time [s]": (pp_acc_time + pm_acc_time) * 1.0e-9,
-                            "pppm_pp_error [measured]": self.potential.pppm_pp_err,
-                            "pppm_pm_error [measured]": self.potential.pppm_pm_err,
-                            "force error [measured]": self.potential.force_error,
-                        },
-                        ignore_index=True,
-                    )
+                    data_row = [
+                        cell,
+                        self.potential.rc,
+                        self.potential.pppm_alpha_ewald,
+                        self.potential.pppm_cao[0],
+                        self.potential.pppm_cao[1],
+                        self.potential.pppm_cao[2],
+                        self.potential.pppm_mesh[0],
+                        self.potential.pppm_mesh[1],
+                        self.potential.pppm_mesh[2],
+                        self.potential.pppm_mesh.prod(),
+                        self.potential.pppm_h_array[0],
+                        self.potential.pppm_h_array[1],
+                        self.potential.pppm_h_array[2],
+                        self.potential.pppm_h_array.prod(),
+                        self.potential.pppm_h_array[0] * self.potential.pppm_alpha_ewald,
+                        self.potential.pppm_h_array[1] * self.potential.pppm_alpha_ewald,
+                        self.potential.pppm_h_array[2] * self.potential.pppm_alpha_ewald,
+                        self.potential.pppm_h_array.prod() * self.potential.pppm_alpha_ewald**3,
+                        green_time * 1.0e-9,
+                        pp_acc_time * 1.0e-9,
+                        pm_acc_time * 1.0e-9,
+                        (pp_acc_time + pm_acc_time) * 1.0e-9,
+                        self.potential.pppm_pp_err,
+                        self.potential.pppm_pm_err,
+                        self.potential.force_error,
+                    ]
+                    data.append(data_row)
 
-        self.dataframe = data
-        csv_location = join(self.io.preprocessing_dir, f"TimingStudy_data_{self.io.job_id}.csv")
+        column_names = [
+            "pp_cells",
+            "r_cut",
+            "pppm_alpha_ewald",
+            "pppm_cao_x",
+            "pppm_cao_y",
+            "pppm_cao_z",
+            "M_x",
+            "M_y",
+            "M_z",
+            "Mesh volume",
+            "h_x",
+            "h_y",
+            "h_z",
+            "h_M volume",
+            "h_x alpha",
+            "h_y alpha",
+            "h_z alpha",
+            "h_M a_ws^3",
+            "G_k time [s]",
+            "pp_acc_time [s]",
+            "pm_acc_time [s]",
+            "tot_acc_time [s]",
+            "pppm_pp_error [measured]",
+            "pppm_pm_error [measured]",
+            "force error [measured]",
+        ]
+
+        self.dataframe = DataFrame(data, columns=column_names)
+        csv_location = join(self.io.directory_tree["preprocessing"]["path"], f"TimingStudy_data_{self.io.job_id}.csv")
         self.dataframe.to_csv(csv_location, index=False)
 
         # Reset the original values.
@@ -1652,7 +1736,8 @@ class Simulation(Process):
             it_start = self.parameters.restart_step
         else:
             it_start = 0
-            self.io.dump(phase, self.particles, 0)
+            dump_step = self.parameters.eq_dump_step if phase == "equilibration" else self.parameters.prod_dump_step
+            self.io.save_timestep_data(it_start, dump_step, self.integrator.dt * it_start, self.particles)
         return it_start
 
     def equilibrate(self):
@@ -1660,6 +1745,7 @@ class Simulation(Process):
         Run the time integrator with the thermostat to evolve the system to its thermodynamics equilibrium state.
         """
 
+        self.io.open_h5md_file(phase="equilibration")
         it_start = self.check_restart(phase="equilibration")
         self.integrator.update = self.integrator.type_setup(self.integrator.equilibration_type)
         # Start timer, equilibrate, and print run time.
@@ -1672,25 +1758,11 @@ class Simulation(Process):
             self.parameters.eq_dump_step,
         )
         time_eq = self.timer.stop()
+        self.io.close_h5md_file()
         self.io.time_stamp("Equilibration", self.timer.time_division(time_eq))
-
-    # def check_equil_dist(self):
-    #
-    #     vel_dist = VelocityDistribution()
-    #     vel_dist.setup(
-    #         params=self.parameters,
-    #         phase="equilibration",
-    #         no_slices=1,
-    #         max_no_moment=6,
-    #         multi_run_average=False,
-    #         dimensional_average=False,
-    #         runs=1,
-    #     )
-    #     vel_dist.compute()
-    #
-    #     pass
-
+        
     def magnetize(self):
+        self.io.open_h5md_file(phase="magnetization")
         # Check for magnetization phase
         it_start = self.check_restart(phase="magnetization")
         # Update integrator
@@ -1705,18 +1777,20 @@ class Simulation(Process):
             self.parameters.mag_dump_step,
         )
         time_eq = self.timer.stop()
+        self.io.close_h5md_file()
         self.io.time_stamp("Magnetization", self.timer.time_division(time_eq))
 
     def produce(self):
-
+        
+        self.io.open_h5md_file(phase="production")
         it_start = self.check_restart(phase="production")
-
         self.integrator.update = self.integrator.type_setup(self.integrator.production_type)
         # Update measurement flag for rdf.
         self.potential.measure = True
         self.timer.start()
         self.evolve("production", False, it_start, self.parameters.production_steps, self.parameters.prod_dump_step)
         time_eq = self.timer.stop()
+        self.io.close_h5md_file()
         self.io.time_stamp("Production", self.timer.time_division(time_eq))
 
     def run(self):

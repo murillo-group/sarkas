@@ -9,14 +9,15 @@ import sys
 import yaml
 from copy import copy, deepcopy
 from IPython import get_ipython
-from numpy import c_, float64
+from numpy import array, c_, float64, full, int64, prod
 from numpy import load as np_load
-from numpy import savetxt, savez, zeros
+from numpy import s_, savetxt, savez, zeros
 from numpy.random import randint
 from os import listdir, mkdir, symlink
 from os.path import basename, exists, join
 from pyfiglet import Figlet, print_figlet
 from warnings import warn
+import h5py
 
 if get_ipython().__class__.__name__ == "ZMQInteractiveShell":
     # If you are using Jupyter Notebook
@@ -49,15 +50,90 @@ class InputOutput:
     """
     Class handling the input and output functions of the MD run.
 
-    Parameters
+    Attributes
     ----------
+    dt : float
+        Timestep of the simulation.
+    electrostatic_equilibration : bool
+        Flag indicating whether electrostatic equilibration is enabled.
+    eq_dump_dir : str
+        Directory for equilibration dumps.
+    equilibration_dir : str
+        Directory for equilibration phase.
+    input_file : str
+        MD run input file.
+    job_dir : str
+        Directory for the job.
+    job_id : str
+        Job ID.
+    log_file : str
+        Log file.
+    mag_dump_dir : str
+        Directory for magnetization dumps.
+    magnetization_dir : str
+        Directory for magnetization phase.
+    magnetized : bool
+        Flag indicating whether the system is magnetized.
+    preprocess_file : str
+        Preprocess file.
+    preprocessing : bool
+        Flag indicating whether preprocessing is enabled.
+    preprocessing_dir : str
+        Directory for preprocessing phase.
+    prod_dump_dir : str
+        Directory for production dumps.
+    production_dir : str
+        Directory for production phase.
+    postprocessing_dir : str
+        Directory for postprocessing phase.
+    md_simulations_dir : str
+        Directory for Sarkas simulations.
+    simulation_dir : str
+        Directory for simulation phase.
+    process_names_dict : dict
+        Dictionary mapping process names to their corresponding directories.
+    phase_names_dict : dict
+        Dictionary mapping phase names to their corresponding directories.
+    filenames_tree : dict
+        Dictionary representing the file tree structure.
+    particles_filepaths : dict
+        Dictionary mapping phase names to their corresponding particles file paths.
+    thermodynamics_filepaths : dict
+        Dictionary mapping phase names to their corresponding thermodynamics file paths.
+    verbose : bool
+        Flag indicating whether verbose mode is enabled.
+    xyz_dir : str
+        Directory for XYZ files.
+    xyz_filename : str
+        Filename for XYZ files.
     process : str
-        Name of the process class containing MD run info.
+        Current process.
 
+    Methods
+    -------
+    __repr__()
+        Returns a string representation of the object.
+    __copy__()
+        Makes a shallow copy of the object.
+    algorithm_info(simulation)
+        Prints algorithm information.
+    copy_params(params)
+        Copies necessary parameters.
+    create_file_paths()
+        Creates all directories', subdirectories', and files' paths.
+    dump(phase, ptcls, it)
+        Saves particles' position, velocity, and acceleration data to a binary file for future restart.
+    save_timestep_data(step, dump_step, time, ptcls)
+        Saves timestep data to files.
+    dump_observables(phase, ptcls, it)
+        Saves particles' data to a binary file for future restart.
+    dump_thermodynamics(phase, ptcls, it)
+        Saves particles' data to a binary file for future restart.
+    dump_xyz(phase, dump_start, dump_end, dump_skip)
+        Saves the XYZ file by reading Sarkas dumps.
     """
 
     def __init__(self, process: str = "preprocess"):
-
         self.electrostatic_equilibration: bool = True
         self.eq_dump_dir: str = "dumps"
         self.equilibration_dir: str = "Equilibration"
@@ -105,13 +181,26 @@ class InputOutput:
         self.particles_filepaths = {"equilibration": None, "magnetization": None, "production": None}
         self.thermodynamics_filepaths = {"equilibration": None, "magnetization": None, "production": None}
 
-        self.thermodynamics_to_save = []  #: bool = False
-
         self.verbose: bool = False
         self.xyz_dir: str = None
         self.xyz_filename: str = None
         self.process = process
-        self.data_to_save = ["pos", "vel", "acc", "rdf_hist"]
+
+        # H5MD attributes
+        self.h5md_filenames_tree = None
+        self.h5md_filepath = None
+        self.h5md_file = None
+
+        self.observables_group = None # The observables group contains all the arrays that are attributes of Particles (ptcls).
+        self.observables_arrays_list = ["rdf_hist"]
+
+        self.particles_group = None # The particles group contains all the arrays that are attributes of Particles (ptcls).
+        self.particles_arrays_list = None # example from params ["pos", "vel", "acc"] # The data to save in the particles group.
+        
+        # List of thermodynamics quantities to save for each species.
+        # Example from params ["total_energy", "kinetic_energy", "potential_energy", "temperature"] # "pressure", "enthalpy" 
+        self.thermodynamics_list = ["total_energy", "kinetic_energy", "potential_energy", "temperature"] 
+
 
     def __repr__(self):
         sortedDict = dict(sorted(self.__dict__.items(), key=lambda x: x[0].lower()))
@@ -161,7 +250,6 @@ class InputOutput:
         self.total_num_ptcls = params.total_num_ptcls
         self.total_plasma_frequency = params.total_plasma_frequency
         self.species_names = params.species_names.copy()
-        self.coupling = params.coupling_constant * params.T_desired
 
         self.equilibration_phase = params.equilibration_phase
 
@@ -173,6 +261,16 @@ class InputOutput:
         self.magentization_steps = params.magnetization_steps
         self.production_steps = params.production_steps
 
+        self.particles_arrays_list = copy(params.particles_arrays_list)
+        
+        for array_name in params.observables_arrays_list:
+            if array_name not in self.observables_arrays_list:
+                self.observables_arrays_list.append(array_name)
+        
+        for obs in params.thermodynamics_list:
+            if obs not in self.thermodynamics_list:
+                self.thermodynamics_list.append(obs)
+        
     def create_file_paths(self):
         """Create all directories', subdirectories', and files' paths.
 
@@ -212,8 +310,16 @@ class InputOutput:
         #     ptcls_file = self.mag_ptcls_filename + str(it)
 
         # self.dump_pva(phase, ptcls, it)
-        self.dump_observables(phase, ptcls, it)
-        self.dump_thermodynamics(phase, ptcls, it)
+
+        # self.dump_observables(phase, ptcls, it)
+        # self.dump_thermodynamics(phase, ptcls, it)
+        raise DeprecationWarning("This method is deprecated. Use save_timestep_data instead.")
+    
+    def save_timestep_data(self, step, dump_step, time, ptcls):
+
+        self.save_particles_data(step, dump_step, time, ptcls)
+        self.save_thermodynamics_data(step, dump_step, time, ptcls)
+        self.save_observables_data(step, dump_step, time, ptcls)
 
     def dump_observables(self, phase, ptcls, it):
         """
@@ -231,11 +337,12 @@ class InputOutput:
             Timestep number.
         """
 
-        tme = it * self.dt
-        kwargs = {key: ptcls.__dict__[key] for key in self.data_to_save}
-        kwargs["time"] = tme
-        savez(f"{self.particles_filepaths[phase]}{it}", **kwargs)
-
+        # tme = it * self.dt
+        # kwargs = {key: ptcls.__dict__[key] for key in self.particles_arrays_list}
+        # kwargs["time"] = tme
+        # savez(f"{self.particles_filepaths[phase]}{it}", **kwargs)
+        raise DeprecationWarning("This method is deprecated. Use save_observables_data instead.")
+    
     def dump_thermodynamics(self, phase, ptcls, it):
         """
         Save particles' data to binary file for future restart.
@@ -251,22 +358,30 @@ class InputOutput:
         it : int
             Timestep number.
         """
+        # Deprecation Warning
+        raise DeprecationWarning("This method is deprecated. Use save_thermodynamics_data instead.")
+        # data = {"Time": it * self.dt}
+        # datap = ptcls.calculate_species_thermodynamics()
+        # data.update(datap)
+        # with open(self.thermodynamics_filepaths[phase], "a") as f:
+        #     w = csv.writer(f)
+        #     w.writerow(data.values())
 
-        data = {"Time": it * self.dt}
-        datap = ptcls.make_thermodynamics_dictionary()
-        data.update(datap)
-        with open(self.thermodynamics_filepaths[phase], "a") as f:
-            w = csv.writer(f)
-            w.writerow(data.values())
-
-    def dump_xyz(self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1):
+    def dump_xyz(
+        self,
+        phase: str = "production",
+        dump_start: int = 0,
+        dump_end: int = None,
+        dump_skip: int = 1,
+        ptcls_list: list = None,
+    ):
         """
         Save the XYZ file by reading Sarkas dumps.
 
         Parameters
         ----------
         phase : str
-            Phase from which to read dumps. 'equilibration' or 'production'.
+            Phase from which to read dumps. 'equilibration' or 'production'. Default is 'production'.
 
         dump_start : int
             Step number from which to start saving. Default is 0.
@@ -277,7 +392,12 @@ class InputOutput:
         dump_skip : int
             Interval of dumps to skip. Default is 1
 
+        ptcls_list : list
+            List of particle indices to save. Default is None.
+
         """
+        # TODO: Find a way so that the user can pass strings of the information to save for OVITO.
+        # For example. the user might want to save pos, vel, acc and the kinetic energy or total energy of each particle.
 
         if phase == "equilibration":
             self.xyz_filename = join(self.equilibration_dir, "pva_" + self.job_id + ".xyz")
@@ -294,51 +414,63 @@ class InputOutput:
             dump_dir = self.prod_dump_dir
             dump_step = self.prod_dump_step
 
+        # Get particles info
+        params = self.read_pickle_single("parameters", self.directory_tree["simulation"]["path"])
+
         # Rescale constants. This is needed since OVITO has a small number limit.
-        pscale = 1.0 / self.a_ws
-        vscale = 1.0 / (self.a_ws * self.total_plasma_frequency)
-        ascale = 1.0 / (self.a_ws * self.total_plasma_frequency**2)
+        pscale = 1.0 / params.a_ws
+        vscale = 1.0 / (params.a_ws * params.total_plasma_frequency)
+        ascale = 1.0 / (params.a_ws * params.total_plasma_frequency**2)
 
-        f_xyz = open(self.xyz_filename, "w+")
-
-        # Read the list of dumps and sort them in the correct (natural) order
-        dumps = listdir(dump_dir)
-        dumps.sort(key=num_sort)
-        dumps_dict = {}
-        for i in dumps:
-            _, key = i.split("_")
-            key_num, _ = key.split(".")
-            dumps_dict[int(key_num)] = i
+        with  h5py.File(self.h5md_filenames_tree[self.process][phase]) as f:
+            data = f["particles"]["pos"]
+            dumps = data.shape[0]
 
         if not dump_end:
-            dump_end = len(dumps) * dump_step
+            dump_end = dumps
 
-        dump_skip *= dump_step
+        # dump_skip *= dump_step
+        names = full(params.total_num_ptcls, "", dtype=params.species_names.dtype)
+        ids = full(params.total_num_ptcls, 0, dtype=int64)
 
-        for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
-            dump = dumps_dict[i]
-            data = self.read_npz(dump_dir, dump)
-            data["pos_x"] *= pscale
-            data["pos_y"] *= pscale
-            data["pos_z"] *= pscale
+        species_start = 0
+        species_end = 0
+        for name, n, i in zip(params.species_names, params.species_num, range(len(params.species_names))):
+            species_end += n
+            names[species_start:species_end] = name
+            ids[species_start:species_end] = i
+            species_start += n
 
-            data["vel_x"] *= vscale
-            data["vel_y"] *= vscale
-            data["vel_z"] *= vscale
+        if ptcls_list is None:
+            ptcls_list = list(range(params.total_num_ptcls))
+        
+        np_ptcls_list = s_[ptcls_list]
+        
+        with open(self.xyz_filename, "w+") as f_xyz:
+            with h5py.File(self.h5md_filenames_tree[self.process][phase]) as f:
+                for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
+                    data = f["particles"]
+                    timestep_data = zeros((len(ptcls_list), 10), dtype=object)
 
-            data["acc_x"] *= ascale
-            data["acc_y"] *= ascale
-            data["acc_z"] *= ascale
+                    timestep_data[:, 0] = names[np_ptcls_list]
+                    timestep_data[:, 1] = data['pos'][i,np_ptcls_list,0] * pscale
+                    timestep_data[:, 2] = data['pos'][i,np_ptcls_list,1] * pscale
+                    timestep_data[:, 3] = data['pos'][i,np_ptcls_list,2] * pscale
+                    timestep_data[:, 4] = data['vel'][i,np_ptcls_list,0] * vscale
+                    timestep_data[:, 5] = data['vel'][i,np_ptcls_list,1] * vscale
+                    timestep_data[:, 6] = data['vel'][i,np_ptcls_list,2] * vscale
+                    timestep_data[:, 7] = data['acc'][i,np_ptcls_list,0] * ascale
+                    timestep_data[:, 8] = data['acc'][i,np_ptcls_list,1] * ascale
+                    timestep_data[:, 9] = data['acc'][i,np_ptcls_list,2] * ascale
 
-            f_xyz.writelines("{0:d}\n".format(self.total_num_ptcls))
-            f_xyz.writelines("name x y z vx vy vz ax ay az\n")
-            savetxt(
-                f_xyz,
-                data[["names", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "acc_x", "acc_y", "acc_z"]],
-                fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e",
-            )
+                    f_xyz.write(f"{len(ptcls_list)}\n")
+                    f_xyz.write("name x y z vx vy vz ax ay az\n")
+                    savetxt(
+                        f_xyz,
+                        timestep_data,
+                        fmt="%s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e",
+                    )
 
-        f_xyz.close()
 
     def dump_potfit_config(
         self, phase: str = "production", dump_start: int = 0, dump_end: int = None, dump_skip: int = 1
@@ -361,20 +493,38 @@ class InputOutput:
 
         """
 
+        # Get particles info
+        if self.process == "postprocessing":
+            params = self.read_pickle_single("parameters", self.directory_tree["simulation"]["path"])
+        else:
+            params = self.read_pickle_single("parameters", self.directory_tree[self.process]["path"])
+
+        dump_dir = self.directory_tree[self.process][phase]["dumps"]["path"]
+        pot_fit_dir = join(self.directory_tree[self.process][phase]["path"], "potfit_configs")
+
         if phase == "equilibration":
-            pot_fit_dir = join(self.equilibration_dir, "potfit_configs")
-            dump_dir = self.eq_dump_dir
-            dump_step = self.eq_dump_step
+            dump_step = params.eq_dump_step
 
         elif phase == "magnetization":
-            pot_fit_dir = join(self.magnetization_dir, "potfit_configs")
-            dump_dir = self.mag_dump_dir
-            dump_step = self.mag_dump_step
+            dump_step = params.mag_dump_step
 
         else:
-            pot_fit_dir = join(self.production_dir, "potfit_configs")
-            dump_dir = self.prod_dump_dir
-            dump_step = self.prod_dump_step
+            dump_step = params.prod_dump_step
+
+        # if phase == "equilibration":
+        #     pot_fit_dir = join(self.equilibration_dir, "potfit_configs")
+        #     dump_dir = self.eq_dump_dir
+        #     dump_step = self.eq_dump_step
+
+        # elif phase == "magnetization":
+        #     pot_fit_dir = join(self.magnetization_dir, "potfit_configs")
+        #     dump_dir = self.mag_dump_dir
+        #     dump_step = self.mag_dump_step
+
+        # else:
+        #     pot_fit_dir = join(self.production_dir, "potfit_configs")
+        #     dump_dir = self.prod_dump_dir
+        #     dump_step = self.prod_dump_step
 
         if not exists(pot_fit_dir):
             mkdir(pot_fit_dir)
@@ -403,13 +553,18 @@ class InputOutput:
 
         dump_skip *= dump_step
 
+        acc = zeros((params.total_num_ptcls, 3))
+
         for i in trange(dump_start, dump_end, dump_skip, disable=not self.verbose):
             dump = dumps_dict[i]
-            data = self.read_npz(dump_dir, dump)
+            file_name = join(dump_dir, dump)
+            data = np_load(file_name, allow_pickle=True)
 
-            data["acc_x"] *= masses
-            data["acc_y"] *= masses
-            data["acc_z"] *= masses
+            # TODO: Find a more pythonic way of doing this
+            # DEv NOTE: data is a view of the npz file. It is not a copy. Hence, we need modify it.
+            acc[:, 0] = data["acc"][:, 0] * masses
+            acc[:, 1] = data["acc"][:, 1] * masses
+            acc[:, 2] = data["acc"][:, 2] * masses
 
             fname = join(pot_fit_dir, f"config_{i}.out")
             f_xyz = open(fname, "w")
@@ -423,7 +578,7 @@ class InputOutput:
 
             savetxt(
                 f_xyz,
-                c_[data["id"], data["pos_x"], data["pos_y"], data["pos_z"], data["acc_x"], data["acc_y"], data["acc_z"]],
+                c_[data["id"], data["pos"], acc],
                 fmt="%i %.6e %.6e %.6e %.6e %.6e %.6e",
             )
 
@@ -493,7 +648,6 @@ class InputOutput:
         if "Parameters" in dics.keys():
             keyed = "Parameters"
             for key, value in dics[keyed].items():
-
                 if key == "verbose":
                     self.verbose = value
 
@@ -525,12 +679,19 @@ class InputOutput:
     def make_directory_tree(self):
         """Construct the tree of directory paths of the MD simulation and save it into :attr:`directory_tree`. Set :attr:`job_dir` and :attr:`job_id` too."""
 
+        # Set the job directory path if it is not already set.
+        # This is done by extracting the base name of the input file
+        # and removing the file extension.
         if self.job_dir is None:
             self.job_dir = basename(self.input_file).split(".")[0]
 
+        # Set the job identifier if it is not already set.
+        # The job identifier is initially set to the job directory path.
         if self.job_id is None:
             self.job_id = self.job_dir
 
+        # Append the job directory to the MD simulations directory path
+        # to form the final job directory path.
         self.job_dir = join(self.md_simulations_dir, self.job_dir)
 
         # DEV NOTE: The following construction of the dic tree can be put in a loop, but it would be hard to understand hence the hard coding.
@@ -703,7 +864,27 @@ class InputOutput:
             # Magnetization phase filenames
             self.mag_energy_filename = self.filenames_tree["thermodynamics"]["magnetization"]["path"]
             self.mag_ptcls_filename = self.filenames_tree["particles"]["magnetization"]["path"]
-
+       
+        self.h5md_filenames_tree = {
+            "preprocessing": {
+                "equilibration" : join(self.directory_tree["preprocessing"]["equilibration"]['dumps']["path"], f"{self.job_id}_data.h5md"),
+                "magnetization" : join(self.directory_tree["preprocessing"]["magnetization"]['dumps']["path"], f"{self.job_id}_data.h5md"),
+                "production" : join(self.directory_tree["preprocessing"]["production"]['dumps']["path"], f"{self.job_id}_data.h5md")
+                },
+            "simulation": {
+                "equilibration" : join(self.directory_tree["simulation"]["equilibration"]['dumps']["path"], f"{self.job_id}_data.h5md"),
+                "magnetization" : join(self.directory_tree["simulation"]["magnetization"]['dumps']["path"], f"{self.job_id}_data.h5md"),
+                "production" : join(self.directory_tree["simulation"]["production"]['dumps']["path"], f"{self.job_id}_data.h5md")
+            },
+            "postprocessing": {
+                "equilibration" : join(self.directory_tree["simulation"]["equilibration"]['dumps']["path"], f"{self.job_id}_data.h5md"),
+                "magnetization" : join(self.directory_tree["simulation"]["magnetization"]['dumps']["path"], f"{self.job_id}_data.h5md"),
+                "production" : join(self.directory_tree["simulation"]["production"]['dumps']["path"], f"{self.job_id}_data.h5md")
+            }
+            }
+        
+        self.process_h5md_filepath_dict = self.h5md_filenames_tree[self.process]
+        self.process_directory_tree = self.directory_tree[self.process]
     def postprocess_info(self, simulation, observable=None):
         pass
         """
@@ -809,35 +990,35 @@ class InputOutput:
             msg = f"\n\n{msg_h:=^70}\n"
 
             if self.equilibration_phase:
-                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 0])
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0])
                 msg += (
                     f"\nEquilibration:\n"
-                    f"\tCheckpoint filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
+                    f"\tH5MD filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
                 )
 
-                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
-                msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
+                # size_GB, size_MB, size_KB, rem = convert_bytes(sizes[0, 1])
+                # msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
 
             if self.magnetized and self.electrostatic_equilibration:
-                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 0])
+                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2])
                 msg += (
                     f"\nMagnetization:\n"
-                    f"\tCheckpoint filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
+                    f"\tH5MD filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
                 )
 
-                size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 1])
-                msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
+                # size_GB, size_MB, size_KB, rem = convert_bytes(sizes[2, 1])
+                # msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
 
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 0])
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1])
             msg += (
                 f"\nProduction:\n"
-                f"\tCheckpoint filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
+                f"\tH5MD filesize: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
             )
 
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 1])
-            msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
+            # size_GB, size_MB, size_KB, rem = convert_bytes(sizes[1, 1])
+            # msg += f"\tCheckpoint folder size: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes\n"
 
-            size_GB, size_MB, size_KB, rem = convert_bytes(sizes[:, 1].sum())
+            size_GB, size_MB, size_KB, rem = convert_bytes(sizes.sum())
             if process == "preprocessing":
                 msg += f"\nTotal minimum required space: {int(size_GB)} GB {int(size_MB)} MB {int(size_KB)} KB {int(rem)} bytes"
             else:
@@ -884,7 +1065,7 @@ class InputOutput:
         f_log.close()
 
     @staticmethod
-    def read_npz(fldr: str, filename: str):
+    def read_npz(self, fldr: str, filename: str):
         """
         Load particles' data from dumps.
 
@@ -907,12 +1088,13 @@ class InputOutput:
         """
 
         warn(
-            "Deprecated feature. It will be removed in a future release.\nUse :meth:`make_files_tree`.",
+            "Deprecated feature. It will be removed in a future release.\nUse :meth:`read_particles_npz`.",
             category=DeprecationWarning,
         )
+        return InputOutput.read_particles_npz(fldr, filename)
 
     @staticmethod
-    def read_particles_npz(fldr: str, filename: str):
+    def read_particles_npz(fldr: str, filename: str, ptcls_list: list = None):
         """
         Load particles' data from dumps.
 
@@ -936,11 +1118,15 @@ class InputOutput:
         # Dev Notes: the old way of saving the xyz file by
         # savetxt(f_xyz, np.c_[data["names"],data["pos"] ....]
         # , fmt="%10s %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e %.6e")
-        # was not working, because the columns of np.c_[] all have the same data type <U32
+        # was not working, because the columns of np.c_[] all have the data type <U32
         # which is in conflict with the desired fmt. i.e. data["names"] was not recognized as a string.
         # So I have to create a new structured array and pass this. I could not think of a more Pythonic way.
+        if ptcls_list is None:
+            ptcls = s_[:]
+        else:
+            ptcls = s_[ptcls_list]  # [0, 50, 100, 500, 1023, 1024, 1074, 1124, 1524, 2047]
         struct_array = zeros(
-            data["names"].size,
+            len(ptcls),
             dtype=[
                 ("names", "U6"),
                 ("id", int),
@@ -955,19 +1141,21 @@ class InputOutput:
                 ("acc_z", float64),
             ],
         )
-        struct_array["names"] = data["names"]
-        struct_array["id"] = data["id"]
-        struct_array["pos_x"] = data["pos"][:, 0]
-        struct_array["pos_y"] = data["pos"][:, 1]
-        struct_array["pos_z"] = data["pos"][:, 2]
+        if "id" in data.files:
+            struct_array["id"] = data["id"][ptcls]
+        if "names" in data.files:
+            struct_array["names"] = data["names"][ptcls]
+        struct_array["pos_x"] = data["pos"][ptcls, 0]
+        struct_array["pos_y"] = data["pos"][ptcls, 1]
+        struct_array["pos_z"] = data["pos"][ptcls, 2]
 
-        struct_array["vel_x"] = data["vel"][:, 0]
-        struct_array["vel_y"] = data["vel"][:, 1]
-        struct_array["vel_z"] = data["vel"][:, 2]
+        struct_array["vel_x"] = data["vel"][ptcls, 0]
+        struct_array["vel_y"] = data["vel"][ptcls, 1]
+        struct_array["vel_z"] = data["vel"][ptcls, 2]
 
-        struct_array["acc_x"] = data["acc"][:, 0]
-        struct_array["acc_y"] = data["acc"][:, 1]
-        struct_array["acc_z"] = data["acc"][:, 2]
+        struct_array["acc_x"] = data["acc"][ptcls, 0]
+        struct_array["acc_y"] = data["acc"][ptcls, 1]
+        struct_array["acc_z"] = data["acc"][ptcls, 2]
 
         return struct_array
 
@@ -1084,7 +1272,7 @@ class InputOutput:
         self.make_files_tree()
         self.file_header()
 
-    def setup_checkpoint(self, params):
+    def setup_checkpoint(self, params, ptcls, phase):
         """
         Assign attributes needed for saving dumps.
 
@@ -1098,53 +1286,406 @@ class InputOutput:
 
         """
 
-        self.copy_params(params)
-        dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
+        # self.copy_params(params)
+        # dkeys = ["Time", "Total Energy", "Total Kinetic Energy", "Total Potential Energy", "Temperature"]
 
-        if len(self.thermodynamics_to_save) > 0:
-            extra_cols = []
-            if "Pressure" in self.thermodynamics_to_save:
-                extra_cols.append("Total Pressure")
-                extra_cols.append("Ideal Pressure")
-                extra_cols.append("Excess Pressure")
-            if "Enthalpy" in self.thermodynamics_to_save:
-                extra_cols.append("Total Enthalpy")
+        # if len(self.thermodynamics_to_save) > 0:
+        #     extra_cols = []
+        #     if "Pressure" in self.thermodynamics_to_save:
+        #         extra_cols.append("Total Pressure")
+        #         extra_cols.append("Ideal Pressure")
+        #         extra_cols.append("Excess Pressure")
+        #     if "Enthalpy" in self.thermodynamics_to_save:
+        #         extra_cols.append("Total Enthalpy")
 
-            for col in extra_cols:
-                dkeys.append(col)
+        #     for col in extra_cols:
+        #         dkeys.append(col)
 
-        # Create the Energy file
-        if len(self.species_names) > 1:
-            for i, sp_name in enumerate(self.species_names):
-                dkeys.append("{} Kinetic Energy".format(sp_name))
-                dkeys.append("{} Potential Energy".format(sp_name))
-                dkeys.append("{} Temperature".format(sp_name))
-                if len(self.thermodynamics_to_save) > 0:
-                    if "Pressure" in self.thermodynamics_to_save:
-                        dkeys.append("{} Total Pressure".format(sp_name))
-                        dkeys.append("{} Ideal Pressure".format(sp_name))
-                        dkeys.append("{} Excess Pressure".format(sp_name))
-                    if "Enthalpy" in self.thermodynamics_to_save:
-                        dkeys.append("{} Enthalpy".format(sp_name))
+        # # Create the Energy file
+        # if len(self.species_names) > 1:
+        #     for i, sp_name in enumerate(self.species_names):
+        #         dkeys.append("{} Kinetic Energy".format(sp_name))
+        #         dkeys.append("{} Potential Energy".format(sp_name))
+        #         dkeys.append("{} Temperature".format(sp_name))
+        #         if len(self.thermodynamics_to_save) > 0:
+        #             if "Pressure" in self.thermodynamics_to_save:
+        #                 dkeys.append("{} Total Pressure".format(sp_name))
+        #                 dkeys.append("{} Ideal Pressure".format(sp_name))
+        #                 dkeys.append("{} Excess Pressure".format(sp_name))
+        #             if "Enthalpy" in self.thermodynamics_to_save:
+        #                 dkeys.append("{} Enthalpy".format(sp_name))
 
-        data = dict.fromkeys(dkeys)
-        # Check whether energy files exist already
-        if not exists(self.prod_energy_filename):
-            with open(self.prod_energy_filename, "w+") as f:
-                w = csv.writer(f)
-                w.writerow(data.keys())
+        # data = dict.fromkeys(dkeys)
+        # # Check whether energy files exist already
+        # if not exists(self.prod_energy_filename):
+        #     with open(self.prod_energy_filename, "w+") as f:
+        #         w = csv.writer(f)
+        #         w.writerow(data.keys())
 
-        if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
-            with open(self.eq_energy_filename, "w+") as f:
-                w = csv.writer(f)
-                w.writerow(data.keys())
+        # if not exists(self.eq_energy_filename) and not params.load_method[-7:] == "restart":
+        #     with open(self.eq_energy_filename, "w+") as f:
+        #         w = csv.writer(f)
+        #         w.writerow(data.keys())
 
-        if self.magnetized and self.electrostatic_equilibration:
-            if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
-                data = dict.fromkeys(dkeys)
-            with open(self.mag_energy_filename, "w+") as f:
-                w = csv.writer(f)
-                w.writerow(data.keys())
+        # if self.magnetized and self.electrostatic_equilibration:
+        #     if not exists(self.mag_energy_filename) and not params.load_method[-7:] == "restart":
+        #         data = dict.fromkeys(dkeys)
+        #     with open(self.mag_energy_filename, "w+") as f:
+        #         w = csv.writer(f)
+        #         w.writerow(data.keys())
+        self.h5md_filepath = self.h5md_filenames_tree[self.process][phase]
+        self.h5md_file = h5py.File(self.h5md_filepath, 'a')  # Open file in append mode to allow reading and writing
+
+        if 'h5md' not in self.h5md_file:
+            h5md = self.h5md_file.create_group('h5md')
+            h5md.attrs['version'] = array([1, 0])
+
+        self.init_particles_group(params, ptcls, phase, particles_data=self.particles_arrays_list)
+        self.init_box_group(params)
+        self.init_observables_group(params, ptcls, phase, observables=self.observables_arrays_list)
+        self.init_thermodynamics_group(params, ptcls, phase, thermodynamics_to_save=self.thermodynamics_list)
+        
+        # TODO: Parameters group
+        # self.parameters = self.h5md_file.require_group('parameters')
+
+        self.h5md_file.close()
+    
+    def open_h5md_file(self, phase, mode = 'a'):
+        """
+        Open the h5md file in mode.
+
+        Parameters
+        ----------
+        phase: str
+            Phase in which to open the h5md file.
+
+        mode: str
+            Mode in which to open the h5md file. Default 'a'.
+
+        """
+        
+        self.h5md_filepath = self.h5md_filenames_tree[self.process][phase]
+        self.h5md_file = h5py.File(self.h5md_filepath, mode)
+        self.particles_group = self.h5md_file['particles']
+        self.observables_group = self.h5md_file['observables']
+        
+    def close_h5md_file(self):
+        """
+        Close the h5md file.
+        """
+        self.h5md_file.close()
+
+    def init_particles_group(self, params, ptcls, phase= "production", particles_data=None):
+        """
+        Initialize or update datasets for time-dependent particle data: positions, velocities, and accelerations.
+        Resize datasets if necessary to match the extended simulation steps.
+        
+        Parameters:
+            ptcls (object): An object containing particle properties like species, masses, and names.
+            params (object): An object containing simulation parameters including production_steps and prod_dump_step.
+        """
+
+        # Ensure that the particle group exists and retrieve it
+        self.particles_group = self.h5md_file.require_group('particles')
+
+        # Calculate the required size of the datasets based on the new simulation parameters
+        if phase == "equilibration":
+            required_size = 1 + params.equilibration_steps // params.eq_dump_step
+        elif phase == "magnetization":
+            required_size = 1 + params.magnetization_steps // params.mag_dump_step
+        else:
+            required_size = 1 + params.production_steps // params.prod_dump_step
+
+        
+        # Initialize or resize time-dependent datasets
+        datasets = {
+            'time': ('float64', (required_size,)),
+            'step': ('int64', (required_size,)),
+        }
+        
+        if particles_data is None:
+            particles_data = self.particles_arrays_list
+        else:
+            [self.particles_arrays_list.append(data) for data in particles_data if data not in self.particles_arrays_list]
+            particles_data = self.particles_arrays_list
+
+        for data in particles_data:
+            datasets[data] = ('float64', (required_size, params.total_num_ptcls, 3))
+
+        for key, (dtype, shape) in datasets.items():
+            if key in self.particles_group:
+                dataset = self.particles_group[key]
+                if dataset.shape != shape:
+                    dataset.resize( shape)
+            else:
+                # Create chunked and resizable datasets
+                max_shape = (None,) + shape[1:]  # Allow the first dimension to be unlimited
+                chunks = (1,) + shape[1:]  # Define chunk size, can be adjusted
+                self.particles_group.create_dataset(
+                    key, shape, maxshape=max_shape, chunks=chunks, dtype=dtype
+                )
+                # self.particles_group.create_dataset(key, (required_size,) + shape, dtype=dtype)
+        
+        self.particles_group['time'].attrs['units'] = params.units_dict['time']
+        # Units
+        if 'pos' in self.particles_group:
+            self.particles_group['pos'].attrs['units'] = params.units_dict['length']
+        if 'vel' in self.particles_group:
+            self.particles_group['vel'].attrs['units'] = params.units_dict['velocity']
+        if 'acc' in self.particles_group:
+            self.particles_group['acc'].attrs['units'] = params.units_dict['acceleration']
+
+        # Initialize static properties only if they don't exist to avoid overwriting existing data
+        static_properties = {
+            'species': (ptcls.id, 'i'),
+            'masses': (ptcls.masses, 'float64'),
+            'charges': (ptcls.charges, 'float64'),
+            'names': (ptcls.names, h5py.special_dtype(vlen=str))
+        }
+        
+        for prop, (data, dtype) in static_properties.items():
+            if prop not in self.particles_group:
+                self.particles_group.create_dataset(prop, data=data, dtype=dtype)
+
+        self.particles_group['masses'].attrs['units'] = params.units_dict['mass']
+        self.particles_group['charges'].attrs['units'] = params.units_dict['charge']
+    
+    def init_box_group(self, params):
+        """
+        Initialize the 'box' subgroup to specify the simulation box dimensions and boundary conditions.
+        """
+        
+        self.box = self.particles_group.require_group('box')
+        self.box.attrs["dimensions"] = params.dimensions
+        self.box.attrs['boundary'] = params.boundary_conditions  # Boundary conditions
+
+        D = 3  # Dimensionality of the simulation space, typically 3 for most MD simulations
+    
+        # Constructing the DxD edges matrix from params
+        edges_matrix = zeros((D, D))
+        edges_matrix[:, 0] = params.ep1  # Column vector for x-dimension
+        edges_matrix[:, 1] = params.ep2  # Column vector for y-dimension
+        edges_matrix[:, 2] = params.ep3  # Column vector for z-dimension
+
+        # Example dimensions for a cubic box with periodic boundary conditions in all three dimensions
+        if 'initial_edges' not in self.box:
+            self.box.create_dataset('initial_edges', data=edges_matrix)  # Box dimensions
+
+            edges_matrix[:, 0] = params.e1  # Column vector for x-dimension
+            edges_matrix[:, 1] = params.e2  # Column vector for y-dimension
+            edges_matrix[:, 2] = params.e3  # Column vector for z-dimension
+
+        if 'edges' not in self.box:
+            self.box.create_dataset('edges', data=edges_matrix)  # Box dimensions
+            self.box.attrs["units"] = params.units_dict["length"]
+
+    def init_observables_group(self, params, ptcls, phase = 'production', observables = None):
+        """
+        Initialize or update the 'observables' group for storing time-dependent scalar values.
+        Each dataset will also have units specified as per the units_dict.
+
+        Parameters:
+            observables (list of str): A list of the names of observables to be tracked and stored.
+            params (object): Parameters including the new total number of data points.
+            units_dict (dict): A dictionary mapping observable names to their units.
+        """
+        # The observables group contains all the arrays that are attributes of Particles (ptcls). 
+        # For example: if you want to calculate the heat flux, you will need to store the species_heat_flux array at each time step.
+        # This function will initialize the "species_heat_flux" group and dataset to be used in the postprocessing phase.
+        # The list of arrays to be saved is specified in self.observables_arrays_list. This comes from the option observables_arrays_list in the Parameters class
+        # The default of the list is 'rdf_hist' which is the histogram for the radial distribution function. A custom list can be provided in the observables parameter
+
+        # Ensure that the observables group exists and retrieve it
+        self.observables_group = self.h5md_file.require_group('observables')
+
+        # Calculate the required size of the datasets based on the new simulation parameters
+        if phase == "equilibration":
+            num_data_points = params.equilibration_steps // params.eq_dump_step + 1
+        elif phase == "magnetization":
+            num_data_points = params.magnetization_steps // params.mag_dump_step + 1
+        else:
+            num_data_points = params.production_steps // params.prod_dump_step + 1
+        
+        if observables is None:
+            observables = self.observables_arrays_list
+        else:
+            for obs in observables:
+                if obs not in self.observables_arrays_list:
+                    self.observables_arrays_list.append(obs)
+        
+            observables = self.observables_arrays_list
+
+        assert len(observables) > 0, "No observables to track. Please provide a list of observables to track in self.observables_arrays_list"
+
+        for obs_name in observables:
+            obs_group = self.observables_group.require_group(obs_name)
+
+            if hasattr(ptcls, obs_name):
+                obs = ptcls.__getattribute__(obs_name)
+                required_size = (num_data_points,) + obs.shape
+                # print("required_size: ", required_size)
+            else:
+                raise AttributeError(f"Observable '{obs_name}' not found in Particles object.")
+        
+            if 'value' in obs_group:
+                # Check if the existing dataset needs to be resized
+                
+                if obs_group['value'].shape[0] != num_data_points:
+                    obs_group['value'].resize(required_size)
+                    obs_group['time'].resize((num_data_points,))
+                    obs_group['step'].resize((num_data_points,))
+            else:
+                # Create new datasets if not existing
+                # Create chunked and resizable datasets
+                max_shape = (None,) + required_size[1:]  # Allow the first dimension to be unlimited
+                chunks = (1,) + required_size[1:]  # Define chunk size, can be adjusted
+                
+                obs_group.create_dataset('value', required_size, maxshape=max_shape, chunks=chunks,dtype='float64')
+                obs_group.create_dataset('time', (num_data_points,), maxshape=(None,), chunks=(1,),dtype='float64')
+                obs_group.create_dataset('step', (num_data_points,), maxshape=(None,), chunks=(1,),dtype='int64')
+    
+    def init_thermodynamics_group(self, params, ptcls, phase = 'production', thermodynamics_to_save = None):
+        # TODO: complete this function
+        if thermodynamics_to_save is None:
+            thermodynamics_to_save = self.thermodynamics_list
+        else:
+            # Check whether the strings in thermodynamics_to_save contain spaces and replace them with underscores
+            thermodynamics_to_save = [obs.replace(' ', '_') for obs in thermodynamics_to_save]
+
+            [self.thermodynamics_list.append(obs.lower()) for obs in thermodynamics_to_save if obs not in self.thermodynamics_list]
+            thermodynamics_to_save = self.thermodynamics_list
+        
+        # Example: thermodynamics_to_save = ['total_energy', potential_energy', 'kinetic_energy', 'temperature', 'pressure', 'enthalpy']
+        assert len(thermodynamics_to_save) > 0, "No thermodynamics to track. Please provide a list of thermodynamics to track in self.thermodynamics_list"
+
+        # Calculate the required size of the datasets based on the new simulation parameters
+        if phase == "equilibration":
+            num_data_points = params.equilibration_steps // params.eq_dump_step + 1
+        elif phase == "magnetization":
+            num_data_points = params.magnetization_steps // params.mag_dump_step + 1
+        else:
+            num_data_points = params.production_steps // params.prod_dump_step + 1
+        
+        # Thermodynamics is a subgroup of the observables group. The thermodynamics of each species is stored instead of the total. 
+        # The total energy of the system will be postprocessed by Thermodynamics class from sarkas.tools.observables
+        for isp, sp_name in enumerate(params.species_names):
+            species_group = self.observables_group.require_group(sp_name)
+            
+            # Check if the attributes in the species group exist already
+            if 'dimension' not in species_group.attrs:
+                species_group.attrs['dimension'] = params.dimensions
+            if 'particle_number' not in species_group.attrs:
+                species_group.attrs['particle_number'] = ptcls.species_num[isp]
+            
+            for obs_name in thermodynamics_to_save:
+                obs_group = species_group.require_group(obs_name)
+                
+                # Check if the existing dataset needs to be resized. 
+                # This code is necessary not only for restart,
+                # but also for the case where the user changes the dump frequency or the number of steps
+                if 'value' in obs_group:
+                    if obs_group['value'].shape[0] != num_data_points:
+                        obs_group['value'].resize((num_data_points,))
+                        obs_group['time'].resize((num_data_points,))
+                        obs_group['step'].resize((num_data_points,))
+                else:
+                    max_shape = (None,)   # Allow the first dimension to be unlimited
+                    chunks = (1,)  # Define chunk size, can be adjusted
+                
+                    # Create new datasets if not existing
+                    obs_group.create_dataset('value', (num_data_points,),maxshape=max_shape, chunks=chunks, dtype='float64')
+                    obs_group.create_dataset('time', (num_data_points,), maxshape=max_shape, chunks=chunks, dtype='float64')
+                    obs_group.create_dataset('step', (num_data_points,),maxshape=max_shape, chunks=chunks, dtype='int64')
+                    if 'energy' in obs_name.split('_'):
+                        obs_group.attrs['units'] = params.units_dict['energy']
+                    else:
+                        obs_group.attrs['units'] = params.units_dict[obs_name]
+
+    def save_particles_data(self, step, dump_step, time, ptcls):
+        """
+        Save the particle data at a particular simulation step.
+
+        This method assumes that the datasets have been pre-allocated and directly appends new data to them.
+
+        Parameters
+        ----------
+        step : int
+            The current simulation step.
+        dump_step : int
+            The frequency at which data should be saved.
+        time : float
+            The current simulation time.
+        ptcls : sarkas.particles.Particles
+            The particles object containing the data to be saved.
+
+        """
+        # Index represent the index in the datasets. It is the current step divided by the dump step
+        index = step // dump_step
+
+        # Directly append new data to datasets assuming they have been pre-allocated
+        self.particles_group["time"][index] = time
+        self.particles_group["step"][index] = step
+        for key in self.particles_arrays_list:
+            self.particles_group[key][index, :, :] = ptcls.__getattribute__(key[:3])
+
+    def save_observables_data(self, step, dump_step, time, ptcls):
+        """
+        Save the particle data at a particular simulation step.
+
+        This method assumes that the datasets have been pre-allocated and directly appends new data to them.
+
+        Parameters
+        ----------
+        step : int
+            The current simulation step.
+        dump_step : int
+            The frequency at which data should be saved.
+        time : float
+            The current simulation time.
+        ptcls : sarkas.particles.Particles
+            The particles object containing the data to be saved.
+
+        """
+        # Index represent the index in the datasets. It is the current step divided by the dump step
+        index = step // dump_step
+        ptcls.calculate_species_observables()
+        for obs_name in self.observables_arrays_list:
+            obs_group = self.observables_group[obs_name]
+            # Directly insert data at the current step index without resizing
+            obs_group['value'][index] = ptcls.__getattribute__(obs_name)
+            obs_group['time'][index] = time
+            obs_group['step'][index] = step
+    
+    def save_thermodynamics_data(self, step, dump_step, time, ptcls):
+        """
+        Save thermodynamics and species data at a particular simulation step.
+
+        This method assumes that the datasets have been pre-allocated and directly appends new data to them.
+
+        Parameters
+        ----------
+        step : int
+            The current simulation step.
+        dump_step : int
+            The frequency at which data should be saved.
+        time : float
+            The current simulation time.
+        ptcls : sarkas.particles.Particles
+            The particles object containing the data to be saved.
+
+        """
+        # Index represent the index in the datasets. It is the current step divided by the dump step
+        index = step // dump_step
+        
+        ptcls.calculate_species_thermodynamics()            
+    
+        for isp, sp_name in enumerate(ptcls.species_names):
+            species_group = self.observables_group[sp_name]
+
+            for obs_name in self.thermodynamics_list:
+                species_group[obs_name]['value'][index] =  ptcls.__getattribute__(f"species_{obs_name}")[isp]
+                species_group[obs_name]['time'][index] = time
+                species_group[obs_name]['step'][index] = step
 
     def simulation_summary(self, simulation):
         """
@@ -1167,80 +1708,62 @@ class InputOutput:
 
         # Print to file first then to screen if repeat == 2
         while repeat > 0:
+            # Header of process
+            process_title = f"{self.process.capitalize():^80}"
+            print(f"\n\n{'':*^80}")
+            print(process_title)
+            print(f"{'':*^80}")
+
+            print(f"\nJob ID: {self.job_id}")
+            print(f"Job directory: {self.job_dir}")
+            print(f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}")
+
+            print(
+                f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
+            )
+            print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
+
+            print(
+                f"\nEquilibration H5MD file: \n{self.h5md_filenames_tree[self.process]['equilibration']}"
+            )
+            print(f"Production H5MD file: \n{self.h5md_filenames_tree[self.process]['production']}")
 
             if simulation.parameters.load_method in ["production_restart", "prod_restart"]:
                 print(f"\n\n{' Production Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             elif simulation.parameters.load_method in ["equilibration_restart", "eq_restart"]:
                 print(f"\n\n{' Equilibration Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
             elif simulation.parameters.load_method in ["magnetization_restart", "mag_restart"]:
                 print(f"\n\n{' Magnetization Restart ':~^80}")
                 ct = datetime.datetime.now()
                 print(f"Date: {ct.year} - {ct.month} - {ct.day}")
                 print(f"Time: {ct.hour}:{ct.minute}:{ct.second}")
-                self.time_info(simulation)
+                # Simulation Phases
+                simulation.parameters.pretty_print()
+                # Integrator
+                simulation.integrator.pretty_print()
 
-            elif self.process == "postprocessing":
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"\n\n{'':*^80}")
-                print(process_title)
-                print(f"{'':*^80}")
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(
-                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
-                )
-
-                print(
-                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
-                )
-                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
-
-                print(
-                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
-                )
-                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
-
-            else:
-
-                # Header of process
-                process_title = f"{self.process.capitalize():^80}"
-                print(f"\n\n{'':*^80}")
-                print(process_title)
-                print(f"{'':*^80}")
-
-                print(f"\nJob ID: {self.job_id}")
-                print(f"Job directory: {self.job_dir}")
-                print(
-                    f"{self.directory_tree[self.process]['name']} directory: \n{self.directory_tree[self.process]['path']}"
-                )
-
-                print(
-                    f"\nEquilibration dumps directory: \n{self.directory_tree[self.process]['equilibration']['dumps']['path']}"
-                )
-                print(f"Production dumps directory: \n{self.directory_tree[self.process]['production']['dumps']['path']}")
-
-                print(
-                    f"\nEquilibration Thermodynamics file: \n{self.filenames_tree['thermodynamics']['equilibration']['path']}"
-                )
-                print(f"Production Thermodynamics file: \n{self.filenames_tree['thermodynamics']['production']['path']}")
-
+            elif self.process in ["simulation", "preprocessing"]:
                 print("\nPARTICLES:")
                 print(f"Total No. of particles = {simulation.parameters.total_num_ptcls}")
 
                 print(f"No. of species = {len(simulation.parameters.species_num)}")
-                # This line below is to prevent printing electron background in the case of LJ potential
+                # The line below is to prevent printing electron background in the case of LJ potential
                 species_to_print = simulation.species[:-1] if simulation.potential.type == "lj" else simulation.species
                 for isp, sp in enumerate(species_to_print):
                     if sp.name != "electron_background":
@@ -1360,6 +1883,48 @@ class InputOutput:
             # redirect printing to file
             print(message, file=f_log)
 
+    def estimate_existing_file_size(self, phase = "production"):
+        """
+        Estimate the size of the H5MD file by reading its subgroups and datasets.
+
+        Returns
+        -------
+        int
+            The estimated size of the H5MD file in bytes.
+        """
+        dtype_sizes = {
+            'float64': 8,
+            'int64': 8,
+            'float32': 4,
+            'int32': 4,
+            # Add other data types if needed
+        }
+
+        total_size = 0
+
+        def calculate_size(name, obj):
+            nonlocal total_size
+            if isinstance(obj, h5py.Dataset):
+                # Get the data type and shape of the dataset
+                dtype = obj.dtype
+                shape = obj.shape
+                if dtype.name in dtype_sizes:
+                    num_elements = prod(shape)
+                    total_size += num_elements * dtype.itemsize
+                elif h5py.check_dtype(vlen=dtype) is not None:
+                    # Handle variable-length (vlen) strings
+                    total_size += sum(len(str(obj[i])) for i in range(shape[0]))
+                else:
+                    print(f"Warning: Data type '{dtype}' not recognized. Skipping dataset '{name}'.")
+
+        # Open the HDF5 file and traverse it
+        with h5py.File(self.process_h5md_filepath_dict[phase], 'r') as file:
+            file.visititems(calculate_size)
+        # Add an overhead for HDF5 structure, metadata, and chunking
+        overhead_factor = 1.1  # Example overhead factor, can be adjusted
+        total_size = int(total_size * overhead_factor)
+
+        return total_size
 
 def alpha_to_int(text):
     """Convert strings of numbers into integers.

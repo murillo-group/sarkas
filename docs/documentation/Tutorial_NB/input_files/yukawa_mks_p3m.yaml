@@ -9,9 +9,9 @@ Particles:
         mass: 1.673e-27                             # REQUIRED/OPTIONAL if mass_density is used
         # atomic_weight: 1.0                        # OPTIONAL/REQUIRED if mass_density is used
         # mass_density: 2.710260e+05
-        temperature_eV: 0.5                         # REQUIRED/OPTIONAL if temperature is used
-        # temperature:  5.802259e+03                # REQUIRED/OPTIONAL if temperature_eV is used
-        initial_velocity_distribution: boltzmann    # OPTIONAL
+        temperature_eV: 0.5                         # REQUIRED (Not needed if temperature is used)
+        # temperature:  5.802259e+03                # REQUIRED (Not needed if temperature_eV is used)
+        initial_velocity_distribution: boltzmann    # OPTIONAL. Choices are boltzmann and monocromatic
 
 Potential:
     type: Yukawa                            # REQUIRED
@@ -25,27 +25,33 @@ Potential:
     pppm_alpha_ewald: 5.4659e+10            # REQUIRED
 
 Integrator:
-    dt: 2.000e-18                       # REQUIRED
-    equilibration_type: verlet          # REQUIRED
+    dt: 5.000e-18                       # REQUIRED
+    equilibration_type: verlet          # REQUIRED if different than production_type
     production_type: verlet             # REQUIRED
-    boundary_conditions: periodic       # REQUIRED
+    boundary_conditions: periodic       # REQUIRED 
     thermalization: yes                 # OPTIONAL. Default = yes
     thermostat_type: Berendsen          # REQUIRED if thermalization is yes
-    thermalization_timestep: 50         # REQUIRED if thermalization is yes
-    berendsen_tau: 1.0                  # REQUIRED if thermostat: berendsen
+    thermalization_timestep: 200        # REQUIRED if thermalization is yes
+    berendsen_tau: 200                  # REQUIRED if thermostat: berendsen
     thermostate_temperatures_eV: 0.5    # OPTIONAL Default = Species.temperature_eV
 
 Parameters:
     units: mks                          # REQUIRED
     load_method: random_no_reject       # REQUIRED
-    equilibration_steps: 5000           # REQUIRED
-    production_steps: 5000              # REQUIRED
+    equilibration_steps: 7500           # REQUIRED
+    production_steps: 7500              # REQUIRED
     eq_dump_step: 10                    # REQUIRED
     prod_dump_step: 10                  # REQUIRED
+    # (OPTIONAL) This is a list of observable that you want to calculate during the simulation.
+    # observables_list: ["Electric Current", "Momentum", "Pressure Tensor", "Enthalpy", "Heat Flux", "Velocity Moments"]
+    # (OPTIONAL) The observables_group is a list of Particles attributes that will be saved during the simulation
+    # observables_array_list: ["species_electric_current", "species_momentum", "species_pressure", "species_pressure_tensor",  "species_enthalpy", "species_heat_flux", "species_velocity_moments"]   
+    # This is a list of thermodynamics that you want to calculate during the simulation.
+    # thermodynamics_list: ["total energy", "temperature", "kinetic energy", "potential energy","pressure" ]
 
 IO:
     verbose: yes                        # OPTIONAL. Default is yes
-    md_simulations_dir: Simulations        # OPTIONAL. Default is Simulations
+    md_simulations_dir: SarkasSimulations        # OPTIONAL. Default is SarkasSimulations
     job_dir: yocp_pppm                  # REQUIRED
     job_id: yocp                        # OPTIONAL. Default is the job_dir values
 
@@ -66,6 +72,3 @@ Observables:
   - CurrentCorrelationFunction:
       max_ka_value: 8
 
-TransportCoefficientss:
-    - Diffusion:
-        time_averaging: False

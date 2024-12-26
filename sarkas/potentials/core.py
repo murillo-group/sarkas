@@ -264,7 +264,6 @@ class Potential:
             params.horing_delta /= params.horing_par_correction
 
     def calc_screening_length(self, species):
-
         # Consistency
         self.screening_length_type = self.screening_length_type.lower()
 
@@ -281,7 +280,7 @@ class Potential:
         elif self.screening_length_type in ["kappa", "from_kappa"]:
             self.screening_length = self.a_ws / self.kappa
         elif self.screening_length_type in ["qsp", "deBroglie"]:
-            self.screening_length = species[0].deBroglie_wavelength / (2.0 * pi)
+            self.screening_length = species[0].ThomasFermi_wavelength
         elif self.screening_length_type in ["coulomb"]:
             self.screening_length = inf
         elif self.screening_length_type in ["custom"]:
@@ -376,10 +375,11 @@ class Potential:
             inv_halpha = (1.0 / halpha).astype(int)
 
             pppm_msg = (
+                f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} {self.units_dict['inverse length']}\n"
+                f"rc * alpha = {self.rc * self.pppm_alpha_ewald:.4f}\n"
                 f"Charge assignment orders: {self.pppm_cao}\n"
                 f"FFT aliases: {self.pppm_aliases}\n"
                 f"Mesh: {self.pppm_mesh}\n"
-                f"Ewald parameter alpha = {self.pppm_alpha_ewald * self.a_ws:.4f} / a_ws = {self.pppm_alpha_ewald:.6e} {self.units_dict['inverse length']}\n"
                 f"Mesh width = {h_a[0]:.4f}, {h_a[1]:.4f}, {h_a[2]:.4f} a_ws\n"
                 f"           = {self.pppm_h_array[0]:.4e}, {self.pppm_h_array[1]:.4e}, {self.pppm_h_array[2]:.4e} {self.units_dict['length']}\n"
                 f"Mesh size * Ewald_parameter (h * alpha) = {halpha[0]:.4f}, {halpha[1]:.4f}, {halpha[2]:.4f}\n"
@@ -424,8 +424,8 @@ class Potential:
                 self.linked_list_on = False  # linked list off
                 self.calc_acc_pot = self.update_linked_list
 
-            if self.a_rs != 0.0:
-                warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
+            # if self.a_rs != 0.0:
+            #     warn("\nShort-range cut-off enabled. Use this feature with care!", category=AlgorithmWarning)
 
             # renaming
             if self.method == "p3m":
@@ -530,9 +530,30 @@ class Potential:
         self.method_setup()
 
     def type_setup(self, species):
-        # Update potential-specific parameters
-        # Coulomb potential
+        """
+        Update potential-specific parameters.
 
+        Parameters
+        ----------
+        species : list
+            List of :class:`sarkas.plasma.Species` objects.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        - Coulomb potential
+        - Yukawa potential
+        - Yukawa-Friedel potential
+        - exact gradient-corrected screening (EGS) potential
+        - Lennard-Jones potential
+        - Moliere potential
+        - QSP potential
+        - Hard-Sphere Yukawa
+        - Tabulated potential
+        """
         if self.type == "coulomb":
             if self.method == "pp":
                 warn("Use the PP method with care for pure Coulomb interactions.", category=AlgorithmWarning)
@@ -540,7 +561,7 @@ class Potential:
             from .coulomb import pretty_print_info, update_params
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "yukawa":
             # Yukawa potential
@@ -549,7 +570,16 @@ class Potential:
             self.calc_screening_length(species)
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
+        
+        elif self.type == "yukawa-friedel":
+            # Yukawa-Friedel potential
+            from .yukawa_ft import pretty_print_info, update_params
+
+            self.calc_screening_length(species)
+
+            self.pot_update_params = update_params
+            update_params(self, species)
 
         elif self.type == "egs":
             # exact gradient-corrected screening (EGS) potential
@@ -565,14 +595,14 @@ class Potential:
             from .lennardjones import pretty_print_info, update_params
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "moliere":
             # Moliere potential
             from .moliere import pretty_print_info, update_params
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "qsp":
             # QSP potential
@@ -590,16 +620,15 @@ class Potential:
             self.calc_screening_length(species)
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "fitted":
-
             from .fitted_pot import pretty_print_info, update_params
 
             self.screening_length_type = "thomas-fermi"
             self.calc_screening_length(species)
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         elif self.type == "tabulated":
             # Tabulated potential
@@ -608,7 +637,7 @@ class Potential:
             self.calc_screening_length(species)
 
             self.pot_update_params = update_params
-            update_params(self)
+            update_params(self, species)
 
         self.pot_pretty_print = pretty_print_info
 
@@ -694,7 +723,7 @@ class Potential:
         )
 
         # Ewald Self-energy
-        U_long += self.QFactor * self.pppm_alpha_ewald / sqrt(pi)
+        U_long -= self.QFactor * self.pppm_alpha_ewald / sqrt(pi) / self.total_num_ptcls
 
         # Neutrality condition
         # U_long += -pi * self.total_net_charge**2.0 / (2.0 * self.box_volume * self.pppm_alpha_ewald**2)

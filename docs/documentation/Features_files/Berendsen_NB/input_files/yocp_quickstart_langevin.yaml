@@ -6,7 +6,7 @@ Particles:
         mass: 2.0089e-23                    # g
         num: 1000                            # total number of particles
         Z: 1.976599                         # degree of ionization
-        temperature: 5.e+03                 # T = 0.5 eV
+        temperature_eV: 0.5                # T = 0.5 eV
 
 Potential:
     type: Yukawa                            # potential type
@@ -14,31 +14,25 @@ Potential:
     rc: 6.0e-8                              # cm, cut-off radius
 
 Integrator:
-    type: Verlet
+    equilibration_type: langevin
+    production_type: verlet
     dt: 5.0e-17                             # sec
-    equilibration_steps: 5000              # number of timesteps for the equilibrium
-    production_steps: 0                # number of timesteps after the equilibrium
-    eq_dump_step: 2
-    prod_dump_step: 10
     boundary_conditions: periodic       # REQUIRED
-    thermalization: yes                 # OPTIONAL. Default = yes
-    thermostat_type: berendsen          # REQUIRED if thermalization is yes
-    thermalization_timestep: 50         # REQUIRED if thermalization is yes
-    berendsen_tau: 1.0                  # REQUIRED if thermostat: berendsen
-    thermostate_temperatures_eV: 0.5    # OPTIONAL Default = Species.temperature_eV
+    thermalization: no                # OPTIONAL. Default = yes
+    langevin_type: BBK
+    langevin_gamma: 9.2774e+13          # [Hertz]
 
 Parameters:
     units: cgs                              # units
     load_method: random_no_reject
-    equilibration_steps: 5000           # REQUIRED
-    production_steps: 0                 # REQUIRED
+    equilibration_steps: 1500           # REQUIRED
+    production_steps: 2500              # REQUIRED
     eq_dump_step: 2                     # REQUIRED
     prod_dump_step: 10                  # REQUIRED
 
 IO:
-    verbose: yes
-    md_simulations_dir: Berendsen_runs            # dir name to save data. The default is "Checkpoint"
-    job_dir: tau_2
+    verbose: False
+    job_dir: langevin_test
 
 Observables:
   - Thermodynamics:

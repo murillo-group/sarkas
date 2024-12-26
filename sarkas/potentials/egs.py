@@ -210,7 +210,7 @@ def update_params(potential, species):
     # The rescaling constant is sqrt ( na^4 ) = sqrt( 3 a/(4pi) )
     rescaling_constant = sqrt(3.0 * potential.a_ws / (4.0 * pi))
     potential.force_error = force_error_analytic_lcl(potential.type, potential.rc, potential.matrix, rescaling_constant)
-    potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix)
+    potential.force_error = calc_force_error_quad(potential.a_ws, potential.rc, potential.matrix[0,0])
 
 
 @jit(UniTuple(float64, 2)(float64, float64[:]), nopython=True)

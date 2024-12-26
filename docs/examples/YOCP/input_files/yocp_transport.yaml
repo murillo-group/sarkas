@@ -1,54 +1,50 @@
 # keywords: YOCP, Yukawa, PP, mks, random_no_reject
 Particles:
-    - Species:
-        name: C
-        number_density: 1.137e+23           # N/cc
-        mass: 2.0089e-23                    # g
-        num: 1000                            # total number of particles
-        Z: 6.0
-        temperature_eV: 4.0                 # T = 1.0 eV
+- Species:
+    name: Al
+    number_density: 6.03e+22
+    mass: 4.513068464544e-23
+    Z: 3.0
+    temperature_eV: 1.0
+    num: 4096
 
 Potential:
-    type: Yukawa                            # potential type
-    method: PP
-    screening_length_type: from_kappa
-    kappa: 2.0
-    rc: 8.0e-8                              # cm, cut-off radius
-
+  type: Yukawa
+  method: PP
+  rc: 9.478644e-08
+  screening_length_type: thomas-fermi
+  electron_temperature_eV: 1.0
+  
 Integrator:
-    equilibration_type: langevin
-    production_type: verlet
-    langevin_type: BBK
-    thermalization: false
-    langevin_gamma: 8.1e+13
-    dt: 8.17507e-17                         # sec
-    equilibration_steps: 20000              # number of timesteps for the equilibrium
-    production_steps: 600000                # number of timesteps after the equilibrium
-    eq_dump_step: 20
-    prod_dump_step: 5
-
-Thermostat:
-    type: Berendsen                         # thermostat type
-    relaxation_timestep: 10
-    berendsen_tau: 2.0
-
+  type: verlet
+  dt: 1.6790565e-15
+  thermostat_type: Berendsen                         # thermostat type
+  thermalization_timestep: 40
+  berendsen_tau: 11
+  
 Parameters:
-    seed: 3141592
-    units: cgs                              # units
-    verbose: yes
-    load_method: random_no_reject
-    boundary_conditions: periodic
-    observables_list: ["Electric Current", "Pressure Tensor", "Heat Flux"]
+  rand_seed: 3576516958
+  units: cgs
+  boundary_conditions: periodic
+  load_method: qmc
+  qmc_sequence: sobol
+  equilibration_steps: 1000
+  production_steps: 100_000
+  eq_dump_step: 4
+  prod_dump_step: 2
+  # (OPTIONAL) This is a list of observable that you want to calculate during the simulation.
+  observables_list: ["Pressure Tensor", "Heat Flux"]
+  # (OPTIONAL) The observables_arrays_list is a list of Particles arrays that will be saved during the simulation
+  observables_arrays_list: ["species_pressure_tensor",  "species_heat_flux"]  
+  # This is a list of thermodynamics that you want to calculate during the simulation.
+  thermodynamics_list: ["total_energy", "temperature", "kinetic_energy", "potential_energy", "pressure", "enthalpy" ]
 
 IO:
-    verbose: no
-    job_dir: yocp_transport            # dir name to save data. The default is "Checkpoint"
-    thermodynamics_to_save: ["Pressure"]
-    data_to_save: ["rdf_hist", "species_electric_current", "species_heat_flux", "species_pressure_kin_tensor", "species_pressure_pot_tensor"]
+  verbose: True
+  job_dir: Al_transport
 
 Observables:
-  - Thermodynamics:
-      phase: production
-
-  - RadialDistributionFunction:
-      no_bins: 250
+- Thermodynamics:
+    phase: production
+- RadialDistributionFunction:
+    no_bins: 500

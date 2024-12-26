@@ -1,0 +1,49 @@
+# keywords: YOCP, Yukawa, PP, mks, random_no_reject
+Particles:
+    - Species:
+        name: C
+        # number_density: 1.13666931822e+23   # N/cc
+        mass_density: 5.0
+        mass: 2.0089e-23                    # g
+        atomic_weight: 12.0                # OPTIONAL/REQUIRED if mass_density is used
+        # mass_density: 2.710260e+05
+        num: 4096                           # total number of particles
+        Z: 4.0                         # degree of ionization
+        temperature_eV: 1.0                 # T = 0.5 eV
+
+Potential:
+    type: Yukawa-Friedel                           # potential type
+    method: PP
+    rc: 5.0e-8                              # cm, cut-off radius
+    screening_length_type: thomas-fermi
+    ft_params: [2.382053e-18, 2.764783e+08, 5.513655e-36, 4.835450e+07, 6.049901e+08, 2.121730e+00]
+
+Integrator:
+    type: Verlet
+    dt: 5.0e-16                             # sec
+    thermostat_type: Berendsen                         # thermostat type
+    thermalization_timestep: 300
+    berendsen_tau: 2.0
+
+Parameters:
+    rand_seed: 314159265
+    units: cgs                              # units
+    boundary_conditions: periodic
+    load_method: qmc
+    qmc_sequence: sobol
+    equilibration_steps: 1000              # number of timesteps for the equilibrium
+    production_steps: 1000                # number of timesteps after the equilibrium
+    eq_dump_step: 10
+    prod_dump_step: 10
+
+IO:
+    verbose: yes
+    job_dir: C_rho5_T1eV_yft            # dir name to save data. The default is "Checkpoint"
+    data_to_save: ["id", "names", "pos", "vel", "acc", "rdf_hist"]
+
+Observables:
+  - Thermodynamics:
+      phase: production
+
+  - RadialDistributionFunction:
+      no_bins: 250

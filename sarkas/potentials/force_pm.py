@@ -32,29 +32,24 @@ def assgnmnt_func(cao, x):
     W = zeros(cao)
 
     if cao == 1:
-
         W[0] = 1.0
 
     elif cao == 2:
-
         W[0] = 0.5 * (1.0 - 2.0 * x)
         W[1] = 0.5 * (1.0 + 2.0 * x)
 
     elif cao == 3:
-
         W[0] = (1.0 - 4.0 * x + 4.0 * x**2) / 8.0
         W[1] = (3.0 - 4.0 * x**2) / 4.0
         W[2] = (1.0 + 4.0 * x + 4.0 * x**2) / 8.0
 
     elif cao == 4:
-
         W[0] = (1.0 - 6.0 * x + 12.0 * x**2 - 8.0 * x**3) / 48.0
         W[1] = (23.0 - 30.0 * x - 12.0 * x**2 + 24.0 * x**3) / 48.0
         W[2] = (23.0 + 30.0 * x - 12.0 * x**2 - 24.0 * x**3) / 48.0
         W[3] = (1.0 + 6.0 * x + 12.0 * x**2 + 8.0 * x**3) / 48.0
 
     elif cao == 5:
-
         W[0] = (1.0 - 8.0 * x + 24.0 * x**2 - 32.0 * x**3 + 16.0 * x**4) / 384.0
         W[1] = (19.0 - 44.0 * x + 24.0 * x**2 + 16.0 * x**3 - 16.0 * x**4) / 96.0
         W[2] = (115.0 - 120.0 * x**2 + 48.0 * x**4) / 192.0
@@ -70,7 +65,6 @@ def assgnmnt_func(cao, x):
         W[5] = (1.0 + 10.0 * x + 40.0 * x**2 + 80.0 * x**3 + 80.0 * x**4 + 32.0 * x**5) / 3840.0
 
     elif cao == 7:
-
         W[0] = (
             1.0 - 12.0 * x + 60.0 * x * 2 - 160.0 * x**3 + 240.0 * x**4 - 192.0 * x**5 + 64.0 * x**6
         ) / 46080.0
@@ -166,15 +160,14 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_
     acc = zeros_like(mesh_pos)
 
     for ipart, q_m in enumerate(q_over_m):
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        ix = mesh_points[0, ipart]
-        x = mesh_pos[0, ipart] - (ix + mid[0])
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iy = mesh_points[1, ipart]
-        y = mesh_pos[1, ipart] - (iy + mid[1])
-
-        iz = mesh_points[2, ipart]
-        z = mesh_pos[2, ipart] - (iz + mid[2])
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
 
         wx = assgnmnt_func(cao[0], x)
         wy = assgnmnt_func(cao[1], y)
@@ -196,7 +189,6 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_
             iyn = iy - pshift[1]  # min. index along y-axis
 
             for i in range(cao[1]):
-
                 # if iyn < 0:
                 #     r_i = iyn + mesh_sz[1]
                 # elif iyn > (mesh_sz[1] - 1):
@@ -228,9 +220,9 @@ def calc_acc_pm(E_x_r, E_y_r, E_z_r, mesh_pos, mesh_points, q_over_m, cao, mesh_
 
             izn += 1
 
-    acc[0, :] = E_x_p
-    acc[1, :] = E_y_p
-    acc[2, :] = E_z_p
+    acc[:, 0] = E_x_p
+    acc[:, 1] = E_y_p
+    acc[:, 2] = E_z_p
 
     return acc
 
@@ -276,15 +268,14 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
     # (ix + 0.5)*h_array[0] = midpoint between the two mesh points closest to the particle
 
     for ipart in range(len(charges)):
+        ix = mesh_points[ipart, 0]
+        delta_x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        ix = mesh_points[0, ipart]
-        delta_x = mesh_pos[0, ipart] - (ix + mid[0])
+        iy = mesh_points[ipart, 1]
+        delta_y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iy = mesh_points[1, ipart]
-        delta_y = mesh_pos[1, ipart] - (iy + mid[1])
-
-        iz = mesh_points[2, ipart]
-        delta_z = mesh_pos[2, ipart] - (iz + mid[2])
+        iz = mesh_points[ipart, 2]
+        delta_z = mesh_pos[ipart, 2] - (iz + mid[2])
         # delta_x, delta_y, delta_z = particle's distances to the closest (mid)-point of the mesh
 
         wx = assgnmnt_func(cao[0], delta_x)
@@ -294,7 +285,6 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
         izn = iz - pshift[2]  # min. index along z-axis
 
         for g in range(cao[2]):
-
             # if izn < 0:
             #   r_g = izn + mesh_sz[2]
             # elif izn > (mesh_sz[2] - 1):
@@ -306,7 +296,6 @@ def calc_charge_dens(mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift):
             iyn = iy - pshift[1]  # min. index along y-axis
 
             for i in range(cao[1]):
-
                 r_i = iyn + mesh_sz[1] * (iyn < 0) - mesh_sz[1] * (iyn > (mesh_sz[1] - 1))
 
                 # if iyn < 0:
@@ -472,15 +461,14 @@ def calc_pot_pm(phi_r, mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift
     pot_p = zeros_like(charges)  # potential energy for
 
     for ipart, q in enumerate(charges):
+        ix = mesh_points[ipart, 0]
+        x = mesh_pos[ipart, 0] - (ix + mid[0])
 
-        ix = mesh_points[0, ipart]
-        x = mesh_pos[0, ipart] - (ix + mid[0])
+        iy = mesh_points[ipart, 1]
+        y = mesh_pos[ipart, 1] - (iy + mid[1])
 
-        iy = mesh_points[1, ipart]
-        y = mesh_pos[1, ipart] - (iy + mid[1])
-
-        iz = mesh_points[2, ipart]
-        z = mesh_pos[2, ipart] - (iz + mid[2])
+        iz = mesh_points[ipart, 2]
+        z = mesh_pos[ipart, 2] - (iz + mid[2])
 
         wx = assgnmnt_func(cao[0], x)
         wy = assgnmnt_func(cao[1], y)
@@ -502,7 +490,6 @@ def calc_pot_pm(phi_r, mesh_pos, mesh_points, charges, cao, mesh_sz, mid, pshift
             iyn = iy - pshift[1]  # min. index along y-axis
 
             for i in range(cao[1]):
-
                 # if iyn < 0:
                 #     r_i = iyn + mesh_sz[1]
                 # elif iyn > (mesh_sz[1] - 1):
@@ -739,36 +726,58 @@ def sum_over_aliases(kx, ky, kz, kx_M, ky_M, kz_M, h_array, p, four_pi, alpha_sq
 )
 def force_optimized_green_function(box_lengths, h_array, mesh_sizes, aliases, p, constants):
     """
-    Numba'd function to calculate the Optimized Green Function given by eq.(22) of Ref.:cite:`Stern2008`.
+    Calculate the optimized Green's function for the PPPM method.
+
+    This function computes the optimized Green's function used in solving Poisson's equation
+    efficiently in Fourier space for the PPPM method.
 
     Parameters
     ----------
-    box_lengths : numpy.ndarray
-        Length of simulation's box in each direction.
-
-    h_array : numpy.ndarray
-        Mesh spacings.
-
-    mesh_sizes : numpy.ndarray
-        Number of mesh points in x,y,z.
-
-    aliases : numpy.ndarray
-        Number of aliases in each direction.
-
-    p : numpy.ndarray
-        Array of charge assignment order (cao) for each dimension.
-
-    constants : numpy.ndarray
-        Screening parameter, Ewald parameter, :math:`4 \\pi \\eplison_0`.
+    box_lengths : ndarray
+        Length of simulation's box in each direction, shape (3,).
+    h_array : ndarray
+        Mesh spacings, shape (3,).
+    mesh_sizes : ndarray
+        Number of mesh points in x, y, z, shape (3,).
+    aliases : ndarray
+        Number of aliases in each direction, shape (3,).
+    p : ndarray
+        Charge assignment order (cao) for each dimension, shape (3,).
+    constants : ndarray
+        Array containing [screening parameter, Ewald parameter, 4πε₀], shape (3,).
 
     Returns
     -------
-    G_k : numpy.ndarray
-        Optimal Green Function
-
+    G_k : ndarray
+        Optimized Green's function, shape (mesh_sizes[2], mesh_sizes[1], mesh_sizes[0]).
+    kx_v : ndarray
+        Array of kx values, shape (1, mesh_sizes[0]).
+    ky_v : ndarray
+        Array of ky values, shape (mesh_sizes[1], 1).
+    kz_v : ndarray
+        Array of kz values, shape (mesh_sizes[2], 1, 1).
     PM_err : float
-        Error in the force calculation due to the optimized Green's function. eq.(28) of :cite:`Dharuman2017` .
+        Estimated error in the force calculation due to the optimized Green's function.
 
+    Notes
+    -----
+    The optimized Green's function is derived from the work of Hockney and Eastwood,
+    with improvements by Deserno and Holm. It aims to minimize the error in the force
+    calculation for a given charge assignment scheme and mesh size.
+
+    The function handles both 3D and lower-dimensional systems. The aliasing sum is
+    crucial for improving accuracy, especially for higher-order charge assignment schemes.
+
+    This function is typically called once at the beginning of a simulation to set up
+    the Green's function. The PM error estimate can be used to assess the accuracy of
+    the method for given parameters.
+
+    References
+    ----------
+    .. [1] Hockney, R. W., & Eastwood, J. W. (1988). Computer simulation using particles. CRC Press.
+    .. [2] Deserno, M., & Holm, C. (1998). How to mesh up Ewald sums. I. A theoretical and
+           numerical comparison of various particle mesh routines. The Journal of Chemical Physics,
+           109(18), 7678-7693.
     """
     kappa = constants[0]
     Gew = constants[1]
@@ -899,53 +908,59 @@ def mesh_point_shift(cao):
 )
 def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_volume, G_k, kx_v, ky_v, kz_v, cao):
     """
-    Calculate the long range part of particles' accelerations.
+    Calculate the long range part of particles' accelerations using the Particle-Mesh method.
+
+    This function implements the core of the Particle-Mesh (PM) component of the PPPM algorithm.
+    It computes the long-range contributions to particle accelerations and potential energies.
 
     Parameters
     ----------
-    pos: numpy.ndarray
-        Particles' positions.
-
-    charges: numpy.ndarray
-        Particles' charges.
-
-    masses: numpy.ndarray
-        Particles' masses.
-
-    mesh_sizes: numpy.ndarray
-        Mesh points per direction.
-
-    mesh_spacings: numpy.ndarray
-        Width of the mesh cells.
-
-    mesh_volume: float
-        Non-zero volume of the mesh.
-
-    box_volume: float
-        Non-zero box volume (area in 2D).
-
-    G_k : numpy.ndarray
-        Optimized Green's function.
-
-    kx_v : numpy.ndarray
-        Array of kx values.
-
-    ky_v : numpy.ndarray
-        Array of ky values.
-
-    kz_v : numpy.ndarray
-        Array of kz values.
-
-    cao : numpy.ndarray
-        Charge order parameter.
+    pos : ndarray
+        Particles' positions, shape (N, 3).
+    charges : ndarray
+        Particles' charges, shape (N,).
+    masses : ndarray
+        Particles' masses, shape (N,).
+    mesh_sizes : ndarray
+        Number of mesh points per direction, shape (3,).
+    mesh_spacings : ndarray
+        Width of the mesh cells, shape (3,).
+    mesh_volume : float
+        Volume of a single mesh cell.
+    box_volume : float
+        Total volume of the simulation box.
+    G_k : ndarray
+        Optimized Green's function in Fourier space, shape (mesh_sizes[2], mesh_sizes[1], mesh_sizes[0]).
+    kx_v : ndarray
+        Array of kx values, shape (1, mesh_sizes[0]).
+    ky_v : ndarray
+        Array of ky values, shape (mesh_sizes[1], 1).
+    kz_v : ndarray
+        Array of kz values, shape (mesh_sizes[2], 1, 1).
+    cao : ndarray
+        Charge assignment order for each direction, shape (3,).
 
     Returns
     -------
-    pot_particle : numpy.ndarray
-        Long range part of the potential for each particle.
+    pot_particle : ndarray
+        Long range part of the potential for each particle, shape (N,).
+    acc_f : ndarray
+        Long range part of particles' accelerations, shape (N, 3).
 
-    acc_f : numpy.ndarray
-        Long range part of particles' accelerations.
+    Notes
+    -----
+    This function uses FFTW through pyfftw for efficient Fourier transforms. It assumes
+    periodic boundary conditions and requires pre-computed optimized Green's function.
+
+    The algorithm follows these main steps:
+    1. Assign charges to the mesh
+    2. Perform forward FFT on the charge density
+    3. Solve Poisson's equation in Fourier space
+    4. Compute the electric field in Fourier space
+    5. Perform inverse FFT to get real-space electric field
+    6. Interpolate mesh values to particle positions
+
+    The function is optimized using Numba's JIT compilation.
 
     """
 
@@ -969,9 +984,9 @@ def update(pos, charges, masses, mesh_sizes, mesh_spacings, mesh_volume, box_vol
     phi_k = G_k * rho_k
 
     # Charge density
-    rho_k_real = rho_k.real
-    rho_k_imag = rho_k.imag
-    rho_k_sq = rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
+    # rho_k_real = rho_k.real
+    # rho_k_imag = rho_k.imag
+    # rho_k_sq = rho_k_real * rho_k_real + rho_k_imag * rho_k_imag
 
     # Calculate the Electric field's component on the mesh
     E_kx, E_ky, E_kz = calc_field(phi_k, kx_v, ky_v, kz_v)

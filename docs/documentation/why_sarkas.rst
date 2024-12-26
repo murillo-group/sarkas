@@ -155,9 +155,15 @@ screening parameters and measure their diffusion coefficient. An example script 
         rng = np.random.default_rng()
         # Create arrays of screening parameters
         kappas = np.linspace(1, 5)
-        # Run 10 simulations
+        # Run 10 parallel simulations
+        processes = []
         for i, kappa in enumerate(kappas):
             p0 = Process(target = launch, args = ( rng.integers(low = 2**32), kappa) )
+            processes.append(p0)
             p0.start()
+            
+        # Wait for all simulations to finish
+        for p in processes:
+            p.join()
 
 Notice how both the simulation and the postprocessing can be done all in one script.

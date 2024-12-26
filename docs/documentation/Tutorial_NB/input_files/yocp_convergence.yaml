@@ -1,0 +1,54 @@
+Particles:
+- Species:
+    name: Al
+    # number_density: 6.03e+22
+    mass_density: 2.713 
+    mass: 4.513068464544e-23
+    Z: 3.0
+    temperature_eV: 1.0
+    num: 250
+
+Potential:
+  type: Yukawa
+  method: PP
+  rc: 5.4e-08
+  screening_length_type: thomas-fermi
+  electron_temperature_eV: 1.0
+  
+Integrator:
+  # equilibration_type: langevin
+  type: verlet
+  dt: 1.6858e-16
+  thermalization: true
+  thermostat_type: berendsen
+  berendsen_tau: 218
+  thermalization_timestep: 400
+  # langevin_type: BBK
+  # langevin_gamma: 23773334282682.562
+  
+Parameters:
+  # rand_seed: 1565578347
+  units: cgs
+  boundary_conditions: periodic
+  load_method: qmc
+  qmc_sequence: halton
+  equilibration_steps: 4_000
+  production_steps: 4_000
+  eq_dump_step: 20
+  prod_dump_step: 20
+  #   (OPTIONAL) This is a list of observable that you want to calculate during the simulation.
+  observables_list: ["Pressure Tensor", "Enthalpy", "Heat Flux"]
+  #  (OPTIONAL) The observables_group is a list of Particles attributes that will be saved during the simulation
+  observables_array_list: ["species_pressure", "species_pressure_tensor",  "species_enthalpy", "species_heat_flux"]   
+  # This is a list of thermodynamics that you want to calculate during the simulation.
+  # thermodynamics_list: ["total energy", "temperature", "kinetic energy", "potential energy","pressure" ]
+
+IO:
+  verbose: False
+  job_dir: convergence_prerun
+
+Observables:
+- Thermodynamics:
+    phase: production
+- RadialDistributionFunction:
+    no_bins: 500

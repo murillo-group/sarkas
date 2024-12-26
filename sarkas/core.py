@@ -139,7 +139,7 @@ class Parameters:
     species_concentrations : numpy.ndarray
         Concentration of each species. Shape = (``num_species``)
 
-    species_temperatures : numpy.ndarray
+    species_temperature : numpy.ndarray
         Initial temperature of each species. Shape = (``num_species``)
 
     species_masses : numpy.ndarray
@@ -158,7 +158,7 @@ class Parameters:
         Number density of each species. Shape = (``num_species``)
 
     total_ion_temperature : float
-        Total initial ion temperature calculated as `` = species_concentration @ species_temperatures``.
+        Total initial ion temperature calculated as `` = species_concentration @ species_temperature``.
 
     total_net_charge : float
         Total charge in the system.
@@ -309,8 +309,8 @@ class Parameters:
         self.species_num = None
         self.species_num_dens = None
         self.species_concentrations = None
-        self.species_temperatures = None
-        self.species_temperatures_eV = None
+        self.species_temperature = None
+        self.species_temperature_eV = None
         self.species_masses = None
         self.species_charges = None
         self.species_plasma_frequencies = None
@@ -331,6 +331,11 @@ class Parameters:
         self.average_charge = None
         self.average_mass = None
         self.hydrodynamic_frequency = None
+
+        self.particles_arrays_list = ['pos', 'vel', 'acc']
+        self.thermodynamics_list = ['total_energy', 'kinetic_energy', 'potential_energy', 'temperature'] # 'pressure', 'enthalpy'
+        self.observables_arrays_list = ['rdf_hist']
+        self.observables_list = ["Radial Distribution Function"]
 
         if dic:
             self.from_dict(dic)
@@ -446,9 +451,8 @@ class Parameters:
         e_species.relativistic_parameter = self.hbar * e_species.Fermi_wavenumber / (self.me * self.c0)
 
         # Eq. 1 in Murillo Phys Rev E 81 036403 (2010)
-        e_species.coupling = e_species.charge**2 / (
-            self.fourpie0 * e_species.Fermi_energy * e_species.a_ws * sqrt(1.0 + e_species.degeneracy_parameter**2)
-        )
+        e_species.coupling = e_species.charge**2 / (e_species.a_ws * self.fourpie0 * self.kB * e_species.temperature)
+        e_species.coupling *= 1.0/( 1 + (1.5 * e_species.degeneracy_parameter)**(-9/5))**(5/9)
 
         # Warm Dense Matter Parameter, Eq.3 in Murillo Phys Rev E 81 036403 (2010)
         e_species.wdm_parameter = 2.0 / (e_species.degeneracy_parameter + 1.0 / e_species.degeneracy_parameter)
@@ -549,7 +553,19 @@ class Parameters:
         """
         self.directory_tree = deepcopy(io.directory_tree)
         self.filenames_tree = deepcopy(io.filenames_tree)
-        self.thermodynamics_to_save = io.thermodynamics_to_save
+        self.h5md_filenames_tree = deepcopy(io.h5md_filenames_tree)
+        
+        # Process specific dictionaries
+        self.process_h5md_filepath_dict = deepcopy(io.process_h5md_filepath_dict)
+        self.process_directory_tree = deepcopy(io.process_directory_tree)
+
+        # if hasattr(io, "thermodynamics_list"): 
+        #     self.thermodynamics_list = io.thermodynamics_list
+        # if hasattr(io, "observables_list"):
+        #     self.observables_list = io.observables_list
+        # if hasattr(io, "particles_arrays_list"):
+        #     self.particles_arrays_list = io.particles_arrays_list
+
         self.verbose = io.verbose
         self.md_simulations_dir = io.md_simulations_dir
         self.job_dir = io.job_dir
@@ -561,9 +577,16 @@ class Parameters:
     def create_unit_dict(self):
         """Make a dictionary whose values are strings of the units. It is used in pretty_print methods."""
 
+        # Standard units
+        self.units_dict["temperature"] = "[K]"
+        self.units_dict["Hertz"] = "[1/s]"
+        self.units_dict["frequency"] = "[rad/s]"
+        self.units_dict["time"] = "[s]"
+        self.units_dict["electron volt"] = "[eV]"
+        
         if self.units == "cgs":
             self.units_dict["number density"] = "[N/cc]" if self.dimensions == 3 else "[N/cm^2]"
-            self.units_dict["weight"] = "[g]"
+            self.units_dict["mass"] = "[g]"
             self.units_dict["mass density"] = "[g/cc]" if self.dimensions == 3 else "[g/cm^2]"
             self.units_dict["charge"] = "[esu]"
             self.units_dict["energy"] = "[erg]"
@@ -571,9 +594,15 @@ class Parameters:
             self.units_dict["volume"] = "[cm^3]" if self.dimensions == 3 else "[cm^2]"
             self.units_dict["inverse length"] = "[1/cm]"
             self.units_dict["magnetic field strength"] = "[Gauss]"
+            self.units_dict["velocity"] = "[cm/s]"
+            self.units_dict["acceleration"] = "[cm/s^2]"
+            self.units_dict["force"] = "[dyne]"
+            self.units_dict["pressure"] = "[g/(cm s^2)]"  # barye
+            self.units_dict["viscosity"] = "[cm^2/s]" # Kinematic viscosity which is different from the dynamic viscosity
+            self.units_dict["enthalpy"] = "[erg]"
         else:
             self.units_dict["density"] = "[N/m^3]" if self.dimensions == 3 else "[N/m^2]"
-            self.units_dict["weight"] = "[kg]"
+            self.units_dict["mass"] = "[kg]"
             self.units_dict["mass density"] = "[kg/cc]" if self.dimensions == 3 else "[kg/m^2]"
             self.units_dict["charge"] = "[C]"
             self.units_dict["energy"] = "[J]"
@@ -581,12 +610,12 @@ class Parameters:
             self.units_dict["volume"] = "[m^3]" if self.dimensions == 3 else "[m^2]"
             self.units_dict["inverse length"] = "[1/m]"
             self.units_dict["magnetic field strength"] = "[Tesla]"
-
-        self.units_dict["temperature"] = "[K]"
-        self.units_dict["Hertz"] = "[1/s]"
-        self.units_dict["frequency"] = "[rad/s]"
-        self.units_dict["time"] = "[s]"
-        self.units_dict["electron volt"] = "[eV]"
+            self.units_dict["velocity"] = "[m/s]"
+            self.units_dict["acceleration"] = "[m/s^2]"
+            self.units_dict["force"] = "[N]"
+            self.units_dict["pressure"] = "[kg/(m s^2)]"  # barye
+            self.units_dict["viscosity"] = "[m^2/s]" # Kinematic viscosity which is different from the dynamic viscosity
+            self.units_dict["enthalpy"] = "[J]"
 
     def create_species_arrays(self, species: list):
         """
@@ -605,8 +634,8 @@ class Parameters:
         self.species_num = zeros(self.num_species, dtype=int64)
         self.species_num_dens = zeros(self.num_species)
         self.species_concentrations = zeros(self.num_species)
-        self.species_temperatures = zeros(self.num_species)
-        self.species_temperatures_eV = zeros(self.num_species)
+        self.species_temperature = zeros(self.num_species)
+        self.species_temperature_eV = zeros(self.num_species)
         self.species_masses = zeros(self.num_species)
         self.species_charges = zeros(self.num_species)
         self.species_plasma_frequencies = zeros(self.num_species)
@@ -630,8 +659,8 @@ class Parameters:
             self.species_num[i] = sp.num
             self.species_masses[i] = sp.mass
             self.species_num_dens[i] = sp.number_density
-            self.species_temperatures_eV[i] = sp.temperature_eV
-            self.species_temperatures[i] = sp.temperature
+            self.species_temperature_eV[i] = sp.temperature_eV
+            self.species_temperature[i] = sp.temperature
             self.species_charges[i] = sp.charge
             self.species_plasma_frequencies[i] = sp.plasma_frequency
             self.QFactor += sp.QFactor / self.fourpie0
@@ -648,9 +677,9 @@ class Parameters:
         self.total_plasma_frequency = sqrt(wp_tot_sq)
         self.total_debye_length = sqrt(lambda_D)
         # Transform the list of species names into an array
-        self.species_names = array(self.species_names)
+        self.species_names = array(self.species_names, dtype=object)
 
-        self.total_ion_temperature = (self.species_concentrations.transpose()) @ self.species_temperatures
+        self.total_ion_temperature = (self.species_concentrations.transpose()) @ self.species_temperature
         # Redundancy!!!
         self.T_desired = self.total_ion_temperature
 
@@ -727,9 +756,9 @@ class Parameters:
             phs_msg = (
                 f"\nRestart step: {restart_step}\n"
                 f"Total {phase} steps = {steps}\n"
-                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                f"Total {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {(steps * wp_dt):.2f} w_p = {(steps * wp_dt/(2.0 * pi)):.2f} plasma periods\n"
                 f"snapshot interval step = {dump_step}\n"
-                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                f"snapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4e} w_p = {dump_step * wp_dt/(2.0 * pi):.4e} plasma periods\n"
                 f"Total number of snapshots = {int(steps / dump_step)}"
             )
 
@@ -747,15 +776,18 @@ class Parameters:
                     phs_msg += (
                         f"\n{phase.capitalize()}:\n"
                         f"\tNo. of {phase} steps = {steps}\n"
-                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {int(steps * wp_dt/(2.0 * pi))} plasma periods\n"
+                        f"\tTotal {phase} time = {steps * self.dt:.4e} {self.units_dict['time']} ~ {(steps * wp_dt):.2f} w_p = {(steps * wp_dt/(2.0 * pi)):.2f} plasma periods\n"
                         f"\tsnapshot interval step = {dump_step}\n"
-                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt/(2.0 * pi):.4f} plasma periods\n"
+                        f"\tsnapshot interval time = {dump_step * self.dt:.4e} {self.units_dict['time']} = {dump_step * wp_dt:.4e} w_p = {dump_step * wp_dt/(2.0 * pi):.4e} plasma periods\n"
                         f"\tTotal number of snapshots = {int(steps / dump_step)}"
                     )
 
         phase_msg += phs_msg
         msg += phase_msg
-        print(msg)
+        if restart[-7:] == "restart":
+            print(phase_msg)
+        else:
+            print(msg)
 
     def set_species_attributes(self, species: list):
         """
@@ -767,6 +799,11 @@ class Parameters:
             List of :class:`sarkas.plasma.Species`.
 
         """
+
+        # DEV NOTE: This method could be defined in the Particles class, however, it is more convenient to have it here because it uses the correct unit system. 
+        # If I were to move it to the Particles class, I would need to pass the units as an argument. 
+        # TODO: It could be moved in the future. 
+
         # Loop over species and assign missing attributes
         # Collect species properties in single arrays
 
@@ -840,7 +877,15 @@ class Parameters:
         self.calc_parameters(species)
         self.calc_coupling_constant(species)
         self.calc_electron_properties(species)
+        # Check if a restart simulation
+        self.check_simulation_restart()
 
+    def check_simulation_restart(self):
+        """Check if the simulation is a restart simulation."""
+        if self.load_method[-7:] == "restart":
+            if self.load_method[:2] == "pr":
+                self.equilibration_phase = False
+    
     def sim_box_setup(self):
         """Calculate initial particle's and simulation's box parameters."""
         # Simulation Box Parameters

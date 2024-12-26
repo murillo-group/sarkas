@@ -13,7 +13,7 @@ Particles:
 Potential:
     type: Yukawa                            # potential type
     method: PP
-    rc: 6.0e-8  # 7.6838e-08                              # cm, cut-off radius
+    rc: 6.0e-8                              # cm, cut-off radius
     screening_length_type: thomas-fermi
     electron_temperature: 5.0e+03
 
@@ -22,7 +22,7 @@ Integrator:
     dt: 5.0e-17                             # sec
     thermostat_type: Berendsen                         # thermostat type
     thermalization_timestep: 300
-    berendsen_tau: 2.0
+    berendsen_tau: 539
 
 Parameters:
     rand_seed: 314159265
@@ -33,11 +33,16 @@ Parameters:
     production_steps: 10000                # number of timesteps after the equilibrium
     eq_dump_step: 10
     prod_dump_step: 10
+    # (OPTIONAL) This is a list of observable that you want to calculate during the simulation.
+    # observables_list: ["Electric Current", "Momentum", "Pressure Tensor", "Enthalpy", "Heat Flux", "Velocity Moments"]
+    # (OPTIONAL) The observables_group is a list of Particles attributes that will be saved during the simulation
+    # observables_array_list: ["species_electric_current", "species_momentum", "species_pressure", "species_pressure_tensor",  "species_enthalpy", "species_heat_flux", "species_velocity_moments"]   
+    # This is a list of thermodynamics that you want to calculate during the simulation.
+    # thermodynamics_list: ["total energy", "temperature", "kinetic energy", "potential energy","pressure" ]
 
 IO:
     verbose: yes
     job_dir: yocp_quickstart            # dir name to save data. The default is "Checkpoint"
-    data_to_save: ["id", "names", "pos", "vel", "acc", "rdf_hist"]
 
 Observables:
   - Thermodynamics:
